@@ -496,6 +496,36 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 
 .tab-btn{flex:1;padding:.6rem;border:none;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .18s}
 
+/* ルールブック 牌例 */
+
+.rbtile{width:34px;height:56px;border-radius:5px;
+
+background:linear-gradient(180deg,#ffffff 0%,#efe4ce 100%);border:1.5px solid #b89860;
+
+box-shadow:0 2px 6px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,1);
+
+display:flex;flex-direction:column;position:relative;overflow:hidden;flex-shrink:0}
+
+.rbtile .th{flex:1;display:flex;align-items:center;justify-content:center;
+
+border-bottom:1.5px solid #c8a870;background:rgba(255,255,255,0.5)}
+
+.rbtile .tb{flex:1;display:flex;align-items:center;justify-content:center;
+
+background:rgba(235,218,192,0.3)}
+
+.rbtile .th svg,.rbtile .tb svg{width:68%;height:68%;display:block;overflow:visible}
+
+.rbtile .rbtile-star{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+
+font-size:.55rem;color:#A07800;pointer-events:none;z-index:3;line-height:1}
+
+.rb-ex{display:flex;gap:4px;margin-top:.55rem;align-items:flex-end;flex-wrap:wrap}
+
+.rb-ex-sep{display:flex;align-items:center;justify-content:center;color:#8a7048;font-size:.85rem;
+
+font-weight:700;padding:0 2px;align-self:center}
+
 </style>
 
 </head>
@@ -788,35 +818,59 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 
 <div class="rb-section-title">― 役の種類 ―</div>
 
-<div class="rb-role">
+<div class="rb-role" style="flex-direction:column">
+
+<div style="display:flex;gap:.65rem;align-items:flex-start">
 
 <div><div class="rb-role-name">一色<span style="font-size:.65rem;color:#8a7048;margin-left:.3rem">イッシキ</span></div><div style="font-size:.7rem;color:#6a5830">1点</div></div>
 
-<div class="rb-role-desc">手牌6枚の<b style="color:#f0a050">下の数</b>を1種類にそろえる。上は何でもOK。<div class="rb-role-ex">例）下が全部❋（6）→ 上はバラバラでOK</div></div>
+<div class="rb-role-desc">手牌6枚の<b style="color:#f0a050">下の数</b>を1種類にそろえる。上は何でもOK。</div>
 
 </div>
 
-<div class="rb-role">
+<div id="rb-ex-isshiki"></div>
+
+</div>
+
+<div class="rb-role" style="flex-direction:column">
+
+<div style="display:flex;gap:.65rem;align-items:flex-start">
 
 <div><div class="rb-role-name">三連<span style="font-size:.65rem;color:#8a7048;margin-left:.3rem">サンレン</span></div><div style="font-size:.7rem;color:#6a5830">3点</div></div>
 
-<div class="rb-role-desc">「3枚セット」を2つ作る。セット＝<b style="color:#f0a050">下が同じ3枚</b>で<b style="color:#f06868">上が連番</b>。6と1はつながらない。<div class="rb-role-ex">例）上2,3,4／下✦✦✦ ＋ 上2,3,4／下❋❋❋</div></div>
+<div class="rb-role-desc">「3枚セット」を2つ作る。セット＝<b style="color:#f0a050">下が同じ3枚</b>で<b style="color:#f06868">上が連番</b>。6と1はつながらない。</div>
 
 </div>
 
-<div class="rb-role">
+<div id="rb-ex-sanren"></div>
+
+</div>
+
+<div class="rb-role" style="flex-direction:column">
+
+<div style="display:flex;gap:.65rem;align-items:flex-start">
 
 <div><div class="rb-role-name">六華<span style="font-size:.65rem;color:#8a7048;margin-left:.3rem">リッカ</span></div><div style="font-size:.7rem;color:#6a5830">6点</div></div>
 
-<div class="rb-role-desc">下が全部同じ＋上が1〜6の連番（順不同OK）。<div class="rb-role-ex">例）上1,2,3,4,5,6 ／ 下が全部✿（2）</div></div>
+<div class="rb-role-desc">下が全部同じ＋上が1〜6の連番（順不同OK）。</div>
 
 </div>
 
-<div class="rb-role" style="background:rgba(245,208,64,.05);border-radius:6px;padding:.5rem .4rem;margin-top:.35rem">
+<div id="rb-ex-rikka"></div>
+
+</div>
+
+<div class="rb-role" style="background:rgba(245,208,64,.05);border-radius:6px;padding:.5rem .4rem;margin-top:.35rem;flex-direction:column">
+
+<div style="display:flex;gap:.65rem;align-items:flex-start">
 
 <div><div style="font-size:1rem;color:#f5d040;font-weight:700">★輝き</div><div style="font-size:.7rem;color:#9a8838">ボーナス</div></div>
 
-<div class="rb-role-desc">上がり時、手牌の★（ゾロ目牌）の枚数×+1点ボーナス。<div class="rb-role-ex">例）★2枚 → +2点</div></div>
+<div class="rb-role-desc">上がり時、手牌の★（ゾロ目牌）の枚数×+1点ボーナス。</div>
+
+</div>
+
+<div id="rb-ex-star"></div>
 
 </div>
 
@@ -1628,7 +1682,51 @@ function closeSidebar(){document.getElementById('sidebar').style.display='none';
 
 // ============================================================
 
-function openRuleBook(){document.getElementById('rule-modal').classList.add('open');}
+function openRuleBook(){document.getElementById('rule-modal').classList.add('open');renderRulebookExamples();}
+
+function renderRulebookExamples(){
+
+function rbTile(top,bot){
+
+const star=(top===bot)?'<div class="rbtile-star">★</div>':'';
+
+return`<div class="rbtile"><div class="th">${SYM_SVG[top]}</div>${star}<div class="tb">${SYM_SVG[bot]}</div></div>`;
+
+}
+
+// 一色: 下がすべて3（緑）、上はバラバラ
+
+const isshiki=[[1,3],[4,3],[2,3],[6,3],[3,3],[5,3]];
+
+document.getElementById('rb-ex-isshiki').innerHTML=
+
+`<div class="rb-ex">${isshiki.map(([t,b])=>rbTile(t,b)).join('')}</div>`;
+
+// 三連: セット1＝上2,3,4/下1（赤）　セット2＝上3,4,5/下5（青）
+
+const san1=[[2,1],[3,1],[4,1]],san2=[[3,5],[4,5],[5,5]];
+
+document.getElementById('rb-ex-sanren').innerHTML=
+
+`<div class="rb-ex">${san1.map(([t,b])=>rbTile(t,b)).join('')}<div class="rb-ex-sep">＋</div>${san2.map(([t,b])=>rbTile(t,b)).join('')}</div>`;
+
+// 六華: 下がすべて4（青緑）、上が1〜6
+
+const rikka=[[1,4],[2,4],[3,4],[4,4],[5,4],[6,4]];
+
+document.getElementById('rb-ex-rikka').innerHTML=
+
+`<div class="rb-ex">${rikka.map(([t,b])=>rbTile(t,b)).join('')}</div>`;
+
+// 輝きボーナス: ゾロ目牌の例2枚
+
+const stars=[[2,2],[5,5]];
+
+document.getElementById('rb-ex-star').innerHTML=
+
+`<div class="rb-ex">${stars.map(([t,b])=>rbTile(t,b)).join('')}<span style="font-size:.78rem;color:#9a8838;align-self:center;margin-left:.4rem">← ★ゾロ目牌 ＝ +2点ボーナス</span></div>`;
+
+}
 
 function closeRuleBook(){document.getElementById('rule-modal').classList.remove('open');}
 
