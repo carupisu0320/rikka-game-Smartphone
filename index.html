@@ -1393,10 +1393,9 @@ document.getElementById('scoreboard').innerHTML=G.players.map((p,i)=>{
 
 const act=i===G.turn,cls=act?(p.isBot?'active-bot':'active-human'):'';
 
-const av=(i===myOnlineIdx&&gUser.avatar)?`<img class="spill-avatar" src="${gUser.avatar}" alt="">`:'';
-
-return`<div class="spill ${cls}">${av}<span class="sn">${esc(p.name)}</span><span class="sv">${p.score}</span></div>`;
-
+const av=i===myOnlineIdx?(customAvatarUrl||gUser.avatar||''):'';
+const avatarHtml=av?`<img class="spill-avatar" src="${av}" alt="">`:'';
+return`<div class="spill ${cls}">${avatarHtml}<span class="sn">${esc(p.name)}</span><span class="sv">${p.score}</span></div>`;
 }).join('');
 
 }
