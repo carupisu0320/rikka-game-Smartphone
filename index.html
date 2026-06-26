@@ -800,7 +800,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 </div>
 
 <!-- ── 上下反転ポップアップ ── -->
-
+<button id="menu-btn" onclick="openSidebar()">☰</button>
 <div id="flip-popup">
 
 <button class="flip-popup-btn" onclick="doFlipSelected()">↕ 上下反転</button>
@@ -1050,11 +1050,11 @@ document.getElementById('google-avatar-img').style.display='none';
 document.getElementById('google-display-name').textContent=displayName;
 
 document.getElementById('google-display-email').textContent=gUser.email;
-
+localStorage.setItem('rikka_guser', JSON.stringify({id:gUser.id,name:gUser.name,avatar:gUser.avatar,email:gUser.email}));
 }
 
 function googleLogout(){
-
+localStorage.removeItem('rikka_guser');
 gUser={id:'',name:'',avatar:'',email:''};
 
 document.getElementById('google-login-area').style.display='';
@@ -1817,7 +1817,31 @@ document.addEventListener('keydown',e=>{if(e.code==='Space'||e.key===' '){e.prev
 // スクロール時にポップアップ再計算
 
 document.getElementById('hand-tiles').addEventListener('scroll',()=>{if(G&&G.selIdx!==-1)requestAnimationFrame(updateFlipPopup);},{passive:true});
-
+// 自動ログイン復元
+(function(){
+  customAvatarUrl = localStorage.getItem('rikka_avatar') || '';
+  const stored = localStorage.getItem('rikka_guser');
+  if (!stored) return;
+  try {
+    const u = JSON.parse(stored);
+    gUser = {id:u.id||'', name:u.name||'', avatar:u.avatar||'', email:u.email||''};
+    const savedName = localStorage.getItem('rikka_name_' + gUser.id) || gUser.name;
+    document.getElementById('pname').value = savedName;
+    document.getElementById('google-login-area').style.display = 'none';
+    document.getElementById('google-user-info').style.display = 'flex';
+    const av = customAvatarUrl || gUser.avatar || '';
+    if(av){
+      document.getElementById('google-avatar-img').src = av;
+      document.getElementById('google-avatar-img').style.display = '';
+      document.getElementById('google-avatar-init').style.display = 'none';
+    } else {
+      document.getElementById('google-avatar-init').textContent = savedName[0] || '?';
+      document.getElementById('google-avatar-init').style.display = 'flex';
+    }
+    document.getElementById('google-display-name').textContent = savedName;
+    document.getElementById('google-display-email').textContent = gUser.email;
+  } catch(e) { localStorage.removeItem('rikka_guser'); }
+})();
 </script>
 
 </body>
