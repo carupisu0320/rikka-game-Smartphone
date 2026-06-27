@@ -1,0 +1,15 @@
+{
+  "name": "六華（リッカ）",
+  "short_name": "六華",
+  "start_url": "/rikka-game-Smartphone/",
+  "display": "fullscreen",
+  "background_color": "#0d0a08",
+  "theme_color": "#0d0a08",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/carupisu0320/rikka-game-Smartphone/main/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
