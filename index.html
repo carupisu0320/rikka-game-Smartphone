@@ -1016,6 +1016,8 @@ const BNAMES=['AIさくら','AIあおい','AIひなた','AIつばき'];
 const WIN_SCORE=10;
 
 const SERVER_URL='https://rikka-game.onrender.com';
+  // ページ読み込み時にサーバーをウォームアップ
+fetch(SERVER_URL).catch(()=>{});
 
 // ============================================================
 
@@ -1132,12 +1134,15 @@ if(socket&&socket.connected)return;
 if(socket){socket.disconnect();socket=null;}
 
 setOnlineStatus('サーバーに接続中...','#8a7048');
+const _wakeTimer = setTimeout(()=>{
+  setOnlineStatus('⏳ サーバー起動中です。初回は30〜60秒かかる場合があります...','#c9a84c');
+}, 5000);
 
 try{socket=io(SERVER_URL,{transports:['websocket','polling']});}
 
 catch(e){setOnlineStatus('Socket.IOの読み込みに失敗しました','#f07050');return;}
 
-socket.on('connect',()=>setOnlineStatus('',''));
+socket.on('connect',()=>{ clearTimeout(_wakeTimer); setOnlineStatus('',''); });
 
 socket.on('connect_error',()=>setOnlineStatus('サーバーに接続できません','#f07050'));
 
