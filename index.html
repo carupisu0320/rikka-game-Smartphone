@@ -1015,7 +1015,8 @@ const BNAMES=['AIさくら','AIあおい','AIひなた','AIつばき'];
 
 const WIN_SCORE=10;
 
-const SERVER_URL='https://rikka-game.onrender.com';
+const SERVER_URL = 'https://rikka-game.onrender.com';
+fetch(SERVER_URL).catch(()=>{});
   // ページ読み込み時にサーバーをウォームアップ
 fetch(SERVER_URL).catch(()=>{});
 
