@@ -739,6 +739,26 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 <div class="rules-card">
 
 <div class="rules-title">— 役の種類（10点先取で勝利）—</div>
+<div class="rrow">
+  <span class="rname">三対</span>
+  <span class="rdesc">6枚を<b style="color:#f0a050">同じ牌のペア×3組</b>にする</span>
+  <span class="rpts">2点</span>
+</div>
+<div class="rrow">
+  <span class="rname">三色</span>
+  <span class="rdesc">全牌の上下の数を<b style="color:#f0a050">3種類のみ</b>にする</span>
+  <span class="rpts">3点</span>
+</div>
+<div class="rrow">
+  <span class="rname">輝光</span>
+  <span class="rdesc">6枚すべてを<b style="color:#f5d040">★ゾロ目牌</b>にする（ボーナスなし）</span>
+  <span class="rpts">5点</span>
+</div>
+<div class="rrow">
+  <span class="rname">無双</span>
+  <span class="rdesc"><b style="color:#f5d040">★ゾロ目牌</b>を<b style="color:#f0a050">6種類すべて</b>集める</span>
+  <span class="rpts">3+★点</span>
+</div>
 
 <div class="rrow"><span class="rname">一色</span><span class="rdesc">6枚の<b style="color:#f0a050">下の数</b>をすべて同じに</span><span class="rpts">1点</span></div>
 
@@ -1352,19 +1372,17 @@ function eTop(t){return t.flip?t.bot:t.top;}
 function eBot(t){return t.flip?t.top:t.bot;}
 
 function checkWin(hand){
-
-if(hand.length!==6)return null;
-
-const tops=hand.map(eTop),bots=hand.map(eBot),allBot=bots.every(v=>v===bots[0]);
-
-if(allBot){const st=[...tops].sort((a,b)=>a-b);if(st.join(',')=== '1,2,3,4,5,6')return{role:'六華',pts:6};}
-
-if(isSanren(hand))return{role:'三連',pts:3};
-
-if(allBot)return{role:'一色',pts:1};
-
-return null;
-
+  if(hand.length!==6)return null;
+  const tops=hand.map(eTop),bots=hand.map(eBot);
+  const allBotSame=bots.every(v=>v===bots[0]);
+  if(isMusou(hand))return{role:'無双',pts:3};
+  if(allBotSame){const st=[...tops].sort((a,b)=>a-b);if(st.join(',')==='1,2,3,4,5,6')return{role:'六華',pts:6};}
+  if(isKikou(hand))return{role:'輝光',pts:5,noBonus:true};
+  if(isSanren(hand))return{role:'三連',pts:3};
+  if(isSanshiki(hand))return{role:'三色',pts:3};
+  if(isSantui(hand))return{role:'三対',pts:2};
+  if(allBotSame)return{role:'一色',pts:1};
+  return null;
 }
 
 function isSanren(hand){for(let mask=0;mask<(1<<6);mask++){if(popcount(mask)!==3)continue;const g1=[],g2=[];for(let i=0;i<6;i++)(mask&(1<<i)?g1:g2).push(hand[i]);if(isSet3(g1)&&isSet3(g2))return true;}return false;}
@@ -1492,7 +1510,10 @@ document.getElementById('btn-win').disabled=!winRes;
 
 const hh=document.getElementById('hand-hint');
 
-if(winRes){const bonus=countZorome(p.hand),bonusTxt=bonus>0?` ＋★×${bonus}`:'';hh.textContent=`★ ${winRes.role}（${winRes.pts}点${bonusTxt}）上がれます！`;hh.className='can-win';}
+if (winRes) {
+    const bonus = winRes.noBonus ? 0 : countZorome(p.hand);
+    const bonusTxt = bonus > 0 ? ` ＋★×${bonus}` : '';
+    hh.textContent=`★ ${winRes.role}（${winRes.pts}点${bonusTxt}）上がれます！`;hh.className='can-win';}
 
 else if(p.hand.length<6){hh.textContent=`手牌 ${p.hand.length}枚 — 場から引いてください`;hh.className='';}
 
@@ -1627,7 +1648,9 @@ function scoreBots(hand){const bots=hand.map(eBot),freq={};bots.forEach(v=>freq[
 // ============================================================
 
 function processWin(pi,res){
-  G.phase='roundEnd';const bonus=countZorome(G.players[pi].hand);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
+  G.phase='roundEnd';
+  const bonus=res.noBonus?0:countZorome(G.players[pi].hand);
+  res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
   saveHistory(makeHistoryEntry(pi===myOnlineIdx,res.role,res.pts+bonus,onlineMode,G.players.map(p=>p.name)));
   showWinModal(G.players[pi],res);
 }
