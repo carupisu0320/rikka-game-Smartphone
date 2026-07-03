@@ -1072,8 +1072,6 @@ const WIN_SCORE=10;
 const SERVER_URL = 'https://rikka-game.onrender.com';
 fetch(SERVER_URL).catch(()=>{});
   // ページ読み込み時にサーバーをウォームアップ
-fetch(SERVER_URL).catch(()=>{});
-
 // ============================================================
 
 // Google認証
@@ -1654,7 +1652,8 @@ function doWin(){if(G.tphase!=='discard'||G.turn!==myOnlineIdx)return;const p=G.
                  const optR = onlineMode ? (G?.optRoles ?? null) : getOptRoles('bot-opt-');
 const res = checkWin(p.hand, optR);
 if (!res) { toast('まだ役が揃っていません'); return; }
-// ターン・ボット
+if(onlineMode){socket?.emit('win',{code:currentCode});return;}
+processWin(myOnlineIdx,res);}// ターン・ボット
 
 // ============================================================
 
@@ -1688,6 +1687,14 @@ function evalHand(hand, optR) {
   if (hand.length === 6) {
     const w = checkWin(hand, optR); if (w) return w.pts * 100;
   }
+  let best = 0;
+  const n = hand.length, lim = Math.min(1 << n, 64);
+  for (let m = 0; m < lim; m++) {
+    const h = hand.map((t,i) => ({...t, flip:!!(m&(1<<i))}));
+    best = Math.max(best, scoreBots(h));
+  }
+  return best;
+}
 function scoreBots(hand){const bots=hand.map(eBot),freq={};bots.forEach(v=>freq[v]=(freq[v]||0)+1);const maxFreq=Math.max(...Object.values(freq));const tops=hand.map(eTop),tf={};tops.forEach(v=>tf[v]=(tf[v]||0)+1);const ks=Object.keys(tf).map(Number).sort((a,b)=>a-b);let cp=0;for(let i=0;i<ks.length-1;i++)if(ks[i+1]===ks[i]+1)cp++;return maxFreq*25+cp*12;}
 
 // ============================================================
@@ -1757,15 +1764,14 @@ function renderSidebarStats(){
   const wins=filtered.filter(r=>r.won).length;
   const total=filtered.length;
   const rate=total>0?Math.round(wins/total*100):0;
-  const roles={'六華':0,'三連':0,'一色':0};
-  filtered.filter(r=>r.won&&r.role).forEach(r=>{if(roles[r.role]!==undefined)roles[r.role]++;});
+  const roles={'無双':0,'六華':0,'輝光':0,'三連':0,'三色':0,'三対':0,'一色':0};  filtered.filter(r=>r.won&&r.role).forEach(r=>{if(roles[r.role]!==undefined)roles[r.role]++;});
   document.getElementById('stats-content').innerHTML=`
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-card-title">対戦数</div><div class="stat-card-val">${total}</div></div>
       <div class="stat-card"><div class="stat-card-title">勝利数</div><div class="stat-card-val">${wins}</div></div>
       <div class="stat-card"><div class="stat-card-title">勝率</div><div class="stat-card-val">${rate}%</div></div>
       <div class="stat-card"><div class="stat-card-title">役内訳(勝)</div>
-        <div style="font-size:.66rem;color:#8a7048;margin-top:.2rem">六華${roles['六華']} / 三連${roles['三連']} / 一色${roles['一色']}</div>
+        <div style="font-size:.66rem;color:#8a7048;margin-top:.2rem">無双${roles['無双']} / 六華${roles['六華']} / 輝光${roles['輝光']} / 三連${roles['三連']} / 三色${roles['三色']} / 三対${roles['三対']} / 一色${roles['一色']}</div>
       </div>
     </div>`;
   const el=document.getElementById('history-list-sb');
