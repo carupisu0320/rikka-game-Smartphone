@@ -1655,7 +1655,8 @@ function doWin(){if(G.tphase!=='discard'||G.turn!==myOnlineIdx)return;const p=G.
 const res = checkWin(p.hand, optR);
 if (!res) { toast('まだ役が揃っていません'); return; }
 if(onlineMode){socket?.emit('win',{code:currentCode});return;}
-processWin(myOnlineIdx,res);}// ターン・ボット
+processWin(myOnlineIdx,res);}
+// ターン・ボット
 
 // ============================================================
 
