@@ -504,6 +504,14 @@ body.back-green .fback::after{color:rgba(80,200,100,.25)}
 body.back-purple .fback{background:linear-gradient(165deg,#1a0a2e 0%,#0a0416 100%);border-color:#5a2a8a}
 body.back-purple .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(160,80,255,.07) 4px,rgba(160,80,255,.07) 5px)}
 body.back-purple .fback::after{color:rgba(160,80,255,.25)}
+/* ── アシスト ── */
+.fback.assist-best{border-color:#30e890!important;
+  box-shadow:0 0 18px rgba(48,232,144,.8),0 0 6px rgba(48,232,144,.4)!important;
+  animation:assistPulse 1.2s infinite}
+.htile.assist-discard{border-color:#e03030!important;
+  box-shadow:0 0 18px rgba(224,48,48,.8),0 0 6px rgba(224,48,48,.4)!important;
+  animation:assistPulse 1.2s infinite}
+@keyframes assistPulse{0%,100%{opacity:1}50%{opacity:.65}}
   /* scrollbar */
 
 ::-webkit-scrollbar{width:3px;height:3px}
@@ -1033,6 +1041,21 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     </div>
   </div>
   <div class="sb-section">
+    <div class="sb-section">
+    <div class="sb-section-title">― アシスト ―</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+      <span style="font-size:.82rem;color:#c8b898">アシスト機能</span>
+      <button id="assist-toggle-btn" onclick="toggleAssist()"
+        style="padding:.28rem .75rem;border-radius:6px;border:1px solid #3e2e1e;
+               background:#2a1e14;color:#8a7048;font-family:inherit;font-size:.82rem;cursor:pointer">
+        OFF
+      </button>
+    </div>
+    <div style="font-size:.7rem;color:#5a4820;line-height:1.55">
+      🟢 取るべき牌を緑で光らせます<br>
+      🔴 捨てるべき牌を赤で光らせます
+    </div>
+  </div>
     <div class="sb-section-title">― 戦績 ―</div>
     <div style="display:flex;gap:.4rem;margin-bottom:.6rem">
       <button id="stats-tab-bot" onclick="switchStatsTab('bot')"
@@ -1522,8 +1545,29 @@ if(normalTiles.length>0){
 
 const label=document.createElement('div');label.className='fsec';label.textContent='🀄 場の牌（好きな1枚を選ぼう）';grid.appendChild(label);
 
-normalTiles.forEach(t=>{const fi=G.field.indexOf(t),div=document.createElement('div');div.className=canPick?'fback fback-pickable':'fback';div.style.cursor=canPick?'pointer':'default';if(!canPick)div.style.opacity='0.8';if(canPick)div.addEventListener('click',()=>pickField(fi));grid.appendChild(div);});
-
+// アシスト: 最善の場の牌を計算
+  let bestFieldTile = null;
+  if(assistMode && canPick){
+    const p = G.players[myOnlineIdx];
+    const optR = onlineMode ? (G?.optRoles ?? null) : getOptRoles('bot-opt-');
+    let bestScore = -Infinity;
+    normalTiles.forEach(t => {
+      const score = evalHand([...p.hand, t], optR);
+      if(score > bestScore){ bestScore = score; bestFieldTile = t; }
+    });
+  }
+  normalTiles.forEach(t => {
+    const fi  = G.field.indexOf(t);
+    const div = document.createElement('div');
+    div.className = canPick ? 'fback fback-pickable' : 'fback';
+    div.style.cursor = canPick ? 'pointer' : 'default';
+    if (!canPick) div.style.opacity = '0.8';
+    if (assistMode && canPick && t === bestFieldTile) div.classList.add('assist-best');
+    if (canPick) {
+      div.addEventListener('click', () => pickField(fi));
+    }
+    grid.appendChild(div);
+  });
 }
 
 if(discardTiles.length>0){
@@ -1542,8 +1586,13 @@ function renderHand(){
 
 const p=G.players[myOnlineIdx];
 
-document.getElementById('hand-tiles').innerHTML=p.hand.map((t,i)=>{if(t.hidden)return'';const sel=i===G.selIdx?' selected':'';return tileHTML(t,`onclick="clickHand(${i})" oncontextmenu="flipHand(event,${i})"`,`tile htile${sel}`);}).join('');
-
+document.getElementById('hand-tiles').innerHTML =
+    p.hand.map((t,i) => {
+      if (t.hidden) return '';
+      const sel = i === G.selIdx ? ' selected' : '';
+      const assistCls = (assistMode && isDiscard && i === assistDiscardIdx) ? ' assist-discard' : '';
+      return tileHTML(t, `onclick="clickHand(${i})" oncontextmenu="flipHand(event,${i})"`, `tile htile${sel}${assistCls}`);
+    }).join('');
 const isMyTurn=G.turn===myOnlineIdx,isDiscard=isMyTurn&&G.tphase==='discard',hasSel=G.selIdx!==-1,has6=p.hand.length===6;
 
 const optR = onlineMode ? (G?.optRoles ?? null) : getOptRoles('bot-opt-');
@@ -1564,6 +1613,18 @@ else if(p.hand.length<6){hh.textContent=`手牌 ${p.hand.length}枚 — 場か�
 
 else{hh.textContent=`手牌 ${p.hand.length}枚 — 捨てるか役を揃えて上がろう`;hh.className='';}
 
+// アシスト: 捨てるべき牌を赤く光らせる
+if(assistMode && isDiscard && has6 && !winRes){
+  let bestScore=-Infinity, assistDiscardIdx=-1;
+  p.hand.forEach((_,i)=>{
+    const score=evalHand(p.hand.filter((_,j)=>j!==i),optR);
+    if(score>bestScore){bestScore=score;assistDiscardIdx=i;}
+  });
+  if(assistDiscardIdx!==-1){
+    const tiles=document.getElementById('hand-tiles').querySelectorAll('.htile');
+    if(tiles[assistDiscardIdx])tiles[assistDiscardIdx].classList.add('assist-discard');
+  }
+}
 }
 
 function renderStatus(){
@@ -1851,6 +1912,20 @@ function setBackTheme(theme){
     .replace(/\bback-\w+/g,'').trim();
   if(theme) document.body.classList.add('back-'+theme);
   localStorage.setItem('rikka_back_theme', theme);
+}
+let assistMode = false;
+function toggleAssist(){
+  assistMode = !assistMode;
+  const btn = document.getElementById('assist-toggle-btn');
+  if(btn){
+    btn.textContent = assistMode ? 'ON' : 'OFF';
+    btn.style.background = assistMode ? 'linear-gradient(135deg,#2a9e6e,#1a6e40)' : '#2a1e14';
+    btn.style.color = assistMode ? '#e0fff8' : '#8a7048';
+    btn.style.borderColor = assistMode ? '#2a9e6e' : '#3e2e1e';
+  }
+  if(G && G.phase==='playing') render();
+  closeSidebar();
+  toast(assistMode ? '✅ アシストON' : 'アシストOFF');
 }
 function openSidebar(){
   document.getElementById('sidebar').style.display='block';
