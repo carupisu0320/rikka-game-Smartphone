@@ -1548,13 +1548,15 @@ const label=document.createElement('div');label.className='fsec';label.textConte
 // アシスト: 最善の場の牌を計算
   let bestFieldTile = null;
   if(assistMode && canPick){
-    const p = G.players[myOnlineIdx];
-    const optR = onlineMode ? (G?.optRoles ?? null) : getOptRoles('bot-opt-');
-    let bestScore = -Infinity;
-    normalTiles.forEach(t => {
-      const score = evalHand([...p.hand, t], optR);
-      if(score > bestScore){ bestScore = score; bestFieldTile = t; }
-    });
+    try{
+      const p = G.players[myOnlineIdx];
+      const optR = onlineMode ? (G?.optRoles ?? null) : getOptRoles('bot-opt-');
+      let bestScore = -Infinity;
+      normalTiles.forEach(t => {
+        const score = evalHand([...p.hand, t], optR);
+        if(score > bestScore){ bestScore = score; bestFieldTile = t; }
+      });
+    }catch(e){bestFieldTile=null;}
   }
   normalTiles.forEach(t => {
     const fi  = G.field.indexOf(t);
@@ -1590,8 +1592,7 @@ document.getElementById('hand-tiles').innerHTML =
     p.hand.map((t,i) => {
       if (t.hidden) return '';
       const sel = i === G.selIdx ? ' selected' : '';
-      const assistCls = (assistMode && isDiscard && i === assistDiscardIdx) ? ' assist-discard' : '';
-      return tileHTML(t, `onclick="clickHand(${i})" oncontextmenu="flipHand(event,${i})"`, `tile htile${sel}${assistCls}`);
+      return tileHTML(t, `onclick="clickHand(${i})" oncontextmenu="flipHand(event,${i})"`, `tile htile${sel}`);
     }).join('');
 const isMyTurn=G.turn===myOnlineIdx,isDiscard=isMyTurn&&G.tphase==='discard',hasSel=G.selIdx!==-1,has6=p.hand.length===6;
 
@@ -1615,15 +1616,17 @@ else{hh.textContent=`手牌 ${p.hand.length}枚 — 捨てるか役を揃えて�
 
 // アシスト: 捨てるべき牌を赤く光らせる
 if(assistMode && isDiscard && has6 && !winRes){
-  let bestScore=-Infinity, assistDiscardIdx=-1;
-  p.hand.forEach((_,i)=>{
-    const score=evalHand(p.hand.filter((_,j)=>j!==i),optR);
-    if(score>bestScore){bestScore=score;assistDiscardIdx=i;}
-  });
-  if(assistDiscardIdx!==-1){
-    const tiles=document.getElementById('hand-tiles').querySelectorAll('.htile');
-    if(tiles[assistDiscardIdx])tiles[assistDiscardIdx].classList.add('assist-discard');
-  }
+  try{
+    let bestScore=-Infinity, assistDiscardIdx=-1;
+    p.hand.forEach((_,i)=>{
+      const score=evalHand(p.hand.filter((_,j)=>j!==i),optR);
+      if(score>bestScore){bestScore=score;assistDiscardIdx=i;}
+    });
+    if(assistDiscardIdx!==-1){
+      const tiles=document.getElementById('hand-tiles').querySelectorAll('.htile');
+      if(tiles[assistDiscardIdx])tiles[assistDiscardIdx].classList.add('assist-discard');
+    }
+  }catch(e){}
 }
 }
 
