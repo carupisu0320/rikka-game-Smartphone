@@ -1595,7 +1595,6 @@ document.getElementById('hand-tiles').innerHTML =
       return tileHTML(t, `onclick="clickHand(${i})" oncontextmenu="flipHand(event,${i})"`, `tile htile${sel}`);
     }).join('');
 const isMyTurn=G.turn===myOnlineIdx,isDiscard=isMyTurn&&G.tphase==='discard',hasSel=G.selIdx!==-1,has6=p.hand.length===6;
-
 const optR = onlineMode ? (G?.optRoles ?? null) : getOptRoles('bot-opt-');
 const winRes = (isDiscard && has6) ? checkWin(p.hand, optR) : null;
 
