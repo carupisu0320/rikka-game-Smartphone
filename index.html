@@ -1745,9 +1745,9 @@ if(G.phase!=='playing')return;const bot=G.players[G.turn];if(!bot?.isBot)return;
 
 if(G.tphase==='pick'){if(G.field.length===0){nextTurn();return;}
 
-let fi;if(bot.diff==='easy'){fi=Math.floor(Math.random()*G.field.length);}
-
-else{let best=-Infinity;fi=0;G.field.forEach((t,i)=>{const s = evalHand([...bot.hand, t], G?.optRoles ?? null);if(s>best){best=s;fi=i;}});}
+if(bot.diff==='easy'){fi=Math.floor(Math.random()*G.field.length);}
+    else if(bot.diff==='normal'){let best=-Infinity;fi=0;G.field.forEach((t,i)=>{const s=evalHandNormal([...bot.hand,t]);if(s>best){best=s;fi=i;}});}
+    else{let best=-Infinity;fi=0;G.field.forEach((t,i)=>{const s=evalHand([...bot.hand,t],G?.optRoles??null);if(s>best){best=s;fi=i;}});}
 
 bot.hand.push(G.field.splice(fi,1)[0]);G.tphase='discard';render();
 
@@ -1755,12 +1755,26 @@ const optR = G?.optRoles ?? null;
 const wr = checkWin(bot.hand, optR);
 if (wr) { setTimeout(() => processWin(G.turn, wr), d); return; }
 
-setTimeout(()=>{if(G.phase!=='playing')return;const di=bot.diff==='easy'?Math.floor(Math.random()*bot.hand.length):botBestDiscard(bot.hand);const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();setTimeout(nextTurn,200);},d);}
+setTimeout(()=>{if(G.phase!=='playing')return;
+const di=bot.diff==='easy'?Math.floor(Math.random()*bot.hand.length):bot.diff==='normal'?botNormalDiscard(bot.hand):botBestDiscard(bot.hand);const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();setTimeout(nextTurn,200);},d);}
 
 }
 
 function botBestDiscard(hand){let best=-Infinity,bi=0;hand.forEach((_,i)=>{const s = evalHand(hand.filter((_,j)=>j!==i), G?.optRoles ?? null);if(s>best){best=s;bi=i;}});return bi;}
-
+function evalHandNormal(hand){
+  // 一色に向かう評価（下の数が最も多い値に揃える）
+  const freq={};
+  hand.forEach(t=>{const b=eBot(t);freq[b]=(freq[b]||0)+1;});
+  return Math.max(...Object.values(freq));
+}
+function botNormalDiscard(hand){
+  let best=-Infinity,bi=0;
+  hand.forEach((_,i)=>{
+    const s=evalHandNormal(hand.filter((_,j)=>j!==i));
+    if(s>best){best=s;bi=i;}
+  });
+  return bi;
+}
 function evalHand(hand, optR) {
   if (hand.length === 6) {
     const w = checkWin(hand, optR); if (w) return w.pts * 100;
