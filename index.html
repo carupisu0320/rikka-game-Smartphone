@@ -1452,7 +1452,21 @@ function isSanren(hand){for(let mask=0;mask<(1<<6);mask++){if(popcount(mask)!==3
 function isSet3(g){if(g.length!==3)return false;const b=g.map(eBot);if(!b.every(v=>v===b[0]))return false;const t=g.map(eTop).sort((a,b)=>a-b);return t[1]===t[0]+1&&t[2]===t[1]+1;}
 
 function popcount(n){let c=0;while(n){c+=n&1;n>>=1;}return c;}
-
+function isMusou(hand){
+  if(!hand.every(t=>eTop(t)===eBot(t)))return false;
+  return new Set(hand.map(t=>eTop(t))).size===6;
+}
+function isKikou(hand){return hand.every(t=>eTop(t)===eBot(t));}
+function isSanshiki(hand){
+  const v=new Set();
+  hand.forEach(t=>{v.add(eTop(t));v.add(eBot(t));});
+  return v.size===3;
+}
+function isSantui(hand){
+  const f={};
+  hand.forEach(t=>{const k=`${eTop(t)},${eBot(t)}`;f[k]=(f[k]||0)+1;});
+  return Object.values(f).every(v=>v%2===0);
+}
 function countZorome(hand){return hand.filter(t=>t.top===t.bot).length;}
 function getOptRoles(prefix){
   return['三対','三色','輝光','無双'].filter(r=>{
