@@ -1868,6 +1868,7 @@ function showGameOver(){const winner=G.players.reduce((a,b)=>a.score>b.score?a:b
 function doNextRound(){document.getElementById('modal').classList.remove('open');dealRound();render();if(G.players[G.turn].isBot)scheduleBot();}
 
 function goLobby(){
+  document.getElementById('modal').classList.remove('open');
   document.getElementById('chat-toggle').style.display='none';
   document.getElementById('chat-wrap').style.display='none';
   chatOpen=false;
