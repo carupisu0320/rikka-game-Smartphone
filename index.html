@@ -1563,16 +1563,14 @@ if(G.players[G.turn].isBot)scheduleBot();
 
 }
 
-function dealRound(){const deck=makeDeck();let idx=0;G.players.forEach(p=>{p.hand=deck.slice(idx,idx+5);idx+=5;});G.field=deck.slice(idx);G.turn=0;G.tphase='pick';G.selIdx=-1;G.phase='playing';}
-
+function dealRound(){const deck=makeDeck();let idx=0;G.players.forEach(p=>{p.hand=deck.slice(idx,idx+5);idx+=5;});G.field=deck.slice(idx);G.turn=0;G.tphase='pick';G.selIdx=-1;G.phase='playing';setTimeout(animateFieldTiles,50);}
 // ============================================================
 
 // 描画
 
 // ============================================================
 
-function render(){renderHeader();renderOpponents();renderField();renderHand();renderStatus();requestAnimationFrame(updateFlipPopup);updateTurnGlow();animateFieldTiles();}
-function renderHeader(){
+function render(){renderHeader();renderOpponents();renderField();renderHand();renderStatus();requestAnimationFrame(updateFlipPopup);updateTurnGlow();}function renderHeader(){
 
 document.getElementById('scoreboard').innerHTML=G.players.map((p,i)=>{
 
