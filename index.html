@@ -1870,7 +1870,13 @@ function doNextRound(){document.getElementById('modal').classList.remove('open')
 function goLobby(){
   document.getElementById('chat-toggle').style.display='none';
   document.getElementById('chat-wrap').style.display='none';
-  chatOpen=false;}
+  chatOpen=false;
+  onlineMode=false;
+  socket?.disconnect();
+  socket=null;
+  G=null;
+  showScreen('lobby');
+}
 
 // ============================================================
 
