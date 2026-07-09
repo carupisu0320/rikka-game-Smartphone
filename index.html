@@ -1827,7 +1827,7 @@ if(G.tphase==='pick'){if(G.field.length===0){nextTurn();return;}
 
 if(bot.diff==='easy'){fi=Math.floor(Math.random()*G.field.length);}
     else if(bot.diff==='normal'){let best=-Infinity;fi=0;G.field.forEach((t,i)=>{const s=evalHandNormal([...bot.hand,t]);if(s>best){best=s;fi=i;}});}
-    else{let best=-Infinity;fi=0;G.field.forEach((t,i)=>{const s=evalHand([...bot.hand,t],G?.optRoles??null);if(s>best){best=s;fi=i;}});}
+    else{fi=botHardPickRikka(bot.hand,G.field);}
 
 bot.hand.push(G.field.splice(fi,1)[0]);G.tphase='discard';render();
 
@@ -1836,7 +1836,7 @@ const wr = checkWin(bot.hand, optR);
 if (wr) { setTimeout(() => processWin(G.turn, wr), d); return; }
 
 setTimeout(()=>{if(G.phase!=='playing')return;
-const di=bot.diff==='easy'?Math.floor(Math.random()*bot.hand.length):bot.diff==='normal'?botNormalDiscard(bot.hand):botBestDiscard(bot.hand);const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();setTimeout(nextTurn,200);},d);}
+const di=bot.diff==='easy'?Math.floor(Math.random()*bot.hand.length):bot.diff==='normal'?botNormalDiscard(bot.hand):botHardDiscardRikka(bot.hand);const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();setTimeout(nextTurn,200);},d);}
 
 }
 
@@ -1854,6 +1854,53 @@ function botNormalDiscard(hand){
     if(s>best){best=s;bi=i;}
   });
   return bi;
+}
+// 強いボット: 六華特化AI（全牌の値が見える）
+function botHardTargetBot(hand){
+  // 各底値で達成できるユニークな上値の数を計算（反転考慮）
+  let bestBot=1, bestCount=0;
+  for(let b=1;b<=6;b++){
+    const tops=new Set();
+    hand.forEach(t=>{
+      if(t.bot===b)tops.add(t.top);
+      if(t.top===b)tops.add(t.bot);
+    });
+    if(tops.size>bestCount){bestCount=tops.size;bestBot=b;}
+  }
+  return bestBot;
+}
+function botHardPickRikka(hand, field){
+  const tb=botHardTargetBot(hand);
+  const existing=new Set();
+  hand.forEach(t=>{
+    if(t.bot===tb)existing.add(t.top);
+    if(t.top===tb)existing.add(t.bot);
+  });
+  let bestFi=0, bestScore=-Infinity;
+  field.forEach((t,i)=>{
+    let eTop=null;
+    if(t.bot===tb)eTop=t.top;
+    else if(t.top===tb)eTop=t.bot;
+    const score = eTop!==null && !existing.has(eTop) ? 20
+                : eTop!==null ? 5 : 0;
+    if(score>bestScore){bestScore=score;bestFi=i;}
+  });
+  return bestFi;
+}
+function botHardDiscardRikka(hand){
+  const tb=botHardTargetBot(hand);
+  let worstScore=-Infinity, wi=0;
+  hand.forEach((t,i)=>{
+    let eTop=null;
+    if(t.bot===tb)eTop=t.top;
+    else if(t.top===tb)eTop=t.bot;
+    const isDup = eTop!==null && hand.some((t2,j)=>j!==i&&(
+      (t2.bot===tb&&t2.top===eTop)||(t2.top===tb&&t2.bot===eTop)
+    ));
+    const score = eTop===null ? 100 : isDup ? 50 : 0;
+    if(score>worstScore){worstScore=score;wi=i;}
+  });
+  return wi;
 }
 function evalHand(hand, optR) {
   if (hand.length === 6) {
