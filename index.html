@@ -1970,74 +1970,63 @@ function evalDiscardAssist(hand5, field, optR){
 
 function scoreProgress(hand, optR){
   const use = r => !optR || optR.includes(r);
-  let best = 0;
-
-  // 六華向け: 同じ底値のユニーク上値数（最大6種類が目標）
-  for(let b = 1; b <= 6; b++){
-    const tops = new Set();
-    let zoromes = 0;
-    hand.forEach(t => {
-      if(eBot(t) === b){ tops.add(eTop(t)); if(eTop(t)===b) zoromes++; }
-    });
-    // ユニーク上値1つにつき50点（六華6点×高倍率）＋ゾロ目ボーナス
-    best = Math.max(best, tops.size * 50 + zoromes * 15);
+  const n = hand.length;
+  function rs(moves, pts){ return Math.pow(pts,0.3)/(Math.max(0,moves)*1.5+0.3)*100; }
+  let best=0;
+  function alignedTo(b){ return hand.filter(t=>eBot(t)===b||eTop(t)===b); }
+  function topSet(tiles,b){ return new Set(tiles.map(t=>t.bot===b?t.top:t.bot)); }
+  for(let b=1;b<=6;b++){
+    const m=alignedTo(b).length;
+    best=Math.max(best,rs(n-m,1));
   }
-
-  // 一色向け: 同じ底値のタイル数
-  for(let b = 1; b <= 6; b++){
-    const cnt = hand.filter(t => eBot(t) === b).length;
-    best = Math.max(best, cnt * 12);
+  for(let b=1;b<=6;b++){
+    const al=alignedTo(b);
+    const tops=topSet(al,b);
+    const dups=al.length-tops.size;
+    best=Math.max(best,rs(n-al.length+dups,6));
   }
-
-  // 三連向け: 底値の揃い＋上値の連続性
-  {
-    const bf = {};
-    hand.forEach(t => { const b=eBot(t); bf[b]=(bf[b]||0)+1; });
-    const maxBotFreq = Object.values(bf).length ? Math.max(...Object.values(bf)) : 0;
-    const tf = {};
-    hand.forEach(t => { const v=eTop(t); tf[v]=(tf[v]||0)+1; });
-    const ks = Object.keys(tf).map(Number).sort((a,b)=>a-b);
-    let maxConsec = 1, cur = 1;
-    for(let i = 1; i < ks.length; i++){
-      if(ks[i] === ks[i-1]+1){ cur++; maxConsec = Math.max(maxConsec, cur); }
-      else cur = 1;
+  function maxRun(arr){
+    if(!arr.length)return 0;
+    let m=1,c=1;
+    for(let i=1;i<arr.length;i++){if(arr[i]===arr[i-1]+1){c++;m=Math.max(m,c);}else c=1;}
+    return m;
+  }
+  for(let b1=1;b1<=6;b1++){
+    const al1=alignedTo(b1);
+    const t1=[...topSet(al1,b1)].sort((a,c)=>a-c);
+    const run1=maxRun(t1);
+    const need1=Math.max(0,3-run1);
+    for(let b2=b1+1;b2<=6;b2++){
+      const al2=alignedTo(b2);
+      const t2=[...topSet(al2,b2)].sort((a,c)=>a-c);
+      const run2=maxRun(t2);
+      const need2=Math.max(0,3-run2);
+      const both=hand.filter(t=>(eBot(t)===b1||eTop(t)===b1)||(eBot(t)===b2||eTop(t)===b2)).length;
+      best=Math.max(best,rs(need1+need2+Math.max(0,n-both),3));
     }
-    best = Math.max(best, maxBotFreq * 20 + maxConsec * 25);
   }
-
-  // 三対向け: ペア数（2枚組×3が目標）
   if(use('三対')){
-    const pf = {};
-    hand.forEach(t => {
-      const k = `${Math.min(eTop(t),eBot(t))},${Math.max(eTop(t),eBot(t))}`;
-      pf[k] = (pf[k]||0)+1;
-    });
-    const pairs = Object.values(pf).filter(v => v >= 2).length;
-    best = Math.max(best, pairs * 35);
+    const pf={};
+    hand.forEach(t=>{const k=`${Math.min(eTop(t),eBot(t))},${Math.max(eTop(t),eBot(t))}`;pf[k]=(pf[k]||0)+1;});
+    const pairs=Object.values(pf).filter(v=>v>=2).length;
+    best=Math.max(best,rs(Math.max(0,3-pairs),2));
   }
-
-  // 三色向け: 全上下値の種類数が3種類に近いほど良い
   if(use('三色')){
-    const vals = new Set();
-    hand.forEach(t => { vals.add(eTop(t)); vals.add(eBot(t)); });
-    // 3種類が目標（6値のうち3種類に絞る）
-    const score = Math.max(0, (7 - vals.size)) * 22;
-    best = Math.max(best, score);
+    let bestM=0;
+    for(let a=1;a<=4;a++)for(let b=a+1;b<=5;b++)for(let c=b+1;c<=6;c++){
+      const m=hand.filter(t=>[a,b,c].includes(eTop(t))&&[a,b,c].includes(eBot(t))).length;
+      bestM=Math.max(bestM,m);
+    }
+    best=Math.max(best,rs(n-bestM,3));
   }
-
-  // 無双向け: ゾロ目牌の種類数（6種類が目標）
   if(use('無双')){
-    const zt = new Set();
-    hand.forEach(t => { if(eTop(t)===eBot(t)) zt.add(eTop(t)); });
-    best = Math.max(best, zt.size * 45);
+    const zt=new Set(hand.filter(t=>eTop(t)===eBot(t)).map(eTop));
+    best=Math.max(best,rs(6-zt.size,9));
   }
-
-  // 輝光向け: ゾロ目牌の数（6枚全部が目標）
   if(use('輝光')){
-    const zc = hand.filter(t => eTop(t)===eBot(t)).length;
-    best = Math.max(best, zc * 55);
+    const zc=hand.filter(t=>eTop(t)===eBot(t)).length;
+    best=Math.max(best,rs(n-zc,5));
   }
-
   return best;
 }
 
