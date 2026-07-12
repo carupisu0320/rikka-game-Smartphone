@@ -2232,7 +2232,16 @@ function toggleChat(){
     log.scrollTop = log.scrollHeight;
   }
 }
-
+document.addEventListener('click', e => {
+  if(!chatOpen) return;
+  const wrap = document.getElementById('chat-wrap');
+  const btn  = document.getElementById('chat-toggle');
+  if(wrap && !wrap.contains(e.target) && btn && !btn.contains(e.target)){
+    chatOpen = false;
+    wrap.style.display = 'none';
+    document.getElementById('chat-toggle').textContent = '💬';
+  }
+});
 function sendChat(){
   const input = document.getElementById('chat-input');
   const msg = input.value.trim();
