@@ -1045,6 +1045,17 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 
 <div id="rb-ex-star"></div>
 
+<div class="rb-role" style="background:rgba(96,200,120,.05);border-radius:6px;padding:.6rem .4rem;margin-top:.4rem">
+  <div>
+    <div class="rb-role-name">ついでに完成</div>
+    <div style="font-size:.7rem;color:#60c870">追加ルール（常時）</div>
+  </div>
+  <div class="rb-role-desc">
+    誰かが上がった後、<b style="color:#60c870">表向きの捨て牌</b>と自分の手牌を組み合わせて役が完成していれば、その得点がもらえる。
+    <div class="rb-role-ex">例）手牌5枚＋捨て牌1枚で三連が完成 → +3点</div>
+  </div>
+</div>
+
 </div>
 
 </div>
@@ -1421,6 +1432,7 @@ function showOnlineWinMsg(wd){
 const{winnerIdx,winnerName,hand=[],role,pts,bonus=0,scores=[],isGameOver}=wd;
 
 saveHistory(makeHistoryEntry(Number(winnerIdx)===Number(myOnlineIdx),role,pts+bonus,true,scores.map(s=>s.name)));
+  const tsuideList=wd.tsuideList||[];
 
 const rows=scores.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.score}点</td></tr>`).join('');
 
@@ -1462,7 +1474,11 @@ document.getElementById('mbox').innerHTML=`
 <div class="mtitle">🏆 ゲーム終了！</div>
 <div style="font-size:1.5rem;color:#f5e0a0;margin:.5rem 0;font-family:'Hiragino Mincho ProN','Yu Mincho',serif">${esc(winner.name)} の勝利！</div>
 <table class="mscores">${rows}</table>
-<button class="mbtn" id="btn-rematch-online" onclick="requestRematch()" style="background:linear-gradient(135deg,#2a9e8e,#1a6e60);color:#e0fff8;margin-bottom:.5rem">🔄 リマッチ申請</button>
+${tsuideList.length>0?`
+<div style="margin:.6rem 0 .3rem;font-size:.78rem;color:#8a7048;border-top:1px solid #2a1e10;padding-top:.5rem">✨ ついでに完成</div>
+${tsuideList.map(t=>`<div style="font-size:.82rem;color:#e8c97a;margin:.2rem 0">${esc(t.name)}：${t.role}（${t.pts}点${t.bonus>0?'＋★×'+t.bonus:''}）→ +${t.total}点</div>`).join('')}`:''}
+<button class="mbtn" id="btn-rematch-online"
+onclick="requestRematch()" style="background:linear-gradient(135deg,#2a9e8e,#1a6e60);color:#e0fff8;margin-bottom:.5rem">🔄 リマッチ申請</button>
 <div id="rematch-status" style="font-size:.78rem;color:#8a7048;text-align:center;margin-bottom:.5rem;min-height:1em"></div>
 <button class="mbtn" onclick="goLobby()" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020">🏠 タイトルへ戻る</button>`;
 document.getElementById('modal').classList.add('open');
@@ -1552,6 +1568,21 @@ function isSantui(hand){
   return Object.values(f).every(v=>v%2===0);
 }
 function countZorome(hand){return hand.filter(t=>t.top===t.bot).length;}
+function checkTsuide(hand5,field,optR){
+  if(hand5.length!==5)return null;
+  const discards=field.filter(t=>t.discarded);
+  let bestRes=null,bestPts=-1;
+  discards.forEach(t=>{
+    const hand6=[...hand5,t];
+    const w=checkWin(hand6,optR);
+    if(w&&w.pts>bestPts){
+      bestPts=w.pts;
+      const bonus=w.noBonus?0:countZorome(hand6);
+      bestRes={role:w.role,pts:w.pts,bonus,total:w.pts+bonus};
+    }
+  });
+  return bestRes;
+}
 function getOptRoles(prefix){
   return['三対','三色','輝光','無双'].filter(r=>{
     const el=document.getElementById(prefix+r);
@@ -2037,15 +2068,20 @@ function scoreProgress(hand, optR){
 // ============================================================
 
 function processWin(pi,res){
-  G.phase='roundEnd';
-  const bonus=res.noBonus?0:countZorome(G.players[pi].hand);
-  res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
+  G.phase='roundEnd';const bonus=res.noBonus?0:countZorome(G.players[pi].hand);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
   saveHistory(makeHistoryEntry(pi===myOnlineIdx,res.role,res.pts+bonus,onlineMode,G.players.map(p=>p.name)));
-  showWinModal(G.players[pi],res);
+  const optR=G?.optRoles??null;
+  const tsuideList=[];
+  G.players.forEach((p,i)=>{
+    if(i===pi)return;
+    const tr=checkTsuide(p.hand,G.field,optR);
+    if(tr){p.score+=tr.total;tsuideList.push({name:p.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
+  });
+  showWinModal(G.players[pi],res,tsuideList);
 }
 
-function showWinModal(p,res){
-  if(p===G.players[myOnlineIdx])launchConfetti();
+function showWinModal(p,res,tsuideList=[]){
+if(p===G.players[myOnlineIdx])launchConfetti();
 const over=p.score>=(G?.goal||WIN_SCORE),rows=G.players.map(pl=>`<tr><td>${esc(pl.name)}</td><td>${pl.score}点</td></tr>`).join('');
 const tiles=p.hand.map(t=>tileHTML(t,'','tile htile')).join(''),bonus=res.bonus||0,total=res.pts+bonus;
 
@@ -2057,7 +2093,13 @@ document.getElementById('modal').classList.add('open');
 
 }
 
-function showGameOver(){const winner=G.players.reduce((a,b)=>a.score>b.score?a:b),rows=G.players.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.score}点</td></tr>`).join('');document.getElementById('mbox').innerHTML=`<div class="mtitle">🏆 ゲーム終了！</div><div style="font-size:1.5rem;color:#f5e0a0;margin:.5rem 0;font-family:'Hiragino Mincho ProN','Yu Mincho',serif">${esc(winner.name)} の勝利！</div><table class="mscores">${rows}</table><button class="mbtn" onclick="doRematchBot()" style="background:linear-gradient(135deg,#2a9e8e,#1a6e60);color:#e0fff8;margin-bottom:.5rem">🔄 リマッチ</button><button class="mbtn" onclick="goLobby()" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020">🏠 タイトルへ戻る</button>`;}
+function showGameOver(){const winner=G.players.reduce((a,b)=>a.score>b.score?a:b),rows=G.players.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.score}点</td></tr>`).join('');document.getElementById('mbox').innerHTML=`<div class="mtitle">🏆 ゲーム終了！</div><div style="font-size:1.5rem;color:#f5e0a0;margin:.5rem 0;font-family:'Hiragino Mincho ProN','Yu Mincho',serif">${esc(winner.name)} の勝利！</div><table 
+<table class="mscores">${rows}</table>
+${tsuideList.length>0?`
+<div style="margin:.6rem 0 .3rem;font-size:.78rem;color:#8a7048;border-top:1px solid #2a1e10;padding-top:.5rem">✨ ついでに完成</div>
+${tsuideList.map(t=>`<div style="font-size:.82rem;color:#e8c97a;margin:.2rem 0">${esc(t.name)}：${t.role}（${t.pts}点${t.bonus>0?'＋★×'+t.bonus:''}）→ +${t.total}点</div>`).join('')}`:''}
+<button class="mbtn" onclick="doRematchBot()"
+style="background:linear-gradient(135deg,#2a9e8e,#1a6e60);color:#e0fff8;margin-bottom:.5rem">🔄 リマッチ</button><button class="mbtn" onclick="goLobby()" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020">🏠 タイトルへ戻る</button>`;}
 function doNextRound(){document.getElementById('modal').classList.remove('open');dealRound();render();if(G.players[G.turn].isBot)scheduleBot();}
 function doRematchBot(){
   document.getElementById('modal').classList.remove('open');
