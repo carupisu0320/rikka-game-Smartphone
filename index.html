@@ -731,6 +731,14 @@ style="background:#1a1410;color:#6a5830">🌐 オンライン</button>
       <input type="checkbox" id="bot-opt-無双" checked style="accent-color:#c9a84c"> 無双（3+★点）
     </label>
   </div>
+  <div style="border-top:1px solid #2a1e10;margin-top:.5rem;padding-top:.5rem">
+    <label style="display:flex;align-items:center;gap:.35rem;font-size:.83rem;color:#c8b898;cursor:pointer">
+      <input type="checkbox" id="bot-opt-リーチ" style="accent-color:#e05050"> リーチあり
+    </label>
+    <label style="display:flex;align-items:center;gap:.35rem;font-size:.83rem;color:#c8b898;cursor:pointer">
+      <input type="checkbox" id="bot-opt-ロン" style="accent-color:#e0a020"> ロンあり
+    </label>
+  </div>
 </div>
 <button class="lbtn lbtn-gold" onclick="startGame()">ゲームスタート</button>
 
@@ -798,6 +806,14 @@ onclick="cancelQueue()">キャンセル</button>
     </label>
     <label style="display:flex;align-items:center;gap:.35rem;font-size:.8rem;color:#c8b898;cursor:pointer">
       <input type="checkbox" id="room-opt-無双" checked style="accent-color:#c9a84c"> 無双（3+★点）
+    </label>
+  </div>
+  <div style="border-top:1px solid #2a1e10;margin-top:.5rem;padding-top:.5rem">
+    <label style="display:flex;align-items:center;gap:.35rem;font-size:.8rem;color:#c8b898;cursor:pointer">
+      <input type="checkbox" id="room-opt-リーチ" style="accent-color:#e05050"> リーチあり
+    </label>
+    <label style="display:flex;align-items:center;gap:.35rem;font-size:.8rem;color:#c8b898;cursor:pointer">
+      <input type="checkbox" id="room-opt-ロン" style="accent-color:#e0a020"> ロンあり
     </label>
   </div>
 </div>
@@ -991,6 +1007,19 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   </div>
 </div>
 <canvas id="confetti-canvas"></canvas>
+<!-- リーチ・ロンボタン -->
+<button id="riichi-btn" onclick="declareRiichi()" style="display:none;position:fixed;bottom:19rem;right:.75rem;z-index:310;
+  padding:.5rem 1rem;background:linear-gradient(135deg,#c84a4a,#8a1a1a);border:none;border-radius:10px;
+  color:#fff;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 12px rgba(200,74,74,.6);animation:assistPulse 1s infinite">
+  🀄 リーチ宣言
+</button>
+<button id="ron-btn" onclick="declareRon()" style="display:none;position:fixed;bottom:14rem;right:.75rem;z-index:310;
+  padding:.6rem 1.2rem;background:linear-gradient(135deg,#e0a020,#a06010);border:none;border-radius:10px;
+  color:#fff;font-family:inherit;font-size:1.05rem;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 16px rgba(224,160,32,.7);animation:assistPulse .6s infinite">
+  ロン！
+</button>
 <button id="bot-chat-toggle" onclick="toggleBotChat()">
   💬<span id="bot-chat-badge"></span>
 </button>
@@ -1365,6 +1394,17 @@ socket.on('game_start',()=>{
 socket.on('state',st=>{onlineMode=true;applyOnlineState(st);});
 
 socket.on('round_win',wd=>showOnlineWinMsg(wd));
+socket.on('player_riichi',({name,idx})=>{
+  if(G&&G.players[idx]) G.players[idx].riichi=true;
+  toast(`🀄 ${esc(name)} がリーチ！`);
+  render();
+});
+socket.on('ron_available',({tile,discardedByIdx})=>{
+  const optR=G?.optRoles??null;
+  const p=G?.players[myOnlineIdx];
+  if(p&&canRon(p.hand,tile,optR)) openRonWindow(tile,discardedByIdx);
+});
+socket.on('ron_timeout',()=>{ clearRonWindow(); });
   socket.on('rematch_waiting',({waiting,total})=>{
   const st=document.getElementById('rematch-status');
   if(st)st.textContent=`⏳ リマッチ待機中... (${waiting}/${total}人が同意)`;
@@ -1396,7 +1436,9 @@ function createRoom(){
   document.getElementById('btn-create-room').disabled=true;
 const goalEl=document.querySelector('input[name="room-goal"]:checked');
   const goal=goalEl?parseInt(goalEl.value):10;
-  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal});}
+  const useRiichi2=document.getElementById('room-opt-リーチ')?.checked||false;
+  const useRon2=document.getElementById('room-opt-ロン')?.checked||false;
+  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2});}
 function copyRoomCode(){const code=document.getElementById('room-code-display').textContent;navigator.clipboard?.writeText(code).then(()=>toast('コードをコピーしました！'));}
 
 function cancelRoom(){document.getElementById('room-host-box').style.display='none';document.getElementById('btn-create-room').disabled=false;}
@@ -1445,6 +1487,8 @@ if(serverHand.length<localHand.length)G.selIdx=-1;
 
 G.field=st.field;G.turn=st.turn;G.tphase=st.tphase;G.phase=st.phase;
 G.optRoles = st.optRoles !== undefined ? st.optRoles : null;
+G.useRiichi = st.useRiichi || false;
+G.useRon    = st.useRon    || false;
 G.goal = st.goal || 10;
 
 st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;});
@@ -1486,7 +1530,7 @@ document.getElementById('mbox').innerHTML=`
 
 ${isGameOver
 
-?`<button class="mbtn" onclick='showOnlineGameOver(${JSON.stringify(scores)})'>ゲーム終了を確認 →</button>`
+?`<button class="mbtn" onclick='showOnlineGameOver(${JSON.stringify(scores)},${JSON.stringify(tsuideList)})'>ゲーム終了を確認 →</button>`
 
 :`<button class="mbtn" onclick="doNextOnlineRound()">次のラウンドへ →</button>`}`;
 
@@ -1494,8 +1538,10 @@ document.getElementById('modal').classList.add('open');
 
 }
 
-function showOnlineGameOver(scores){
+function showOnlineGameOver(scores,tsuideList){
 if(typeof scores==='string')scores=JSON.parse(scores);
+if(typeof tsuideList==='string')tsuideList=JSON.parse(tsuideList);
+tsuideList=tsuideList||[];
 const winner=scores.reduce((a,b)=>a.score>b.score?a:b);
 const rows=scores.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.score}点</td></tr>`).join('');
 document.getElementById('mbox').innerHTML=`
@@ -1596,6 +1642,135 @@ function isSantui(hand){
   return Object.values(f).every(v=>v%2===0);
 }
 function countZorome(hand){return hand.filter(t=>t.top===t.bot).length;}
+// ── リーチ・ロン ──
+function isTenpai(hand5, optR){
+  if(hand5.length!==5) return false;
+  for(let top=1;top<=6;top++)
+    for(let bot=1;bot<=6;bot++){
+      const t={id:8888,top,bot,flip:false,discarded:false};
+      if(canRon(hand5,t,optR)) return true;
+    }
+  return false;
+}
+function canRon(hand5, tile, optR){
+  const hand6=[...hand5,tile];
+  const lim=Math.min(1<<6,64);
+  for(let m=0;m<lim;m++){
+    const h=hand6.map((t,i)=>({...t,flip:!!(m&(1<<i))}));
+    if(checkWin(h,optR)) return true;
+  }
+  return false;
+}
+let _ronPending=null, _ronTimer=null, _ronContinue=null;
+function openRonWindow(tile, discardedByIdx, onExpire){
+  _ronPending={tile,discardedByIdx};
+  _ronContinue=onExpire||null;
+  showRonBtn(true);
+  clearTimeout(_ronTimer);
+  _ronTimer=setTimeout(()=>{
+    const cb=_ronContinue;
+    clearRonWindow();
+    if(cb) cb();
+  },5000);
+}
+function clearRonWindow(){
+  clearTimeout(_ronTimer);_ronTimer=null;_ronPending=null;_ronContinue=null;
+  showRonBtn(false);
+}
+function showRonBtn(show){
+  const el=document.getElementById('ron-btn');
+  if(el) el.style.display=show?'block':'none';
+}
+function showRiichiBtn(show){
+  const el=document.getElementById('riichi-btn');
+  if(el) el.style.display=show?'block':'none';
+}
+function declareRiichi(){
+  if(!G||G.phase!=='playing'||!G.useRiichi) return;
+  const p=G.players[myOnlineIdx];
+  if(p.riichi||G.turn!==myOnlineIdx||G.tphase!=='discard') return;
+  const optR=G?.optRoles??null;
+  let ok=false;
+  p.hand.forEach((_,i)=>{if(isTenpai(p.hand.filter((_,j)=>j!==i),optR))ok=true;});
+  if(!ok){toast('テンパイしていません');return;}
+  p.riichi=true;
+  if(onlineMode) socket?.emit('riichi',{code:currentCode});
+  showRiichiBtn(false);
+  const chatLog=document.getElementById(onlineMode?'chat-log':'bot-chat-log');
+  if(chatLog){
+    const div=document.createElement('div');
+    div.className='chat-msg mine';
+    div.innerHTML=`<div class="chat-name">${esc(p.name)}</div>🀄 リーチ！`;
+    chatLog.appendChild(div);chatLog.scrollTop=chatLog.scrollHeight;
+  }
+  toast('🀄 リーチ宣言！手牌が固定されます');
+  render();
+}
+function declareRon(){
+  if(!G||G.phase!=='playing'||!_ronPending) return;
+  const p=G.players[myOnlineIdx];
+  const {tile,discardedByIdx}=_ronPending;
+  const optR=G?.optRoles??null;
+  if(!canRon(p.hand,tile,optR)){toast('ロンできません');clearRonWindow();return;}
+  clearRonWindow();
+  if(onlineMode){socket?.emit('ron_declare',{code:currentCode});return;}
+  // ボット対戦ロン処理
+  const hand6=[...p.hand,tile];
+  const res=checkWin(hand6,optR);if(!res)return;
+  const bonus=(res.noBonus?0:countZorome(hand6))+(p.riichi?1:0);
+  res.bonus=bonus;res.ron=true;res.ronFrom=G.players[discardedByIdx].name;
+  p.hand=hand6;p.score+=res.pts+bonus;
+  G.players[discardedByIdx].score-=(res.pts+bonus);
+  G.phase='roundEnd';
+  launchConfetti();
+  const tsuideList=[];
+  G.players.forEach((pl,i)=>{
+    if(i===myOnlineIdx||i===discardedByIdx)return;
+    const tr=checkTsuide(pl.hand,G.field,optR);
+    if(tr){pl.score+=tr.total;tsuideList.push({name:pl.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
+  });
+  showWinModal(p,res,tsuideList);
+}
+function checkBotRon(discardedByIdx){
+  if(!G||onlineMode||(!G.useRiichi&&!G.useRon)) return false;
+  const optR=G?.optRoles??null;
+  const discardedTile=G.field.filter(t=>t.discarded).slice(-1)[0];
+  if(!discardedTile) return false;
+  let ronPossible=false;
+  G.players.forEach((pl,i)=>{
+    if(i===discardedByIdx||pl.isBot===false) return;
+    if(!G.useRon) return;
+    if(!pl.riichi&&G.useRiichi) return;
+    if(canRon(pl.hand,discardedTile,optR)){
+      ronPossible=true;
+      setTimeout(()=>{
+        if(!G||G.phase!=='playing') return;
+        const hand6=[...pl.hand,discardedTile];
+        const res=checkWin(hand6,optR);if(!res)return;
+        const bonus=(res.noBonus?0:countZorome(hand6))+(pl.riichi?1:0);
+        res.bonus=bonus;res.ron=true;res.ronFrom=G.players[discardedByIdx].name;
+        pl.hand=hand6;pl.score+=res.pts+bonus;
+        G.players[discardedByIdx].score-=(res.pts+bonus);
+        G.phase='roundEnd';
+        const tsuideList=[];
+        G.players.forEach((p2,j)=>{
+          if(j===i||j===discardedByIdx)return;
+          const tr=checkTsuide(p2.hand,G.field,optR);
+          if(tr){p2.score+=tr.total;tsuideList.push({name:p2.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
+        });
+        showWinModal(pl,res,tsuideList);
+      },800);
+    }
+  });
+  if(G.useRon&&discardedByIdx!==myOnlineIdx){
+    const player=G.players[myOnlineIdx];
+    if(canRon(player.hand,discardedTile,optR)){
+      openRonWindow(discardedTile,discardedByIdx,()=>nextTurn());
+      ronPossible=true;
+    }
+  }
+  return ronPossible;
+}
 function checkTsuide(hand5,field,optR){
   if(hand5.length!==5)return null;
   const discards=field.filter(t=>t.discarded);
@@ -1629,11 +1804,13 @@ const name=document.getElementById('pname').value.trim()||'プレイヤー';
 
 const bcnt=parseInt(document.getElementById('bcnt').value),bdiff=document.getElementById('bdiff').value;
 
-const players=[{name,hand:[],score:0,isBot:false}];
+const players=[{name,hand:[],score:0,isBot:false,riichi:false}];
 
-for(let i=0;i<bcnt;i++)players.push({name:BNAMES[i],hand:[],score:0,isBot:true,diff:bdiff});
+for(let i=0;i<bcnt;i++)players.push({name:BNAMES[i],hand:[],score:0,isBot:true,diff:bdiff,riichi:false});
 
-G = {players, field:[], turn:0, tphase:'pick', selIdx:-1, phase:'playing', optRoles: getOptRoles('bot-opt-')};
+const useRiichi=document.getElementById('bot-opt-リーチ')?.checked||false;
+const useRon=document.getElementById('bot-opt-ロン')?.checked||false;
+G = {players, field:[], turn:0, tphase:'pick', selIdx:-1, phase:'playing', optRoles: getOptRoles('bot-opt-'), useRiichi, useRon};
 
 myOnlineIdx=0;onlineMode=false;currentCode='';
 
@@ -1705,8 +1882,9 @@ if(assistMode&&canPick){
   try{
     const p=G.players[myOnlineIdx];
     const optR=onlineMode?(G?.optRoles??null):getOptRoles('bot-opt-');
-    normalTiles.forEach(t=>{const s=evalHand([...p.hand,t],optR);if(s>bestNormalScore){bestNormalScore=s;bestNormalTile=t;}});
-    discardTiles.forEach(t=>{const s=evalHand([...p.hand,t],optR);if(s>bestDiscardScore){bestDiscardScore=s;bestDiscardTile=t;}});
+    const r=calcAssist(p.hand,G.field,optR);
+    bestNormalTile=r.bestNormalTile;bestNormalScore=r.bestNormalScore;
+    bestDiscardTile=r.bestDiscardTile;bestDiscardScore=r.bestDiscardScore;
   }catch(e){bestNormalTile=null;bestDiscardTile=null;}
 }
 const normalIsBetter=bestNormalScore>=bestDiscardScore;
@@ -1772,17 +1950,18 @@ else{hh.textContent=`手牌 ${p.hand.length}枚 — 捨てるか役を揃えて�
 // アシスト: 捨てるべき牌を赤く光らせる
 if(assistMode && isDiscard && has6 && !winRes){
   try{
-    let bestScore=-Infinity, assistDiscardIdx=-1;
-    p.hand.forEach((_,i)=>{
-      const score=evalDiscardAssist(p.hand.filter((_,j)=>j!==i),G.field,optR);
-      if(score>bestScore){bestScore=score;assistDiscardIdx=i;}
-    });
+    const r=calcAssist(p.hand,G.field,optR);
+    const assistDiscardIdx=r.discardIdx;
     if(assistDiscardIdx!==-1){
       const tiles=document.getElementById('hand-tiles').querySelectorAll('.htile');
       if(tiles[assistDiscardIdx])tiles[assistDiscardIdx].classList.add('assist-discard');
     }
   }catch(e){}
 }
+// リーチボタン表示
+const canRiichi=!!(G?.useRiichi)&&isDiscard&&has6&&!p.riichi&&!winRes&&
+  p.hand.some((_,i)=>isTenpai(p.hand.filter((_,j)=>j!==i),optR));
+showRiichiBtn(canRiichi);
 }
 
 function renderStatus(){
@@ -1861,13 +2040,32 @@ popup.style.top=Math.max(4,top)+'px';
 
 // ============================================================
 
-function pickField(fi){if(!G||G.phase!=='playing')return;if(Number(G.turn)!==Number(myOnlineIdx))return;if(G.tphase!=='pick')return;const p=G.players[myOnlineIdx];if(p.hand.length>=6){toast('もう持てないよ！');return;}if(onlineMode){socket?.emit('pick',{code:currentCode,fieldIdx:Number(fi)});return;}p.hand.push(G.field.splice(fi,1)[0]);G.tphase='discard';G.selIdx=-1;render();}
+function pickField(fi){if(!G||G.phase!=='playing')return;if(Number(G.turn)!==Number(myOnlineIdx))return;if(G.tphase!=='pick')return;const p=G.players[myOnlineIdx];if(p.hand.length>=6){toast('もう持てないよ！');return;}if(onlineMode){socket?.emit('pick',{code:currentCode,fieldIdx:Number(fi)});return;}const picked=G.field.splice(fi,1)[0];p.hand.push(picked);G.tphase='discard';G.selIdx=-1;render();
+  // リーチ中: 上がり牌でなければ自動捨て
+  if(p.riichi){
+    const optR=G?.optRoles??null;
+    const winRes=checkWin(p.hand,optR);
+    if(!winRes){
+      setTimeout(()=>{
+        const idx=p.hand.indexOf(picked);
+        if(idx!==-1){
+          const tile=p.hand.splice(idx,1)[0];
+          tile.discarded=true;
+          G.field.push(tile);
+          G.selIdx=-1;
+          if(checkBotRon(myOnlineIdx)) return;
+          nextTurn();
+        }
+      },600);
+    }
+  }
+}
 
 function clickHand(i){if(G.phase!=='playing')return;const prev=G.selIdx;if(prev===-1){G.selIdx=i;}else if(prev===i){G.selIdx=-1;}else{const h=G.players[myOnlineIdx].hand;[h[prev],h[i]]=[h[i],h[prev]];G.selIdx=-1;}render();}
 
 function flipHand(e,i){e.preventDefault();if(G.phase!=='playing')return;const tile=G.players[myOnlineIdx].hand[i];if(!tile)return false;tile.flip=!tile.flip;render();if(onlineMode)socket?.emit('flip',{code:currentCode,tileId:tile.id});return false;}
 
-function doDiscard(){if(G.tphase!=='discard'||G.turn!==myOnlineIdx)return;const p=G.players[myOnlineIdx];if(G.selIdx===-1){toast('捨てる牌を選んでください');return;}if(p.hand.length<=5){toast('これ以上捨てれないよ！');return;}if(onlineMode){socket?.emit('discard',{code:currentCode,tileId:p.hand[G.selIdx].id});G.selIdx=-1;render();return;}const tile=p.hand.splice(G.selIdx,1)[0];tile.discarded=true;G.field.push(tile);G.selIdx=-1;nextTurn();}
+function doDiscard(){if(G.tphase!=='discard'||G.turn!==myOnlineIdx)return;const p=G.players[myOnlineIdx];if(G.selIdx===-1){toast('捨てる牌を選んでください');return;}if(p.hand.length<=5){toast('これ以上捨てれないよ！');return;}if(onlineMode){socket?.emit('discard',{code:currentCode,tileId:p.hand[G.selIdx].id});G.selIdx=-1;render();return;}const tile=p.hand.splice(G.selIdx,1)[0];tile.discarded=true;G.field.push(tile);G.selIdx=-1;if(checkBotRon(myOnlineIdx))return;nextTurn();}
 
 function doWin(){if(G.tphase!=='discard'||G.turn!==myOnlineIdx)return;const p=G.players[myOnlineIdx];if(p.hand.length!==6){toast('手牌が6枚のときだけ上がれます');return;}
                  const optR = onlineMode ? (G?.optRoles ?? null) : getOptRoles('bot-opt-');
@@ -1889,6 +2087,7 @@ if(G.phase!=='playing')return;const bot=G.players[G.turn];if(!bot?.isBot)return;
 
 if(G.tphase==='pick'){if(G.field.length===0){nextTurn();return;}
 
+let fi;
 if(bot.diff==='easy'){fi=Math.floor(Math.random()*G.field.length);}
     else if(bot.diff==='normal'){let best=-Infinity;fi=0;G.field.forEach((t,i)=>{const s=evalHandNormal([...bot.hand,t]);if(s>best){best=s;fi=i;}});}
     else{fi=botHardPickRikka(bot.hand,G.field);}
@@ -1986,40 +2185,52 @@ function botHardDiscardRikka(hand){
   });
   return worstIdx;
 }
-  // 2手先読み: 拾った後の最善捨て評価
-function evalPickAssist(hand6, optR){
-  if(hand6.length !== 6) return evalHand(hand6, optR);
-  const w = checkWin(hand6, optR);
-  if(w) return (w.pts + (w.noBonus ? 0 : countZorome(hand6))) * 1000;
-  // 最善の捨て牌を選んだ後のスコアを返す
-  let best = 0;
-  hand6.forEach((_, i) => {
-    const score = evalHand(hand6.filter((_,j) => j !== i), optR);
-    if(score > best) best = score;
-  });
+// アシスト評価（シンプル・高速版）
+let _assistCache=null, _assistCacheKey='';
+function _assistKey(hand, field, optR){
+  return hand.map(t=>`${t.top}${t.bot}${t.flip?1:0}`).join(',')
+    +'|'+field.map(t=>`${t.top}${t.bot}${t.discarded?1:0}`).join(',')
+    +'|'+(optR?optR.join(','):'null');
+}
+function evalHandFull(hand, optR){
+  if(hand.length===6){
+    const w=checkWin(hand,optR);
+    if(w) return (w.pts+(w.noBonus?0:countZorome(hand)))*10000;
+  }
+  let best=0;
+  const lim=Math.min(1<<hand.length,64);
+  for(let m=0;m<lim;m++){
+    const h=hand.map((t,i)=>({...t,flip:!!(m&(1<<i))}));
+    best=Math.max(best,scoreProgress(h,optR));
+  }
   return best;
 }
-
-// 2手先読み: 捨てた後の最善拾い評価
-function evalDiscardAssist(hand5, field, optR){
-  if(!field || field.length === 0) return evalHand(hand5, optR);
-  let best = evalHand(hand5, optR);
-  field.forEach(t => {
-    const hand6 = [...hand5, t];
-    const w = checkWin(hand6, optR);
-    if(w){
-      const score = (w.pts + (w.noBonus ? 0 : countZorome(hand6))) * 1000;
-      if(score > best) best = score;
-    } else {
-      const lim = Math.min(1 << 6, 64);
-      for(let m = 0; m < lim; m++){
-        const h = hand6.map((ti,i) => ({...ti, flip:!!(m&(1<<i))}));
-        const score = scoreProgress(h, optR);
-        if(score > best) best = score;
-      }
-    }
+function calcAssist(hand, field, optR){
+  const key=_assistKey(hand,field,optR);
+  if(_assistCache&&_assistCacheKey===key) return _assistCache;
+  const normals=field.filter(t=>!t.discarded);
+  const discards=field.filter(t=> t.discarded);
+  let bestNormalTile=null, bestNormalScore=-Infinity;
+  normals.forEach(t=>{
+    const s=evalHandFull([...hand,t],optR);
+    if(s>bestNormalScore){bestNormalScore=s;bestNormalTile=t;}
   });
-  return best;
+  let bestDiscardTile=null, bestDiscardScore=-Infinity;
+  discards.forEach(t=>{
+    const s=evalHandFull([...hand,t],optR);
+    if(s>bestDiscardScore){bestDiscardScore=s;bestDiscardTile=t;}
+  });
+  let discardIdx=-1;
+  if(hand.length===6){
+    let bestKeep=-Infinity;
+    hand.forEach((_,i)=>{
+      const s=evalHandFull(hand.filter((_,j)=>j!==i),optR);
+      if(s>bestKeep){bestKeep=s;discardIdx=i;}
+    });
+  }
+  const result={bestNormalTile,bestNormalScore,bestDiscardTile,bestDiscardScore,discardIdx};
+  _assistCache=result;_assistCacheKey=key;
+  return result;
 }
   function evalHand(hand, optR) {
   if(hand.length === 6){
@@ -2105,7 +2316,7 @@ function scoreProgress(hand, optR){
 // ============================================================
 
 function processWin(pi,res){
-  G.phase='roundEnd';const bonus=res.noBonus?0:countZorome(G.players[pi].hand);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
+  G.phase='roundEnd';const bonus=(res.noBonus?0:countZorome(G.players[pi].hand))+(G.players[pi].riichi?1:0);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
   saveHistory(makeHistoryEntry(pi===myOnlineIdx,res.role,res.pts+bonus,onlineMode,G.players.map(p=>p.name)));
   const optR=G?.optRoles??null;
   const tsuideList=[];
@@ -2136,24 +2347,27 @@ const over=p.score>=(G?.goal||WIN_SCORE),rows=G.players.map(pl=>`<tr><td>${esc(p
 const tiles=p.hand.map(t=>tileHTML(t,'','tile htile')).join(''),bonus=res.bonus||0,total=res.pts+bonus;
 
 const bLine=bonus>0?`<div style="font-size:.85rem;color:#f5d040;margin-bottom:.6rem">★ 輝きボーナス ×${bonus} = +${bonus}点</div>`:'';
+const ronLine=res.ron?`<div style="font-size:.85rem;color:#e0a020;margin:.3rem 0">⚡ ロン！（${esc(res.ronFrom||'')} の捨て牌）</div>`:'';
+const riichiLine=(res.bonus>0&&p.riichi)?`<div style="font-size:.82rem;color:#f5d040">🀄 リーチボーナス +1点含む</div>`:'';
 
-document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div><p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
+document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div><p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick='showGameOver(${JSON.stringify(tsuideList)})'>ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
 
 document.getElementById('modal').classList.add('open');
 
 }
 
-function showGameOver(){const winner=G.players.reduce((a,b)=>a.score>b.score?a:b),rows=G.players.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.score}点</td></tr>`).join('');document.getElementById('mbox').innerHTML=`<div class="mtitle">🏆 ゲーム終了！</div><div style="font-size:1.5rem;color:#f5e0a0;margin:.5rem 0;font-family:'Hiragino Mincho ProN','Yu Mincho',serif">${esc(winner.name)} の勝利！</div><table 
+function showGameOver(tsuideList){if(typeof tsuideList==='string')tsuideList=JSON.parse(tsuideList);tsuideList=tsuideList||[];const winner=G.players.reduce((a,b)=>a.score>b.score?a:b),rows=G.players.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.score}点</td></tr>`).join('');document.getElementById('mbox').innerHTML=`<div class="mtitle">🏆 ゲーム終了！</div><div style="font-size:1.5rem;color:#f5e0a0;margin:.5rem 0;font-family:'Hiragino Mincho ProN','Yu Mincho',serif">${esc(winner.name)} の勝利！</div><table 
 <table class="mscores">${rows}</table>
 ${tsuideList.length>0?`
 <div style="margin:.6rem 0 .3rem;font-size:.78rem;color:#8a7048;border-top:1px solid #2a1e10;padding-top:.5rem">✨ ついでに完成</div>
 ${tsuideList.map(t=>`<div style="font-size:.82rem;color:#e8c97a;margin:.2rem 0">${esc(t.name)}：${t.role}（${t.pts}点${t.bonus>0?'＋★×'+t.bonus:''}）→ +${t.total}点</div>`).join('')}`:''}
 <button class="mbtn" onclick="doRematchBot()"
 style="background:linear-gradient(135deg,#2a9e8e,#1a6e60);color:#e0fff8;margin-bottom:.5rem">🔄 リマッチ</button><button class="mbtn" onclick="goLobby()" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020">🏠 タイトルへ戻る</button>`;}
-function doNextRound(){document.getElementById('modal').classList.remove('open');dealRound();render();if(G.players[G.turn].isBot)scheduleBot();}
+function doNextRound(){document.getElementById('modal').classList.remove('open');clearRonWindow();showRiichiBtn(false);dealRound();G.players.forEach(p=>p.riichi=false);render();if(G.players[G.turn].isBot)scheduleBot();}
 function doRematchBot(){
   document.getElementById('modal').classList.remove('open');
-  G.players.forEach(p=>p.score=0);
+  clearRonWindow();showRiichiBtn(false);
+  G.players.forEach(p=>{p.score=0;p.riichi=false;});
   dealRound();
   render();
   if(G.players[G.turn].isBot)scheduleBot();
@@ -2168,6 +2382,7 @@ function requestRematch(){
 function goLobby(){
   document.getElementById('modal').classList.remove('open');
   document.getElementById('chat-toggle').style.display='none';
+  clearRonWindow();showRiichiBtn(false);showRonBtn(false);
   document.getElementById('bot-chat-toggle').style.display='none';
   document.getElementById('bot-chat-wrap').style.display='none';
   botChatOpen=false;
