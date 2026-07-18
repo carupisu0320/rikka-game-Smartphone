@@ -2044,8 +2044,18 @@ function pickField(fi){if(!G||G.phase!=='playing')return;if(Number(G.turn)!==Num
   // リーチ中: 上がり牌でなければ自動捨て
   if(p.riichi){
     const optR=G?.optRoles??null;
-    const winRes=checkWin(p.hand,optR);
-    if(!winRes){
+    // 全フリップ組み合わせで上がりチェック（上下反転すれば揃うケースも見逃さない）
+    let winRes=null, winHand=null;
+    const lim=Math.min(1<<p.hand.length,64);
+    for(let m=0;m<lim;m++){
+      const h=p.hand.map((t,i)=>({...t,flip:!!(m&(1<<i))}));
+      const w=checkWin(h,optR);
+      if(w){winRes=w;winHand=h;break;}
+    }
+    if(winRes){
+      p.hand.forEach((t,i)=>{t.flip=winHand[i].flip;});
+      render();
+    } else {
       setTimeout(()=>{
         const idx=p.hand.indexOf(picked);
         if(idx!==-1){
@@ -2094,13 +2104,50 @@ if(bot.diff==='easy'){fi=Math.floor(Math.random()*G.field.length);}
 
 bot.hand.push(G.field.splice(fi,1)[0]);G.tphase='discard';if(bot.diff==='hard')botHardFlipOptimize(bot.hand);render();
 const optR=G?.optRoles??null;
-const wr=checkWin(bot.hand,optR);
-if(wr){setTimeout(()=>processWin(G.turn,wr),d);return;}
-const _optR2=G?.optRoles??null;const _wr2=checkWin(bot.hand,_optR2);
+const _wr2=checkWin(bot.hand,optR);
 if(_wr2)botComment('winning');else if(Math.random()<0.2)botComment('pick');
+// ボットリーチ判定
+if(G?.useRiichi&&!bot.riichi&&!_wr2){
+  const afterDiscard=bot.diff==='easy'?null:(()=>{
+    let bestIdx=0,bestS=-Infinity;
+    bot.hand.forEach((_,i)=>{const s=evalHand(bot.hand.filter((_,j)=>j!==i),optR);if(s>bestS){bestS=s;bestIdx=i;}});
+    return bot.hand.filter((_,i)=>i!==bestIdx);
+  })();
+  if(afterDiscard&&isTenpai(afterDiscard,optR)&&Math.random()<0.7){
+    bot.riichi=true;
+    const chatLog=document.getElementById('bot-chat-log');
+    if(chatLog){
+      const div=document.createElement('div');
+      div.className='chat-msg theirs';
+      div.innerHTML=`<div class="chat-name">${esc(bot.name)}</div>🀄 リーチ！`;
+      chatLog.appendChild(div);chatLog.scrollTop=chatLog.scrollHeight;
+    }
+    toast(`${bot.name} がリーチ宣言！`);
+  }
+}
+// 全フリップ組み合わせで上がりチェック
+let wr=null, wrHand=null;
+const lim=Math.min(1<<bot.hand.length,64);
+for(let m=0;m<lim;m++){
+  const h=bot.hand.map((t,i)=>({...t,flip:!!(m&(1<<i))}));
+  const w=checkWin(h,optR);
+  if(w){wr=w;wrHand=h;break;}
+}
+if(wr){
+  bot.hand.forEach((t,i)=>{t.flip=wrHand[i].flip;});
+  const winTurn=G.turn;
+  setTimeout(()=>{if(!G||G.phase!=='playing')return;if(G.players[winTurn]?.isBot)processWin(winTurn,wr);},d);
+  return;
+}
 setTimeout(()=>{if(G.phase!=='playing')return;
-const di=bot.diff==='easy'?Math.floor(Math.random()*bot.hand.length):bot.diff==='normal'?botNormalDiscard(bot.hand):botHardDiscardRikka(bot.hand);const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();
+let di;
+if(bot.riichi){di=bot.hand.length-1;}
+else if(bot.diff==='easy'){di=Math.floor(Math.random()*bot.hand.length);}
+else if(bot.diff==='normal'){di=botNormalDiscard(bot.hand);}
+else{di=botHardDiscardRikka(bot.hand);}
+const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();
 if(Math.random()<0.15)botComment('discard');
+if(checkBotRon(G.turn))return;
 setTimeout(nextTurn,200);},d);}
 
 }
