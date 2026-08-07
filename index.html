@@ -164,7 +164,7 @@ body{
 
 /* ── TILE base ── */
 .tile{
-  width:58px;height:96px;border-radius:9px;
+  width:clamp(42px, 13vw, 58px);aspect-ratio:58/96;height:auto;border-radius:9px;
   background:linear-gradient(180deg,#ffffff 0%,#efe4ce 100%);
   border:1.5px solid #b89860;
   box-shadow:0 3px 10px rgba(0,0,0,0.4),0 1px 2px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,1);
@@ -191,7 +191,7 @@ body{
 
 /* ── 場の裏向き牌 ── */
 .fback{
-  width:58px;height:96px;border-radius:9px;
+  width:clamp(42px, 13vw, 58px);aspect-ratio:58/96;height:auto;border-radius:9px;
   background:linear-gradient(165deg,#2e2018 0%,#120c06 100%);
   border:1.5px solid #5a4028;
   box-shadow:
@@ -222,7 +222,7 @@ body{
 
 /* ── HAND tile (bigger) ── */
 .htile{
-  width:70px;height:116px;border-radius:10px;
+  width:clamp(48px, 16vw, 70px);aspect-ratio:70/116;height:auto;border-radius:10px;
   background:linear-gradient(180deg,#ffffff 0%,#ece0c8 100%);
   border:1.5px solid #a89060;
   box-shadow:0 4px 14px rgba(0,0,0,0.45),0 1px 3px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,1);
@@ -504,10 +504,9 @@ body.back-purple .fback::after{color:rgba(160,80,255,.25)}
 ::-webkit-scrollbar-thumb{background:#3a2a1a;border-radius:2px}
 
 @media(max-width:480px){
-  .htile,.rule-tile{width:48px;height:80px}
+  .rule-tile{width:48px;height:80px}
   .htile .th,.htile .tb{font-size:1.3rem}
   .rule-tile-icon{font-size:1.3rem}
-  .tile{width:40px;height:66px}
   .tile .th,.tile .tb{font-size:1.05rem}
 }
 /* ── SIDEBAR ── */
