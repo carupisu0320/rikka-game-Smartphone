@@ -205,7 +205,7 @@ margin-bottom:3px;margin-top:5px;padding-bottom:2px;border-bottom:1px dashed #1e
 
 /* ── TILE ── */
 
-.tile{width:32px;height:52px;border-radius:6px;
+.tile{width:clamp(26px, 8.5vw, 38px);aspect-ratio:32/52;height:auto;border-radius:6px;
 
 background:linear-gradient(180deg,#ffffff 0%,#efe4ce 100%);border:1.5px solid #b89860;
 
@@ -237,7 +237,7 @@ box-shadow:0 8px 20px rgba(48,160,144,.5),0 2px 6px rgba(0,0,0,0.3)}
 
 .tile.discarded.pickable:hover{border-color:#d47830}
 
-.fback{width:32px;height:52px;border-radius:5px;
+.fback{width:clamp(26px, 8.5vw, 38px);aspect-ratio:32/52;height:auto;border-radius:5px;
 
 background:linear-gradient(165deg,#2e2018 0%,#120c06 100%);border:1.5px solid #5a4028;
 
@@ -256,7 +256,7 @@ font-size:.9rem;color:rgba(201,168,76,.25);pointer-events:none}
 
 .fback-pickable:active{transform:translateY(-3px)}
 
-.htile{width:32px;height:52px;border-radius:5px;
+.htile{width:clamp(26px, 8.5vw, 38px);aspect-ratio:32/52;height:auto;border-radius:5px;
 
 background:linear-gradient(180deg,#ffffff 0%,#ece0c8 100%);border:1.5px solid #a89060;
 
@@ -877,7 +877,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 </div>
 <div class="rrow">
   <span class="rname">三色</span>
-  <span class="rdesc">全牌の上下の数を<b style="color:#f0a050">3種類のみ</b>にする</span>
+  <span class="rdesc">全牌の上下の数を<b style="color:#f0a050">3種類のみ</b>にする（ボーナスなし／<b style="color:#60c870">ついでに完成</b>でのみ成立）</span>
   <span class="rpts">3点</span>
 </div>
 <div class="rrow">
@@ -894,6 +894,16 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   <span class="rname" style="color:#60c870">ついでに<br>完成</span>
   <span class="rdesc">上がり後、<b style="color:#60c870">捨て牌＋手牌</b>で役が完成したら得点獲得</span>
   <span class="rpts" style="color:#60c870">随時</span>
+</div>
+<div class="rrow">
+  <span class="rname" style="color:#e07070">リーチ</span>
+  <span class="rdesc">捨てればテンパイになるなら宣言可。以降は<b style="color:#e07070">自動で捨て</b>、上がると<b style="color:#f5d040">+1点</b></span>
+  <span class="rpts" style="color:#e07070">任意</span>
+</div>
+<div class="rrow">
+  <span class="rname" style="color:#e0a020">ロン</span>
+  <span class="rdesc">相手の捨て牌で役が完成するなら宣言可。<b style="color:#e0a020">捨てた人から得点を奪う</b>（足りなければ奪えるだけ。同時に複数人可能なら<b style="color:#e0a020">捨てた人から時計回りで近い人が優先</b>）</span>
+  <span class="rpts" style="color:#e0a020">任意</span>
 </div>
 <div class="rnote">💡 牌をタップして選ぶと「↕ 上下反転」ボタンが出ます 💡 選んで別の牌をタップで並び替え</div>
 
@@ -1112,6 +1122,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="rb-role-ex">例）手牌5枚＋捨て牌1枚で三連が完成 → +3点</div>
   </div>
 </div>
+<div id="rb-riichi-ron"></div>
 
 </div>
 
@@ -1128,6 +1139,10 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 <div class="rb-op-row"><div class="rb-op-key">↕ 上下反転</div><div class="rb-op-desc">牌を選択すると上に表示されるボタンで反転</div></div>
 
 <div class="rb-op-row"><div class="rb-op-key">「捨てる」</div><div class="rb-op-desc">選択中の牌を場に捨てる</div></div>
+
+<div class="rb-op-row"><div class="rb-op-key">「リーチ宣言」</div><div class="rb-op-desc">捨てればテンパイになるときに表示 → 押すとリーチ成立</div></div>
+
+<div class="rb-op-row"><div class="rb-op-key">「ロン！」</div><div class="rb-op-desc">相手の捨て牌で上がれるとき数秒間だけ表示 → 押すとその場で上がる</div></div>
 
 <div class="rb-op-row"><div class="rb-op-key">「上がる！」</div><div class="rb-op-desc">役が揃ったときに光る → 押して得点獲得</div></div>
 
@@ -1606,8 +1621,9 @@ function eTop(t){return t.flip?t.bot:t.top;}
 
 function eBot(t){return t.flip?t.top:t.bot;}
 
-function checkWin(hand, optRoles){
+function checkWin(hand, optRoles, forTsuide){
   // optRoles: null=全役有効 / []=基本役のみ / ['三対',...]= 選択役のみ
+  // forTsuide: true のときだけ三色の直接完成を許可（ついでに完成でのみ成立する役のため）
   if(hand.length!==6)return null;
   const tops=hand.map(eTop),bots=hand.map(eBot),allBotSame=bots.every(v=>v===bots[0]);
   const use=r=>optRoles===null||optRoles.includes(r);
@@ -1615,7 +1631,7 @@ function checkWin(hand, optRoles){
   if(allBotSame){const st=[...tops].sort((a,b)=>a-b);if(st.join(',') === '1,2,3,4,5,6')return{role:'六華',pts:6};}
   if(use('輝光')&&isKikou(hand))return{role:'輝光',pts:5,noBonus:true};
   if(isSanren(hand))return{role:'三連',pts:3};
-  if(use('三色')&&isSanshiki(hand))return{role:'三色',pts:3};
+  if(use('三色')&&forTsuide&&isSanshiki(hand))return{role:'三色',pts:3,noBonus:true};
   if(use('三対')&&isSantui(hand))return{role:'三対',pts:2};
   if(allBotSame)return{role:'一色',pts:1};
   return null;
@@ -1662,12 +1678,13 @@ function canRon(hand5, tile, optR){
   return false;
 }
 // canRonと違い、実際に上がれるフリップの組み合わせ(res・hand)を返す
-function findRonWin(hand5, tile, optR){
+// forTsuide: true のときだけ三色の完成を許可（ついでに完成専用の呼び出しで使う）
+function findRonWin(hand5, tile, optR, forTsuide){
   const hand6=[...hand5,tile];
   const lim=Math.min(1<<6,64);
   for(let m=0;m<lim;m++){
     const h=hand6.map((t,i)=>({...t,flip:!!(m&(1<<i))}));
-    const w=checkWin(h,optR);
+    const w=checkWin(h,optR,forTsuide);
     if(w) return {res:w, hand:h};
   }
   return null;
@@ -1717,6 +1734,26 @@ function declareRiichi(){
   toast('🀄 リーチ宣言！手牌が固定されます');
   render();
 }
+// ロンの得点移動: 捨てた人から奪う。持ち点が足りなければ奪えるだけ奪う（0点なら何も奪えない）
+function applyRonScoreTransfer(winner, discarder, amount){
+  const taken = Math.max(0, Math.min(amount, discarder.score));
+  winner.score += taken;
+  discarder.score -= taken;
+  return taken;
+}
+// 複数人が同時にロン可能な場合、捨てた人から時計回りで一番近い1人だけが有効
+function pickRonWinnerIdx(discardedByIdx, discardedTile, optR){
+  const n = G.players.length;
+  let bestIdx = -1, bestDist = Infinity;
+  G.players.forEach((pl, i) => {
+    if (i === discardedByIdx) return;
+    if (pl.isBot && G.useRiichi && !pl.riichi) return; // ボットはリーチ中のみ自動ロン
+    if (!canRon(pl.hand, discardedTile, optR)) return;
+    const dist = (i - discardedByIdx + n) % n;
+    if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+  });
+  return bestIdx;
+}
 function declareRon(){
   if(!G||G.phase!=='playing'||!_ronPending) return;
   const p=G.players[myOnlineIdx];
@@ -1730,69 +1767,69 @@ function declareRon(){
   if(!found)return;
   const {res,hand:hand6}=found;
   const bonus=(res.noBonus?0:countZorome(hand6))+(p.riichi?1:0);
-  res.bonus=bonus;res.ron=true;res.ronFrom=G.players[discardedByIdx].name;
-  p.hand=hand6;p.score+=res.pts+bonus;
-  G.players[discardedByIdx].score-=(res.pts+bonus);
+  const discarder=G.players[discardedByIdx];
+  res.ron=true;res.ronFrom=discarder.name;
+  p.hand=hand6;
+  const taken=applyRonScoreTransfer(p,discarder,res.pts+bonus);
+  // 実際に奪えた額に表示を合わせる（ボーナス分から先に削る）
+  res.bonus=Math.max(0,bonus-((res.pts+bonus)-taken));
+  res.pts=taken-res.bonus;
   G.phase='roundEnd';
   launchConfetti();
   const tsuideList=[];
   G.players.forEach((pl,i)=>{
     if(i===myOnlineIdx||i===discardedByIdx)return;
-    const tr=checkTsuide(pl.hand,G.field,optR);
+    const tr=checkTsuide(pl.hand,G.field,optR,pl.riichi);
     if(tr){pl.score+=tr.total;tsuideList.push({name:pl.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
   });
   showWinModal(p,res,tsuideList);
 }
 function checkBotRon(discardedByIdx){
   if(!G||onlineMode||(!G.useRiichi&&!G.useRon)) return false;
+  if(!G.useRon) return false;
   const optR=G?.optRoles??null;
   const discardedTile=G.field.filter(t=>t.discarded).slice(-1)[0];
   if(!discardedTile) return false;
-  let ronPossible=false;
-  G.players.forEach((pl,i)=>{
-    if(i===discardedByIdx||pl.isBot===false) return;
-    if(!G.useRon) return;
-    if(!pl.riichi&&G.useRiichi) return;
-    if(canRon(pl.hand,discardedTile,optR)){
-      ronPossible=true;
-      setTimeout(()=>{
-        if(!G||G.phase!=='playing') return;
-        const found=findRonWin(pl.hand,discardedTile,optR);
-        if(!found)return;
-        const {res,hand:hand6}=found;
-        const bonus=(res.noBonus?0:countZorome(hand6))+(pl.riichi?1:0);
-        res.bonus=bonus;res.ron=true;res.ronFrom=G.players[discardedByIdx].name;
-        pl.hand=hand6;pl.score+=res.pts+bonus;
-        G.players[discardedByIdx].score-=(res.pts+bonus);
-        G.phase='roundEnd';
-        const tsuideList=[];
-        G.players.forEach((p2,j)=>{
-          if(j===i||j===discardedByIdx)return;
-          const tr=checkTsuide(p2.hand,G.field,optR);
-          if(tr){p2.score+=tr.total;tsuideList.push({name:p2.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
-        });
-        showWinModal(pl,res,tsuideList);
-      },800);
-    }
-  });
-  if(G.useRon&&discardedByIdx!==myOnlineIdx){
-    const player=G.players[myOnlineIdx];
-    if(canRon(player.hand,discardedTile,optR)){
-      openRonWindow(discardedTile,discardedByIdx,()=>nextTurn());
-      ronPossible=true;
-    }
+  const winnerIdx=pickRonWinnerIdx(discardedByIdx,discardedTile,optR);
+  if(winnerIdx===-1) return false;
+  if(winnerIdx===myOnlineIdx){
+    openRonWindow(discardedTile,discardedByIdx,()=>nextTurn());
+    return true;
   }
-  return ronPossible;
+  // ボット自動ロン（時計回りで最優先の1人だけ）
+  const pl=G.players[winnerIdx];
+  setTimeout(()=>{
+    if(!G||G.phase!=='playing') return;
+    const found=findRonWin(pl.hand,discardedTile,optR);
+    if(!found)return;
+    const {res,hand:hand6}=found;
+    const bonus=(res.noBonus?0:countZorome(hand6))+(pl.riichi?1:0);
+    const discarder=G.players[discardedByIdx];
+    res.ron=true;res.ronFrom=discarder.name;
+    pl.hand=hand6;
+    const taken=applyRonScoreTransfer(pl,discarder,res.pts+bonus);
+    res.bonus=Math.max(0,bonus-((res.pts+bonus)-taken));
+    res.pts=taken-res.bonus;
+    G.phase='roundEnd';
+    const tsuideList=[];
+    G.players.forEach((p2,j)=>{
+      if(j===winnerIdx||j===discardedByIdx)return;
+      const tr=checkTsuide(p2.hand,G.field,optR,p2.riichi);
+      if(tr){p2.score+=tr.total;tsuideList.push({name:p2.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
+    });
+    showWinModal(pl,res,tsuideList);
+  },800);
+  return true;
 }
-function checkTsuide(hand5,field,optR){
+function checkTsuide(hand5,field,optR,riichi){
   if(hand5.length!==5)return null;
   const discards=field.filter(t=>t.discarded);
   let bestRes=null,bestPts=-1;
   discards.forEach(t=>{
-    const found=findRonWin(hand5,t,optR);
+    const found=findRonWin(hand5,t,optR,true); // ついでに完成でのみ三色を許可
     if(found&&found.res.pts>bestPts){
       bestPts=found.res.pts;
-      const bonus=found.res.noBonus?0:countZorome(found.hand);
+      const bonus=(found.res.noBonus?0:countZorome(found.hand))+(riichi?1:0);
       bestRes={role:found.res.role,pts:found.res.pts,bonus,total:found.res.pts+bonus};
     }
   });
@@ -2381,7 +2418,7 @@ function processWin(pi,res){
   const tsuideList=[];
   G.players.forEach((p,i)=>{
     if(i===pi)return;
-    const tr=checkTsuide(p.hand,G.field,optR);
+    const tr=checkTsuide(p.hand,G.field,optR,p.riichi);
     if(tr){p.score+=tr.total;tsuideList.push({name:p.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
   });
 const _isMyWin=pi===myOnlineIdx;
@@ -2801,7 +2838,41 @@ function closeSidebar(){document.getElementById('sidebar').style.display='none';
 
 // ============================================================
 
-function openRuleBook(){document.getElementById('rule-modal').classList.add('open');renderRulebookExamples();renderOptionalRoles();}
+function openRuleBook(){document.getElementById('rule-modal').classList.add('open');renderRulebookExamples();renderOptionalRoles();renderRiichiRonInfo();}
+function renderRiichiRonInfo() {
+  const useRiichi = !!(G && G.useRiichi);
+  const useRon    = !!(G && G.useRon);
+  let html = '';
+  if(useRiichi){
+    html += `
+    <div class="rb-role" style="background:rgba(200,74,74,.06);border-radius:6px;padding:.6rem .4rem;margin-top:.4rem">
+      <div>
+        <div class="rb-role-name" style="color:#e07070">🀄 リーチ</div>
+      </div>
+      <div class="rb-role-desc">
+        手牌6枚のとき、<b style="color:#e07070">ある牌を捨てればテンパイ（あと1枚で上がれる状態）になる</b>なら「リーチ宣言」ボタンが押せる。<br>
+        宣言すると、以降は引いた牌が役の完成牌でない限り<b style="color:#e07070">自動で捨てられる</b>（手牌を動かせなくなる）。<br>
+        リーチ中に上がると<b style="color:#f5d040">+1点</b>のボーナスが付く。
+      </div>
+    </div>`;
+  }
+  if(useRon){
+    html += `
+    <div class="rb-role" style="background:rgba(224,160,32,.06);border-radius:6px;padding:.6rem .4rem;margin-top:.4rem">
+      <div>
+        <div class="rb-role-name" style="color:#e0a020">ロン</div>
+      </div>
+      <div class="rb-role-desc">
+        他のプレイヤーが捨てた牌を使うと自分の役が完成するとき、「ロン！」ボタンが数秒間だけ表示される。<br>
+        押すとその牌をもらってその場で上がれる。<br>
+        ロンで得た点数（役点＋ボーナス）は、<b style="color:#e0a020">牌を捨てた相手から差し引かれる</b>（相手の持ち点が足りなければ奪えるだけ）。<br>
+        複数人が同時にロンできる場合は、<b style="color:#e0a020">捨てた人から時計回りで一番近い1人だけ</b>が有効。
+      </div>
+    </div>`;
+  }
+  const el = document.getElementById('rb-riichi-ron');
+  if(el) el.innerHTML = html;
+}
 function renderOptionalRoles() {
   const activeRoles = G?.optRoles ?? null;
   const use = r => activeRoles === null || (Array.isArray(activeRoles) && activeRoles.includes(r));
@@ -2813,8 +2884,8 @@ function renderOptionalRoles() {
     { role:'三対', yomi:'サンツイ', pts:'2点',
       desc:'6枚を<b style="color:#f0a050">同じ牌のペア×3組</b>にする。',
       tiles:[[2,1],[2,1],[4,3],[4,3],[6,5],[6,5]] },
-    { role:'三色', yomi:'サンシキ', pts:'3点',
-      desc:'手牌6枚の上下すべての数が<b style="color:#f0a050">合わせて3種類のみ</b>になる。',
+    { role:'三色', yomi:'サンシキ', pts:'3点（ボーナスなし）',
+      desc:'手牌6枚の上下すべての数が<b style="color:#f0a050">合わせて3種類のみ</b>になる。<b style="color:#60c870">「ついでに完成」でのみ</b>成立し、通常の上がり・ロンでは成立しない。',
       tiles:[[1,3],[3,1],[5,3],[3,5],[1,5],[5,1]] },
     { role:'輝光', yomi:'キコウ', pts:'5点（ボーナスなし）',
       desc:'6枚すべてを<b style="color:#f5d040">★ゾロ目牌</b>にする。輝きボーナスはなし。',
