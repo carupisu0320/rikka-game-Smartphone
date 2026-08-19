@@ -205,7 +205,7 @@ margin-bottom:3px;margin-top:5px;padding-bottom:2px;border-bottom:1px dashed #1e
 
 /* ── TILE ── */
 
-.tile{width:clamp(26px, 8.5vw, 38px);aspect-ratio:32/52;height:auto;border-radius:6px;
+.tile{width:calc(clamp(26px, 8.5vw, 38px) * var(--tile-scale, 1));aspect-ratio:32/52;height:auto;border-radius:6px;
 
 background:linear-gradient(180deg,#ffffff 0%,#efe4ce 100%);border:1.5px solid #b89860;
 
@@ -237,7 +237,7 @@ box-shadow:0 8px 20px rgba(48,160,144,.5),0 2px 6px rgba(0,0,0,0.3)}
 
 .tile.discarded.pickable:hover{border-color:#d47830}
 
-.fback{width:clamp(26px, 8.5vw, 38px);aspect-ratio:32/52;height:auto;border-radius:5px;
+.fback{width:calc(clamp(26px, 8.5vw, 38px) * var(--tile-scale, 1));aspect-ratio:32/52;height:auto;border-radius:5px;
 
 background:linear-gradient(165deg,#2e2018 0%,#120c06 100%);border:1.5px solid #5a4028;
 
@@ -256,7 +256,7 @@ font-size:.9rem;color:rgba(201,168,76,.25);pointer-events:none}
 
 .fback-pickable:active{transform:translateY(-3px)}
 
-.htile{width:clamp(26px, 8.5vw, 38px);aspect-ratio:32/52;height:auto;border-radius:5px;
+.htile{width:calc(clamp(26px, 8.5vw, 38px) * var(--tile-scale, 1));aspect-ratio:32/52;height:auto;border-radius:5px;
 
 background:linear-gradient(180deg,#ffffff 0%,#ece0c8 100%);border:1.5px solid #a89060;
 
@@ -1222,6 +1222,15 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       <input id="sound-volume-slider" type="range" min="0" max="100" value="50"
         oninput="setSoundVolume(this.value)" style="flex:1;accent-color:#c9a84c">
       <span style="font-size:.75rem;color:#6a5830">🔊</span>
+    </div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-title">― 牌の大きさ ―</div>
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <span style="font-size:.75rem;color:#6a5830">小</span>
+      <input id="tile-scale-slider" type="range" min="80" max="160" value="100"
+        oninput="setTileScale(this.value)" style="flex:1;accent-color:#c9a84c">
+      <span style="font-size:.9rem;color:#6a5830">大</span>
     </div>
   </div>
     <div class="sb-section-title">― 戦績 ―</div>
@@ -2777,6 +2786,22 @@ function updateSoundUI(){
   if(slider) slider.value = Math.round(soundVolume*100);
 }
 
+// ── 牌の大きさ ──
+// 機種の画面幅から自動計算した基準サイズ(clamp)に、この倍率をかけて
+// 押しやすさに合わせて手動調整できるようにする。80%〜160%、既定100%。
+let tileScale = localStorage.getItem('rikka_tile_scale') !== null
+  ? parseFloat(localStorage.getItem('rikka_tile_scale')) : 1;
+document.documentElement.style.setProperty('--tile-scale', tileScale);
+function setTileScale(v){
+  tileScale = Math.max(80,Math.min(160,Number(v)))/100;
+  document.documentElement.style.setProperty('--tile-scale', tileScale);
+  localStorage.setItem('rikka_tile_scale', tileScale);
+}
+function updateTileScaleUI(){
+  const slider = document.getElementById('tile-scale-slider');
+  if(slider) slider.value = Math.round(tileScale*100);
+}
+
 function toggleChat(){
   chatOpen = !chatOpen;
   document.getElementById('chat-wrap').style.display = chatOpen ? 'flex' : 'none';
@@ -2980,6 +3005,7 @@ function openSidebar(){
   updateAvatarDisplay();
   renderSidebarStats();
   updateSoundUI();
+  updateTileScaleUI();
 }
 
 function closeSidebar(){document.getElementById('sidebar').style.display='none';document.getElementById('sidebar-overlay').style.display='none';}
