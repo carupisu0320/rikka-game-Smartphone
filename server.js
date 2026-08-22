@@ -185,7 +185,7 @@ function genCode() {
 }
 function dealRound(room) {
   const deck = makeDeck(); let idx = 0;
-  room.players.forEach(p => { p.hand = deck.slice(idx, idx + 5); idx += 5; });
+  room.players.forEach(p => { p.hand = deck.slice(idx, idx + 5); idx += 5; p.riichi = false; });
   room.field = deck.slice(idx);
   room.turn = Math.floor(Math.random() * room.players.length); // ← ランダムに変更
   room.tphase = 'pick';
