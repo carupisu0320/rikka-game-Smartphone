@@ -358,6 +358,23 @@ padding:.65rem 1.3rem;font-size:.95rem;color:#f0d8b0;z-index:300;
 pointer-events:none;opacity:0;transition:opacity .22s,transform .22s;white-space:nowrap;max-width:90vw;text-align:center}
 
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#achievement-popup{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-16px) scale(.92);
+  background:linear-gradient(135deg,#2a1e10,#1a1208);border:2px solid #c9a84c;border-radius:14px;
+  padding:.8rem 1.3rem;z-index:400;pointer-events:none;opacity:0;
+  transition:opacity .3s,transform .3s;box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 20px rgba(201,168,76,.45);
+  display:flex;align-items:center;gap:.7rem;max-width:min(90vw,360px)}
+#achievement-popup.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+#achievement-popup .ap-icon{font-size:2.1rem;flex-shrink:0}
+#achievement-popup .ap-label{font-size:.66rem;color:#c9a84c;font-weight:700;letter-spacing:.04em}
+#achievement-popup .ap-title{font-size:1rem;color:#f5e0a0;font-weight:700;margin-top:.1rem}
+#achievement-popup .ap-desc{font-size:.72rem;color:#8a7860;margin-top:.15rem}
+.ach-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .5rem;border-radius:8px;
+  background:#150f0a;border:1px solid #241a10;margin-bottom:.35rem;opacity:.55}
+.ach-item.ach-done{opacity:1;border-color:#5a4020;background:#1e1610}
+.ach-icon{font-size:1.3rem;flex-shrink:0;width:1.7rem;text-align:center}
+.ach-title{font-size:.76rem;color:#c8b898;font-weight:700}
+.ach-item.ach-done .ach-title{color:#e8c97a}
+.ach-desc{font-size:.66rem;color:#5a4820;margin-top:.1rem;line-height:1.35}
 
 /* ── MODAL ── */
 
@@ -1043,6 +1060,14 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   </div>
 </div>
 <div id="toast"></div>
+<div id="achievement-popup">
+  <div class="ap-icon" id="ap-icon"></div>
+  <div class="ap-text">
+    <div class="ap-label">🏅 実績解除！</div>
+    <div class="ap-title" id="ap-title"></div>
+    <div class="ap-desc" id="ap-desc"></div>
+  </div>
+</div>
 
 <div id="modal"><div class="mbox" id="mbox"></div></div>
 
@@ -1249,6 +1274,11 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       </button>
     </div>
     <div id="stats-content"></div>
+    <div class="sb-section-title" style="margin-top:.6rem;border-top:1px solid #2a1e10;padding-top:.5rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleAchievements()">
+  <span>― 実績 <span id="achievements-count" style="color:#8a7048;font-weight:400">0/0</span> ―</span>
+  <span id="achievements-toggle-icon" style="font-size:.9rem;color:#6a5830">▶</span>
+</div>
+<div id="achievements-list-sb"></div>
     <div class="sb-section-title" style="margin-top:.6rem;border-top:1px solid #2a1e10;padding-top:.5rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleHistory()">
   <span>― 最近の対戦 ―</span>
   <span id="history-toggle-icon" style="font-size:.9rem;color:#6a5830">▼</span>
@@ -1256,6 +1286,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 <div id="history-list-sb"></div>
   </div>
 </div>
+
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
@@ -1546,10 +1577,11 @@ showScreen('game');render();
 let _pendingOnlineGameOver = { scores: [], tsuideList: [] };
 function showOnlineWinMsg(wd){
 
-const{winnerIdx,winnerName,hand=[],role,pts,bonus=0,scores=[],isGameOver,ron}=wd;
+const{winnerIdx,winnerName,hand=[],role,pts,bonus=0,scores=[],isGameOver,ron,riichi}=wd;
 playSound(ron ? 'ron' : 'win');
 
 saveHistory(makeHistoryEntry(Number(winnerIdx)===Number(myOnlineIdx),role,pts+bonus,true,scores.map(s=>s.name)));
+const _newAch=checkAchievements(Number(winnerIdx)===Number(myOnlineIdx),{role,bonus,ron:!!ron,riichi:!!riichi,online:true});
   const tsuideList=wd.tsuideList||[];
   _pendingOnlineGameOver = { scores, tsuideList };
 
@@ -1582,6 +1614,8 @@ ${isGameOver
 :`<button class="mbtn" onclick="doNextOnlineRound()">次のラウンドへ →</button>`}`;
 
 document.getElementById('modal').classList.add('open');
+
+if(_newAch.length)setTimeout(()=>showAchievementPopup(_newAch),900);
 
 }
 
@@ -2462,6 +2496,7 @@ function isGameOver(players, goal){
 function processWin(pi,res){
   G.phase='roundEnd';const bonus=(res.noBonus?0:countZorome(G.players[pi].hand))+(G.players[pi].riichi?1:0);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
   saveHistory(makeHistoryEntry(pi===myOnlineIdx,res.role,res.pts+bonus,onlineMode,G.players.map(p=>p.name)));
+  const _newAch=checkAchievements(pi===myOnlineIdx,{role:res.role,bonus,ron:!!res.ron,riichi:!!G.players[pi].riichi,online:false});
   const optR=G?.optRoles??null;
   const tsuideList=[];
   G.players.forEach((p,i)=>{
@@ -2483,6 +2518,7 @@ const _isMyWin=pi===myOnlineIdx;
       setTimeout(()=>addBotChatMsg(t.name,rndComment('tsuide'),false),700);
   });
   showWinModal(G.players[pi],res,tsuideList);
+  if(_newAch.length)setTimeout(()=>showAchievementPopup(_newAch),900);
 }
 
 let _pendingBotGameOverTsuide = [];
@@ -2558,6 +2594,126 @@ function saveHistory(entry){
   h.unshift(entry);if(h.length>30)h.length=30;
   localStorage.setItem('rikka_history',JSON.stringify(h));
 }
+
+// ============================================================
+// 実績（バッジ）システム
+// ============================================================
+const ACHIEVEMENTS=[
+  {id:'first_win',        icon:'🏅', title:'初勝利',             desc:'はじめて役を完成させて勝利する'},
+  {id:'role_musou',       icon:'🐉', title:'無双の証',           desc:'「無双」で勝利する'},
+  {id:'role_kikou',       icon:'✨', title:'輝光の輝き',         desc:'「輝光」で勝利する'},
+  {id:'role_sanren',      icon:'🔗', title:'三連の道',           desc:'「三連」で勝利する'},
+  {id:'role_sanshiki',    icon:'🎨', title:'三色の彩',           desc:'「三色」で勝利する（ついで完成でもOK）'},
+  {id:'role_santui',      icon:'👯', title:'三対の絆',           desc:'「三対」で勝利する'},
+  {id:'role_isshoku',     icon:'🀄', title:'一色の道',           desc:'「一色」で勝利する'},
+  {id:'role_rikka',       icon:'🌸', title:'六華の頂',           desc:'「六華」で勝利する（最高難度の役）'},
+  {id:'role_all',         icon:'📖', title:'役図鑑コンプリート', desc:'7つの役すべてで勝利経験を積む'},
+  {id:'riichi_ron',       icon:'⚡', title:'リーチロン',         desc:'リーチ中にロンで勝利する'},
+  {id:'win_streak_3',     icon:'🔥', title:'3連勝',              desc:'3回連続で勝利する'},
+  {id:'bonus_master',     icon:'💎', title:'ぞろ目コレクター',   desc:'ぞろ目ボーナス2以上で勝利する'},
+  {id:'online_first_win', icon:'🌐', title:'オンライン初勝利',   desc:'オンライン対戦ではじめて勝利する'},
+  {id:'games_10',         icon:'🎮', title:'常連さん',           desc:'通算10戦プレイする'},
+  {id:'games_100',        icon:'🏆', title:'ベテラン',           desc:'通算100戦プレイする'},
+];
+const ROLE_ACHIEVEMENT_ID={'無双':'role_musou','輝光':'role_kikou','三連':'role_sanren','三色':'role_sanshiki','三対':'role_santui','一色':'role_isshoku','六華':'role_rikka'};
+const ALL_ROLE_ACH_IDS=Object.values(ROLE_ACHIEVEMENT_ID);
+
+function loadAchievementState(){
+  try{
+    const st=JSON.parse(localStorage.getItem('rikka_achievements')||'{}');
+    st.unlocked=st.unlocked||[]; st.totalGames=st.totalGames||0; st.winStreak=st.winStreak||0;
+    return st;
+  }catch(e){ return {unlocked:[],totalGames:0,winStreak:0}; }
+}
+function saveAchievementState(st){
+  try{ localStorage.setItem('rikka_achievements',JSON.stringify(st)); }catch(e){}
+}
+
+// このラウンドの結果から実績を判定し、新しく解除されたものの配列を返す。
+// won: このラウンドで自分（ローカルプレイヤー）が勝利したか
+// opts: {role, bonus, ron, riichi, online}
+function checkAchievements(won,opts){
+  opts=opts||{};
+  const st=loadAchievementState();
+  st.totalGames++;
+  st.winStreak=won?st.winStreak+1:0;
+
+  const have=new Set(st.unlocked);
+  const newly=[];
+  const unlock=(id)=>{
+    if(have.has(id))return;
+    have.add(id);
+    const a=ACHIEVEMENTS.find(x=>x.id===id);
+    if(a)newly.push(a);
+  };
+
+  if(won){
+    unlock('first_win');
+    if(opts.online)unlock('online_first_win');
+    const roleId=ROLE_ACHIEVEMENT_ID[opts.role];
+    if(roleId)unlock(roleId);
+    if(ALL_ROLE_ACH_IDS.every(id=>have.has(id)))unlock('role_all');
+    if(opts.ron&&opts.riichi)unlock('riichi_ron');
+    if((opts.bonus||0)>=2)unlock('bonus_master');
+    if(st.winStreak>=3)unlock('win_streak_3');
+  }
+  if(st.totalGames>=10)unlock('games_10');
+  if(st.totalGames>=100)unlock('games_100');
+
+  st.unlocked=[...have];
+  saveAchievementState(st);
+  renderAchievementsList();
+  return newly;
+}
+
+let _achPopupQueue=[];
+let _achPopupShowing=false;
+function showAchievementPopup(list){
+  if(!list||!list.length)return;
+  _achPopupQueue.push(...list);
+  if(!_achPopupShowing)_drainAchievementPopup();
+}
+function _drainAchievementPopup(){
+  const next=_achPopupQueue.shift();
+  if(!next){_achPopupShowing=false;return;}
+  _achPopupShowing=true;
+  const el=document.getElementById('achievement-popup');
+  document.getElementById('ap-icon').textContent=next.icon;
+  document.getElementById('ap-title').textContent=next.title;
+  document.getElementById('ap-desc').textContent=next.desc;
+  playSound('win');
+  el.classList.add('show');
+  setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(_drainAchievementPopup,350);
+  },3200);
+}
+
+let achievementsOpen=false;
+function toggleAchievements(){ achievementsOpen=!achievementsOpen; renderAchievementsList(); }
+function renderAchievementsList(){
+  const el=document.getElementById('achievements-list-sb');
+  if(!el)return;
+  const st=loadAchievementState();
+  const have=new Set(st.unlocked);
+  const doneCount=ACHIEVEMENTS.filter(a=>have.has(a.id)).length;
+  const countEl=document.getElementById('achievements-count');
+  if(countEl)countEl.textContent=`${doneCount}/${ACHIEVEMENTS.length}`;
+  el.style.display=achievementsOpen?'':'none';
+  const iconEl=document.getElementById('achievements-toggle-icon');
+  if(iconEl)iconEl.textContent=achievementsOpen?'▼':'▶';
+  el.innerHTML=ACHIEVEMENTS.map(a=>{
+    const done=have.has(a.id);
+    return `<div class="ach-item${done?' ach-done':''}">
+      <div class="ach-icon">${done?a.icon:'🔒'}</div>
+      <div class="ach-body">
+        <div class="ach-title">${esc(a.title)}</div>
+        <div class="ach-desc">${esc(a.desc)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function switchStatsTab(tab){
   currentStatsTab=tab;
   const GOLD='linear-gradient(135deg,#c9a84c,#a07020)',TEAL='linear-gradient(135deg,#2a9e8e,#1a6e60)',BASE='#1a1410';
@@ -3016,6 +3172,7 @@ function openSidebar(){
   document.getElementById('sb-email').textContent=gUser.email||'';
   updateAvatarDisplay();
   renderSidebarStats();
+  renderAchievementsList();
   updateSoundUI();
   updateTileScaleUI();
 }
