@@ -510,7 +510,7 @@ body.back-purple .fback::after{color:rgba(160,80,255,.25)}
   animation:assistPulse 1.2s infinite}
 .normal-area-best{outline:2px solid #30e890;outline-offset:3px;border-radius:6px;
   box-shadow:0 0 14px rgba(48,232,144,.5);animation:assistPulse 1.2s infinite}
-.htile.assist-discard{border-color:#e03030!important;
+.htile.assist-discard,.htile.tenpai-hint{border-color:#e03030!important;
   box-shadow:0 0 18px rgba(224,48,48,.8),0 0 6px rgba(224,48,48,.4)!important;
   animation:assistPulse 1.2s infinite}
 @keyframes assistPulse{0%,100%{opacity:1}50%{opacity:.65}}
@@ -1541,6 +1541,9 @@ showScreen('game');render();
 
 }
 
+// 「ゲーム終了を確認」ボタンに渡すデータ。onclick属性へ直接埋め込むとプレイヤー名経由でXSSされるため、
+// JSONを文字列化して属性値に埋め込むのではなく、変数経由で受け渡す。
+let _pendingOnlineGameOver = { scores: [], tsuideList: [] };
 function showOnlineWinMsg(wd){
 
 const{winnerIdx,winnerName,hand=[],role,pts,bonus=0,scores=[],isGameOver,ron}=wd;
@@ -1548,6 +1551,7 @@ playSound(ron ? 'ron' : 'win');
 
 saveHistory(makeHistoryEntry(Number(winnerIdx)===Number(myOnlineIdx),role,pts+bonus,true,scores.map(s=>s.name)));
   const tsuideList=wd.tsuideList||[];
+  _pendingOnlineGameOver = { scores, tsuideList };
 
 const rows=scores.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.score}点</td></tr>`).join('');
 
@@ -1573,7 +1577,7 @@ document.getElementById('mbox').innerHTML=`
 
 ${isGameOver
 
-?`<button class="mbtn" onclick='showOnlineGameOver(${JSON.stringify(scores)},${JSON.stringify(tsuideList)})'>ゲーム終了を確認 →</button>`
+?`<button class="mbtn" onclick="showOnlineGameOver()">ゲーム終了を確認 →</button>`
 
 :`<button class="mbtn" onclick="doNextOnlineRound()">次のラウンドへ →</button>`}`;
 
@@ -1581,10 +1585,8 @@ document.getElementById('modal').classList.add('open');
 
 }
 
-function showOnlineGameOver(scores,tsuideList){
-if(typeof scores==='string')scores=JSON.parse(scores);
-if(typeof tsuideList==='string')tsuideList=JSON.parse(tsuideList);
-tsuideList=tsuideList||[];
+function showOnlineGameOver(){
+const { scores, tsuideList } = _pendingOnlineGameOver || { scores: [], tsuideList: [] };
 const winner=scores.reduce((a,b)=>a.score>b.score?a:b);
 const rows=scores.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.score}点</td></tr>`).join('');
 document.getElementById('mbox').innerHTML=`
@@ -2025,6 +2027,11 @@ else if(p.hand.length<6){hh.textContent=`手牌 ${p.hand.length}枚 — 場か�
 
 else{hh.textContent=`手牌 ${p.hand.length}枚 — 捨てるか役を揃えて上がろう`;hh.className='';}
 
+// テンパイになる牌を判定（リーチボタン表示と、下の捨て牌ハイライトの両方で使い回す）
+const tenpaiFlags=(isDiscard&&has6&&!winRes&&!p.riichi)
+  ? p.hand.map((_,i)=>isTenpai(p.hand.filter((_,j)=>j!==i),optR))
+  : [];
+
 // アシスト: 捨てるべき牌を赤く光らせる
 if(assistMode && isDiscard && has6 && !winRes){
   try{
@@ -2036,9 +2043,13 @@ if(assistMode && isDiscard && has6 && !winRes){
     }
   }catch(e){}
 }
+// リーチ判定: 捨てればテンパイになる牌を赤く点滅させる（assistModeのON/OFFに関係なく常に表示）
+if(tenpaiFlags.some(Boolean)){
+  const tiles=document.getElementById('hand-tiles').querySelectorAll('.htile');
+  tenpaiFlags.forEach((ok,i)=>{ if(ok && tiles[i]) tiles[i].classList.add('tenpai-hint'); });
+}
 // リーチボタン表示
-const canRiichi=!!(G?.useRiichi)&&isDiscard&&has6&&!p.riichi&&!winRes&&
-  p.hand.some((_,i)=>isTenpai(p.hand.filter((_,j)=>j!==i),optR));
+const canRiichi=!!(G?.useRiichi) && tenpaiFlags.some(Boolean);
 showRiichiBtn(canRiichi);
 }
 
@@ -2474,9 +2485,11 @@ const _isMyWin=pi===myOnlineIdx;
   showWinModal(G.players[pi],res,tsuideList);
 }
 
+let _pendingBotGameOverTsuide = [];
 function showWinModal(p,res,tsuideList=[]){
 playSound(res.ron ? 'ron' : 'win');
 if(p===G.players[myOnlineIdx])launchConfetti();
+_pendingBotGameOverTsuide = tsuideList;
 const over=isGameOver(G.players,G?.goal),rows=G.players.map(pl=>`<tr><td>${esc(pl.name)}</td><td>${pl.score}点</td></tr>`).join('');
 const tiles=p.hand.map(t=>tileHTML(t,'','tile htile')).join(''),bonus=res.bonus||0,total=res.pts+bonus;
 
@@ -2484,14 +2497,13 @@ const bLine=bonus>0?`<div style="font-size:.85rem;color:#f5d040;margin-bottom:.6
 const ronLine=res.ron?`<div style="font-size:.85rem;color:#e0a020;margin:.3rem 0">⚡ ロン！（${esc(res.ronFrom||'')} の捨て牌）</div>`:'';
 const riichiLine=(res.bonus>0&&p.riichi)?`<div style="font-size:.82rem;color:#f5d040">🀄 リーチボーナス +1点含む</div>`:'';
 
-document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div><p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick='showGameOver(${JSON.stringify(tsuideList)})'>ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
+document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div><p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
 
 document.getElementById('modal').classList.add('open');
 
 }
 
-function showGameOver(tsuideList){if(typeof tsuideList==='string')tsuideList=JSON.parse(tsuideList);tsuideList=tsuideList||[];const winner=G.players.reduce((a,b)=>a.score>b.score?a:b),rows=G.players.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.score}点</td></tr>`).join('');document.getElementById('mbox').innerHTML=`<div class="mtitle">🏆 ゲーム終了！</div><div style="font-size:1.5rem;color:#f5e0a0;margin:.5rem 0;font-family:'Hiragino Mincho ProN','Yu Mincho',serif">${esc(winner.name)} の勝利！</div><table 
-<table class="mscores">${rows}</table>
+function showGameOver(){const tsuideList=_pendingBotGameOverTsuide||[];const winner=G.players.reduce((a,b)=>a.score>b.score?a:b),rows=G.players.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.score}点</td></tr>`).join('');document.getElementById('mbox').innerHTML=`<div class="mtitle">🏆 ゲーム終了！</div><div style="font-size:1.5rem;color:#f5e0a0;margin:.5rem 0;font-family:'Hiragino Mincho ProN','Yu Mincho',serif">${esc(winner.name)} の勝利！</div><table class="mscores">${rows}</table>
 ${tsuideList.length>0?`
 <div style="margin:.6rem 0 .3rem;font-size:.78rem;color:#8a7048;border-top:1px solid #2a1e10;padding-top:.5rem">✨ ついでに完成</div>
 ${tsuideList.map(t=>`<div style="font-size:.82rem;color:#e8c97a;margin:.2rem 0">${esc(t.name)}：${t.role}（${t.pts}点${t.bonus>0?'＋★×'+t.bonus:''}）→ +${t.total}点</div>`).join('')}`:''}
