@@ -465,7 +465,7 @@ socket.on('pick', ({ code, fieldIdx }) => {
       winnerIdx: pi, winnerName: room.players[pi].name,
       hand: hand6, role: res.role, pts: cappedPts, bonus: cappedBonus,
       scores: room.players.map(p => ({ name: p.name, score: p.score })),
-      isGameOver, tsuideList, ron: true, ronFrom: discarder.name
+      isGameOver, tsuideList, ron: true, ronFrom: discarder.name, riichi: room.players[pi].riichi
     });
   });
   socket.on('chat', ({ code, msg }) => {
@@ -509,6 +509,7 @@ player.score += res.pts + bonus;
       scores:     room.players.map(p => ({ name: p.name, score: p.score })),
       isGameOver: room.players.some(p => p.score >= (room.goal || 10)),
       tsuideList,
+      riichi:     player.riichi,
     });
   });
 
