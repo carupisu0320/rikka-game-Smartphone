@@ -2061,8 +2061,8 @@ else if(p.hand.length<6){hh.textContent=`手牌 ${p.hand.length}枚 — 場か�
 
 else{hh.textContent=`手牌 ${p.hand.length}枚 — 捨てるか役を揃えて上がろう`;hh.className='';}
 
-// テンパイになる牌を判定（リーチボタン表示と、下の捨て牌ハイライトの両方で使い回す）
-const tenpaiFlags=(isDiscard&&has6&&!winRes&&!p.riichi)
+// テンパイになる牌を判定（リーチボタン表示と、下の捨て牌ハイライトの両方で使い回す）。リーチありの対局でのみ判定する。
+const tenpaiFlags=(!!(G?.useRiichi)&&isDiscard&&has6&&!winRes&&!p.riichi)
   ? p.hand.map((_,i)=>isTenpai(p.hand.filter((_,j)=>j!==i),optR))
   : [];
 
