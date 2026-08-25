@@ -190,6 +190,16 @@ function isTenpaiServer(hand5, optR) {
 }
 
 // ── ルームユーティリティ ──
+// 場の背景に使う画像URLの簡易サニタイズ。http(s)のみ許可し、
+// url(...)やHTML属性から抜け出せる引用符・バックスラッシュ・括弧を含むものは拒否する。
+function sanitizeFieldBg(url) {
+  if (typeof url !== 'string') return '';
+  url = url.trim();
+  if (url.length === 0 || url.length > 500) return '';
+  if (!/^https:\/\//i.test(url)) return '';
+  if (/["'\\()<>]/.test(url)) return '';
+  return url;
+}
 function genCode() {
   let c;
   do { c = Math.random().toString(36).slice(2, 6).toUpperCase(); } while (rooms.has(c));
@@ -214,7 +224,7 @@ function sendState(room) {
       turn:      room.turn,
       tphase:    room.tphase,
       phase:     room.phase,
-      scores:    room.players.map(p => ({ name: p.name, score: p.score })),
+      scores:    room.players.map(p => ({ name: p.name, score: p.score, fieldBg: p.fieldBg || '' })),
       oppCounts: room.players.map((p, i) => i === myIdx ? -1 : p.hand.length),
       code:      room.code,
       optRoles:  room.roles !== undefined ? room.roles : null,
@@ -233,9 +243,9 @@ function findRoom(sid) {
 io.on('connection', socket => {
 
   // クイックマッチ
-  socket.on('quickmatch', ({ name }) => {
+  socket.on('quickmatch', ({ name, fieldBg }) => {
     if (queue.find(q => q.id === socket.id)) return;
-    queue.push({ id: socket.id, name });
+    queue.push({ id: socket.id, name, fieldBg: sanitizeFieldBg(fieldBg) });
     socket.emit('queued', { pos: queue.length });
 
 if (queue.length >= 2) {
@@ -245,8 +255,8 @@ if (queue.length >= 2) {
     code, host: p1.id,
     roles: [], // クイックマッチ: 基本役のみ
     players: [
-      { id: p1.id, name: p1.name, hand: [], score: 0 },
-      { id: p2.id, name: p2.name, hand: [], score: 0 },
+      { id: p1.id, name: p1.name, hand: [], score: 0, fieldBg: p1.fieldBg || '' },
+      { id: p2.id, name: p2.name, hand: [], score: 0, fieldBg: p2.fieldBg || '' },
     ],
     field: [], turn: 0, tphase: 'pick', phase: 'playing',
   };
@@ -266,7 +276,7 @@ if (queue.length >= 2) {
   });
 
   // ルーム作成
-socket.on('create_room', ({ name, roles, goal, useRiichi, useRon }) => {
+socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg }) => {
     const code = genCode();
     rooms.set(code, {
       code, host: socket.id,
@@ -274,7 +284,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon }) => {
       goal: [5,10,15,20,30].includes(goal) ? goal : 10,
       useRiichi: useRiichi || false,
       useRon: useRon || false,
-      players: [{ id: socket.id, name, hand: [], score: 0, riichi: false }],
+      players: [{ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg) }],
       field: [], turn: 0, tphase: 'pick', phase: 'waiting',
     });
     socket.join(code);
@@ -283,7 +293,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon }) => {
   });
 
   // ルーム参加
-  socket.on('join_room', ({ name, code }) => {
+  socket.on('join_room', ({ name, code, fieldBg }) => {
     const c = (code || '').toUpperCase().trim();
     const room = rooms.get(c);
     if (!room)                    { socket.emit('err', '部屋が見つかりません'); return; }
@@ -291,9 +301,19 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon }) => {
     if (room.players.length >= 4) { socket.emit('err', '部屋が満員です'); return; }
     if (room.players.some(p => p.id === socket.id)) { socket.emit('err', 'すでに参加しています'); return; }
     if (room.players.some(p => p.name === name)) { socket.emit('err', 'この名前はすでに使われています'); return; }
-    room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false });
+    room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg) });
     socket.join(c);
     io.to(c).emit('room_update', { players: room.players.map(p => p.name), code: c });
+  });
+
+  // 場の背景画像を変更（対局中でも変更可能）
+  socket.on('set_field_bg', ({ code, url }) => {
+    const room = rooms.get(code);
+    if (!room) return;
+    const pi = room.players.findIndex(p => p.id === socket.id);
+    if (pi === -1) return;
+    room.players[pi].fieldBg = sanitizeFieldBg(url);
+    sendState(room);
   });
 
   // ゲーム開始
