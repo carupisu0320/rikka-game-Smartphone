@@ -1034,7 +1034,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <input id="fieldbg-url-input" class="finput" type="text"
       placeholder="https://example.com/mybg.png"
       style="margin-bottom:.4rem;font-size:.9rem" oninput="previewFieldBg()">
-    <div style="font-size:.7rem;color:#5a4820;margin-bottom:.8rem">オンライン対戦では、自分の番になるとこの画像が場の牌の背景に表示されます</div>
+    <div style="font-size:.7rem;color:#5a4820;margin-bottom:.8rem">自分の番になると、場の牌が置かれているエリアの背景がこの画像になります（ボット戦・オンライン対戦どちらも）</div>
     <div style="display:flex;gap:.5rem">
       <button onclick="saveFieldBg()" class="mbtn" style="margin-top:0;flex:1;font-size:.95rem;padding:.75rem">保存</button>
       <button onclick="resetFieldBg()"
@@ -2860,13 +2860,39 @@ function applyFieldBg(url){
   let styleEl=document.getElementById('field-bg-style');
   if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
   const safe=sanitizeFieldBgUrl(url);
-  styleEl.textContent=safe?`.fback{background-image:url("${safe}");background-size:cover;background-position:center}`:'';
+  // 牌自体は不透明な背景を持っているので、場の背景画像が牌の下に隠れて見えなくなってしまう。
+  // 画像を設定している間は牌の背景を半透明にして、画像がちゃんと透けて見えるようにする。
+  styleEl.textContent=safe
+    ?`#field-wrap{background-image:url("${safe}")!important;background-size:cover!important;background-position:center!important}
+#field-wrap .fback{background:rgba(20,14,8,.5)!important}
+#field-wrap .fback::before{opacity:.5}`
+    :'';
 }
-// 現在の手番の人が設定している背景に切り替える（自分ならcustomFieldBgUrl、他人なら同期されたfieldBg）
+// カスタム画像が無い相手（ボット・未設定の対戦相手）の番のときに使う、場の背景色のバリエーション
+const TURN_THEME_GRADIENTS={
+  blue:  'linear-gradient(165deg,#0a1830 0%,#040c1e 100%)',
+  red:   'linear-gradient(165deg,#2e0a0a 0%,#160404 100%)',
+  green: 'linear-gradient(165deg,#0a2010 0%,#041006 100%)',
+  purple:'linear-gradient(165deg,#1a0a2e 0%,#0a0416 100%)',
+};
+const TURN_THEME_CYCLE=['blue','red','green','purple'];
+function applyFieldBgColor(themeKey){
+  let styleEl=document.getElementById('field-bg-style');
+  if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
+  const grad=TURN_THEME_GRADIENTS[themeKey];
+  styleEl.textContent=grad?`#field-wrap{background:${grad}!important}`:'';
+}
+// 現在の手番の人が設定している背景に切り替える（自分ならcustomFieldBgUrl、他人なら同期されたfieldBg。
+// 画像が無い相手の番のときは、ボット対戦でも見た目が変わるよう持ち回りの色を表示する）
 function updateFieldBgForTurn(){
   if(!G||!G.players||!G.players[G.turn]){applyFieldBg('');return;}
   const url=(G.turn===myOnlineIdx)?customFieldBgUrl:(G.players[G.turn].fieldBg||'');
-  applyFieldBg(url);
+  if(url){applyFieldBg(url);return;}
+  if(G.turn!==myOnlineIdx){
+    applyFieldBgColor(TURN_THEME_CYCLE[G.turn%TURN_THEME_CYCLE.length]);
+  }else{
+    applyFieldBg('');
+  }
 }
 function openFieldBgModal(){
   document.getElementById('fieldbg-modal').classList.add('open');
