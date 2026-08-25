@@ -506,6 +506,9 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 #icon-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;
   align-items:center;justify-content:center;z-index:600;backdrop-filter:blur(4px)}
 #icon-modal.open{display:flex}
+#fieldbg-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;
+  align-items:center;justify-content:center;z-index:600;backdrop-filter:blur(4px)}
+#fieldbg-modal.open{display:flex}
 .icon-mbox{background:#1a1410;border:1.5px solid #4a3018;border-radius:16px;
   padding:1.6rem;max-width:340px;width:92%;text-align:center;animation:mboxin .25s ease-out}
 /* ── 牌裏テーマ ── */
@@ -1021,6 +1024,29 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
              color:#5a4820;font-family:inherit;font-size:.82rem;cursor:pointer">キャンセル</button>
   </div>
 </div>
+<div id="fieldbg-modal">
+  <div class="icon-mbox">
+    <div style="font-size:1rem;color:#c9a84c;font-weight:700;letter-spacing:.1em;margin-bottom:1rem">FIELD BG EDIT</div>
+    <div id="fieldbg-preview-wrap" style="width:120px;height:80px;border-radius:8px;background:#2a1e12;
+      border:2px solid #c9a84c;display:flex;align-items:center;justify-content:center;
+      font-size:1.6rem;margin:0 auto .85rem;overflow:hidden">🖼️</div>
+    <div style="font-size:.76rem;color:#8a7048;margin-bottom:.35rem;text-align:left">画像URLを入力（httpsのみ）</div>
+    <input id="fieldbg-url-input" class="finput" type="text"
+      placeholder="https://example.com/mybg.png"
+      style="margin-bottom:.4rem;font-size:.9rem" oninput="previewFieldBg()">
+    <div style="font-size:.7rem;color:#5a4820;margin-bottom:.8rem">オンライン対戦では、自分の番になるとこの画像が場の牌の背景に表示されます</div>
+    <div style="display:flex;gap:.5rem">
+      <button onclick="saveFieldBg()" class="mbtn" style="margin-top:0;flex:1;font-size:.95rem;padding:.75rem">保存</button>
+      <button onclick="resetFieldBg()"
+        style="flex:.5;padding:.75rem;border:1.5px solid #e02020;border-radius:9px;
+               background:transparent;color:#e02020;font-family:inherit;font-size:.9rem;
+               font-weight:700;cursor:pointer">リセット</button>
+    </div>
+    <button onclick="closeFieldBgModal()"
+      style="display:block;width:100%;margin-top:.5rem;background:transparent;border:none;
+             color:#5a4820;font-family:inherit;font-size:.82rem;cursor:pointer">キャンセル</button>
+  </div>
+</div>
 <!-- チャット -->
 <button id="chat-toggle" onclick="toggleChat()">
   💬<span id="chat-badge"></span>
@@ -1212,6 +1238,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
           <button onclick="setBackTheme('red')"    style="padding:.2rem .45rem;border-radius:5px;border:1px solid #7a2a2a;background:#2e0a0a;color:#ff5050;font-size:.7rem;cursor:pointer">紅</button>
           <button onclick="setBackTheme('green')"  style="padding:.2rem .45rem;border-radius:5px;border:1px solid #2a6a3a;background:#0a2010;color:#50c864;font-size:.7rem;cursor:pointer">翠</button>
           <button onclick="setBackTheme('purple')" style="padding:.2rem .45rem;border-radius:5px;border:1px solid #5a2a8a;background:#1a0a2e;color:#a050ff;font-size:.7rem;cursor:pointer">紫</button>
+          <button onclick="openFieldBgModal()" style="padding:.2rem .45rem;border-radius:5px;border:1px solid #5a4028;background:#2e2018;color:#c9a84c;font-size:.7rem;cursor:pointer">🖼️画像</button>
         </div>
       </div>
     </div>
@@ -1500,7 +1527,7 @@ socket.on('disconnect',()=>{if(onlineMode)showModal(`<div class="mtitle">⚠ 切
 
 }
 
-function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName()});}
+function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:customFieldBgUrl});}
 
 function cancelQueue(){socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
 
@@ -1511,14 +1538,14 @@ const goalEl=document.querySelector('input[name="room-goal"]:checked');
   const goal=goalEl?parseInt(goalEl.value):10;
   const useRiichi2=document.getElementById('room-opt-リーチ')?.checked||false;
   const useRon2=document.getElementById('room-opt-ロン')?.checked||false;
-  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2});}
+  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:customFieldBgUrl});}
 function copyRoomCode(){const code=document.getElementById('room-code-display').textContent;navigator.clipboard?.writeText(code).then(()=>toast('コードをコピーしました！'));}
 
 function cancelRoom(){document.getElementById('room-host-box').style.display='none';document.getElementById('btn-create-room').disabled=false;}
 
 function hostStartGame(){socket?.emit('start_game',{code:currentCode});}
 
-function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code});}
+function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:customFieldBgUrl});}
 
 function setOnlineStatus(msg,color){const el=document.getElementById('online-status');if(el){el.textContent=msg;el.style.color=color||'#6a5030';}const cb=document.getElementById('btn-cancel-quick');if(cb)cb.style.display=msg?'':'none';}
 
@@ -1530,7 +1557,7 @@ myOnlineIdx=st.myIdx;
 
 if(!G||G.players.length!==st.scores.length){
 
-G={players:st.scores.map(s=>({name:s.name,hand:[],score:s.score,isBot:false})),field:[],turn:0,tphase:'pick',selIdx:-1,phase:'playing'};
+G={players:st.scores.map(s=>({name:s.name,hand:[],score:s.score,isBot:false,fieldBg:s.fieldBg||''})),field:[],turn:0,tphase:'pick',selIdx:-1,phase:'playing'};
 
 }
 
@@ -1564,10 +1591,11 @@ G.useRiichi = st.useRiichi || false;
 G.useRon    = st.useRon    || false;
 G.goal = st.goal || 10;
 
-st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;});
+st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;G.players[i].fieldBg=s.fieldBg||'';});
 
 st.oppCounts.forEach((cnt,i)=>{if(i===st.myIdx)return;G.players[i].hand=Array.from({length:Math.max(0,cnt)},(_,j)=>({id:`ph${i}_${j}`,top:1,bot:1,flip:false,discarded:false,hidden:true}));});
 
+updateFieldBgForTurn();
 showScreen('game');render();
 
 }
@@ -1940,7 +1968,7 @@ if(G.players[G.turn].isBot)scheduleBot();
 
 }
 
-function dealRound(){const deck=makeDeck();let idx=0;G.players.forEach(p=>{p.hand=deck.slice(idx,idx+5);idx+=5;});G.field=deck.slice(idx);G.turn=0;G.tphase='pick';G.selIdx=-1;G.phase='playing';setTimeout(animateFieldTiles,50);}
+function dealRound(){const deck=makeDeck();let idx=0;G.players.forEach(p=>{p.hand=deck.slice(idx,idx+5);idx+=5;});G.field=deck.slice(idx);G.turn=0;G.tphase='pick';G.selIdx=-1;G.phase='playing';setTimeout(animateFieldTiles,50);updateFieldBgForTurn();}
 // ============================================================
 
 // 描画
@@ -2213,7 +2241,7 @@ processWin(myOnlineIdx,res);}
 
 // ============================================================
 
-function nextTurn(){G.turn=(G.turn+1)%G.players.length;G.tphase='pick';G.selIdx=-1;render();if(G.players[G.turn].isBot)scheduleBot();}
+function nextTurn(){G.turn=(G.turn+1)%G.players.length;G.tphase='pick';G.selIdx=-1;updateFieldBgForTurn();render();if(G.players[G.turn].isBot)scheduleBot();}
 
 function scheduleBot(){if(G.phase!=='playing')return;const bot=G.players[G.turn];if(!bot?.isBot)return;const d={easy:1500,normal:1000,hard:600}[bot.diff]||1000;setTimeout(runBot,d);}
 
@@ -2815,6 +2843,66 @@ function setBackTheme(theme){
   if(theme) document.body.classList.add('back-'+theme);
   localStorage.setItem('rikka_back_theme', theme);
 }
+
+// ============================================================
+// 場の背景画像（カスタム画像。オンラインでは自分の番になると表示される）
+// ============================================================
+let customFieldBgUrl = localStorage.getItem('rikka_field_bg') || '';
+function sanitizeFieldBgUrl(url){
+  if(typeof url!=='string')return '';
+  url=url.trim();
+  if(!url)return '';
+  if(!/^https:\/\//i.test(url))return ''; // httpsの画像URLのみ許可
+  if(/["'\\()<>]/.test(url))return ''; // CSS/HTML属性から抜け出せる文字を含むものは拒否
+  return url;
+}
+function applyFieldBg(url){
+  let styleEl=document.getElementById('field-bg-style');
+  if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
+  const safe=sanitizeFieldBgUrl(url);
+  styleEl.textContent=safe?`.fback{background-image:url("${safe}");background-size:cover;background-position:center}`:'';
+}
+// 現在の手番の人が設定している背景に切り替える（自分ならcustomFieldBgUrl、他人なら同期されたfieldBg）
+function updateFieldBgForTurn(){
+  if(!G||!G.players||!G.players[G.turn]){applyFieldBg('');return;}
+  const url=(G.turn===myOnlineIdx)?customFieldBgUrl:(G.players[G.turn].fieldBg||'');
+  applyFieldBg(url);
+}
+function openFieldBgModal(){
+  document.getElementById('fieldbg-modal').classList.add('open');
+  document.getElementById('fieldbg-url-input').value=customFieldBgUrl;
+  previewFieldBg();
+}
+function closeFieldBgModal(){document.getElementById('fieldbg-modal').classList.remove('open');}
+function previewFieldBg(){
+  const raw=document.getElementById('fieldbg-url-input').value.trim();
+  const wrap=document.getElementById('fieldbg-preview-wrap');
+  const safe=sanitizeFieldBgUrl(raw);
+  if(safe)wrap.innerHTML=`<img src="${esc(safe)}" style="width:100%;height:100%;object-fit:cover" alt="" onerror="this.parentNode.textContent='⚠️ 読み込み失敗'">`;
+  else if(raw)wrap.textContent='⚠️ httpsの画像URLのみ使えます';
+  else wrap.textContent='🖼️';
+}
+function saveFieldBg(){
+  const raw=document.getElementById('fieldbg-url-input').value.trim();
+  const safe=sanitizeFieldBgUrl(raw);
+  if(raw&&!safe){toast('httpsの画像URLのみ使えます');return;}
+  customFieldBgUrl=safe;
+  if(customFieldBgUrl)localStorage.setItem('rikka_field_bg',customFieldBgUrl);
+  else localStorage.removeItem('rikka_field_bg');
+  if(onlineMode)socket?.emit('set_field_bg',{code:currentCode,url:customFieldBgUrl});
+  updateFieldBgForTurn();
+  closeFieldBgModal();
+  toast('場の背景を更新しました！');
+}
+function resetFieldBg(){
+  customFieldBgUrl='';
+  localStorage.removeItem('rikka_field_bg');
+  document.getElementById('fieldbg-url-input').value='';
+  previewFieldBg();
+  if(onlineMode)socket?.emit('set_field_bg',{code:currentCode,url:''});
+  updateFieldBgForTurn();
+}
+
 let assistMode = false;
 function toggleAssist(){
   assistMode = !assistMode;
