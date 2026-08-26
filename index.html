@@ -185,17 +185,23 @@ background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(201,
 
 @keyframes tdot{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1.1);opacity:1}}
 
-#field-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+#field-wrap{position:relative;isolation:isolate;flex:1;min-height:0;display:flex;flex-direction:column;
 
-padding:.5rem .9rem;border-bottom:1px solid #1e1208;min-height:0;
+padding:.5rem .9rem;border-bottom:1px solid #1e1208}
+
+#field-wrap::before{content:'';position:absolute;inset:0;z-index:-1;
 
 background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.04) 0%,transparent 70%)}
+
+@keyframes fieldWipeReveal{from{clip-path:circle(0% at 100% 0%)}to{clip-path:circle(150% at 100% 0%)}}
+#field-wrap.field-wipe::before{animation:fieldWipeReveal .7s ease-out}
 
 .field-hdr{display:flex;justify-content:space-between;align-items:center;
 
 font-size:.82rem;color:#8a7048;letter-spacing:.06em;margin-bottom:.45rem}
 
-#field-grid{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+#field-grid{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;
+overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0}
 
 .fsec{width:100%;font-size:.74rem;color:#5a4820;display:flex;align-items:center;gap:.4rem;
 
@@ -2863,7 +2869,7 @@ function applyFieldBg(url){
   // 牌自体は不透明な背景を持っているので、場の背景画像が牌の下に隠れて見えなくなってしまう。
   // 画像を設定している間は牌の背景を半透明にして、画像がちゃんと透けて見えるようにする。
   styleEl.textContent=safe
-    ?`#field-wrap{background-image:linear-gradient(rgba(8,5,3,.4),rgba(8,5,3,.4)),url("${safe}")!important;background-size:cover!important;background-position:center!important}
+    ?`#field-wrap::before{background-image:linear-gradient(rgba(8,5,3,.4),rgba(8,5,3,.4)),url("${safe}")!important;background-size:cover!important;background-position:center!important}
 #field-wrap .fback{background:rgba(20,14,8,.78)!important}
 #field-wrap .fback::before{opacity:.7}`
     :'';
@@ -2880,19 +2886,46 @@ function applyFieldBgColor(themeKey){
   let styleEl=document.getElementById('field-bg-style');
   if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
   const grad=TURN_THEME_GRADIENTS[themeKey];
-  styleEl.textContent=grad?`#field-wrap{background:${grad}!important}`:'';
+  styleEl.textContent=grad?`#field-wrap::before{background:${grad}!important}`:'';
 }
 // 現在の手番の人が設定している背景に切り替える（自分ならcustomFieldBgUrl、他人なら同期されたfieldBg。
-// 画像が無い相手の番のときは、ボット対戦でも見た目が変わるよう持ち回りの色を表示する）
+// 画像が無い相手の番のときは、オンライン対戦なら持ち回りの色を表示する）。
+// ボット対戦では手番に関係なく常に自分の背景のままにする（ボットは自分の背景を持たないため）。
+// 実際に背景が変わった時だけ、右上から広がるワイプアニメーションを再生する。
+let _lastFieldBgKey=null;
+function triggerFieldWipe(){
+  const el=document.getElementById('field-wrap');
+  if(!el)return;
+  el.classList.remove('field-wipe');
+  void el.offsetWidth; // reflowを強制してアニメーションを再生させる
+  el.classList.add('field-wipe');
+}
 function updateFieldBgForTurn(){
-  if(!G||!G.players||!G.players[G.turn]){applyFieldBg('');return;}
-  const url=(G.turn===myOnlineIdx)?customFieldBgUrl:(G.players[G.turn].fieldBg||'');
-  if(url){applyFieldBg(url);return;}
-  if(G.turn!==myOnlineIdx){
-    applyFieldBgColor(TURN_THEME_CYCLE[G.turn%TURN_THEME_CYCLE.length]);
-  }else{
-    applyFieldBg('');
+  if(!onlineMode){
+    // ボット対戦: 手番に関わらず常に自分の設定のみを反映する
+    const url=customFieldBgUrl;
+    const key=url?('img:'+url):'none';
+    if(key===_lastFieldBgKey)return;
+    _lastFieldBgKey=key;
+    applyFieldBg(url);
+    triggerFieldWipe();
+    return;
   }
+  if(!G||!G.players||!G.players[G.turn]){
+    if(_lastFieldBgKey!==null){applyFieldBg('');_lastFieldBgKey=null;triggerFieldWipe();}
+    return;
+  }
+  const url=(G.turn===myOnlineIdx)?customFieldBgUrl:(G.players[G.turn].fieldBg||'');
+  let key;
+  if(url) key='img:'+url;
+  else if(G.turn!==myOnlineIdx) key='color:'+TURN_THEME_CYCLE[G.turn%TURN_THEME_CYCLE.length];
+  else key='none';
+  if(key===_lastFieldBgKey)return; // 前回と同じ背景なら何もしない（アニメーションもしない）
+  _lastFieldBgKey=key;
+  if(url){ applyFieldBg(url); }
+  else if(G.turn!==myOnlineIdx){ applyFieldBgColor(TURN_THEME_CYCLE[G.turn%TURN_THEME_CYCLE.length]); }
+  else{ applyFieldBg(''); }
+  triggerFieldWipe();
 }
 function openFieldBgModal(){
   document.getElementById('fieldbg-modal').classList.add('open');
