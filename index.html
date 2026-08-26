@@ -2863,9 +2863,9 @@ function applyFieldBg(url){
   // 牌自体は不透明な背景を持っているので、場の背景画像が牌の下に隠れて見えなくなってしまう。
   // 画像を設定している間は牌の背景を半透明にして、画像がちゃんと透けて見えるようにする。
   styleEl.textContent=safe
-    ?`#field-wrap{background-image:url("${safe}")!important;background-size:cover!important;background-position:center!important}
-#field-wrap .fback{background:rgba(20,14,8,.5)!important}
-#field-wrap .fback::before{opacity:.5}`
+    ?`#field-wrap{background-image:linear-gradient(rgba(8,5,3,.4),rgba(8,5,3,.4)),url("${safe}")!important;background-size:cover!important;background-position:center!important}
+#field-wrap .fback{background:rgba(20,14,8,.78)!important}
+#field-wrap .fback::before{opacity:.7}`
     :'';
 }
 // カスタム画像が無い相手（ボット・未設定の対戦相手）の番のときに使う、場の背景色のバリエーション
