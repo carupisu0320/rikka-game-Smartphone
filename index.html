@@ -1040,7 +1040,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <input id="fieldbg-url-input" class="finput" type="text"
       placeholder="https://example.com/mybg.png"
       style="margin-bottom:.4rem;font-size:.9rem" oninput="previewFieldBg()">
-    <div style="font-size:.7rem;color:#5a4820;margin-bottom:.8rem">自分の番になると、場の牌が置かれているエリアの背景がこの画像になります（ボット戦・オンライン対戦どちらも）</div>
+    <div style="font-size:.7rem;color:#5a4820;margin-bottom:.8rem">オンライン対戦で自分の番になると、場の牌が置かれているエリアの背景がこの画像になります（ボット戦では反映されません）</div>
     <div style="display:flex;gap:.5rem">
       <button onclick="saveFieldBg()" class="mbtn" style="margin-top:0;flex:1;font-size:.95rem;padding:.75rem">保存</button>
       <button onclick="resetFieldBg()"
@@ -2902,13 +2902,8 @@ function triggerFieldWipe(){
 }
 function updateFieldBgForTurn(){
   if(!onlineMode){
-    // ボット対戦: 手番に関わらず常に自分の設定のみを反映する
-    const url=customFieldBgUrl;
-    const key=url?('img:'+url):'none';
-    if(key===_lastFieldBgKey)return;
-    _lastFieldBgKey=key;
-    applyFieldBg(url);
-    triggerFieldWipe();
+    // ボット対戦では場の背景は変更しない（この機能を作る前と同じ、常にデフォルトのまま）
+    if(_lastFieldBgKey!==null){applyFieldBg('');_lastFieldBgKey=null;}
     return;
   }
   if(!G||!G.players||!G.players[G.turn]){
