@@ -1638,6 +1638,8 @@ G.goal = st.goal || 10;
 
 st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;G.players[i].fieldBg=s.fieldBg||'';});
 
+console.log('[fieldBg] state received, scores=',JSON.stringify(st.scores.map(s=>({name:s.name,fieldBg:s.fieldBg}))));
+
 st.oppCounts.forEach((cnt,i)=>{if(i===st.myIdx)return;G.players[i].hand=Array.from({length:Math.max(0,cnt)},(_,j)=>({id:`ph${i}_${j}`,top:1,bot:1,flip:false,discarded:false,hidden:true}));});
 
 updateFieldBgForTurn();
@@ -2926,13 +2928,15 @@ function triggerFieldWipe(){
 }
 function updateFieldBgForTurn(){
   if(!G||!G.players||!G.players[G.turn]){
+    console.log('[fieldBg] no G/players/turn player - clearing');
     if(_lastFieldBgKey!==null){applyFieldBg('');_lastFieldBgKey=null;triggerFieldWipe();}
     return;
   }
   const cur=G.players[G.turn];
   const url=(G.turn===myOnlineIdx)?customFieldBgUrl:(cur.fieldBg||'');
+  console.log('[fieldBg] turn=',G.turn,'myOnlineIdx=',myOnlineIdx,'cur.fieldBg=',cur.fieldBg,'customFieldBgUrl=',customFieldBgUrl,'-> using url=',url);
   const key=url?('img:'+url):'none';
-  if(key===_lastFieldBgKey)return; // 前回と同じ背景なら何もしない（アニメーションもしない）
+  if(key===_lastFieldBgKey){console.log('[fieldBg] key unchanged, skipping:',key);return;} // 前回と同じ背景なら何もしない（アニメーションもしない）
   _lastFieldBgKey=key;
   applyFieldBg(url);
   triggerFieldWipe();
@@ -2958,6 +2962,7 @@ function saveFieldBg(){
   customFieldBgUrl=safe;
   if(customFieldBgUrl)localStorage.setItem('rikka_field_bg',customFieldBgUrl);
   else localStorage.removeItem('rikka_field_bg');
+  console.log('[fieldBg] saveFieldBg: currentCode=',currentCode,'sending url=',customFieldBgUrl);
   if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:customFieldBgUrl});
   updateFieldBgForTurn();
   closeFieldBgModal();
