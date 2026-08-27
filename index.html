@@ -472,6 +472,27 @@ font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;
 
 background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 
+/* ── チュートリアル ── */
+.tut-wrap{flex:1;display:flex;flex-direction:column;min-height:0;padding:.9rem 1rem;box-sizing:border-box}
+.tut-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.75rem;flex-shrink:0}
+.tut-back{background:transparent;border:1px solid #4a3018;border-radius:8px;color:#c9a84c;
+  font-family:inherit;font-size:.82rem;padding:.4rem .7rem;cursor:pointer}
+.tut-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.05rem;color:#e8c97a;font-weight:700}
+.tut-chips{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:.6rem;flex-shrink:0}
+.tut-chip{flex-shrink:0;padding:.4rem .75rem;border-radius:20px;border:1.5px solid #3e2e1e;
+  background:#1a1410;color:#8a7048;font-size:.78rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.tut-chip.active{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00;border-color:#c9a84c;font-weight:700}
+.tut-content{flex:1;overflow-y:auto;background:#150f0a;border:1px solid #2a1e10;border-radius:12px;
+  padding:1rem;min-height:0}
+.tut-content-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.3rem;color:#f5e0a0;margin-bottom:.15rem}
+.tut-content-pts{font-size:.78rem;color:#8a7048;margin-bottom:.75rem}
+.tut-content-desc{color:#c8b898;font-size:.9rem;line-height:1.7}
+.tut-nav{display:flex;justify-content:space-between;align-items:center;margin-top:.7rem;flex-shrink:0}
+.tut-navbtn{background:#1a1410;border:1.5px solid #5a4028;border-radius:9px;color:#c9a84c;
+  font-family:inherit;font-size:.85rem;padding:.6rem 1rem;cursor:pointer}
+.tut-navbtn:disabled{opacity:.35;cursor:default}
+.tut-pos{font-size:.78rem;color:#6a5830}
+
 /* ── SIDEBAR ── */
 
 #menu-btn{position:fixed;top:.55rem;left:.75rem;z-index:400;
@@ -703,6 +724,8 @@ data-text="signin_with" data-shape="rectangular" data-logo_alignment="left" data
 <input id="pname" class="finput" type="text" value="プレイヤー" maxlength="10" oninput="saveCustomName()">
 
 </div>
+
+<button onclick="openTutorial()" class="lbtn" style="background:#1a1410;border:1.5px solid #5a4028;color:#c9a84c;margin-bottom:.6rem">📖 チュートリアル（役の解説）</button>
 
 <div class="tab-bar">
 
@@ -1000,6 +1023,22 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 
 <!-- ── 上下反転ポップアップ ── -->
 <button id="menu-btn" onclick="openSidebar()">☰</button>
+
+<div id="tutorial" class="screen">
+<div class="tut-wrap">
+  <div class="tut-header">
+    <button onclick="closeTutorial()" class="tut-back">← 戻る</button>
+    <div class="tut-title">📖 チュートリアル</div>
+  </div>
+  <div id="tut-chips" class="tut-chips"></div>
+  <div id="tut-content" class="tut-content"></div>
+  <div class="tut-nav">
+    <button onclick="tutorialPrev()" class="tut-navbtn" id="tut-prev-btn">← 前へ</button>
+    <span id="tut-pos" class="tut-pos"></span>
+    <button onclick="tutorialNext()" class="tut-navbtn" id="tut-next-btn">次へ →</button>
+  </div>
+</div>
+</div>
 <div id="flip-popup">
 
 <button class="flip-popup-btn" onclick="doFlipSelected()">↕ 上下反転</button>
@@ -2919,7 +2958,7 @@ function saveFieldBg(){
   customFieldBgUrl=safe;
   if(customFieldBgUrl)localStorage.setItem('rikka_field_bg',customFieldBgUrl);
   else localStorage.removeItem('rikka_field_bg');
-  if(onlineMode)socket?.emit('set_field_bg',{code:currentCode,url:customFieldBgUrl});
+  if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:customFieldBgUrl});
   updateFieldBgForTurn();
   closeFieldBgModal();
   toast('場の背景を更新しました！');
@@ -2929,7 +2968,7 @@ function resetFieldBg(){
   localStorage.removeItem('rikka_field_bg');
   document.getElementById('fieldbg-url-input').value='';
   previewFieldBg();
-  if(onlineMode)socket?.emit('set_field_bg',{code:currentCode,url:''});
+  if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:''});
   updateFieldBgForTurn();
 }
 
@@ -3420,6 +3459,91 @@ document.getElementById('rb-ex-star').innerHTML=
 function closeRuleBook(){document.getElementById('rule-modal').classList.remove('open');}
 
 document.getElementById('rule-modal').addEventListener('click',function(e){if(e.target===this)closeRuleBook();});
+
+// ============================================================
+// チュートリアル
+// ============================================================
+const TUTORIAL_LESSONS=[
+  { id:'basics', title:'基本の流れ', yomi:'', pts:'',
+    desc:`最初に手牌<b style="color:#f0a050">5枚</b>が配られます。自分の番になったら、場に並んだ牌から1枚<b style="color:#f0a050">拾って</b>手牌を6枚にします。<br><br>
+      6枚で役が完成していなければ、1枚<b style="color:#f0a050">捨てて</b>5枚に戻し、次の人の番になります。6枚で役が完成したら「上がる！」を押して勝利です。<br><br>
+      牌には上下2つの数字があり、<b style="color:#f06868">タップすると裏返せます</b>（上下が入れ替わる）。役が成立するように向きを調整しましょう。<br><br>
+      役の点数と★ゾロ目ボーナスの合計を獲得し、先に目標点に到達したプレイヤーが優勝です。`,
+    tiles:null },
+  { id:'isshiki', title:'一色', yomi:'イッシキ', pts:'1点',
+    desc:'手牌6枚の<b style="color:#f0a050">下の数</b>を1種類にそろえる。上は何でもOK。一番シンプルな役です。',
+    tiles:[[1,3],[1,3],[2,3],[5,3],[4,3],[6,3]] },
+  { id:'sanren', title:'三連', yomi:'サンレン', pts:'3点',
+    desc:'「3枚セット」を2つ作る。セット＝<b style="color:#f0a050">下が同じ3枚</b>で<b style="color:#f06868">上が連番</b>。6と1はつながりません。',
+    tiles:[[2,1],[3,1],[4,1]], tiles2:[[3,5],[4,5],[5,5]] },
+  { id:'rikka', title:'六華', yomi:'リッカ', pts:'6点',
+    desc:'下が全部同じ＋上が1〜6の連番（順不同OK）。ゲーム名にもなっている<b style="color:#f5d040">最高難度の役</b>です。',
+    tiles:[[1,4],[2,4],[3,4],[4,4],[5,4],[6,4]] },
+  { id:'santui', title:'三対', yomi:'サンツイ', pts:'2点',
+    desc:'6枚を<b style="color:#f0a050">同じ牌のペア×3組</b>にする。ルームの設定次第で使える追加役です。',
+    tiles:[[2,1],[2,1],[4,3],[4,3],[6,5],[6,5]] },
+  { id:'sanshiki', title:'三色', yomi:'サンシキ', pts:'3点（ボーナスなし）',
+    desc:'手牌6枚の上下すべての数が<b style="color:#f0a050">合わせて3種類のみ</b>になる。<b style="color:#60c870">「ついでに完成」でのみ</b>成立し、通常の上がり・ロンでは成立しません。',
+    tiles:[[1,3],[3,1],[5,3],[3,5],[1,5],[5,1]] },
+  { id:'kikou', title:'輝光', yomi:'キコウ', pts:'5点（ボーナスなし）',
+    desc:'6枚すべてを<b style="color:#f5d040">★ゾロ目牌</b>（上下同じ数の牌）にする。輝きボーナスは付きません。',
+    tiles:[[1,1],[1,1],[3,3],[3,3],[5,5],[5,5]] },
+  { id:'musou', title:'無双', yomi:'ムソウ', pts:'3点＋★ボーナス',
+    desc:'<b style="color:#f5d040">★ゾロ目牌</b>を<b style="color:#f0a050">6種類すべて（1-1〜6-6）</b>集める。輝きボーナスも付くので実質かなり高得点です。',
+    tiles:[[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]] },
+  { id:'riichi', title:'リーチ', yomi:'', pts:'',
+    desc:`手牌6枚のとき、<b style="color:#e07070">ある牌を捨てればテンパイ（あと1枚で上がれる状態）になる</b>なら「リーチ宣言」ボタンが押せます。<br><br>
+      宣言すると、以降は引いた牌が役の完成牌でない限り<b style="color:#e07070">自動で捨てられます</b>（手牌を動かせなくなる）。<br><br>
+      リーチ中に上がると<b style="color:#f5d040">+1点</b>のボーナスが付きます。ルームの設定でオン/オフを選べます。`,
+    tiles:null },
+  { id:'ron', title:'ロン', yomi:'', pts:'',
+    desc:`他のプレイヤーが捨てた牌を使うと自分の役が完成するとき、「ロン！」ボタンが数秒間だけ表示されます。<br><br>
+      押すとその牌をもらってその場で上がれます。ロンで得た点数（役点＋ボーナス）は<b style="color:#e0a020">牌を捨てた相手から差し引かれます</b>。<br><br>
+      複数人が同時にロンできる場合は、<b style="color:#e0a020">捨てた人から時計回りで一番近い1人だけ</b>が有効です。ルームの設定でオン/オフを選べます。`,
+    tiles:null },
+];
+let tutorialIdx=0;
+function tutTile(top,bot){
+  const star=(top===bot)?'<div class="rbtile-star">★</div>':'';
+  return `<div class="rbtile"><div class="th">${SYM_SVG[top]}</div>${star}<div class="tb">${SYM_SVG[bot]}</div></div>`;
+}
+function openTutorial(){
+  tutorialIdx=0;
+  showScreen('tutorial');
+  renderTutorialChips();
+  renderTutorialLesson();
+}
+function closeTutorial(){showScreen('lobby');}
+function renderTutorialChips(){
+  const el=document.getElementById('tut-chips');
+  el.innerHTML=TUTORIAL_LESSONS.map((l,i)=>
+    `<button class="tut-chip${i===tutorialIdx?' active':''}" onclick="selectTutorialLesson(${i})">${esc(l.title)}</button>`
+  ).join('');
+}
+function selectTutorialLesson(i){
+  tutorialIdx=Math.max(0,Math.min(TUTORIAL_LESSONS.length-1,i));
+  renderTutorialChips();
+  renderTutorialLesson();
+}
+function tutorialPrev(){ if(tutorialIdx>0) selectTutorialLesson(tutorialIdx-1); }
+function tutorialNext(){ if(tutorialIdx<TUTORIAL_LESSONS.length-1) selectTutorialLesson(tutorialIdx+1); }
+function renderTutorialLesson(){
+  const l=TUTORIAL_LESSONS[tutorialIdx];
+  const ptsHtml=l.pts?`<div class="tut-content-pts">${esc(l.pts)}</div>`:'';
+  const yomiHtml=l.yomi?`<span style="font-size:.7rem;color:#8a7048;margin-left:.4rem">${esc(l.yomi)}</span>`:'';
+  let exHtml='';
+  if(l.tiles){
+    exHtml=`<div class="rb-ex" style="margin-top:1rem">${l.tiles.map(([t,b])=>tutTile(t,b)).join('')}`
+      +(l.tiles2?`<div class="rb-ex-sep">＋</div>${l.tiles2.map(([t,b])=>tutTile(t,b)).join('')}`:'')
+      +`</div>`;
+  }
+  document.getElementById('tut-content').innerHTML=
+    `<div class="tut-content-title">${esc(l.title)}${yomiHtml}</div>${ptsHtml}<div class="tut-content-desc">${l.desc}</div>${exHtml}`;
+  document.getElementById('tut-pos').textContent=`${tutorialIdx+1} / ${TUTORIAL_LESSONS.length}`;
+  document.getElementById('tut-prev-btn').disabled=(tutorialIdx===0);
+  document.getElementById('tut-next-btn').disabled=(tutorialIdx===TUTORIAL_LESSONS.length-1);
+  document.getElementById('tut-content').scrollTop=0;
+}
 
 function showModal(html){document.getElementById('mbox').innerHTML=html;document.getElementById('modal').classList.add('open');}
 
