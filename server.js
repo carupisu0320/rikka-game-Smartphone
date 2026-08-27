@@ -313,7 +313,9 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg }) => 
     const pi = room.players.findIndex(p => p.id === socket.id);
     if (pi === -1) return;
     room.players[pi].fieldBg = sanitizeFieldBg(url);
-    sendState(room);
+    // まだ待機中（ゲーム未開始）の場合はstateを送らない。送ると、まだ配られていない
+    // ゲーム画面にクライアントが強制的に切り替わってしまうため。開始時に自然に反映される。
+    if (room.phase !== 'waiting') sendState(room);
   });
 
   // ゲーム開始
