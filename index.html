@@ -489,6 +489,7 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 .tut-content-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.3rem;color:#f5e0a0;margin-bottom:.15rem}
 .tut-content-pts{font-size:.78rem;color:#8a7048;margin-bottom:.75rem}
 .tut-content-desc{color:#c8b898;font-size:.9rem;line-height:1.7}
+.tut-ex-label{font-size:.72rem;color:#8a7048;font-weight:700;letter-spacing:.05em}
 .tut-nav{display:flex;justify-content:space-between;align-items:center;margin-top:.7rem;flex-shrink:0}
 .tut-navbtn{background:#1a1410;border:1.5px solid #5a4028;border-radius:9px;color:#c9a84c;
   font-family:inherit;font-size:.85rem;padding:.6rem 1rem;cursor:pointer}
@@ -3302,12 +3303,13 @@ function sendBotChat(){
   if(!msg||!G||G.phase!=='playing')return;
   addBotChatMsg(G.players[myOnlineIdx].name,msg,true);
   input.value='';
-  if(Math.random()<0.5){
-    const bot=G.players.find(p=>p.isBot);
-    if(bot){
-      const replies=['そうだね','うん！','ふむ','なるほど','そうか…','…','へえ'];
-      setTimeout(()=>addBotChatMsg(bot.name,replies[Math.floor(Math.random()*replies.length)],false),800+Math.random()*1000);
-    }
+  const bot=G.players.find(p=>p.isBot);
+  if(!bot)return;
+  if(/^うお[wｗ]+$/.test(msg)){
+    setTimeout(()=>addBotChatMsg(bot.name,'おっｗ',false),800+Math.random()*1000);
+  } else if(Math.random()<0.5){
+    const replies=['そうだね','うん！','ふむ','なるほど','そうか…','…','へえ'];
+    setTimeout(()=>addBotChatMsg(bot.name,replies[Math.floor(Math.random()*replies.length)],false),800+Math.random()*1000);
   }
 }
 function botComment(key){
@@ -3480,38 +3482,58 @@ const TUTORIAL_LESSONS=[
       6枚で役が完成していなければ、1枚<b style="color:#f0a050">捨てて</b>5枚に戻し、次の人の番になります。6枚で役が完成したら「上がる！」を押して勝利です。<br><br>
       牌には上下2つの数字があり、<b style="color:#f06868">タップすると裏返せます</b>（上下が入れ替わる）。役が成立するように向きを調整しましょう。<br><br>
       役の点数と★ゾロ目ボーナスの合計を獲得し、先に目標点に到達したプレイヤーが優勝です。`,
-    tiles:null },
+    examples:null },
   { id:'isshiki', title:'一色', yomi:'イッシキ', pts:'1点',
     desc:'手牌6枚の<b style="color:#f0a050">下の数</b>を1種類にそろえる。上は何でもOK。一番シンプルな役です。',
-    tiles:[[1,3],[1,3],[2,3],[5,3],[4,3],[6,3]] },
+    examples:[
+      { tiles:[[1,3],[1,3],[2,3],[5,3],[4,3],[6,3]] },
+      { tiles:[[2,5],[2,5],[3,5],[6,5],[1,5],[4,5]] },
+    ] },
   { id:'sanren', title:'三連', yomi:'サンレン', pts:'3点',
     desc:'「3枚セット」を2つ作る。セット＝<b style="color:#f0a050">下が同じ3枚</b>で<b style="color:#f06868">上が連番</b>。6と1はつながりません。',
-    tiles:[[2,1],[3,1],[4,1]], tiles2:[[3,5],[4,5],[5,5]] },
+    examples:[
+      { tiles:[[2,1],[3,1],[4,1]], tiles2:[[3,5],[4,5],[5,5]] },
+      { tiles:[[1,2],[2,2],[3,2]], tiles2:[[4,6],[5,6],[6,6]] },
+    ] },
   { id:'rikka', title:'六華', yomi:'リッカ', pts:'6点',
     desc:'下が全部同じ＋上が1〜6の連番（順不同OK）。ゲーム名にもなっている<b style="color:#f5d040">最高難度の役</b>です。',
-    tiles:[[1,4],[2,4],[3,4],[4,4],[5,4],[6,4]] },
+    examples:[
+      { tiles:[[1,4],[2,4],[3,4],[4,4],[5,4],[6,4]] },
+      { tiles:[[1,2],[2,2],[3,2],[4,2],[5,2],[6,2]] },
+    ] },
   { id:'santui', title:'三対', yomi:'サンツイ', pts:'2点',
     desc:'6枚を<b style="color:#f0a050">同じ牌のペア×3組</b>にする。ルームの設定次第で使える追加役です。',
-    tiles:[[2,1],[2,1],[4,3],[4,3],[6,5],[6,5]] },
+    examples:[
+      { tiles:[[2,1],[2,1],[4,3],[4,3],[6,5],[6,5]] },
+      { tiles:[[1,6],[1,6],[3,2],[3,2],[5,4],[5,4]] },
+    ] },
   { id:'sanshiki', title:'三色', yomi:'サンシキ', pts:'3点（ボーナスなし）',
     desc:'手牌6枚の上下すべての数が<b style="color:#f0a050">合わせて3種類のみ</b>になる。<b style="color:#60c870">「ついでに完成」でのみ</b>成立し、通常の上がり・ロンでは成立しません。',
-    tiles:[[1,3],[3,1],[5,3],[3,5],[1,5],[5,1]] },
+    examples:[
+      { tiles:[[1,3],[3,1],[5,3],[3,5],[1,5],[5,1]] },
+      { tiles:[[2,4],[4,2],[6,4],[4,6],[2,6],[6,2]] },
+    ] },
   { id:'kikou', title:'輝光', yomi:'キコウ', pts:'5点（ボーナスなし）',
     desc:'6枚すべてを<b style="color:#f5d040">★ゾロ目牌</b>（上下同じ数の牌）にする。輝きボーナスは付きません。',
-    tiles:[[1,1],[1,1],[3,3],[3,3],[5,5],[5,5]] },
+    examples:[
+      { tiles:[[1,1],[1,1],[3,3],[3,3],[5,5],[5,5]] },
+      { tiles:[[2,2],[2,2],[4,4],[4,4],[6,6],[6,6]] },
+    ] },
   { id:'musou', title:'無双', yomi:'ムソウ', pts:'3点＋★ボーナス',
-    desc:'<b style="color:#f5d040">★ゾロ目牌</b>を<b style="color:#f0a050">6種類すべて（1-1〜6-6）</b>集める。輝きボーナスも付くので実質かなり高得点です。',
-    tiles:[[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]] },
+    desc:'<b style="color:#f5d040">★ゾロ目牌</b>を<b style="color:#f0a050">6種類すべて（1-1〜6-6）</b>集める。組み合わせはこの1通りしかありません。輝きボーナスも付くので実質かなり高得点です。',
+    examples:[
+      { tiles:[[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]] },
+    ] },
   { id:'riichi', title:'リーチ', yomi:'', pts:'',
     desc:`手牌6枚のとき、<b style="color:#e07070">ある牌を捨てればテンパイ（あと1枚で上がれる状態）になる</b>なら「リーチ宣言」ボタンが押せます。<br><br>
       宣言すると、以降は引いた牌が役の完成牌でない限り<b style="color:#e07070">自動で捨てられます</b>（手牌を動かせなくなる）。<br><br>
       リーチ中に上がると<b style="color:#f5d040">+1点</b>のボーナスが付きます。ルームの設定でオン/オフを選べます。`,
-    tiles:null },
+    examples:null },
   { id:'ron', title:'ロン', yomi:'', pts:'',
     desc:`他のプレイヤーが捨てた牌を使うと自分の役が完成するとき、「ロン！」ボタンが数秒間だけ表示されます。<br><br>
       押すとその牌をもらってその場で上がれます。ロンで得た点数（役点＋ボーナス）は<b style="color:#e0a020">牌を捨てた相手から差し引かれます</b>。<br><br>
       複数人が同時にロンできる場合は、<b style="color:#e0a020">捨てた人から時計回りで一番近い1人だけ</b>が有効です。ルームの設定でオン/オフを選べます。`,
-    tiles:null },
+    examples:null },
 ];
 let tutorialIdx=0;
 function tutTile(top,bot){
@@ -3543,10 +3565,14 @@ function renderTutorialLesson(){
   const ptsHtml=l.pts?`<div class="tut-content-pts">${esc(l.pts)}</div>`:'';
   const yomiHtml=l.yomi?`<span style="font-size:.7rem;color:#8a7048;margin-left:.4rem">${esc(l.yomi)}</span>`:'';
   let exHtml='';
-  if(l.tiles){
-    exHtml=`<div class="rb-ex" style="margin-top:1rem">${l.tiles.map(([t,b])=>tutTile(t,b)).join('')}`
-      +(l.tiles2?`<div class="rb-ex-sep">＋</div>${l.tiles2.map(([t,b])=>tutTile(t,b)).join('')}`:'')
-      +`</div>`;
+  if(l.examples&&l.examples.length){
+    exHtml=l.examples.map((ex,i)=>{
+      const label=l.examples.length>1?`<div class="tut-ex-label">例${i+1}</div>`:'';
+      const body=`<div class="rb-ex" style="margin-top:.3rem">${ex.tiles.map(([t,b])=>tutTile(t,b)).join('')}`
+        +(ex.tiles2?`<div class="rb-ex-sep">＋</div>${ex.tiles2.map(([t,b])=>tutTile(t,b)).join('')}`:'')
+        +`</div>`;
+      return `<div style="margin-top:.7rem">${label}${body}</div>`;
+    }).join('');
   }
   document.getElementById('tut-content').innerHTML=
     `<div class="tut-content-title">${esc(l.title)}${yomiHtml}</div>${ptsHtml}<div class="tut-content-desc">${l.desc}</div>${exHtml}`;
