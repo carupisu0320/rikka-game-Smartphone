@@ -224,7 +224,7 @@ function sendState(room) {
       turn:      room.turn,
       tphase:    room.tphase,
       phase:     room.phase,
-      scores:    room.players.map(p => ({ name: p.name, score: p.score, fieldBg: p.fieldBg || '' })),
+      scores:    room.players.map(p => ({ name: p.name, score: p.score, fieldBg: p.fieldBg || '', riichi: p.riichi || false })),
       oppCounts: room.players.map((p, i) => i === myIdx ? -1 : p.hand.length),
       code:      room.code,
       optRoles:  room.roles !== undefined ? room.roles : null,
