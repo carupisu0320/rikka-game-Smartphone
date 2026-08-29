@@ -494,6 +494,22 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 .tut-navbtn{background:#1a1410;border:1.5px solid #5a4028;border-radius:9px;color:#c9a84c;
   font-family:inherit;font-size:.85rem;padding:.6rem 1rem;cursor:pointer}
 .tut-navbtn:disabled{opacity:.35;cursor:default}
+.tut-practice{margin-top:1.2rem;padding-top:1rem;border-top:1px solid #2a1e10}
+.tut-practice-label{font-size:.85rem;color:#e8c97a;font-weight:700;margin-bottom:.2rem}
+.tut-practice-hint{font-size:.78rem;color:#8a7048;margin-bottom:.6rem}
+.tut-practice-field{display:flex;flex-wrap:wrap;gap:8px;padding:.8rem;border-radius:10px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.05) 0%,transparent 70%) , #0e0a06;
+  border:1px solid #2a1e10;margin-bottom:1rem}
+.tut-practice-field .rbtile{cursor:pointer;transition:transform .12s,box-shadow .12s}
+.tut-practice-field .rbtile:hover{transform:translateY(-4px);box-shadow:0 6px 14px rgba(0,0,0,.5)}
+.tut-practice-field .rbtile.tut-miss{animation:tutMissShake .35s}
+@keyframes tutMissShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tut-practice-hand-label{font-size:.78rem;color:#8a7048;margin-bottom:.5rem}
+.tut-practice-hand{display:flex;flex-wrap:wrap;gap:8px;min-height:88px}
+.tut-practice-hand .rbtile.tut-new{animation:tutNewTile .4s ease-out}
+@keyframes tutNewTile{from{transform:scale(0) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.tut-practice-status{margin-top:.7rem;text-align:center;font-size:.88rem;color:#8a7048;min-height:1.3em}
+.tut-practice-status.tut-win{color:#f5d040;font-weight:700}
 .tut-pos{font-size:.78rem;color:#6a5830}
 
 /* ── SIDEBAR ── */
@@ -655,6 +671,9 @@ font-size:.55rem;color:#A07800;pointer-events:none;z-index:3;line-height:1}
 .rb-ex-sep{display:flex;align-items:center;justify-content:center;color:#8a7048;font-size:.85rem;
 
 font-weight:700;padding:0 2px;align-self:center}
+
+.tut-content .rbtile{width:52px;height:86px}
+.tut-content .rbtile .rbtile-star{font-size:.85rem}
 
 </style>
 
@@ -3488,42 +3507,49 @@ const TUTORIAL_LESSONS=[
     examples:[
       { tiles:[[1,3],[1,3],[2,3],[5,3],[4,3],[6,3]] },
       { tiles:[[2,5],[2,5],[3,5],[6,5],[1,5],[4,5]] },
-    ] },
+    ],
+    practice:{ hand:[[1,3],[1,3],[2,3],[5,3],[4,3]], win:[6,3], decoys:[[2,4],[5,6]] } },
   { id:'sanren', title:'三連', yomi:'サンレン', pts:'3点',
     desc:'「3枚セット」を2つ作る。セット＝<b style="color:#f0a050">下が同じ3枚</b>で<b style="color:#f06868">上が連番</b>。6と1はつながりません。',
     examples:[
       { tiles:[[2,1],[3,1],[4,1]], tiles2:[[3,5],[4,5],[5,5]] },
       { tiles:[[1,2],[2,2],[3,2]], tiles2:[[4,6],[5,6],[6,6]] },
-    ] },
+    ],
+    practice:{ hand:[[2,1],[3,1],[3,5],[4,5],[5,5]], win:[4,1], decoys:[[1,6],[3,2]] } },
   { id:'rikka', title:'六華', yomi:'リッカ', pts:'6点',
     desc:'下が全部同じ＋上が1〜6の連番（順不同OK）。ゲーム名にもなっている<b style="color:#f5d040">最高難度の役</b>です。',
     examples:[
       { tiles:[[1,4],[2,4],[3,4],[4,4],[5,4],[6,4]] },
       { tiles:[[1,2],[2,2],[3,2],[4,2],[5,2],[6,2]] },
-    ] },
+    ],
+    practice:{ hand:[[1,4],[2,4],[3,4],[4,4],[5,4]], win:[6,4], decoys:[[6,1],[6,2]] } },
   { id:'santui', title:'三対', yomi:'サンツイ', pts:'2点',
     desc:'6枚を<b style="color:#f0a050">同じ牌のペア×3組</b>にする。ルームの設定次第で使える追加役です。',
     examples:[
       { tiles:[[2,1],[2,1],[4,3],[4,3],[6,5],[6,5]] },
       { tiles:[[1,6],[1,6],[3,2],[3,2],[5,4],[5,4]] },
-    ] },
+    ],
+    practice:{ hand:[[2,1],[2,1],[4,3],[4,3],[6,5]], win:[6,5], decoys:[[1,4],[3,6]] } },
   { id:'sanshiki', title:'三色', yomi:'サンシキ', pts:'3点（ボーナスなし）',
     desc:'手牌6枚の上下すべての数が<b style="color:#f0a050">合わせて3種類のみ</b>になる。<b style="color:#60c870">「ついでに完成」でのみ</b>成立し、通常の上がり・ロンでは成立しません。',
     examples:[
       { tiles:[[1,3],[3,1],[5,3],[3,5],[1,5],[5,1]] },
       { tiles:[[2,4],[4,2],[6,4],[4,6],[2,6],[6,2]] },
-    ] },
+    ],
+    practice:{ hand:[[1,3],[3,1],[5,3],[3,5],[1,5]], win:[5,1], decoys:[[2,2],[4,6]] } },
   { id:'kikou', title:'輝光', yomi:'キコウ', pts:'5点（ボーナスなし）',
     desc:'6枚すべてを<b style="color:#f5d040">★ゾロ目牌</b>（上下同じ数の牌）にする。輝きボーナスは付きません。',
     examples:[
       { tiles:[[1,1],[1,1],[3,3],[3,3],[5,5],[5,5]] },
       { tiles:[[2,2],[2,2],[4,4],[4,4],[6,6],[6,6]] },
-    ] },
+    ],
+    practice:{ hand:[[1,1],[1,1],[3,3],[3,3],[5,5]], win:[5,5], decoys:[[2,3],[4,1]] } },
   { id:'musou', title:'無双', yomi:'ムソウ', pts:'3点＋★ボーナス',
     desc:'<b style="color:#f5d040">★ゾロ目牌</b>を<b style="color:#f0a050">6種類すべて（1-1〜6-6）</b>集める。組み合わせはこの1通りしかありません。輝きボーナスも付くので実質かなり高得点です。',
     examples:[
       { tiles:[[1,1],[2,2],[3,3],[4,4],[5,5],[6,6]] },
-    ] },
+    ],
+    practice:{ hand:[[1,1],[2,2],[3,3],[4,4],[5,5]], win:[6,6], decoys:[[2,3],[4,1]] } },
   { id:'riichi', title:'リーチ', yomi:'', pts:'',
     desc:`手牌6枚のとき、<b style="color:#e07070">ある牌を捨てればテンパイ（あと1枚で上がれる状態）になる</b>なら「リーチ宣言」ボタンが押せます。<br><br>
       宣言すると、以降は引いた牌が役の完成牌でない限り<b style="color:#e07070">自動で捨てられます</b>（手牌を動かせなくなる）。<br><br>
@@ -3575,11 +3601,67 @@ function renderTutorialLesson(){
     }).join('');
   }
   document.getElementById('tut-content').innerHTML=
-    `<div class="tut-content-title">${esc(l.title)}${yomiHtml}</div>${ptsHtml}<div class="tut-content-desc">${l.desc}</div>${exHtml}`;
+    `<div class="tut-content-title">${esc(l.title)}${yomiHtml}</div>${ptsHtml}<div class="tut-content-desc">${l.desc}</div>${exHtml}<div class="tut-practice" id="tut-practice-container"></div>`;
+  renderTutorialPractice();
   document.getElementById('tut-pos').textContent=`${tutorialIdx+1} / ${TUTORIAL_LESSONS.length}`;
   document.getElementById('tut-prev-btn').disabled=(tutorialIdx===0);
   document.getElementById('tut-next-btn').disabled=(tutorialIdx===TUTORIAL_LESSONS.length-1);
   document.getElementById('tut-content').scrollTop=0;
+}
+
+function shuffleArr(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+let _tutPracticeTiles=null;
+let _tutPracticeResetTimer=null;
+function renderTutorialPractice(){
+  clearTimeout(_tutPracticeResetTimer);
+  const l=TUTORIAL_LESSONS[tutorialIdx];
+  const container=document.getElementById('tut-practice-container');
+  if(!container)return;
+  if(!l.practice){ container.style.display='none'; container.innerHTML=''; return; }
+  container.style.display='';
+  const items=[{top:l.practice.win[0],bot:l.practice.win[1],isWin:true},
+    ...l.practice.decoys.map(([t,b])=>({top:t,bot:b,isWin:false}))];
+  _tutPracticeTiles=shuffleArr(items);
+  const handHtml=l.practice.hand.map(([t,b])=>tutTile(t,b)).join('');
+  const fieldHtml=_tutPracticeTiles.map((t,i)=>
+    `<div class="tut-field-tile" onclick="tutPracticeTap(${i})">${tutTile(t.top,t.bot)}</div>`).join('');
+  container.innerHTML=
+    `<div class="tut-practice-label">✋ 練習してみよう</div>
+     <div class="tut-practice-hint">場から好きな牌を1枚選んでください</div>
+     <div class="tut-practice-field" id="tut-practice-field">${fieldHtml}</div>
+     <div class="tut-practice-hand-label">— 手牌 —</div>
+     <div class="tut-practice-hand" id="tut-practice-hand">${handHtml}</div>
+     <div class="tut-practice-status" id="tut-practice-status">手牌5枚 — 場から選んでください</div>`;
+}
+function tutPracticeTap(i){
+  if(!_tutPracticeTiles||!_tutPracticeTiles[i])return;
+  const t=_tutPracticeTiles[i];
+  const statusEl=document.getElementById('tut-practice-status');
+  const fieldEl=document.getElementById('tut-practice-field');
+  const fieldTileEls=fieldEl.querySelectorAll('.tut-field-tile');
+  if(t.isWin){
+    _tutPracticeTiles=null; // 連打で二重に反応しないようにロック
+    if(fieldTileEls[i])fieldTileEls[i].style.visibility='hidden';
+    const handEl=document.getElementById('tut-practice-hand');
+    const wrap=document.createElement('div');
+    wrap.innerHTML=tutTile(t.top,t.bot);
+    const tileEl=wrap.firstElementChild;
+    tileEl.classList.add('tut-new');
+    handEl.appendChild(tileEl);
+    statusEl.textContent='🎉 上がり！';
+    statusEl.classList.add('tut-win');
+    playSound('win');
+    launchConfetti();
+    _tutPracticeResetTimer=setTimeout(renderTutorialPractice,1700);
+  } else {
+    const el=fieldTileEls[i]?.querySelector('.rbtile');
+    if(el){ el.classList.remove('tut-miss'); void el.offsetWidth; el.classList.add('tut-miss'); }
+    statusEl.textContent='それじゃない…もう一度！';
+  }
 }
 
 function showModal(html){document.getElementById('mbox').innerHTML=html;document.getElementById('modal').classList.add('open');}
