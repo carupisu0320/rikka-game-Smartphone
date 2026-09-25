@@ -518,6 +518,13 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
   background:linear-gradient(135deg,#e878b0,#a04a70);border:none;color:#2a0a16;
   font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;
   box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#giftbox-lobby-btn{position:absolute;top:3.15rem;right:.75rem;z-index:50;
+  display:flex;align-items:center;gap:.35rem;padding:.45rem .85rem;border-radius:20px;
+  background:linear-gradient(135deg,#e8a850,#a06a20);border:none;color:#2a1608;
+  font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#giftbox-lobby-btn .giftbox-dot{width:8px;height:8px;border-radius:50%;background:#ff4040;
+  box-shadow:0 0 6px rgba(255,64,64,.8);animation:assistPulse 1s infinite}
 .gacha-wrap{flex:1;display:flex;flex-direction:column;min-height:0;padding:.9rem 1rem;box-sizing:border-box}
 .gacha-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.75rem;flex-shrink:0}
 .gacha-back{background:transparent;border:1px solid #4a3018;border-radius:8px;color:#c9a84c;
@@ -556,6 +563,22 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 .gacha-equip-btn{flex-shrink:0;padding:.35rem .65rem;border-radius:7px;border:1.5px solid #5a4028;
   background:transparent;color:#c9a84c;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer}
 .gacha-equip-btn.gacha-equipped{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00;border-color:transparent}
+
+/* ── お届けBOX ── */
+.giftbox-wrap{flex:1;display:flex;flex-direction:column;min-height:0;padding:.9rem 1rem;box-sizing:border-box}
+.giftbox-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem;flex-shrink:0}
+.giftbox-back{background:transparent;border:1px solid #4a3018;border-radius:8px;color:#c9a84c;
+  font-family:inherit;font-size:.82rem;padding:.4rem .7rem;cursor:pointer}
+.giftbox-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.05rem;color:#e8c97a;font-weight:700}
+.giftbox-list{flex:1;overflow-y:auto}
+.giftbox-item{background:#150f0a;border:1px solid #4a3018;border-radius:14px;padding:1rem;margin-bottom:.8rem}
+.giftbox-item-title{font-size:.95rem;color:#f5e0a0;font-weight:700;margin-bottom:.3rem}
+.giftbox-item-desc{font-size:.78rem;color:#8a7048;margin-bottom:.8rem;line-height:1.5}
+.giftbox-claim-btn{width:100%;padding:.7rem;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#e8a850,#a06a20);color:#2a1608;
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.giftbox-claim-btn:disabled{background:#2a2018;color:#5a4820;cursor:default}
+.giftbox-empty{text-align:center;color:#5a4820;font-size:.85rem;padding:2rem 1rem}
 
 /* ── SIDEBAR ── */
 
@@ -740,6 +763,8 @@ font-weight:700;padding:0 2px;align-self:center}
 <div id="lobby" class="screen active">
 
 <button id="gacha-lobby-btn" onclick="openGacha()">🌸 ガチャ <span id="gacha-lobby-petals">0</span></button>
+
+<button id="giftbox-lobby-btn" onclick="openGiftbox()">📦 お届けBOX<span id="giftbox-dot-wrap"></span></button>
 
 <div class="lobby-inner">
 
@@ -1127,10 +1152,20 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   </div>
   <div class="gacha-main">
     <button class="gacha-draw-btn" id="gacha-draw-btn" onclick="drawGacha()">ガチャを引く</button>
-    <div class="gacha-cost">花びら<span id="gacha-cost-label">1</span>枚で1回。対局を遊ぶと貯まります</div>
+    <div class="gacha-cost">花びら<span id="gacha-cost-label">10</span>枚で1回。対局を遊ぶと貯まります</div>
     <div class="gacha-result" id="gacha-result"></div>
   </div>
   <div class="gacha-collection" id="gacha-collection"></div>
+</div>
+</div>
+
+<div id="giftbox" class="screen">
+<div class="giftbox-wrap">
+  <div class="giftbox-header">
+    <button onclick="closeGiftbox()" class="giftbox-back">← 戻る</button>
+    <div class="giftbox-title">📦 お届けBOX</div>
+  </div>
+  <div class="giftbox-list" id="giftbox-list"></div>
 </div>
 </div>
 <div id="flip-popup">
@@ -3046,6 +3081,71 @@ function openGacha(){
   showScreen('gacha');
 }
 function closeGacha(){ showScreen('lobby'); }
+
+// ============================================================
+// お届けBOX
+// ============================================================
+const GIFTBOX_ITEMS=[
+  {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
+];
+function loadGiftboxClaimed(){
+  try{ return JSON.parse(localStorage.getItem('rikka_giftbox_claimed')||'[]'); }catch(e){ return []; }
+}
+function saveGiftboxClaimed(arr){ try{ localStorage.setItem('rikka_giftbox_claimed',JSON.stringify(arr)); }catch(e){} }
+function isGiftEligible(gift){
+  if(gift.condition==='google') return !!(gUser&&gUser.id);
+  return true;
+}
+function hasUnclaimedGift(){
+  const claimed=new Set(loadGiftboxClaimed());
+  return GIFTBOX_ITEMS.some(g=>isGiftEligible(g)&&!claimed.has(g.id));
+}
+function updateGiftboxDot(){
+  const el=document.getElementById('giftbox-dot-wrap');
+  if(!el)return;
+  el.innerHTML=hasUnclaimedGift()?'<span class="giftbox-dot"></span>':'';
+}
+function claimGift(id){
+  const claimed=loadGiftboxClaimed();
+  if(claimed.includes(id))return;
+  const gift=GIFTBOX_ITEMS.find(g=>g.id===id);
+  if(!gift||!isGiftEligible(gift))return;
+  claimed.push(id);
+  saveGiftboxClaimed(claimed);
+  if(gift.petals)addPetals(gift.petals);
+  toast(`🌸 花びら${gift.petals}枚を受け取りました！`);
+  playSound('win');
+  launchConfetti();
+  renderGiftbox();
+  updateGiftboxDot();
+}
+function renderGiftbox(){
+  const el=document.getElementById('giftbox-list');
+  if(!el)return;
+  const claimed=new Set(loadGiftboxClaimed());
+  if(!GIFTBOX_ITEMS.length){
+    el.innerHTML='<div class="giftbox-empty">現在お届け中のアイテムはありません</div>';
+    return;
+  }
+  el.innerHTML=GIFTBOX_ITEMS.map(g=>{
+    const isClaimed=claimed.has(g.id);
+    const eligible=isGiftEligible(g);
+    let btnHtml;
+    if(isClaimed) btnHtml=`<button class="giftbox-claim-btn" disabled>受け取り済み</button>`;
+    else if(!eligible) btnHtml=`<button class="giftbox-claim-btn" disabled>🔒 Googleでログインすると受け取れます</button>`;
+    else btnHtml=`<button class="giftbox-claim-btn" onclick="claimGift('${g.id}')">受け取る</button>`;
+    return `<div class="giftbox-item">
+      <div class="giftbox-item-title">${esc(g.title)}</div>
+      <div class="giftbox-item-desc">${esc(g.desc)}</div>
+      ${btnHtml}
+    </div>`;
+  }).join('');
+}
+function openGiftbox(){
+  renderGiftbox();
+  showScreen('giftbox');
+}
+function closeGiftbox(){ showScreen('lobby'); }
 
 function switchStatsTab(tab){
   currentStatsTab=tab;
