@@ -4831,12 +4831,12 @@ function fujiSvg(){
     else light+=`<path d="${d}" stroke="rgba(255,176,120,.24)" stroke-width="${_R(1,2.2).toFixed(1)}" fill="none"/>`;
   }
   // 雪冠：下の縁がギザギザで、谷に沿って雪が舌のように伸びる
-  let snow='M170 108L222 108L236 136';
-  for(let x=236,j=0;x>156;x-=7,j++){
+  let snow='M140 90L250 90L250 136';
+  for(let x=248,j=0;x>144;x-=7,j++){
     const tongue=(j%3===1)?_R(12,24):_R(2,9);
     snow+=`L${x.toFixed(1)} ${(138+tongue).toFixed(1)}L${(x-3.5).toFixed(1)} ${(130+_R(0,8)).toFixed(1)}`;
   }
-  snow+='L156 138Z';
+  snow+='L140 138Z';
   const mist=`<g class="lf-drift" style="animation-duration:30s"><g fill="url(#fjCloud)" filter="url(#fjBlur)"><ellipse cx="90" cy="178" rx="110" ry="9"/><ellipse cx="320" cy="170" rx="100" ry="8"/></g></g>
     <g class="lf-drift" style="animation-duration:22s;animation-direction:alternate-reverse"><g fill="url(#fjCloud)" filter="url(#fjBlur)"><ellipse cx="230" cy="196" rx="130" ry="10"/><ellipse cx="40" cy="206" rx="70" ry="7"/></g></g>`;
   // 湖畔の松のシルエット
