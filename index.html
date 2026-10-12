@@ -4771,7 +4771,7 @@ function startLobbyFireworks(fx){
 const _lobbyEventParam=(new URLSearchParams(location.search)).get('event');
 let _lobbyEventId='__init';
 // 開発者モードを使えるアカウント。メールアドレスでの簡易判定（見た目の確認用機能のみなので、ログイン情報は端末側の値を信頼している）
-const DEV_EMAILS=['nekohaoki215@gmail.com'];
+const DEV_EMAILS=['nekohaoki215@gmail.com','6043_2024_06317@g.miyazaki-c.ed.jp'];
 function isDevUser(){return !!(gUser&&gUser.email&&DEV_EMAILS.includes(String(gUser.email).toLowerCase()));}
 function currentLobbyEvent(){
   if(isDevUser()){
