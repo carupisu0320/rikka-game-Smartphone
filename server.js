@@ -192,12 +192,24 @@ function isTenpaiServer(hand5, optR) {
 // ── ルームユーティリティ ──
 // 場の背景に使う画像URLの簡易サニタイズ。http(s)のみ許可し、
 // url(...)やHTML属性から抜け出せる引用符・バックスラッシュ・括弧を含むものは拒否する。
+// ガチャで入手した場の背景プリセット（'preset:<id>'の形で送られてくる。許可リストにあるものだけ通す）
+const FIELD_BG_PRESETS = new Set(['bg_sunset', 'bg_ocean', 'bg_aurora', 'bg_gameover1', 'bg_gameover2']);
 function sanitizeFieldBg(url) {
   if (typeof url !== 'string') return '';
   url = url.trim();
+  if (url.startsWith('preset:')) return FIELD_BG_PRESETS.has(url.slice(7)) ? url : '';
   if (url.length === 0 || url.length > 500) return '';
   if (!/^https:\/\//i.test(url)) return '';
   if (/["'\\()<>]/.test(url)) return '';
+  return url;
+}
+// アイコン画像URLの簡易サニタイズ（httpsのみ。HTML属性やCSSから抜け出せる文字は拒否）
+function sanitizeAvatar(url) {
+  if (typeof url !== 'string') return '';
+  url = url.trim();
+  if (url.length === 0 || url.length > 1000) return '';
+  if (!/^https:\/\//i.test(url)) return '';
+  if (/["'\\()<>\s]/.test(url)) return '';
   return url;
 }
 function genCode() {
@@ -224,7 +236,7 @@ function sendState(room) {
       turn:      room.turn,
       tphase:    room.tphase,
       phase:     room.phase,
-      scores:    room.players.map(p => ({ name: p.name, score: p.score, fieldBg: p.fieldBg || '', riichi: p.riichi || false })),
+      scores:    room.players.map(p => ({ name: p.name, score: p.score, fieldBg: p.fieldBg || '', avatar: p.avatar || '', riichi: p.riichi || false })),
       oppCounts: room.players.map((p, i) => i === myIdx ? -1 : p.hand.length),
       code:      room.code,
       optRoles:  room.roles !== undefined ? room.roles : null,
@@ -243,9 +255,9 @@ function findRoom(sid) {
 io.on('connection', socket => {
 
   // クイックマッチ
-  socket.on('quickmatch', ({ name, fieldBg }) => {
+  socket.on('quickmatch', ({ name, fieldBg, avatar }) => {
     if (queue.find(q => q.id === socket.id)) return;
-    queue.push({ id: socket.id, name, fieldBg: sanitizeFieldBg(fieldBg) });
+    queue.push({ id: socket.id, name, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar) });
     socket.emit('queued', { pos: queue.length });
 
 if (queue.length >= 2) {
@@ -255,8 +267,8 @@ if (queue.length >= 2) {
     code, host: p1.id,
     roles: [], // クイックマッチ: 基本役のみ
     players: [
-      { id: p1.id, name: p1.name, hand: [], score: 0, fieldBg: p1.fieldBg || '' },
-      { id: p2.id, name: p2.name, hand: [], score: 0, fieldBg: p2.fieldBg || '' },
+      { id: p1.id, name: p1.name, hand: [], score: 0, fieldBg: p1.fieldBg || '', avatar: p1.avatar || '' },
+      { id: p2.id, name: p2.name, hand: [], score: 0, fieldBg: p2.fieldBg || '', avatar: p2.avatar || '' },
     ],
     field: [], turn: 0, tphase: 'pick', phase: 'playing',
   };
@@ -276,7 +288,7 @@ if (queue.length >= 2) {
   });
 
   // ルーム作成
-socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg }) => {
+socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avatar }) => {
     const code = genCode();
     rooms.set(code, {
       code, host: socket.id,
@@ -284,7 +296,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg }) => 
       goal: [5,10,15,20,30].includes(goal) ? goal : 10,
       useRiichi: useRiichi || false,
       useRon: useRon || false,
-      players: [{ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg) }],
+      players: [{ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar) }],
       field: [], turn: 0, tphase: 'pick', phase: 'waiting',
     });
     socket.join(code);
@@ -293,7 +305,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg }) => 
   });
 
   // ルーム参加
-  socket.on('join_room', ({ name, code, fieldBg }) => {
+  socket.on('join_room', ({ name, code, fieldBg, avatar }) => {
     const c = (code || '').toUpperCase().trim();
     const room = rooms.get(c);
     if (!room)                    { socket.emit('err', '部屋が見つかりません'); return; }
@@ -301,9 +313,19 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg }) => 
     if (room.players.length >= 4) { socket.emit('err', '部屋が満員です'); return; }
     if (room.players.some(p => p.id === socket.id)) { socket.emit('err', 'すでに参加しています'); return; }
     if (room.players.some(p => p.name === name)) { socket.emit('err', 'この名前はすでに使われています'); return; }
-    room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg) });
+    room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar) });
     socket.join(c);
     io.to(c).emit('room_update', { players: room.players.map(p => p.name), code: c });
+  });
+
+  // アイコン画像を変更（対局中でも変更可能）
+  socket.on('set_avatar', ({ code, url }) => {
+    const room = rooms.get(code);
+    if (!room) return;
+    const pi = room.players.findIndex(p => p.id === socket.id);
+    if (pi === -1) return;
+    room.players[pi].avatar = sanitizeAvatar(url);
+    if (room.phase !== 'waiting') sendState(room);
   });
 
   // 場の背景画像を変更（対局中でも変更可能）
