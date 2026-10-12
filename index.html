@@ -1373,7 +1373,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       <button id="custom-tab-bg" class="custom-tab" onclick="switchCustomizeTab('bg')">場の背景</button>
       <button id="custom-tab-confetti" class="custom-tab" onclick="switchCustomizeTab('confetti')">紙吹雪</button>
       <button id="custom-tab-title" class="custom-tab" onclick="switchCustomizeTab('title')">称号</button>
-      <button id="custom-tab-icon" class="custom-tab" onclick="switchCustomizeTab('icon')">アイコン</button>
+      <button id="custom-tab-icon" class="custom-tab" onclick="switchCustomizeTab('icon')">プロフィール</button>
     </div>
     <div id="custom-body" class="custom-body"></div>
   </div>
@@ -1614,7 +1614,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
                display:flex;align-items:center;justify-content:center;font-size:1.5rem;
                flex-shrink:0;cursor:pointer;overflow:hidden">👤</div>
       <div>
-        <div id="sb-name" style="font-size:1rem;color:#e8c97a;font-weight:700;display:inline-block">プレイヤー</div><span id="sb-title" style="font-size:.68rem;color:#f5d040;font-weight:700;margin-left:.4rem"></span>
+        <div id="sb-name" onclick="openCustomize('icon')" style="font-size:1rem;color:#e8c97a;font-weight:700;display:inline-block;cursor:pointer" title="名前を変更">プレイヤー</div><span id="sb-title" style="font-size:.68rem;color:#f5d040;font-weight:700;margin-left:.4rem"></span>
         <div id="sb-email" style="font-size:.7rem;color:#6a5830"></div>
 <button class="sb-custom-btn" onclick="openCustomize()">🎨 カスタマイズ</button>
       </div>
@@ -1778,7 +1778,7 @@ document.getElementById('google-login-area').style.display='';
 
 document.getElementById('google-user-info').style.display='none';
 
-document.getElementById('pname').value='プレイヤー';
+document.getElementById('pname').value=localStorage.getItem('rikka_name_guest')||'プレイヤー';
 
 google.accounts.id.disableAutoSelect();
 
@@ -1786,7 +1786,7 @@ google.accounts.id.disableAutoSelect();
 
 function saveCustomName(){
 
-if(!gUser.id)return;
+if(!gUser.id){const gn=document.getElementById('pname').value.trim();if(gn)localStorage.setItem('rikka_name_guest',gn);return;}
 
 const name=document.getElementById('pname').value.trim();
 
@@ -3850,9 +3850,9 @@ const BASE_BACK_THEMES=[
 ];
 const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a']};
 let customizeTab='theme';
-function openCustomize(){
+function openCustomize(tab){
   closeSidebar();
-  customizeTab='theme';
+  customizeTab=tab||'theme';
   document.getElementById('custom-modal').classList.add('open');
   renderCustomize();
 }
@@ -3889,11 +3889,15 @@ function renderCustomize(){
   } else if(customizeTab==='icon'){
     const av=customAvatarUrl||(gUser&&gUser.avatar)||'';
     const nm=(document.getElementById('pname').value||'プレイヤー');
-    const face=av?`<img src="${esc(av)}" style="width:96px;height:96px;border-radius:50%;object-fit:cover" alt="">`:esc(nm[0]||'👤');
-    body.innerHTML=`<div style="text-align:center;padding:.5rem 0 1rem">
+    const face=av?`<img src="${esc(av)}" style="width:96px;height:96px;border-radius:50%;object-fit:cover" alt="">`:`<span id="custom-face-initial">${esc(nm[0]||'👤')}</span>`;
+    body.innerHTML=`<div style="text-align:center;padding:.3rem 0 .6rem">
       <div style="width:96px;height:96px;border-radius:50%;background:#2a1e12;border:2px solid #c9a84c;margin:0 auto .8rem;
         display:flex;align-items:center;justify-content:center;font-size:2.4rem;overflow:hidden">${face}</div>
-      <button class="custom-img-btn" onclick="openIconModal()">🖼️ アイコンを変更する</button></div>`;
+      <button class="custom-img-btn" onclick="openIconModal()">🖼️ アイコンを変更する</button></div>
+      <div class="custom-sub" style="margin-top:.4rem">名前（10文字まで）</div>
+      <input id="custom-name-input" class="finput" type="text" maxlength="10" value="${esc(nm)}"
+        oninput="onCustomNameInput(this.value)" onblur="onCustomNameBlur(this)" style="width:100%;margin-bottom:.4rem">
+      <div class="custom-sub">変更はすぐ保存されます。対戦中のルームでは、次の対戦から反映されます。</div>`;
   } else if(customizeTab==='theme'){
     const cur=localStorage.getItem('rikka_back_theme')||'';
     let h='<div class="custom-sub">基本の裏柄</div><div class="custom-grid">';
@@ -3930,6 +3934,18 @@ function renderCustomize(){
     h+=`<button class="custom-img-btn" onclick="openFieldBgModal()">🖼️ 自分の画像URLで設定${hasCustom?'（設定中）':''}</button>`;
     body.innerHTML=h;
   }
+}
+function onCustomNameInput(v){
+  const name=v.trim();
+  if(!name)return; // 空の間は保存しない
+  document.getElementById('pname').value=name;
+  saveCustomName();
+  const sb=document.getElementById('sb-name');if(sb)sb.textContent=name;
+  const ini=document.getElementById('custom-face-initial');if(ini)ini.textContent=name[0]||'👤';
+  if(typeof updateAvatarDisplay==='function')updateAvatarDisplay();
+}
+function onCustomNameBlur(el){
+  if(!el.value.trim())el.value=document.getElementById('pname').value||'プレイヤー'; // 空のまま閉じたら元の名前に戻す
 }
 function selectBackTheme(value,gachaId){
   const st=loadGachaState();
@@ -5166,7 +5182,7 @@ document.getElementById('hand-tiles').addEventListener('scroll',()=>{if(G&&G.sel
   if(bt) document.body.classList.add('back-'+bt);
   updatePetalDisplays();
   const stored = localStorage.getItem('rikka_guser');
-  if (!stored) return;
+  if (!stored) { const gn=localStorage.getItem('rikka_name_guest'); if(gn)document.getElementById('pname').value=gn; return; }
   try {
     const u = JSON.parse(stored);
     gUser = {id:u.id||'', name:u.name||'', avatar:u.avatar||'', email:u.email||''};
