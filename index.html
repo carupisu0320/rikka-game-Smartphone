@@ -163,6 +163,7 @@ display:flex;align-items:center;gap:.45rem;font-size:.88rem;flex:1;min-width:110
 
 .ocard.oactive{border-color:#8a6aad;box-shadow:0 0 10px rgba(138,106,173,.2)}
 
+.oname .spill-avatar{vertical-align:middle;margin-right:3px}
 .oname{color:#b08dd4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px}
 
 .ohand{display:flex;gap:2px;flex-wrap:wrap}
@@ -625,6 +626,136 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 #fieldbg-modal.open{display:flex}
 .icon-mbox{background:#1a1410;border:1.5px solid #4a3018;border-radius:16px;
   padding:1.6rem;max-width:340px;width:92%;text-align:center;animation:mboxin .25s ease-out}
+
+
+/* ── ガチャ演出 ── */
+#gacha-fx{position:fixed;inset:0;z-index:950;display:none;overflow:hidden;
+  background:radial-gradient(circle at 50% 42%,#2a1a34 0%,#0c060f 60%,#040205 100%);
+  --gc:#b8c0c8;--gc2:#fff;--orbc:#e8a8c8;--charge-ms:1500ms;user-select:none;-webkit-user-select:none}
+#gacha-fx.shake{animation:gfxShake .55s linear}
+@keyframes gfxShake{0%,100%{transform:translate(0)}10%{transform:translate(-9px,5px)}25%{transform:translate(8px,-7px)}40%{transform:translate(-7px,-4px)}55%{transform:translate(6px,6px)}70%{transform:translate(-4px,3px)}85%{transform:translate(3px,-2px)}}
+#gfx-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.gfx-rays{position:absolute;left:50%;top:44%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;
+  background:repeating-conic-gradient(var(--gc) 0 4deg,transparent 4deg 14deg);opacity:0;transition:opacity .8s;
+  -webkit-mask-image:radial-gradient(circle closest-side,rgba(0,0,0,.95),transparent 20%);
+  mask-image:radial-gradient(circle closest-side,rgba(0,0,0,.95),transparent 20%);
+  animation:gfxSpin 24s linear infinite;pointer-events:none;will-change:transform}
+@keyframes gfxSpin{to{transform:rotate(360deg)}}
+#gacha-fx.st-reveal .gfx-rays{opacity:.38}
+#gacha-fx[data-rarity=common] .gfx-rays{display:none}
+.gfx-stage{position:absolute;left:50%;top:42%;width:130px;height:130px;margin:-65px 0 0 -65px;
+  animation:gfxJitter .09s linear infinite alternate}
+@keyframes gfxJitter{from{transform:translate(-2px,1px)}to{transform:translate(2px,-1px)}}
+.gfx-orb{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:3rem;color:#fff;
+  background:radial-gradient(circle at 35% 30%,#fff 0%,var(--orbc) 38%,#2a1034 100%);
+  box-shadow:0 0 30px var(--orbc),0 0 80px var(--orbc),inset 0 0 25px rgba(255,255,255,.4);
+  transition:background .25s,box-shadow .25s;
+  animation:gfxOrbCharge var(--charge-ms) cubic-bezier(.5,0,.9,.6) forwards}
+@keyframes gfxOrbCharge{0%{transform:scale(.7) rotate(0)}30%{transform:scale(.85) rotate(-6deg)}55%{transform:scale(1) rotate(9deg)}78%{transform:scale(1.15) rotate(-12deg)}100%{transform:scale(1.45) rotate(0)}}
+.gfx-orb.tell{--orbc:var(--gc);animation:gfxOrbCharge var(--charge-ms) cubic-bezier(.5,0,.9,.6) forwards,gfxPulse .22s ease-in-out infinite alternate}
+@keyframes gfxPulse{from{filter:brightness(1)}to{filter:brightness(1.6)}}
+.gfx-ring{position:absolute;inset:-22px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);animation:gfxSpin 2.2s linear infinite}
+.gfx-ring.r2{inset:-42px;border-color:rgba(255,255,255,.18);animation-duration:3.6s;animation-direction:reverse}
+#gacha-fx.st-burst .gfx-stage,#gacha-fx.st-reveal .gfx-stage{animation:gfxOrbOut .4s ease-in forwards}
+@keyframes gfxOrbOut{to{opacity:0;transform:scale(3)}}
+.gfx-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#gacha-fx.st-burst .gfx-flash{animation:gfxFlash .8s ease-out}
+#gacha-fx.st-burst[data-rarity=superrare] .gfx-flash{animation:gfxFlash2 1.1s ease-out}
+@keyframes gfxFlash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
+@keyframes gfxFlash2{0%{opacity:0}6%{opacity:1}22%{opacity:.15}34%{opacity:1}100%{opacity:0}}
+.gfx-cardwrap{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:1rem;pointer-events:none;overflow-y:auto}
+#gacha-fx.st-reveal .gfx-cardwrap{display:flex}
+.gfx-banner{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-weight:900;letter-spacing:.18em;font-size:1.7rem;
+  margin-bottom:.8rem;background:linear-gradient(90deg,#fff4c0,#f5d040,#ff9ad0,#80c0ff,#f5d040,#fff4c0);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 10px rgba(255,220,100,.8));
+  animation:gfxBanner .7s cubic-bezier(.2,1.6,.4,1) both,gfxShine 2.5s linear infinite}
+#gacha-fx[data-rarity=rare] .gfx-banner{background-image:linear-gradient(90deg,#d0e8ff,#60a8f0,#a0d0ff,#60a8f0,#d0e8ff);
+  filter:drop-shadow(0 0 10px rgba(96,168,240,.8));font-size:1.5rem}
+@keyframes gfxBanner{from{transform:translateY(-60px) scale(2.2);opacity:0}to{transform:none;opacity:1}}
+@keyframes gfxShine{to{background-position:-300% 0}}
+.gfx-card{position:relative;pointer-events:auto;width:min(310px,84vw);padding:1.4rem 1rem 1rem;border-radius:18px;text-align:center;
+  background:linear-gradient(160deg,#2a1e16,#120c08);border:2px solid var(--gc);overflow:hidden;
+  box-shadow:0 0 26px var(--gc),0 0 70px rgba(255,255,255,.08),inset 0 0 24px rgba(255,255,255,.05);
+  animation:gfxCardIn .85s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes gfxCardIn{0%{transform:scale(.2) rotateY(110deg);opacity:0}100%{transform:none;opacity:1}}
+.gfx-card::after{content:'';position:absolute;top:0;bottom:0;width:60%;left:-80%;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.38) 50%,transparent 70%);
+  animation:gfxSheen 2.8s ease-in-out .9s infinite;pointer-events:none}
+#gacha-fx[data-rarity=common] .gfx-card::after{display:none}
+@keyframes gfxSheen{0%{left:-80%}55%,100%{left:130%}}
+#gacha-fx[data-rarity=superrare] .gfx-card{border-color:transparent;
+  background:linear-gradient(#1e140c,#0f0a06) padding-box,linear-gradient(120deg,#f5d040,#ff8ad0,#60a8f0,#60e0a0,#f5d040) border-box;
+  background-size:100% 100%,300% 100%;animation:gfxCardIn .85s cubic-bezier(.2,1.3,.4,1) both,gfxRainbow 3s linear infinite}
+@keyframes gfxRainbow{to{background-position:0 0,-300% 0}}
+.gfx-stars{font-size:1.15rem;letter-spacing:.15em;color:var(--gc);text-shadow:0 0 8px var(--gc);margin-bottom:.15rem}
+.gfx-stars span{display:inline-block;animation:gfxStar .5s cubic-bezier(.2,1.8,.4,1) both}
+@keyframes gfxStar{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:none;opacity:1}}
+.gfx-rlabel{font-size:.72rem;font-weight:700;letter-spacing:.2em;color:var(--gc);margin-bottom:.5rem}
+.gfx-icon{font-size:4.2rem;line-height:1.1;filter:drop-shadow(0 0 14px var(--gc));animation:gfxFloat 2.4s ease-in-out infinite}
+@keyframes gfxFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.06)}}
+.gfx-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.25rem;color:#f8e8b0;font-weight:700;margin-top:.4rem}
+.gfx-prev{margin:.6rem auto 0;border:2px solid #5a4028;border-radius:6px}
+.gfx-prev-dots{display:flex;gap:4px;justify-content:center;margin-top:.6rem}
+.gfx-prev-dots i{width:12px;height:12px;border-radius:50%;display:block}
+.gfx-prev-title{margin-top:.6rem;font-size:.82rem;color:#f5d040;font-weight:700}
+.gfx-desc{font-size:.72rem;color:#9a8460;margin-top:.5rem;line-height:1.5}
+.gfx-dup{font-size:.72rem;color:#a89868;margin-top:.4rem}
+.gfx-new{position:absolute;top:12px;right:-30px;transform:rotate(38deg);width:110px;text-align:center;
+  background:linear-gradient(135deg,#ff5a5a,#c02020);color:#fff;font-size:.7rem;font-weight:900;letter-spacing:.12em;padding:.18rem 0;z-index:2}
+.gfx-btns{display:flex;flex-direction:column;gap:.45rem;margin-top:.9rem}
+.gfx-btn{padding:.65rem;border-radius:10px;border:none;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.gfx-btn.main{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}
+.gfx-btn.sub{background:#2a1e14;color:#e8c97a;border:1px solid #5a4028}
+.gfx-btn.ghost{background:transparent;color:#8a7048;font-weight:400;font-size:.82rem}
+.gfx-btn:disabled{opacity:.4;cursor:default}
+.gfx-hint{position:absolute;bottom:2.2rem;left:0;right:0;text-align:center;font-size:.74rem;color:rgba(255,255,255,.4);
+  letter-spacing:.15em;animation:gfxBlink 1.4s ease-in-out infinite;pointer-events:none}
+#gacha-fx.st-reveal .gfx-hint{display:none}
+@keyframes gfxBlink{0%,100%{opacity:.25}50%{opacity:.8}}
+/* ── カスタマイズ画面 ── */
+.sb-custom-btn{margin-top:.5rem;padding:.4rem .8rem;border-radius:8px;border:1.5px solid #c9a84c;
+  background:linear-gradient(135deg,#3a2a14,#2a1e0e);color:#e8c97a;font-family:inherit;
+  font-size:.82rem;font-weight:700;cursor:pointer}
+#custom-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;
+  align-items:center;justify-content:center;z-index:600;backdrop-filter:blur(4px)}
+#custom-modal.open{display:flex}
+.custom-box{background:#1a1410;border:1.5px solid #4a3018;border-radius:16px;padding:1.2rem;
+  width:min(380px,94vw);max-height:88vh;display:flex;flex-direction:column;animation:mboxin .25s ease-out}
+.custom-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.custom-head-title{font-size:1rem;color:#c9a84c;font-weight:700;letter-spacing:.1em}
+.custom-close{background:transparent;border:none;color:#8a7048;font-size:1.3rem;cursor:pointer}
+.custom-tabs{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.8rem}
+.custom-tab{flex:1 1 30%;padding:.45rem .2rem;border:none;border-radius:8px;font-family:inherit;font-size:.82rem;
+  font-weight:700;cursor:pointer;background:#1a1410;color:#6a5830;border:1px solid #3e2e1e}
+.custom-tab.active{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00;border-color:transparent}
+.custom-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.custom-sub{font-size:.72rem;color:#6a5830;margin:.2rem 0 .5rem}
+.custom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.9rem}
+.custom-card{position:relative;background:#141008;border:1.5px solid #3e2e1e;border-radius:10px;
+  padding:.5rem .3rem;text-align:center;cursor:pointer;color:#c8b898;font-family:inherit}
+.custom-card.sel{border-color:#c9a84c;box-shadow:0 0 10px rgba(201,168,76,.45)}
+.custom-card.locked{opacity:.45;cursor:default}
+.custom-card .sw{width:34px;height:54px;border-radius:5px;margin:0 auto .35rem;border:2px solid #5a4028}
+.custom-card .sw-bg{width:100%;height:46px;border-radius:6px;margin:0 auto .35rem;border:1px solid #5a4028;
+  background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.custom-card .nm{font-size:.7rem;line-height:1.3}
+.custom-card .chk{position:absolute;top:3px;right:5px;font-size:.7rem;color:#f5e060}
+.custom-list{display:flex;flex-direction:column;gap:.45rem;margin-bottom:.9rem}
+.custom-row{display:flex;align-items:center;gap:.6rem;padding:.55rem .6rem;background:#141008;
+  border:1.5px solid #3e2e1e;border-radius:10px;cursor:pointer;color:#c8b898;font-family:inherit;text-align:left;width:100%}
+.custom-row.sel{border-color:#c9a84c;box-shadow:0 0 10px rgba(201,168,76,.45)}
+.custom-row.locked{opacity:.45;cursor:default}
+.custom-row .ic{font-size:1.3rem;width:1.8rem;text-align:center}
+.custom-row .tx{flex:1;font-size:.82rem}
+.custom-row .ds{font-size:.68rem;color:#6a5830;margin-top:.1rem}
+.custom-row .dots{display:flex;gap:2px;margin-top:.25rem}
+.custom-row .dots i{width:10px;height:10px;border-radius:50%;display:block}
+.custom-row .chk{color:#f5e060;font-size:.85rem}
+.custom-img-btn{width:100%;padding:.6rem;border-radius:9px;border:1px dashed #5a4028;background:transparent;
+  color:#c9a84c;font-family:inherit;font-size:.82rem;cursor:pointer}
 /* ── 牌裏テーマ ── */
 body.back-blue .fback{background:linear-gradient(165deg,#0a1830 0%,#040c1e 100%);border-color:#2a4a7a}
 body.back-blue .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(80,160,255,.07) 4px,rgba(80,160,255,.07) 5px)}
@@ -1175,6 +1306,22 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 <div class="flip-popup-arrow"></div>
 
 </div>
+<div id="custom-modal" onclick="if(event.target===this)closeCustomize()">
+  <div class="custom-box">
+    <div class="custom-head">
+      <div class="custom-head-title">🎨 カスタマイズ</div>
+      <button class="custom-close" onclick="closeCustomize()">✕</button>
+    </div>
+    <div class="custom-tabs">
+      <button id="custom-tab-theme" class="custom-tab active" onclick="switchCustomizeTab('theme')">牌の裏柄</button>
+      <button id="custom-tab-bg" class="custom-tab" onclick="switchCustomizeTab('bg')">場の背景</button>
+      <button id="custom-tab-confetti" class="custom-tab" onclick="switchCustomizeTab('confetti')">紙吹雪</button>
+      <button id="custom-tab-title" class="custom-tab" onclick="switchCustomizeTab('title')">称号</button>
+      <button id="custom-tab-icon" class="custom-tab" onclick="switchCustomizeTab('icon')">アイコン</button>
+    </div>
+    <div id="custom-body" class="custom-body"></div>
+  </div>
+</div>
 <div id="icon-modal">
   <div class="icon-mbox">
     <div style="font-size:1rem;color:#c9a84c;font-weight:700;letter-spacing:.1em;margin-bottom:1rem">ICON EDIT</div>
@@ -1232,6 +1379,14 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       onkeydown="if(event.key==='Enter')sendChat()">
     <button id="chat-send-btn" onclick="sendChat()">送信</button>
   </div>
+</div>
+<div id="gacha-fx" onclick="skipGachaFx()">
+  <div class="gfx-rays"></div>
+  <canvas id="gfx-canvas"></canvas>
+  <div class="gfx-stage"><div class="gfx-ring"></div><div class="gfx-ring r2"></div><div class="gfx-orb" id="gfx-orb">華</div></div>
+  <div class="gfx-flash"></div>
+  <div class="gfx-cardwrap" id="gfx-cardwrap"></div>
+  <div class="gfx-hint">タップでスキップ</div>
 </div>
 <canvas id="confetti-canvas"></canvas>
 <!-- リーチ・ロンボタン -->
@@ -1405,15 +1560,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       <div>
         <div id="sb-name" style="font-size:1rem;color:#e8c97a;font-weight:700;display:inline-block">プレイヤー</div><span id="sb-title" style="font-size:.68rem;color:#f5d040;font-weight:700;margin-left:.4rem"></span>
         <div id="sb-email" style="font-size:.7rem;color:#6a5830"></div>
-<div style="margin-top:.5rem;font-size:.7rem;color:#6a5830;margin-bottom:.3rem">牌の裏デザイン</div>
-        <div style="display:flex;gap:.3rem;flex-wrap:wrap">
-          <button onclick="setBackTheme('')"     style="padding:.2rem .45rem;border-radius:5px;border:1px solid #5a4028;background:#2e2018;color:#c9a84c;font-size:.7rem;cursor:pointer">金茶</button>
-          <button onclick="setBackTheme('blue')"   style="padding:.2rem .45rem;border-radius:5px;border:1px solid #2a4a7a;background:#0a1830;color:#50a0ff;font-size:.7rem;cursor:pointer">瑠璃</button>
-          <button onclick="setBackTheme('red')"    style="padding:.2rem .45rem;border-radius:5px;border:1px solid #7a2a2a;background:#2e0a0a;color:#ff5050;font-size:.7rem;cursor:pointer">紅</button>
-          <button onclick="setBackTheme('green')"  style="padding:.2rem .45rem;border-radius:5px;border:1px solid #2a6a3a;background:#0a2010;color:#50c864;font-size:.7rem;cursor:pointer">翠</button>
-          <button onclick="setBackTheme('purple')" style="padding:.2rem .45rem;border-radius:5px;border:1px solid #5a2a8a;background:#1a0a2e;color:#a050ff;font-size:.7rem;cursor:pointer">紫</button>
-          <button onclick="openFieldBgModal()" style="padding:.2rem .45rem;border-radius:5px;border:1px solid #5a4028;background:#2e2018;color:#c9a84c;font-size:.7rem;cursor:pointer">🖼️画像</button>
-        </div>
+<button class="sb-custom-btn" onclick="openCustomize()">🎨 カスタマイズ</button>
       </div>
     </div>
   </div>
@@ -1701,7 +1848,7 @@ socket.on('disconnect',()=>{if(onlineMode)showModal(`<div class="mtitle">⚠ 切
 
 }
 
-function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:customFieldBgUrl});}
+function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl()});}
 
 function cancelQueue(){socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
 
@@ -1712,14 +1859,14 @@ const goalEl=document.querySelector('input[name="room-goal"]:checked');
   const goal=goalEl?parseInt(goalEl.value):10;
   const useRiichi2=document.getElementById('room-opt-リーチ')?.checked||false;
   const useRon2=document.getElementById('room-opt-ロン')?.checked||false;
-  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:customFieldBgUrl});}
+  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:myFieldBgValue(),avatar:myAvatarUrl()});}
 function copyRoomCode(){const code=document.getElementById('room-code-display').textContent;navigator.clipboard?.writeText(code).then(()=>toast('コードをコピーしました！'));}
 
 function cancelRoom(){document.getElementById('room-host-box').style.display='none';document.getElementById('btn-create-room').disabled=false;}
 
 function hostStartGame(){socket?.emit('start_game',{code:currentCode});}
 
-function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:customFieldBgUrl});}
+function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:myFieldBgValue(),avatar:myAvatarUrl()});}
 
 function setOnlineStatus(msg,color){const el=document.getElementById('online-status');if(el){el.textContent=msg;el.style.color=color||'#6a5030';}const cb=document.getElementById('btn-cancel-quick');if(cb)cb.style.display=msg?'':'none';}
 
@@ -1731,7 +1878,7 @@ myOnlineIdx=st.myIdx;
 
 if(!G||G.players.length!==st.scores.length){
 
-G={players:st.scores.map(s=>({name:s.name,hand:[],score:s.score,isBot:false,fieldBg:s.fieldBg||''})),field:[],turn:0,tphase:'pick',selIdx:-1,phase:'playing'};
+G={players:st.scores.map(s=>({name:s.name,hand:[],score:s.score,isBot:false,fieldBg:s.fieldBg||'',avatar:s.avatar||''})),field:[],turn:0,tphase:'pick',selIdx:-1,phase:'playing'};
 
 }
 
@@ -1765,7 +1912,7 @@ G.useRiichi = st.useRiichi || false;
 G.useRon    = st.useRon    || false;
 G.goal = st.goal || 10;
 
-st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;G.players[i].fieldBg=s.fieldBg||'';G.players[i].riichi=s.riichi||false;});
+st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;G.players[i].fieldBg=s.fieldBg||'';G.players[i].avatar=s.avatar||'';G.players[i].riichi=s.riichi||false;});
 
 st.oppCounts.forEach((cnt,i)=>{if(i===st.myIdx)return;G.players[i].hand=Array.from({length:Math.max(0,cnt)},(_,j)=>({id:`ph${i}_${j}`,top:1,bot:1,flip:false,discarded:false,hidden:true}));});
 
@@ -2158,8 +2305,7 @@ document.getElementById('scoreboard').innerHTML=G.players.map((p,i)=>{
 
 const act=i===G.turn,cls=act?(p.isBot?'active-bot':'active-human'):'';
 
-const av=i===myOnlineIdx?(customAvatarUrl||gUser.avatar||''):'';
-const avatarHtml=av?`<img class="spill-avatar" src="${av}" alt="">`:'';
+const avatarHtml=avatarImgHtml(i===myOnlineIdx?myAvatarUrl():p.avatar,'spill-avatar');
 return`<div class="spill ${cls}">${avatarHtml}<span class="sn">${esc(p.name)}</span><span class="sv">${p.score}</span></div>`;
 }).join('');
 
@@ -2181,7 +2327,7 @@ const backs=p.hand.map(()=>'<div class="tback"></div>').join('');
 
 const dots=act&&p.isBot?`<div class="tdots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`:'';
 
-return`<div class="ocard${act?' oactive':''}"><span class="oname">${esc(p.name)}</span><div class="ohand">${backs}</div>${dots}<span class="oscore">${p.score}点</span></div>`;
+return`<div class="ocard${act?' oactive':''}"><span class="oname">${avatarImgHtml(p.avatar,'spill-avatar')}${esc(p.name)}</span><div class="ohand">${backs}</div>${dots}<span class="oscore">${p.score}点</span></div>`;
 
 }).join('');
 
@@ -2789,6 +2935,13 @@ function goLobby(){
 // ============================================================
 
 let customAvatarUrl = localStorage.getItem('rikka_avatar') || '';
+function myAvatarUrl(){return customAvatarUrl||(gUser&&gUser.avatar)||'';}
+// 対戦画面に出すアイコン<img>。httpsのURLだけ通し、読み込めなければ非表示にする
+function avatarImgHtml(url,cls){
+  const safe=sanitizeFieldBgUrl(url||'');
+  return safe?`<img class="${cls}" src="${esc(safe)}" alt="" onerror="this.style.display='none'">`:'';
+}
+function syncMyAvatar(){if(currentCode)socket?.emit('set_avatar',{code:currentCode,url:myAvatarUrl()});}
 let currentStatsTab = 'bot';
 
 function makeHistoryEntry(won,role,pts,online,players){
@@ -2927,14 +3080,14 @@ const GACHA_ITEMS=[
   {id:'theme_gold',    rarity:'common', category:'theme',    icon:'🟡', title:'金の裏地',     desc:'牌の裏デザイン：金',   value:'gold'},
   {id:'theme_sakura',  rarity:'common', category:'theme',    icon:'🌸', title:'桜の裏地',     desc:'牌の裏デザイン：桜',   value:'sakura'},
   {id:'theme_indigo',  rarity:'common', category:'theme',    icon:'🔷', title:'藍の裏地',     desc:'牌の裏デザイン：藍',   value:'indigo'},
-  {id:'bg_sunset',     rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌅', title:'夕焼けの場',   desc:'場の背景（ボット対戦時）：夕焼け', value:'linear-gradient(165deg,#4a1e0a 0%,#8a3a10 40%,#e0803a 100%)'},
-  {id:'bg_ocean',      rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌊', title:'深海の場',     desc:'場の背景（ボット対戦時）：深海',   value:'linear-gradient(165deg,#020a1a 0%,#053050 60%,#0a5878 100%)'},
-  {id:'bg_aurora',     rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌌', title:'オーロラの場', desc:'場の背景（ボット対戦時）：オーロラ', value:'linear-gradient(165deg,#0a1e2a 0%,#1a5a4a 40%,#3a2a6a 100%)'},
+  {id:'bg_sunset',     rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌅', title:'夕焼けの場',   desc:'場の背景：夕焼け', value:'linear-gradient(165deg,#4a1e0a 0%,#8a3a10 40%,#e0803a 100%)'},
+  {id:'bg_ocean',      rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌊', title:'深海の場',     desc:'場の背景：深海',   value:'linear-gradient(165deg,#020a1a 0%,#053050 60%,#0a5878 100%)'},
+  {id:'bg_aurora',     rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌌', title:'オーロラの場', desc:'場の背景：オーロラ', value:'linear-gradient(165deg,#0a1e2a 0%,#1a5a4a 40%,#3a2a6a 100%)'},
   // Game Overシリーズ（GitHubにアップロードした画像を場の背景にする）。
   // valueの中のファイル名（gameover1.png / gameover2.png）を、実際にアップロードしたファイル名に差し替えるだけで反映されます。
   // 例：リポジトリ直下に "myimage.png" を置いた場合 → 'https://carupisu0320.github.io/rikka-game-Smartphone/myimage.png'
-  {id:'bg_gameover1',  rarity:'rare', category:'fieldbg', type:'image', icon:'💀', title:'Game Over I',  desc:'場の背景（ボット対戦時）：Game Overシリーズ', value:'https://carupisu0320.github.io/rikka-game-Smartphone/gameover1.png'},
-  {id:'bg_gameover2',  rarity:'rare', category:'fieldbg', type:'image', icon:'💀', title:'Game Over II', desc:'場の背景（ボット対戦時）：Game Overシリーズ', value:'https://carupisu0320.github.io/rikka-game-Smartphone/gameover2.png'},
+  {id:'bg_gameover1',  rarity:'rare', category:'fieldbg', type:'image', icon:'💀', title:'Game Over I',  desc:'場の背景：Game Overシリーズ', value:'https://carupisu0320.github.io/rikka-game-Smartphone/gameover1.png'},
+  {id:'bg_gameover2',  rarity:'rare', category:'fieldbg', type:'image', icon:'💀', title:'Game Over II', desc:'場の背景：Game Overシリーズ', value:'https://carupisu0320.github.io/rikka-game-Smartphone/gameover2.png'},
   {id:'confetti_gold', rarity:'rare', category:'confetti', icon:'✨', title:'黄金の紙吹雪', desc:'上がった時の紙吹雪が金色に', value:['#f5e060','#ffd700','#e0a020','#fff4c0','#c9a84c']},
   {id:'confetti_sakura',rarity:'rare', category:'confetti', icon:'🌸', title:'桜吹雪',       desc:'上がった時の紙吹雪が桜色に', value:['#ffb0c8','#ff8aa8','#ffd0dc','#e878b0','#fff0f4']},
   {id:'title_rikka',   rarity:'superrare', category:'title', icon:'🏆', title:'六華の使い手', desc:'名前の横に称号が付きます',   value:'六華の使い手'},
@@ -2989,9 +3142,261 @@ function drawGacha(){
   } else {
     addPetals(Math.ceil(GACHA_COST/2)); // 重複は花びらを一部還元
   }
-  showGachaResult(item,isDup);
-  renderGachaCollection();
+  startGachaFx(item,isDup);
 }
+
+// ============================================================
+// ガチャ演出（光の玉が力をためる → 閃光 → カードが登場）。レア度が高いほど長く豪華になる
+// ============================================================
+const GFX_CFG={
+  common:   {stars:1,color:'#b8c0c8',color2:'#ffffff',charge:1100,sparks:45, banner:''},
+  uncommon: {stars:2,color:'#60c870',color2:'#c8ffd0',charge:1500,sparks:80, banner:''},
+  rare:     {stars:3,color:'#60a8f0',color2:'#d0e8ff',charge:2000,sparks:140,banner:'RARE!'},
+  superrare:{stars:5,color:'#f5d040',color2:'#fff4c0',charge:2900,sparks:240,banner:'SUPER RARE!!'},
+};
+const GFX_RAINBOW=['#f5d040','#ff8ad0','#60a8f0','#60e0a0','#ffffff','#ff9a50'];
+let _gfx={timers:[],raf:0,stage:'idle',item:null,isDup:false,parts:[],rarity:'common',tell:false};
+let _gfxSnd=null;
+
+// ── 効果音（専用の合成音。効果音OFFなら鳴らさない） ──
+function _gfxAudio(fn){
+  if(!soundEnabled)return;
+  try{
+    const ctx=_getAudioCtx();
+    const run=()=>{try{fn(ctx);}catch(e){}};
+    if(ctx.state==='suspended')ctx.resume().then(run).catch(()=>{}); else run();
+  }catch(e){}
+}
+function gfxChargeSound(ms,big){
+  _gfxAudio(ctx=>{
+    const now=ctx.currentTime,dur=ms/1000;
+    const master=ctx.createGain(); master.gain.value=soundVolume*0.45; master.connect(ctx.destination);
+    const lp=ctx.createBiquadFilter(); lp.type='lowpass';
+    lp.frequency.setValueAtTime(300,now); lp.frequency.exponentialRampToValueAtTime(5000,now+dur);
+    lp.connect(master);
+    const o1=ctx.createOscillator(),g1=ctx.createGain();
+    o1.type='sawtooth'; o1.frequency.setValueAtTime(110,now); o1.frequency.exponentialRampToValueAtTime(big?1500:900,now+dur);
+    g1.gain.setValueAtTime(0.0001,now); g1.gain.exponentialRampToValueAtTime(0.5,now+dur*0.92);
+    o1.connect(g1); g1.connect(lp); o1.start(now); o1.stop(now+dur+0.05);
+    const o2=ctx.createOscillator(),g2=ctx.createGain();
+    o2.type='sine'; o2.frequency.setValueAtTime(330,now); o2.frequency.exponentialRampToValueAtTime(big?3000:1800,now+dur);
+    g2.gain.setValueAtTime(0.0001,now); g2.gain.exponentialRampToValueAtTime(0.25,now+dur*0.95);
+    o2.connect(g2); g2.connect(master); o2.start(now); o2.stop(now+dur+0.05);
+    // 鼓動のように、だんだん間隔が短くなる低い音
+    let t=0,gap=0.42;
+    while(t<dur-0.1){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='sine'; o.frequency.value=70;
+      g.gain.setValueAtTime(0.0001,now+t); g.gain.exponentialRampToValueAtTime(0.7,now+t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001,now+t+0.16);
+      o.connect(g); g.connect(master); o.start(now+t); o.stop(now+t+0.2);
+      t+=gap; gap=Math.max(0.1,gap*0.86);
+    }
+    _gfxSnd={master,ctx};
+  });
+}
+function gfxStopChargeSound(){
+  if(!_gfxSnd)return;
+  try{const {master,ctx}=_gfxSnd; master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0,ctx.currentTime,0.03);}catch(e){}
+  _gfxSnd=null;
+}
+function gfxBurstSound(rarity){
+  _gfxAudio(ctx=>{
+    const now=ctx.currentTime;
+    const master=ctx.createGain(); master.gain.value=soundVolume*0.7; master.connect(ctx.destination);
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(190,now); o.frequency.exponentialRampToValueAtTime(38,now+0.55);
+    g.gain.setValueAtTime(0.9,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.6);
+    o.connect(g); g.connect(master); o.start(now); o.stop(now+0.65);
+    // ノイズの「ザッ」
+    const len=Math.floor(ctx.sampleRate*0.35),buf=ctx.createBuffer(1,len,ctx.sampleRate),d=buf.getChannelData(0);
+    for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
+    const ns=ctx.createBufferSource(),ng=ctx.createGain(); ns.buffer=buf; ng.gain.value=rarity==='common'?0.25:0.5;
+    ns.connect(ng); ng.connect(master); ns.start(now);
+  });
+}
+function gfxRevealSound(rarity){
+  _gfxAudio(ctx=>{
+    const now=ctx.currentTime;
+    const master=ctx.createGain(); master.gain.value=soundVolume*0.6; master.connect(ctx.destination);
+    const tone=(f,st,dur,type,gain)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain(); o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,now+st); g.gain.linearRampToValueAtTime(gain,now+st+0.015);
+      g.gain.exponentialRampToValueAtTime(0.001,now+st+dur);
+      o.connect(g); g.connect(master); o.start(now+st); o.stop(now+st+dur+0.03);
+    };
+    const C=[523.25,659.25,783.99,1046.5,1318.5,1568,2093];
+    if(rarity==='common'){ tone(C[0],0,.25,'sine',.35); tone(C[2],.12,.35,'sine',.35); }
+    else if(rarity==='uncommon'){ [0,1,2,3].forEach((k,i)=>tone(C[k],i*.1,.4,'sine',.35)); }
+    else if(rarity==='rare'){
+      [0,1,2,3,4,5].forEach((k,i)=>tone(C[k],i*.09,.5,'triangle',.3));
+      tone(C[3],.6,1.1,'sine',.35); tone(C[5],.6,1.1,'sine',.25);
+    } else {
+      [0,1,2,3,4,5,6].forEach((k,i)=>tone(C[k],i*.08,.7,'triangle',.3));
+      [523.25,659.25,783.99,1046.5].forEach(f=>tone(f,.65,1.8,'sine',.3));
+      for(let i=0;i<10;i++)tone(2000+Math.random()*2200,.7+i*.12,.25,'sine',.12);
+    }
+  });
+}
+
+// ── パーティクル ──
+function gfxPalette(){return _gfx.rarity==='superrare'?GFX_RAINBOW:[GFX_CFG[_gfx.rarity].color,GFX_CFG[_gfx.rarity].color2,'#ffffff'];}
+function gfxCenter(cv){return {cx:cv.width/2,cy:cv.height*0.42};}
+function gfxBurstParticles(n){
+  const cv=document.getElementById('gfx-canvas'),{cx,cy}=gfxCenter(cv),pal=gfxPalette();
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,sp=3+Math.random()*13,type=['star','dot','petal'][Math.floor(Math.random()*3)];
+    _gfx.parts.push({type,x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:.07,drag:.965,
+      size:type==='dot'?2+Math.random()*3:5+Math.random()*9,rot:Math.random()*6,vr:(Math.random()-.5)*.3,
+      life:70+Math.random()*60,max:130,color:pal[Math.floor(Math.random()*pal.length)]});
+  }
+}
+function gfxSpawnConverge(cv){
+  const {cx,cy}=gfxCenter(cv),pal=gfxPalette();
+  _gfx.parts.push({type:Math.random()<.5?'star':'dot',conv:true,cx,cy,ang:Math.random()*Math.PI*2,
+    r:Math.min(cv.width,cv.height)*(.3+Math.random()*.35),size:3+Math.random()*5,rot:0,vr:.1,life:200,max:200,
+    color:pal[Math.floor(Math.random()*pal.length)]});
+}
+function gfxSpawnAmbient(cv){
+  const pal=gfxPalette(),type=Math.random()<.5?'petal':'star';
+  _gfx.parts.push({type,x:Math.random()*cv.width,y:-12,vx:(Math.random()-.5)*1.2,vy:1+Math.random()*2.2,g:0,drag:1,
+    size:type==='petal'?5+Math.random()*6:3+Math.random()*5,rot:Math.random()*6,vr:(Math.random()-.5)*.12,
+    life:400,max:400,sway:Math.random()*6,color:pal[Math.floor(Math.random()*pal.length)]});
+}
+function gfxDrawPart(ctx,p,alpha){
+  ctx.globalAlpha=alpha; ctx.fillStyle=p.color;
+  ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.beginPath();
+  if(p.type==='star'){
+    for(let k=0;k<8;k++){const r=k%2?p.size*.3:p.size,a=k*Math.PI/4;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}
+    ctx.closePath();
+  } else if(p.type==='petal') ctx.ellipse(0,0,p.size,p.size*.5,0,0,Math.PI*2);
+  else ctx.arc(0,0,p.size,0,Math.PI*2);
+  ctx.fill(); ctx.restore();
+}
+function gfxLoop(){
+  const cv=document.getElementById('gfx-canvas'); if(!cv)return;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.globalCompositeOperation='lighter';
+  if(_gfx.stage==='charge'){
+    const n=_gfx.tell?3:1; for(let i=0;i<n;i++)if(Math.random()<.8)gfxSpawnConverge(cv);
+  } else if(_gfx.stage==='reveal'){
+    const rate={common:.05,uncommon:.15,rare:.35,superrare:.8}[_gfx.rarity];
+    if(Math.random()<rate)gfxSpawnAmbient(cv);
+    if(_gfx.rarity==='superrare'&&Math.random()<.2)gfxSpawnAmbient(cv);
+  }
+  _gfx.parts=_gfx.parts.filter(p=>{
+    p.life--; if(p.life<=0)return false;
+    if(p.conv){
+      p.r*=.965; p.ang+=.06; p.x=p.cx+Math.cos(p.ang)*p.r; p.y=p.cy+Math.sin(p.ang)*p.r; p.rot+=p.vr;
+      if(p.r<10)return false;
+      gfxDrawPart(ctx,p,Math.min(1,p.r/80)); return true;
+    }
+    p.vx*=p.drag; p.vy=p.vy*p.drag+p.g; p.x+=p.vx+(p.sway?Math.sin((p.life+p.sway*50)/18)*.8:0); p.y+=p.vy; p.rot+=p.vr;
+    if(p.y>cv.height+20)return false;
+    gfxDrawPart(ctx,p,Math.min(1,p.life/p.max*2.2)); return true;
+  });
+  ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+  _gfx.raf=requestAnimationFrame(gfxLoop);
+}
+
+// ── 進行 ──
+function gfxAfter(ms,fn){_gfx.timers.push(setTimeout(fn,ms));}
+function startGachaFx(item,isDup){
+  const el=document.getElementById('gacha-fx'),cv=document.getElementById('gfx-canvas');
+  const cfg=GFX_CFG[item.rarity]||GFX_CFG.common;
+  const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const chargeMs=reduce?500:cfg.charge;
+  _gfx.timers.forEach(clearTimeout); cancelAnimationFrame(_gfx.raf);
+  Object.assign(_gfx,{timers:[],stage:'charge',item,isDup,parts:[],rarity:item.rarity,tell:false});
+  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  el.className=''; el.dataset.rarity=item.rarity;
+  el.style.setProperty('--gc',cfg.color); el.style.setProperty('--gc2',cfg.color2);
+  el.style.setProperty('--charge-ms',chargeMs+'ms');
+  const orb=document.getElementById('gfx-orb');
+  orb.className='gfx-orb'; void orb.offsetWidth;
+  document.getElementById('gfx-cardwrap').innerHTML='';
+  el.style.display='block'; el.classList.add('st-charge');
+  gfxChargeSound(chargeMs,item.rarity==='rare'||item.rarity==='superrare');
+  gfxAfter(chargeMs*0.62,()=>{ _gfx.tell=true; orb.classList.add('tell'); }); // 玉の色が変わって中身を予感させる
+  gfxAfter(chargeMs,()=>gfxBurst());
+  _gfx.raf=requestAnimationFrame(gfxLoop);
+}
+function gfxBurst(){
+  if(_gfx.stage!=='charge')return;
+  const el=document.getElementById('gacha-fx'),cfg=GFX_CFG[_gfx.rarity];
+  _gfx.stage='burst'; gfxStopChargeSound(); gfxBurstSound(_gfx.rarity);
+  _gfx.parts=[];
+  el.classList.remove('st-charge'); el.classList.add('st-burst');
+  gfxBurstParticles(cfg.sparks);
+  if(_gfx.rarity==='rare'||_gfx.rarity==='superrare'){
+    el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  }
+  if(_gfx.rarity==='superrare') gfxAfter(380,()=>gfxBurstParticles(cfg.sparks*0.6));
+  gfxAfter({common:450,uncommon:550,rare:750,superrare:1100}[_gfx.rarity],()=>gfxReveal());
+}
+function gfxPreviewHtml(it){
+  if(it.category==='fieldbg'){
+    const bg=it.type==='image'?`url('${it.value}') center/cover`:it.value;
+    return `<div class="gfx-prev" style="width:150px;height:76px;background:${bg}"></div>`;
+  }
+  if(it.category==='theme'){
+    const sw=GACHA_THEME_SWATCH[it.value]||['#2a1e12','#5a4028'];
+    return `<div class="gfx-prev" style="width:42px;height:66px;background:${sw[0]};border-color:${sw[1]}"></div>`;
+  }
+  if(it.category==='confetti') return `<div class="gfx-prev-dots">${it.value.map(c=>`<i style="background:${c}"></i>`).join('')}</div>`;
+  if(it.category==='title') return `<div class="gfx-prev-title">「${esc(it.value)}」</div>`;
+  return '';
+}
+function gfxReveal(){
+  if(_gfx.stage==='reveal')return;
+  _gfx.timers.forEach(clearTimeout); _gfx.timers=[];
+  gfxStopChargeSound();
+  const el=document.getElementById('gacha-fx'),cfg=GFX_CFG[_gfx.rarity],item=_gfx.item,info=GACHA_RARITY_INFO[item.rarity];
+  _gfx.stage='reveal'; el.classList.remove('st-charge','st-burst'); el.classList.add('st-reveal');
+  const st=loadGachaState(),canUse=st.owned.includes(item.id)&&st.equipped[item.category]!==item.id;
+  const canAgain=loadPetals()>=GACHA_COST;
+  const stars=Array.from({length:cfg.stars},(_,i)=>`<span style="animation-delay:${.5+i*.12}s">★</span>`).join('');
+  document.getElementById('gfx-cardwrap').innerHTML=`
+    ${cfg.banner?`<div class="gfx-banner">${cfg.banner}</div>`:''}
+    <div class="gfx-card">
+      ${_gfx.isDup?'':'<div class="gfx-new">NEW!</div>'}
+      <div class="gfx-stars">${stars}</div>
+      <div class="gfx-rlabel">${esc(info.label)}</div>
+      <div class="gfx-icon">${item.icon}</div>
+      <div class="gfx-title">${esc(item.title)}</div>
+      ${gfxPreviewHtml(item)}
+      <div class="gfx-desc">${esc(item.desc)}</div>
+      ${_gfx.isDup?'<div class="gfx-dup">すでに持っています（花びら一部還元）</div>':''}
+      <div class="gfx-btns">
+        ${canUse?'<button class="gfx-btn main" id="gfx-equip-btn" onclick="event.stopPropagation();gfxEquipNow()">✨ 今すぐ使う</button>':''}
+        <button class="gfx-btn sub" ${canAgain?'':'disabled'} onclick="event.stopPropagation();gfxAgain()">🌸 もう一度引く（${GACHA_COST}）</button>
+        <button class="gfx-btn ghost" onclick="event.stopPropagation();closeGachaFx()">閉じる</button>
+      </div>
+    </div>`;
+  gfxRevealSound(_gfx.rarity);
+  if(_gfx.rarity==='rare'||_gfx.rarity==='superrare')launchConfetti();
+  if(_gfx.rarity==='superrare') gfxBurstParticles(60);
+}
+function skipGachaFx(){
+  if(_gfx.stage==='charge'){ _gfx.timers.forEach(clearTimeout); _gfx.timers=[]; gfxBurst(); }
+  else if(_gfx.stage==='burst') gfxReveal();
+}
+function gfxEquipNow(){
+  const it=_gfx.item; if(!it)return;
+  equipGachaItem(it.category,it.id);
+  const b=document.getElementById('gfx-equip-btn');
+  if(b){b.textContent='✔ 使用中';b.disabled=true;}
+}
+function closeGachaFx(){
+  _gfx.timers.forEach(clearTimeout); _gfx.timers=[]; cancelAnimationFrame(_gfx.raf);
+  gfxStopChargeSound();
+  const wasActive=_gfx.stage!=='idle'; _gfx.stage='idle';
+  document.getElementById('gacha-fx').style.display='none';
+  if(wasActive&&_gfx.item){ showGachaResult(_gfx.item,_gfx.isDup); renderGachaCollection(); }
+}
+function gfxAgain(){ closeGachaFx(); drawGacha(); }
+
 function showGachaResult(item,isDup){
   const info=GACHA_RARITY_INFO[item.rarity];
   const el=document.getElementById('gacha-result');
@@ -3001,8 +3406,6 @@ function showGachaResult(item,isDup){
     <div class="gacha-result-title">${esc(item.title)}</div>
     ${isDup?'<div class="gacha-result-dup">すでに持っています（花びら一部還元）</div>':''}
   </div>`;
-  if(item.rarity==='rare'||item.rarity==='superrare'){ launchConfetti(); playSound('win'); }
-  else playSound('discard');
 }
 function renderGachaCollection(){
   const el=document.getElementById('gacha-collection');
@@ -3039,15 +3442,17 @@ function equipGachaItem(category,id){
   else st.equipped[category]=id;
   saveGachaState(st);
   applyEquippedGachaItems();
+  if(category==='fieldbg'&&currentCode)socket?.emit('set_field_bg',{code:currentCode,url:myFieldBgValue()});
   renderGachaCollection();
   updateSbTitle();
+  refreshCustomize();
 }
 // 装備中のテーマ・場の背景（ボット対戦時）を反映する
 function applyEquippedGachaItems(){
   const st=loadGachaState();
   const themeItem=GACHA_ITEMS.find(it=>it.id===st.equipped.theme);
   if(themeItem) setBackTheme(themeItem.value);
-  if(!onlineMode) updateFieldBgForTurn();
+  updateFieldBgForTurn();
 }
 // 紙吹雪の色。装備中のガチャアイテムがあればそれを、無ければ通常配色を返す
 function getConfettiPalette(){
@@ -3225,8 +3630,10 @@ function saveIcon(){
   else localStorage.removeItem('rikka_avatar');
   updateAvatarDisplay();
   updateLobbyAvatar();
+  syncMyAvatar();
   closeIconModal();
   toast('アイコンを更新しました！');
+  refreshCustomize();
 }
 function resetIcon(){
   customAvatarUrl='';
@@ -3235,6 +3642,8 @@ function resetIcon(){
   previewIcon();
   updateAvatarDisplay();
   updateLobbyAvatar();
+  syncMyAvatar();
+  refreshCustomize();
 }
 
 // ============================================================
@@ -3301,18 +3710,33 @@ function updateFieldBgForTurn(){
   }
   const cur=G.players[G.turn];
   const isMe=(G.turn===myOnlineIdx);
-  const url=isMe?customFieldBgUrl:(cur.fieldBg||'');
-  const gachaItem=(isMe&&!onlineMode&&!url)?getEquippedFieldBgItem():null;
-  const key=url?('img:'+url):(gachaItem?((gachaItem.type==='image'?'img:':'grad:')+gachaItem.value):'none');
+  const val=isMe?myFieldBgValue():(cur.fieldBg||'');
+  const bg=resolveFieldBg(val);
+  const key=bg?(bg.kind+':'+bg.value):'none';
   if(key===_lastFieldBgKey)return; // 前回と同じ背景なら何もしない（アニメーションもしない）
   _lastFieldBgKey=key;
   triggerFieldWipeOut(()=>{
-    if(url) applyFieldBg(url);
-    else if(gachaItem&&gachaItem.type==='image') applyFieldBg(gachaItem.value);
-    else if(gachaItem) applyFieldBgGradient(gachaItem.value);
+    if(bg&&bg.kind==='img') applyFieldBg(bg.value);
+    else if(bg) applyFieldBgGradient(bg.value);
     else applyFieldBg('');
     triggerFieldWipeIn();
   });
+}
+// 自分の背景設定（サーバーに送る値）。画像URLが優先、無ければガチャ背景を 'preset:<id>' で表す
+function myFieldBgValue(){
+  if(customFieldBgUrl)return customFieldBgUrl;
+  const it=getEquippedFieldBgItem();
+  return it?('preset:'+it.id):'';
+}
+// 'preset:<id>' またはhttps画像URLを、描画に使う形に変換する
+function resolveFieldBg(val){
+  if(typeof val!=='string'||!val)return null;
+  if(val.startsWith('preset:')){
+    const it=GACHA_ITEMS.find(x=>x.category==='fieldbg'&&x.id===val.slice(7));
+    return it?{kind:it.type==='image'?'img':'grad',value:it.value}:null;
+  }
+  const safe=sanitizeFieldBgUrl(val);
+  return safe?{kind:'img',value:safe}:null;
 }
 function openFieldBgModal(){
   document.getElementById('fieldbg-modal').classList.add('open');
@@ -3335,18 +3759,146 @@ function saveFieldBg(){
   customFieldBgUrl=safe;
   if(customFieldBgUrl)localStorage.setItem('rikka_field_bg',customFieldBgUrl);
   else localStorage.removeItem('rikka_field_bg');
-  if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:customFieldBgUrl});
+  if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:myFieldBgValue()});
   updateFieldBgForTurn();
   closeFieldBgModal();
   toast('場の背景を更新しました！');
+  refreshCustomize();
 }
 function resetFieldBg(){
   customFieldBgUrl='';
   localStorage.removeItem('rikka_field_bg');
   document.getElementById('fieldbg-url-input').value='';
   previewFieldBg();
-  if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:''});
+  if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:myFieldBgValue()});
   updateFieldBgForTurn();
+  refreshCustomize();
+}
+
+// ============================================================
+// カスタマイズ画面（牌の裏柄・場の背景）
+// ============================================================
+const BASE_BACK_THEMES=[
+  {v:'',      label:'金茶', c1:'#3a2a18', bd:'#5a4028'},
+  {v:'blue',  label:'瑠璃', c1:'#0a1830', bd:'#2a4a7a'},
+  {v:'red',   label:'紅',   c1:'#2e0a0a', bd:'#7a2a2a'},
+  {v:'green', label:'翠',   c1:'#0a2010', bd:'#2a6a3a'},
+  {v:'purple',label:'紫',   c1:'#1a0a2e', bd:'#5a2a8a'},
+];
+const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a']};
+let customizeTab='theme';
+function openCustomize(){
+  closeSidebar();
+  customizeTab='theme';
+  document.getElementById('custom-modal').classList.add('open');
+  renderCustomize();
+}
+function closeCustomize(){document.getElementById('custom-modal').classList.remove('open');}
+function switchCustomizeTab(t){customizeTab=t;renderCustomize();}
+function refreshCustomize(){
+  if(document.getElementById('custom-modal').classList.contains('open'))renderCustomize();
+}
+function renderCustomize(){
+  document.getElementById('custom-tab-theme').classList.toggle('active',customizeTab==='theme');
+  document.getElementById('custom-tab-bg').classList.toggle('active',customizeTab==='bg');
+  ['confetti','title','icon'].forEach(t=>document.getElementById('custom-tab-'+t).classList.toggle('active',customizeTab===t));
+  const st=loadGachaState();
+  const owned=new Set(st.owned);
+  const body=document.getElementById('custom-body');
+  if(customizeTab==='confetti'||customizeTab==='title'){
+    const isC=customizeTab==='confetti';
+    const cat=customizeTab;
+    const eq=st.equipped[cat]||'';
+    let h=`<div class="custom-sub">${isC?'上がった時の紙吹雪':'名前の横に表示される称号'}</div><div class="custom-list">`;
+    h+=`<button class="custom-row${eq?'':' sel'}" onclick="selectGachaEquip('${cat}','')">
+      <div class="ic">${isC?'🎉':'➖'}</div><div class="tx">${isC?'通常':'なし'}</div>${eq?'':'<span class="chk">✔</span>'}</button>`;
+    h+=GACHA_ITEMS.filter(it=>it.category===cat).map(it=>{
+      const has=owned.has(it.id);
+      const sel=has&&eq===it.id;
+      const dots=(isC&&has)?`<div class="dots">${it.value.map(c=>`<i style="background:${c}"></i>`).join('')}</div>`:'';
+      return `<button class="custom-row${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectGachaEquip('${cat}','${it.id}')"`:''}>
+        <div class="ic">${has?it.icon:'🔒'}</div>
+        <div class="tx">${has?esc(it.title):'ガチャで入手'}<div class="ds">${has?esc(it.desc):''}</div>${dots}</div>
+        ${sel?'<span class="chk">✔</span>':''}</button>`;
+    }).join('');
+    h+='</div>';
+    body.innerHTML=h;
+  } else if(customizeTab==='icon'){
+    const av=customAvatarUrl||(gUser&&gUser.avatar)||'';
+    const nm=(document.getElementById('pname').value||'プレイヤー');
+    const face=av?`<img src="${esc(av)}" style="width:96px;height:96px;border-radius:50%;object-fit:cover" alt="">`:esc(nm[0]||'👤');
+    body.innerHTML=`<div style="text-align:center;padding:.5rem 0 1rem">
+      <div style="width:96px;height:96px;border-radius:50%;background:#2a1e12;border:2px solid #c9a84c;margin:0 auto .8rem;
+        display:flex;align-items:center;justify-content:center;font-size:2.4rem;overflow:hidden">${face}</div>
+      <button class="custom-img-btn" onclick="openIconModal()">🖼️ アイコンを変更する</button></div>`;
+  } else if(customizeTab==='theme'){
+    const cur=localStorage.getItem('rikka_back_theme')||'';
+    let h='<div class="custom-sub">基本の裏柄</div><div class="custom-grid">';
+    h+=BASE_BACK_THEMES.map(t=>`<button class="custom-card${cur===t.v?' sel':''}" onclick="selectBackTheme('${t.v}','')">
+      ${cur===t.v?'<span class="chk">✔</span>':''}<div class="sw" style="background:${t.c1};border-color:${t.bd}"></div><div class="nm">${t.label}</div></button>`).join('');
+    h+='</div><div class="custom-sub">ガチャで手に入れた裏柄</div><div class="custom-grid">';
+    h+=GACHA_ITEMS.filter(it=>it.category==='theme').map(it=>{
+      const has=owned.has(it.id);
+      const sw=GACHA_THEME_SWATCH[it.value]||['#2a1e12','#5a4028'];
+      const sel=has&&cur===it.value;
+      return `<button class="custom-card${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectBackTheme('${it.value}','${it.id}')"`:''}>
+        ${sel?'<span class="chk">✔</span>':''}<div class="sw" style="background:${has?sw[0]:'#1a1410'};border-color:${has?sw[1]:'#3e2e1e'}"></div>
+        <div class="nm">${has?esc(it.title):'🔒 ガチャで入手'}</div></button>`;
+    }).join('');
+    h+='</div>';
+    body.innerHTML=h;
+  } else {
+    const hasCustom=!!customFieldBgUrl;
+    const eq=st.equipped.fieldbg||'';
+    const noneSel=!hasCustom&&!eq;
+    let h='<div class="custom-sub">場の背景（自分の番のとき）</div><div class="custom-grid">';
+    h+=`<button class="custom-card${noneSel?' sel':''}" onclick="selectFieldBgPreset('')">
+      ${noneSel?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:#1a1410">🟫</div><div class="nm">デフォルト</div></button>`;
+    h+=GACHA_ITEMS.filter(it=>it.category==='fieldbg').map(it=>{
+      const has=owned.has(it.id);
+      const sel=has&&!hasCustom&&eq===it.id;
+      const bg=!has?'#1a1410':(it.type==='image'?`url('${it.value}') center/cover`:it.value);
+      return `<button class="custom-card${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectFieldBgPreset('${it.id}')"`:''}>
+        ${sel?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:${bg}">${has?'':'🔒'}</div>
+        <div class="nm">${has?esc(it.title):'ガチャで入手'}</div></button>`;
+    }).join('');
+    h+='</div>';
+    h+='<div class="custom-sub">オンライン対戦では、自分の番のときに相手の画面でもこの背景になります。</div>';
+    h+=`<button class="custom-img-btn" onclick="openFieldBgModal()">🖼️ 自分の画像URLで設定${hasCustom?'（設定中）':''}</button>`;
+    body.innerHTML=h;
+  }
+}
+function selectBackTheme(value,gachaId){
+  const st=loadGachaState();
+  if(gachaId)st.equipped.theme=gachaId; else delete st.equipped.theme;
+  saveGachaState(st);
+  setBackTheme(value);
+  renderCustomize();
+  renderGachaCollection();
+}
+function selectGachaEquip(category,id){
+  const st=loadGachaState();
+  if(id&&!st.owned.includes(id))return;
+  if(id)st.equipped[category]=id; else delete st.equipped[category];
+  saveGachaState(st);
+  updateSbTitle();
+  renderCustomize();
+  renderGachaCollection();
+}
+function selectFieldBgPreset(id){
+  // 画像URLの設定が優先されてしまうので、プリセットを選んだらURL設定は外す
+  if(customFieldBgUrl){
+    customFieldBgUrl='';
+    localStorage.removeItem('rikka_field_bg');
+    if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:''});
+  }
+  const st=loadGachaState();
+  if(id)st.equipped.fieldbg=id; else delete st.equipped.fieldbg;
+  saveGachaState(st);
+  if(currentCode)socket?.emit('set_field_bg',{code:currentCode,url:myFieldBgValue()});
+  updateFieldBgForTurn();
+  renderCustomize();
+  renderGachaCollection();
 }
 
 let assistMode = false;
