@@ -4709,23 +4709,75 @@ function graveyardSvg(){
   return `<svg class="lf-bottom" viewBox="0 0 390 120" preserveAspectRatio="xMidYMax slice"><path d="M0 120V92Q60 82 120 90T240 88T390 84V120Z" fill="#06030b"/>${stones}${tree}</svg>`;
 }
 function xmasSvg(){
-  const cols=['#ff4a4a','#ffd24a','#5aa8ff','#5fe58a','#ff86d4'];
-  const tree=(cx,base,h,w,dim)=>{
-    let out='',lights='';
-    for(let i=0;i<4;i++){
-      const y0=base-h+i*h*.2,y1=y0+h*.38,tw=w/2*(.42+i*.19);
-      out+=`<polygon points="${cx},${y0} ${cx+tw},${y1} ${cx-tw},${y1}" fill="${i%2?'#0f4228':'#0b3320'}"/>`;
-      out+=`<polygon points="${cx},${y0} ${cx+tw*.28},${y0+(y1-y0)*.35} ${cx-tw*.28},${y0+(y1-y0)*.35}" fill="#e8f0ff" opacity=".85"/>`;
-      for(let k=0;k<4;k++){const t=_R(.25,.92),sd=Math.random()<.5?-1:1;
-        lights+=`<circle class="xl" cx="${(cx+sd*tw*t).toFixed(1)}" cy="${(y0+(y1-y0)*t).toFixed(1)}" r="2.3" fill="${cols[Math.floor(Math.random()*5)]}" style="animation-delay:-${_R(0,1.6).toFixed(2)}s"/>`;}
+  let uid=0;
+  const BALL=[['#ff9a9a','#e02a2a','#7a0a0a'],['#fff0a0','#e8b830','#8a6410'],['#a8d0ff','#3a7ad8','#12327a'],['#ffffff','#b8c4d8','#58647a'],['#e6b8ff','#9a4ad8','#4a1a7a']];
+  const HALO=['#ff5a5a','#ffd24a','#5aa8ff','#5fe58a','#ff86d4'];
+  const defs=`<defs>
+    <linearGradient id="nG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f7d4e"/><stop offset=".5" stop-color="#14472b"/><stop offset="1" stop-color="#07230f"/></linearGradient>
+    <linearGradient id="shG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000a05" stop-opacity=".5"/><stop offset=".38" stop-color="#000" stop-opacity="0"/><stop offset=".72" stop-color="#a0e6b0" stop-opacity=".13"/><stop offset="1" stop-color="#000a05" stop-opacity=".4"/></linearGradient>
+    <linearGradient id="snG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#c4d4ee"/></linearGradient>
+    <linearGradient id="trG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a1608"/><stop offset=".5" stop-color="#5a3216"/><stop offset="1" stop-color="#241206"/></linearGradient>
+    <linearGradient id="starG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#f0b020"/></linearGradient>
+    <linearGradient id="gndG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef4ff"/><stop offset="1" stop-color="#8a9cc8"/></linearGradient>
+    <radialGradient id="warmG"><stop offset="0" stop-color="#ffc060" stop-opacity=".45"/><stop offset="1" stop-color="#ffc060" stop-opacity="0"/></radialGradient>
+    ${BALL.map((c,i)=>`<radialGradient id="bb${i}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="${c[0]}"/><stop offset=".55" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[2]}"/></radialGradient>`).join('')}
+    ${HALO.map((c,i)=>`<radialGradient id="ha${i}"><stop offset="0" stop-color="${c}" stop-opacity=".85"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`).join('')}
+    <radialGradient id="starH"><stop offset="0" stop-color="#ffe27a" stop-opacity=".9"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient></defs>`;
+  const present=(x,y,w,h,c,r)=>`<ellipse cx="${x+w/2}" cy="${y+h+1}" rx="${w*.65}" ry="2.2" fill="rgba(0,0,0,.28)"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/><rect x="${x}" y="${y}" width="${w}" height="${(h*.22).toFixed(1)}" fill="rgba(255,255,255,.2)"/>
+    <rect x="${x+w/2-1.6}" y="${y}" width="3.2" height="${h}" fill="${r}"/><rect x="${x}" y="${y+h*.45}" width="${w}" height="3" fill="${r}"/>
+    <ellipse cx="${x+w/2-3.5}" cy="${y-2}" rx="4" ry="2.6" fill="${r}"/><ellipse cx="${x+w/2+3.5}" cy="${y-2}" rx="4" ry="2.6" fill="${r}"/>`;
+  const tree=(cx,base,h,w,o)=>{
+    const id=++uid,n=o.dim?5:6,body=[],top=base-h-4,th=h*.3,step=(h*.7)/(n-1);
+    let out='',lights='',balls='',tinsel='',tips=[];
+    for(let i=0;i<n;i++){
+      const y0=top+i*step,y1=y0+th,hw=w/2*(.2+i*(.8/(n-1))),m=5+i,pts=[];
+      for(let j=0;j<=m;j++){pts.push([cx+hw-(2*hw)*j/m,y1-_R(0,th*.09)]);}
+      let d=`M${cx} ${y0}Q${cx+hw*.3} ${y0+th*.6} ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+      for(let j=1;j<=m;j++){const mx=(pts[j-1][0]+pts[j][0])/2;d+=`Q${mx.toFixed(1)} ${(y1+th*.14).toFixed(1)} ${pts[j][0].toFixed(1)} ${pts[j][1].toFixed(1)}`;}
+      d+=`Q${cx-hw*.3} ${y0+th*.6} ${cx} ${y0}Z`;
+      const cid=`tc${id}_${i}`;
+      let nl='',nd='';
+      for(let k=0;k<90;k++){
+        const x=_R(cx-hw,cx+hw),y=_R(y0,y1);
+        if(Math.abs(x-cx)>hw*(y-y0)/th)continue;
+        const sg=x>cx?1:-1,seg=`M${x.toFixed(1)} ${y.toFixed(1)}l${(sg*_R(3,7)).toFixed(1)} ${_R(2,6).toFixed(1)}`;
+        if(k%2)nl+=seg;else nd+=seg;
+      }
+      // 雪：枝の上側に積もる
+      const t1=.62,rx=cx+hw*.3*(1-t1)*0+ (cx+hw-cx)*t1*.55,lx=cx-(hw*t1*.55),sy=y0+th*.62*t1;
+      const snow=`M${cx} ${y0-1}L${(cx+hw*t1*.62).toFixed(1)} ${(y0+th*.5*t1+3).toFixed(1)}Q${(cx+hw*t1*.4).toFixed(1)} ${(y0+th*.34*t1+6).toFixed(1)} ${(cx+hw*t1*.2).toFixed(1)} ${(y0+th*.3*t1+3).toFixed(1)}Q${cx} ${(y0+th*.2*t1+7).toFixed(1)} ${(cx-hw*t1*.2).toFixed(1)} ${(y0+th*.3*t1+3).toFixed(1)}Q${(cx-hw*t1*.4).toFixed(1)} ${(y0+th*.34*t1+6).toFixed(1)} ${(cx-hw*t1*.62).toFixed(1)} ${(y0+th*.5*t1+3).toFixed(1)}Z`;
+      out+=`<clipPath id="${cid}"><path d="${d}"/></clipPath><path d="${d}" fill="url(#nG)"/>
+        <g clip-path="url(#${cid})"><path d="${nd}" stroke="#031a0c" stroke-opacity=".55" stroke-width=".9" fill="none"/><path d="${nl}" stroke="#7acb88" stroke-opacity=".32" stroke-width=".8" fill="none"/>
+        <path d="${d}" fill="url(#shG)"/></g><path d="${snow}" fill="url(#snG)" opacity=".94"/>`;
+      pts.slice(1,-1).forEach(p=>{if(Math.random()<.5)out+=`<ellipse cx="${p[0].toFixed(1)}" cy="${(p[1]-1).toFixed(1)}" rx="${_R(3,6).toFixed(1)}" ry="2" fill="#f4f8ff" opacity=".9"/>`;tips.push(p);});
+      if(!o.dim&&i>=1){
+        // 電飾：左端から右端へ垂れるコード
+        const xa=cx-hw*.92,xb=cx+hw*.92,ya=y1-th*.14,yc=y1+th*.3;
+        lights+=`<path d="M${xa.toFixed(1)} ${ya.toFixed(1)}Q${cx} ${yc.toFixed(1)} ${xb.toFixed(1)} ${ya.toFixed(1)}" fill="none" stroke="#06150b" stroke-width="1"/>`;
+        const cnt=4+i;
+        for(let q=1;q<=cnt;q++){
+          const t=q/(cnt+1),bx=(1-t)*(1-t)*xa+2*t*(1-t)*cx+t*t*xb,by=(1-t)*(1-t)*ya+2*t*(1-t)*yc+t*t*ya,ci=(i*3+q)%5,dl=(-_R(0,1.6)).toFixed(2);
+          lights+=`<circle class="xl" cx="${bx.toFixed(1)}" cy="${(by+2).toFixed(1)}" r="8" fill="url(#ha${ci})" style="animation-delay:${dl}s"/><circle class="xl" cx="${bx.toFixed(1)}" cy="${(by+2).toFixed(1)}" r="2" fill="${HALO[ci]}" style="animation-delay:${dl}s"/><circle cx="${(bx-.5).toFixed(1)}" cy="${(by+1.4).toFixed(1)}" r=".7" fill="#fff"/>`;
+        }
+        if(i>=2){const yo=ya-th*.2;tinsel+=`<path d="M${xa.toFixed(1)} ${yo.toFixed(1)}Q${cx} ${(yc-th*.25).toFixed(1)} ${xb.toFixed(1)} ${yo.toFixed(1)}" fill="none" stroke="#e8c050" stroke-width="2.2" stroke-dasharray="1.6 2.4" opacity=".9"/>`;}
+      }
     }
-    const top=base-h;
-    return `<g opacity="${dim?.7:1}"><rect x="${cx-5}" y="${base-8}" width="10" height="16" fill="#2a1408"/>${out}${dim?'':lights}
-      ${dim?'':`<polygon class="xl" points="${cx},${top-12} ${cx+3},${top-4} ${cx+11},${top-4} ${cx+5},${top+1} ${cx+7},${top+9} ${cx},${top+4} ${cx-7},${top+9} ${cx-5},${top+1} ${cx-11},${top-4} ${cx-3},${top-4}" fill="#ffe27a"/>`}</g>`;
+    if(!o.dim){
+      tips.sort(()=>Math.random()-.5).slice(0,9).forEach((p,k)=>{const r=_R(4,5.8),bi=k%5;
+        balls+=`<line x1="${p[0].toFixed(1)}" y1="${(p[1]-1).toFixed(1)}" x2="${p[0].toFixed(1)}" y2="${(p[1]+5).toFixed(1)}" stroke="#d8c070" stroke-width=".6"/><rect x="${(p[0]-1.6).toFixed(1)}" y="${(p[1]+4).toFixed(1)}" width="3.2" height="2" fill="#d8b040"/>
+          <circle cx="${p[0].toFixed(1)}" cy="${(p[1]+6+r).toFixed(1)}" r="${r.toFixed(1)}" fill="url(#bb${bi})"/><circle cx="${(p[0]-r*.35).toFixed(1)}" cy="${(p[1]+6+r*.6).toFixed(1)}" r="${(r*.22).toFixed(1)}" fill="#fff" opacity=".85"/>`;});
+    }
+    const ty=top-4;
+    const star=o.dim?'':`<circle class="xl" cx="${cx}" cy="${ty+2}" r="24" fill="url(#starH)"/><path d="M${cx} ${ty-14}L${cx+4} ${ty-4}L${cx+14} ${ty-3}L${cx+6} ${ty+4}L${cx+9} ${ty+14}L${cx} ${ty+8}L${cx-9} ${ty+14}L${cx-6} ${ty+4}L${cx-14} ${ty-3}L${cx-4} ${ty-4}Z" fill="url(#starG)" stroke="#fff3b0" stroke-width=".8"/>`;
+    const pres=o.dim?'':present(cx-w*.42,base-9,16,11,'#c0283a','#f0d070')+present(cx+w*.2,base-7,20,9,'#2a6ad0','#e8e8f0')+present(cx+w*.05,base-6,12,8,'#2a9a5a','#f0d070');
+    const warm=o.dim?'':`<ellipse cx="${cx}" cy="${base+6}" rx="${w*.8}" ry="22" fill="url(#warmG)"/>`;
+    return `${warm}<g${o.dim?' opacity=".72"':''}><rect x="${cx-6}" y="${base-14}" width="12" height="20" fill="url(#trG)"/>${out}${tinsel}${lights}${balls}${star}</g>${pres}`;
   };
-  return `<svg class="lf-bottom" viewBox="0 0 390 220" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="snowg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f0ff"/><stop offset="1" stop-color="#8fa0cc"/></linearGradient></defs>
-    ${tree(150,190,84,56,true)}${tree(250,190,96,64,true)}${tree(62,194,150,100)}${tree(330,190,170,112)}
-    <path d="M0 220V178Q100 160 200 174T390 168V220Z" fill="url(#snowg)"/></svg>`;
+  return `<svg class="lf-bottom" viewBox="0 0 390 270" preserveAspectRatio="xMidYMax slice">${defs}
+    <path d="M0 270V216Q100 198 200 210T390 204V270Z" fill="url(#gndG)"/>
+    ${tree(168,226,92,62,{dim:true})}${tree(252,224,108,72,{dim:true})}
+    ${tree(72,246,186,122,{})}${tree(322,242,212,138,{})}</svg>`;
 }
 function sakuraBranchSvg(){
   const fl=[[250,28],[215,44],[180,38],[150,62],[120,58],[96,84],[62,96],[272,66],[236,84],[200,76],[28,112],[135,32],[170,88]].map(([x,y],i)=>{
