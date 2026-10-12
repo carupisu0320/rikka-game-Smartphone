@@ -680,8 +680,19 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
   background:radial-gradient(ellipse,rgba(190,200,225,.3),transparent 70%);filter:blur(8px);animation:cloudDrift 70s linear infinite}
 @keyframes cloudDrift{from{transform:translateX(-260px)}to{transform:translateX(120vw)}}
 .lf-moon2{position:absolute;filter:drop-shadow(0 0 26px var(--mg,rgba(255,235,170,.55)))}
-.lf-bottom{position:absolute;bottom:0;left:0;width:100%;height:auto}
-@media (prefers-reduced-motion:reduce){.lf,.lf-star,.lf-cloud,#lobby-fx canvas{display:none}.hw-spider,.hw-fog,.hw-pump{animation:none}}
+.lf-bottom{position:absolute;bottom:0;left:0;width:100%;height:auto;overflow:visible}
+
+.santa{position:absolute;top:17%;left:0;width:190px;opacity:.97;will-change:transform;
+  transform:translate3d(-260px,0,0);animation:santaFly 46s linear infinite}
+@keyframes santaFly{0%,17%{transform:translate3d(-260px,50px,0) rotate(-4deg)}45%,100%{transform:translate3d(calc(100vw + 60px),-40px,0) rotate(-6deg)}}
+.santa svg{display:block;width:100%;height:auto;filter:drop-shadow(0 0 8px rgba(255,220,120,.55));animation:santaBob 1.1s ease-in-out infinite}
+@keyframes santaBob{0%,100%{transform:translateY(-3px)}50%{transform:translateY(3px)}}
+.santa-trail{position:absolute;right:92%;top:46%;width:170px;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,transparent,rgba(255,230,150,.6));filter:blur(2px)}
+.santa-trail i{position:absolute;top:-4px;width:3px;height:3px;border-radius:50%;background:#fff3b0;box-shadow:0 0 6px #ffe27a;animation:lfTwinkle 1s ease-in-out infinite}
+.lf-drift{animation:lfDrift 24s ease-in-out infinite alternate}
+@keyframes lfDrift{from{transform:translateX(-18px)}to{transform:translateX(22px)}}
+@media (prefers-reduced-motion:reduce){.santa,.lf-drift{animation:none}.santa{display:none}.lf,.lf-star,.lf-cloud,#lobby-fx canvas{display:none}.hw-spider,.hw-fog,.hw-pump{animation:none}}
 /* ── ガチャ演出 ── */
 #gacha-fx{position:fixed;inset:0;z-index:950;display:none;overflow:hidden;
   background:radial-gradient(circle at 50% 42%,#2a1a34 0%,#0c060f 60%,#040205 100%);
@@ -4779,6 +4790,28 @@ function xmasSvg(){
     ${tree(168,226,92,62,{dim:true})}${tree(252,224,108,72,{dim:true})}
     ${tree(72,246,186,122,{})}${tree(322,242,212,138,{})}</svg>`;
 }
+
+function santaHtml(){
+  const reindeer=(x,nose)=>`<g transform="translate(${x} 0)">
+    <g stroke="#2a1408" stroke-width="2" stroke-linecap="round" fill="none"><path d="M6 38L0 46M10 39L8 48"/><path d="M20 39L27 44M23 38L31 42"/></g>
+    <ellipse cx="14" cy="34" rx="11" ry="6" fill="#7a4624"/><path d="M22 31Q28 24 30 22" stroke="#7a4624" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <ellipse cx="32" cy="22" rx="5.2" ry="3.4" fill="#8a5230" transform="rotate(20 32 22)"/>
+    <circle cx="36.5" cy="24" r="${nose?2.1:1.4}" fill="${nose?'#ff3030':'#2a1408'}"/>${nose?'<circle cx="36.5" cy="24" r="6" fill="#ff4040" opacity=".35"/>':''}
+    <g stroke="#e8d8b0" stroke-width="1.3" stroke-linecap="round" fill="none"><path d="M30 19L27 12L24 9M27 12L30 8"/><path d="M33 19L33 11L30 6M33 11L37 8"/></g></g>`;
+  return `<div class="santa"><div class="santa-trail"><i style="left:6px;animation-delay:-.2s"></i><i style="left:40px;animation-delay:-.6s"></i><i style="left:78px;animation-delay:-.4s"></i><i style="left:120px;animation-delay:-.8s"></i></div>
+  <svg viewBox="0 0 230 70">
+    <path d="M62 38Q100 30 118 36M104 36Q140 28 156 34M142 34Q172 26 192 30" stroke="#e8c050" stroke-width=".8" fill="none"/>
+    ${reindeer(122,false)}${reindeer(160,false)}${reindeer(196-4,true)}
+    <path d="M4 58Q14 61 40 61L74 61Q84 61 82 50" stroke="#e8c050" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M14 61V50M44 61V50M72 61V52" stroke="#e8c050" stroke-width="1.6"/>
+    <path d="M8 32Q10 52 30 52L66 52Q76 52 80 36L72 36Q68 45 60 45L28 45Q20 45 16 32Z" fill="#c0282a"/>
+    <path d="M10 33L18 33" stroke="#e8c050" stroke-width="2"/>
+    <ellipse cx="22" cy="34" rx="11" ry="9" fill="#7a4a24"/><path d="M14 28Q22 24 30 28" stroke="#4a2a10" stroke-width="1" fill="none"/>
+    <ellipse cx="50" cy="38" rx="9" ry="9" fill="#d02a2a"/><rect x="44" y="40" width="12" height="2.2" fill="#2a1408"/>
+    <circle cx="50" cy="27" r="5" fill="#f4c8a0"/><path d="M45 29Q50 38 55 29Q50 33 45 29Z" fill="#fff"/>
+    <path d="M45 25Q47 15 56 14L58 19Q52 19 52 25Z" fill="#d02a2a"/><circle cx="58" cy="19" r="2.4" fill="#fff"/><rect x="44.5" y="24" width="11" height="2.4" fill="#fff"/>
+  </svg></div>`;
+}
 function sakuraBranchSvg(){
   const fl=[[250,28],[215,44],[180,38],[150,62],[120,58],[96,84],[62,96],[272,66],[236,84],[200,76],[28,112],[135,32],[170,88]].map(([x,y],i)=>{
     const sc=(.8+((i*37)%7)/10).toFixed(2);
@@ -4788,15 +4821,51 @@ function sakuraBranchSvg(){
     <g stroke="#150a12" stroke-linecap="round" fill="none"><path d="M300 0C250 20 220 40 170 60S80 100 20 122" stroke-width="5"/><path d="M230 26C226 40 232 52 224 66" stroke-width="2.5"/><path d="M150 68C140 80 146 92 134 100" stroke-width="2.5"/><path d="M260 14C272 30 270 44 276 62" stroke-width="2.5"/></g>${fl}</svg>`;
 }
 function fujiSvg(){
-  return `<svg class="lf-bottom" viewBox="0 0 390 260" preserveAspectRatio="xMidYMax slice"><defs>
-    <radialGradient id="sunglow"><stop offset="0" stop-color="#fff2b0" stop-opacity=".95"/><stop offset=".25" stop-color="#ffb04a" stop-opacity=".55"/><stop offset="1" stop-color="#ff6a30" stop-opacity="0"/></radialGradient>
+  const BODY='M-60 232C40 226 110 196 146 142C158 122 166 110 174 103Q184 99 196 100Q208 99 216 104C224 112 232 124 244 144C282 198 350 226 450 232Z';
+  // 沢（谷筋）と尾根：山頂から裾に向かって筋を引く
+  let dark='',light='';
+  for(let k=0;k<16;k++){
+    const t=(k/15)*2-1,x0=195+t*20,ex=195+t*175,cx=195+t*58;
+    const d=`M${x0.toFixed(1)} ${(106+_R(0,6)).toFixed(1)}Q${cx.toFixed(1)} ${(150+_R(-6,10)).toFixed(1)} ${ex.toFixed(1)} 232`;
+    if(k%2)dark+=`<path d="${d}" stroke="rgba(60,12,44,.4)" stroke-width="${_R(1,2.6).toFixed(1)}" fill="none"/>`;
+    else light+=`<path d="${d}" stroke="rgba(255,176,120,.24)" stroke-width="${_R(1,2.2).toFixed(1)}" fill="none"/>`;
+  }
+  // 雪冠：下の縁がギザギザで、谷に沿って雪が舌のように伸びる
+  let snow='M170 108L222 108L236 136';
+  for(let x=236,j=0;x>156;x-=7,j++){
+    const tongue=(j%3===1)?_R(12,24):_R(2,9);
+    snow+=`L${x.toFixed(1)} ${(138+tongue).toFixed(1)}L${(x-3.5).toFixed(1)} ${(130+_R(0,8)).toFixed(1)}`;
+  }
+  snow+='L156 138Z';
+  const mist=`<g class="lf-drift" style="animation-duration:30s"><g fill="url(#fjCloud)" filter="url(#fjBlur)"><ellipse cx="90" cy="178" rx="110" ry="9"/><ellipse cx="320" cy="170" rx="100" ry="8"/></g></g>
+    <g class="lf-drift" style="animation-duration:22s;animation-direction:alternate-reverse"><g fill="url(#fjCloud)" filter="url(#fjBlur)"><ellipse cx="230" cy="196" rx="130" ry="10"/><ellipse cx="40" cy="206" rx="70" ry="7"/></g></g>`;
+  // 湖畔の松のシルエット
+  const pines=(x0,dir)=>[0,1,2,3].map(i=>{const x=x0+dir*i*13,h=26+((i*7)%4)*7;
+    return `<path d="M${x} ${232-h}L${x+7} ${232-h*.45}L${x+3} ${232-h*.45}L${x+9} ${232-h*.12}L${x-9} ${232-h*.12}L${x-3} ${232-h*.45}L${x-7} ${232-h*.45}Z" fill="#10061a"/>`;}).join('');
+  const mountain=`<path d="${BODY}" fill="url(#fjBody)"/><g clip-path="url(#fjClip)">${dark}${light}
+    <path d="M196 100L450 232L-60 232Z" fill="url(#fjShade)" opacity=".5"/><path d="${snow}" fill="url(#fjSnow)"/><path d="${snow}" fill="url(#fjShade)" opacity=".28"/></g>
+    <path d="${BODY}" fill="none" stroke="rgba(255,206,150,.45)" stroke-width="1"/>`;
+  return `<svg class="lf-bottom" viewBox="0 0 390 300" preserveAspectRatio="xMidYMax slice"><defs>
+    <clipPath id="fjClip"><path d="${BODY}"/></clipPath>
+    <radialGradient id="sunglow"><stop offset="0" stop-color="#fff2b0" stop-opacity=".95"/><stop offset=".22" stop-color="#ffb04a" stop-opacity=".55"/><stop offset="1" stop-color="#ff6a30" stop-opacity="0"/></radialGradient>
     <radialGradient id="sundisc" cx=".4" cy=".35"><stop offset="0" stop-color="#fffbe0"/><stop offset="1" stop-color="#ff9a2e"/></radialGradient>
-    <linearGradient id="fujig" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2a5a"/><stop offset="1" stop-color="#140c28"/></linearGradient>
-    <filter id="cb"><feGaussianBlur stdDeviation="7"/></filter></defs>
-    <circle cx="195" cy="98" r="170" fill="url(#sunglow)"/><circle cx="195" cy="98" r="26" fill="url(#sundisc)"/>
-    <path d="M-40 260C60 222 130 150 172 106Q195 94 218 106C260 150 330 222 430 260Z" fill="url(#fujig)"/>
-    <path d="M160 126Q176 108 195 102Q214 108 230 126L222 121L214 131L204 121L195 133L186 121L176 131L168 121Z" fill="#f6e6ee" opacity=".92"/>
-    <g fill="#fff" opacity=".5" filter="url(#cb)"><ellipse class="lf-cloudsvg" cx="80" cy="214" rx="90" ry="12"/><ellipse cx="300" cy="222" rx="100" ry="13"/></g></svg>`;
+    <linearGradient id="fjBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8704c"/><stop offset=".3" stop-color="#b8443e"/><stop offset=".65" stop-color="#7a2a44"/><stop offset="1" stop-color="#3a1a40"/></linearGradient>
+    <linearGradient id="fjSnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4ea"/><stop offset="1" stop-color="#ffc4aa"/></linearGradient>
+    <linearGradient id="fjShade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a0a30" stop-opacity="0"/><stop offset="1" stop-color="#2a0a30" stop-opacity=".7"/></linearGradient>
+    <radialGradient id="fjCloud"><stop offset="0" stop-color="#ffd8b8" stop-opacity=".75"/><stop offset="1" stop-color="#ffb890" stop-opacity="0"/></radialGradient>
+    <linearGradient id="lakeG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d0643e"/><stop offset=".5" stop-color="#5a2a4a"/><stop offset="1" stop-color="#1e1034"/></linearGradient>
+    <linearGradient id="fjHaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb890" stop-opacity="0"/><stop offset="1" stop-color="#ffb890" stop-opacity=".5"/></linearGradient>
+    <filter id="fjBlur"><feGaussianBlur stdDeviation="4"/></filter><filter id="fjBlur2"><feGaussianBlur stdDeviation="1.2"/></filter></defs>
+    <circle cx="195" cy="102" r="190" fill="url(#sunglow)"/><circle cx="195" cy="98" r="16" fill="url(#sundisc)"/>
+    <path d="M0 232V208Q40 196 84 210T160 214L250 214T340 204T390 198V232Z" fill="#46204e" opacity=".85"/>
+    ${mountain}${mist}
+    <rect y="206" width="390" height="26" fill="url(#fjHaze)"/>
+    <rect y="232" width="390" height="68" fill="url(#lakeG)"/>
+    <g clip-path="url(#lkClip)" opacity=".42" filter="url(#fjBlur2)"><g transform="translate(0 348) scale(1 -.5)"><path d="${BODY}" fill="url(#fjBody)"/><path d="${snow}" fill="url(#fjSnow)" clip-path="url(#fjClip)"/></g></g>
+    <clipPath id="lkClip"><rect y="232" width="390" height="68"/></clipPath>
+    <g stroke="rgba(255,220,180,.25)" stroke-width=".8"><path d="M60 246H130M210 252H300M120 262H180M260 270H340M30 280H90"/></g>
+    ${pines(14,1)}${pines(376,-1)}
+    <rect y="232" width="390" height="2" fill="rgba(255,190,140,.35)"/></svg>`;
 }
 function bambooSvg(){
   const strips=['#ff9ab8','#8fd0ff','#ffe070','#a0e8a0','#d0a8ff','#ffb070','#ff9ab8'];
@@ -5008,7 +5077,7 @@ const LOBBY_EVENTS=[
         '<div class="hw-spider"><i></i>'+spiderSvg()+'</div>'+pumpkinSvg('l',104).replace('bottom:.4rem;','left:.4rem;bottom:.5rem;')+pumpkinSvg('r',70).replace('bottom:.4rem;','right:3.2rem;bottom:.5rem;')},
   {id:'christmas',name:'クリスマス',banner:'🎄 メリークリスマス 🎄',from:[12,15],to:[12,25],
    bg:'linear-gradient(180deg,#040f1e 0%,#0b2a3a 50%,#1a1c34 100%)',logo:'#fff0d0',glow:'rgba(90,210,130,.55)',
-   stars:34,canvasFx:'snow',particles:[],deco:xmasSvg()},
+   stars:34,canvasFx:'snow',particles:[],deco:xmasSvg()+santaHtml()},
   {id:'newyear',name:'お正月',banner:'🎍 あけましておめでとうございます 🎍',from:[12,29],to:[1,7],
    bg:'linear-gradient(180deg,#070b24 0%,#2a1a4a 45%,#a8403a 78%,#f09040 100%)',logo:'#ffe08a',glow:'rgba(255,200,70,.65)',
    stars:14,canvasFx:'glitter',particles:[],deco:fujiSvg()},
