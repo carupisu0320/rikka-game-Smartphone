@@ -25,17 +25,17 @@ background:#0d0a08;color:#f0e8d8;user-select:none;height:100vh;height:100dvh;tou
 
 #lobby{position:relative;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;
 
-background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.09) 0%,transparent 60%);}
+background:var(--lobby-bg,radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.09) 0%,transparent 60%));}
 
-.lobby-inner{width:100%;max-width:480px;padding:.6rem 1.2rem 2rem;margin:0 auto}
+.lobby-inner{width:100%;max-width:480px;padding:.6rem 1.2rem 2rem;margin:0 auto;position:relative;z-index:1}
 
 .logo{text-align:center;margin-bottom:.8rem;padding-top:.5rem}
 
-.logo-kanji{font-size:clamp(3rem,12vw,5.5rem);font-weight:700;color:#e8c97a;
+.logo-kanji{font-size:clamp(3rem,12vw,5.5rem);font-weight:700;color:var(--logo-c,#e8c97a);
 
 letter-spacing:.25em;line-height:1;
 
-text-shadow:0 0 40px rgba(201,168,76,.4),0 2px 8px rgba(0,0,0,.8);
+text-shadow:0 0 40px var(--logo-glow,rgba(201,168,76,.4)),0 2px 8px rgba(0,0,0,.8);
 
 font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
 
@@ -628,6 +628,41 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
   padding:1.6rem;max-width:340px;width:92%;text-align:center;animation:mboxin .25s ease-out}
 
 
+
+/* ── タイトル画面のイベント背景 ── */
+#lobby-fx{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+#lobby-event-banner{display:none;width:max-content;max-width:100%;margin:0 auto .6rem;padding:.3rem .9rem;border-radius:999px;
+  font-size:.78rem;font-weight:700;letter-spacing:.1em;text-align:center;color:var(--logo-c,#e8c97a);
+  border:1px solid var(--logo-c,#e8c97a);background:rgba(0,0,0,.35);box-shadow:0 0 14px var(--logo-glow,transparent)}
+.lf{position:absolute;left:0;top:0;line-height:1;will-change:transform,opacity;animation-timing-function:linear;animation-iteration-count:infinite}
+.lf-fall{animation-name:lfFall}
+.lf-rise{animation-name:lfRise}
+.lf-twinkle{animation-name:lfTwinkle;animation-timing-function:ease-in-out}
+.lf-pop{animation-name:lfPop;animation-timing-function:ease-out}
+.lf-fly{animation-name:lfFly}
+.lf-bob{animation-name:lfBob;animation-timing-function:ease-in-out}
+@keyframes lfFall{from{transform:translate3d(0,-12vh,0) rotate(0)}to{transform:translate3d(var(--sx,20px),112vh,0) rotate(360deg)}}
+@keyframes lfRise{from{transform:translate3d(0,112vh,0) scale(.7)}to{transform:translate3d(var(--sx,20px),-12vh,0) scale(1.1)}}
+@keyframes lfTwinkle{0%,100%{opacity:.1;transform:scale(.5)}50%{opacity:1;transform:scale(1.25)}}
+@keyframes lfPop{0%{opacity:0;transform:scale(.2)}18%{opacity:1;transform:scale(1.3)}60%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
+@keyframes lfFly{0%{transform:translate3d(-15vw,0,0)}25%{transform:translate3d(30vw,-22px,0)}50%{transform:translate3d(55vw,16px,0)}75%{transform:translate3d(85vw,-16px,0)}100%{transform:translate3d(115vw,0,0)}}
+@keyframes lfBob{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:.85;transform:translateY(-16px)}}
+.lf-moon{position:absolute;top:19%;right:5%;width:84px;height:84px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fffbe0,#f5d890 70%,#d8b060);
+  box-shadow:0 0 40px 10px var(--moon-glow,rgba(255,230,150,.45)),0 0 120px 40px var(--moon-glow2,rgba(255,220,130,.2))}
+.lf-ground{position:absolute;bottom:.3rem;font-size:3rem;line-height:1}
+.lf-ground.l{left:.6rem}.lf-ground.r{right:.6rem}
+.hw-pump{filter:drop-shadow(0 0 14px rgba(255,150,30,.9));animation:hwFlicker 2.6s ease-in-out infinite}
+@keyframes hwFlicker{0%,100%{filter:drop-shadow(0 0 10px rgba(255,150,30,.7))}45%{filter:drop-shadow(0 0 24px rgba(255,190,60,1))}60%{filter:drop-shadow(0 0 8px rgba(255,120,20,.6))}}
+.hw-fog{position:absolute;left:-30%;width:160%;height:34%;bottom:0;
+  background:radial-gradient(ellipse at 50% 100%,rgba(200,170,255,.22),transparent 70%);filter:blur(12px);animation:hwFog 14s ease-in-out infinite alternate}
+.hw-fog.f2{height:26%;bottom:-4%;background:radial-gradient(ellipse at 50% 100%,rgba(255,170,90,.2),transparent 70%);animation-duration:19s;animation-direction:alternate-reverse}
+@keyframes hwFog{from{transform:translateX(-6%)}to{transform:translateX(6%)}}
+.hw-spider{position:absolute;top:0;left:14%;display:flex;flex-direction:column;align-items:center;animation:hwSpider 5s ease-in-out infinite}
+.hw-spider i{display:block;width:1px;height:70px;background:rgba(255,255,255,.45)}
+.hw-spider span{font-size:1.6rem;line-height:1}
+@keyframes hwSpider{0%,100%{transform:translateY(-34px)}50%{transform:translateY(20px)}}
+@media (prefers-reduced-motion:reduce){.lf{display:none}.hw-spider,.hw-fog,.hw-pump{animation:none}}
 /* ── ガチャ演出 ── */
 #gacha-fx{position:fixed;inset:0;z-index:950;display:none;overflow:hidden;
   background:radial-gradient(circle at 50% 42%,#2a1a34 0%,#0c060f 60%,#040205 100%);
@@ -897,6 +932,7 @@ font-weight:700;padding:0 2px;align-self:center}
 
 <button id="giftbox-lobby-btn" onclick="openGiftbox()">📦 お届けBOX<span id="giftbox-dot-wrap"></span></button>
 
+<div id="lobby-fx"></div>
 <div class="lobby-inner">
 
 <div class="logo">
@@ -906,6 +942,7 @@ font-weight:700;padding:0 2px;align-self:center}
 <div class="logo-sub">R I K K A</div>
 
 </div>
+<div id="lobby-event-banner"></div>
 
 <div class="sparks">
 
@@ -1564,6 +1601,11 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       </div>
     </div>
   </div>
+  <div class="sb-section" id="sb-dev-section" style="display:none">
+    <div class="sb-section-title">― 開発者モード ―</div>
+    <div style="font-size:.7rem;color:#6a5830;margin-bottom:.5rem">タイトル画面の背景を切り替えて確認できます（この端末のみ・選んだ状態は保存されます）</div>
+    <div id="sb-dev-grid" class="custom-grid" style="margin-bottom:0"></div>
+  </div>
   <div class="sb-section">
     <div class="sb-section">
     <div class="sb-section-title">― アシスト ―</div>
@@ -1668,6 +1710,7 @@ const base64=response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/
 const payload=JSON.parse(decodeURIComponent(atob(base64).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')));
 
 gUser={id:payload.sub,name:payload.name||payload.given_name||'プレイヤー',avatar:payload.picture||'',email:payload.email||''};
+applyLobbyEvent();
 
 const savedName=localStorage.getItem('rikka_name_'+gUser.id);
 
@@ -1710,6 +1753,7 @@ localStorage.setItem('rikka_guser', JSON.stringify({id:gUser.id,name:gUser.name,
 function googleLogout(){
 localStorage.removeItem('rikka_guser');
 gUser={id:'',name:'',avatar:'',email:''};
+applyLobbyEvent();
 
 document.getElementById('google-login-area').style.display='';
 
@@ -4264,6 +4308,7 @@ function openSidebar(){
   updateSbTitle();
   updateSoundUI();
   updateTileScaleUI();
+  renderDevSection();
 }
 
 function closeSidebar(){document.getElementById('sidebar').style.display='none';document.getElementById('sidebar-overlay').style.display='none';}
@@ -4566,7 +4611,144 @@ function tutPracticeTap(i){
 
 function showModal(html){document.getElementById('mbox').innerHTML=html;document.getElementById('modal').classList.add('open');}
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='lobby')applyLobbyEvent();}
+
+// ============================================================
+// タイトル画面のイベント背景（日付で自動的に切り替わる）
+//  from / to は [月, 日]。年をまたぐ期間（from > to）にも対応。上にあるものほど優先。
+//  テスト用：URLに ?event=halloween のように付けるとその背景を強制表示、?event=none でイベントなし
+// ============================================================
+const LOBBY_EVENTS=[
+  {id:'halloween',name:'ハロウィン',banner:'🎃 ハッピーハロウィン！ 🎃',from:[10,1],to:[10,31],
+   bg:'linear-gradient(180deg,#14061f 0%,#34104a 50%,#8a3a10 100%)',logo:'#ffb050',glow:'rgba(255,140,40,.6)',
+   moon:['rgba(255,170,60,.5)','rgba(255,120,30,.22)'],
+   deco:'<div class="lf-moon"></div><div class="hw-fog"></div><div class="hw-fog f2"></div>'+
+        '<div class="hw-spider"><i></i><span>🕷️</span></div>'+
+        '<div class="lf-ground l hw-pump">🎃</div><div class="lf-ground r hw-pump">🎃</div>',
+   particles:[
+     {mode:'fly',chars:['🦇'],count:5,size:[1.4,2.2],dur:[9,16],y:[4,45]},
+     {mode:'bob',chars:['👻'],count:4,size:[1.6,2.4],dur:[4,7],y:[18,72]},
+     {mode:'fall',chars:['🍬','🍭','🎃'],count:7,size:[1,1.5],dur:[10,18]},
+   ]},
+  {id:'christmas',name:'クリスマス',banner:'🎄 メリークリスマス 🎄',from:[12,15],to:[12,25],
+   bg:'linear-gradient(180deg,#06180e 0%,#0e3a22 55%,#4a0e10 100%)',logo:'#fff0d0',glow:'rgba(90,210,130,.55)',
+   deco:'<div class="lf-ground l">🎄</div><div class="lf-ground r">🎄</div>',
+   particles:[
+     {mode:'fall',chars:['❄️','❄️','✨'],count:22,size:[.8,1.6],dur:[9,18]},
+     {mode:'twinkle',chars:['⭐'],count:6,size:[.9,1.3],dur:[2,4],y:[0,60]},
+   ]},
+  {id:'newyear',name:'お正月',banner:'🎍 あけましておめでとうございます 🎍',from:[12,29],to:[1,7],
+   bg:'linear-gradient(180deg,#2a0608 0%,#5a0e12 55%,#2a0a04 100%)',logo:'#ffd860',glow:'rgba(255,200,70,.6)',
+   deco:'<div class="lf-ground l">🎍</div><div class="lf-ground r">🎍</div>',
+   particles:[
+     {mode:'rise',chars:['✨','✨','🎊'],count:16,size:[.8,1.5],dur:[8,15]},
+     {mode:'twinkle',chars:['✨'],count:8,size:[1,1.6],dur:[2,4],y:[0,70]},
+   ]},
+  {id:'valentine',name:'バレンタイン',banner:'💝 ハッピーバレンタイン 💝',from:[2,7],to:[2,14],
+   bg:'linear-gradient(180deg,#2a0a18 0%,#5a1a38 60%,#2a0a14 100%)',logo:'#ffa0c0',glow:'rgba(255,100,160,.55)',
+   deco:'',
+   particles:[
+     {mode:'rise',chars:['💗','💖','🍫','💝'],count:16,size:[1,1.8],dur:[8,15]},
+   ]},
+  {id:'sakura',name:'お花見',banner:'🌸 お花見シーズン 🌸',from:[3,20],to:[4,10],
+   bg:'linear-gradient(180deg,#140c1e 0%,#3a1e3c 55%,#6a3048 100%)',logo:'#ffc8dc',glow:'rgba(255,150,190,.55)',
+   deco:'',
+   particles:[
+     {mode:'fall',chars:['🌸'],count:26,size:[.8,1.6],dur:[8,16]},
+   ]},
+  {id:'tanabata',name:'七夕',banner:'🎋 七夕 ─ 願いを込めて ─ 🎋',from:[7,1],to:[7,7],
+   bg:'linear-gradient(180deg,#050a24 0%,#0f1c4a 60%,#1a2a66 100%)',logo:'#b8d0ff',glow:'rgba(120,170,255,.6)',
+   deco:'<div class="lf-ground r">🎋</div>',
+   particles:[
+     {mode:'twinkle',chars:['⭐','✨','🌟'],count:22,size:[.7,1.5],dur:[2,5],y:[0,85]},
+     {mode:'fall',chars:['☄️'],count:2,size:[1.2,1.6],dur:[7,12]},
+   ]},
+  {id:'fireworks',name:'夏祭り',banner:'🎆 夏祭り 🎆',from:[7,20],to:[8,31],
+   bg:'linear-gradient(180deg,#04051a 0%,#0e1038 65%,#2a1040 100%)',logo:'#ffd070',glow:'rgba(255,170,70,.6)',
+   deco:'<div class="lf-ground l">🏮</div><div class="lf-ground r">🏮</div>',
+   particles:[
+     {mode:'pop',chars:['🎆','🎇','✨'],count:9,size:[2,3.6],dur:[2.5,4.5],y:[0,65]},
+   ]},
+  {id:'tsukimi',name:'お月見',banner:'🌕 お月見 ─ 秋の夜長 ─ 🌕',from:[9,10],to:[9,30],
+   bg:'linear-gradient(180deg,#0a1224 0%,#1a2640 60%,#3a3020 100%)',logo:'#ffe8a0',glow:'rgba(255,220,130,.55)',
+   deco:'<div class="lf-moon"></div><div class="lf-ground l">🌾</div><div class="lf-ground r">🌾</div>',
+   particles:[
+     {mode:'fall',chars:['🍂','🍁'],count:12,size:[.9,1.5],dur:[10,18]},
+     {mode:'twinkle',chars:['✨'],count:8,size:[.8,1.2],dur:[2,4],y:[0,55]},
+   ]},
+];
+const _lobbyEventParam=(new URLSearchParams(location.search)).get('event');
+let _lobbyEventId='__init';
+// 開発者モードを使えるアカウント。メールアドレスでの簡易判定（見た目の確認用機能のみなので、ログイン情報は端末側の値を信頼している）
+const DEV_EMAILS=['nekohaoki215@gmail.com'];
+function isDevUser(){return !!(gUser&&gUser.email&&DEV_EMAILS.includes(String(gUser.email).toLowerCase()));}
+function currentLobbyEvent(){
+  if(isDevUser()){
+    const st=localStorage.getItem('rikka_dev_event');
+    const o=st!==null?st:_lobbyEventParam; // パネルで選んだものを優先
+    if(o!==null) return LOBBY_EVENTS.find(e=>e.id===o)||null; // 'none'や不明なIDはイベントなし
+  }
+  const d=new Date(),v=(d.getMonth()+1)*100+d.getDate();
+  return LOBBY_EVENTS.find(e=>{
+    const a=e.from[0]*100+e.from[1],b=e.to[0]*100+e.to[1];
+    return a<=b?(v>=a&&v<=b):(v>=a||v<=b);
+  })||null;
+}
+function applyLobbyEvent(){
+  const ev=currentLobbyEvent(),id=ev?ev.id:'';
+  if(id===_lobbyEventId)return; // 変わっていなければ何もしない
+  _lobbyEventId=id;
+  const lobby=document.getElementById('lobby'),fx=document.getElementById('lobby-fx'),bn=document.getElementById('lobby-event-banner');
+  const st=lobby.style;
+  ['--lobby-bg','--logo-c','--logo-glow','--moon-glow','--moon-glow2'].forEach(k=>st.removeProperty(k));
+  fx.innerHTML=''; bn.style.display='none'; lobby.removeAttribute('data-event');
+  if(!ev)return;
+  lobby.setAttribute('data-event',ev.id);
+  st.setProperty('--lobby-bg',ev.bg); st.setProperty('--logo-c',ev.logo); st.setProperty('--logo-glow',ev.glow);
+  if(ev.moon){st.setProperty('--moon-glow',ev.moon[0]);st.setProperty('--moon-glow2',ev.moon[1]);}
+  fx.innerHTML=ev.deco||'';
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  (ev.particles||[]).forEach(pt=>{
+    for(let i=0;i<pt.count;i++){
+      const sp=document.createElement('span'),dur=rnd(pt.dur[0],pt.dur[1]);
+      sp.className='lf lf-'+pt.mode;
+      sp.textContent=pt.chars[Math.floor(Math.random()*pt.chars.length)];
+      const top=pt.y?rnd(pt.y[0],pt.y[1])+'%':'0';
+      sp.style.cssText=`left:${pt.mode==='fly'?0:rnd(0,96)}%;top:${top};font-size:${rnd(pt.size[0],pt.size[1])}rem;`+
+        `animation-duration:${dur}s;animation-delay:-${rnd(0,dur)}s;--sx:${rnd(-40,60)}px`;
+      fx.appendChild(sp);
+    }
+  });
+  bn.textContent=ev.banner; bn.style.display='block';
+}
+
+// ── 開発者モード（タイトル画面の背景を手動で切り替えて確認する） ──
+function renderDevSection(){
+  const sec=document.getElementById('sb-dev-section');
+  if(!sec)return;
+  if(!isDevUser()){sec.style.display='none';return;}
+  sec.style.display='';
+  const o=localStorage.getItem('rikka_dev_event');
+  const cur=o===null?'auto':o;
+  const cell=(val,bg,icon,label)=>`<button class="custom-card${cur===val?' sel':''}" onclick="setDevLobbyEvent('${val}')">
+    ${cur===val?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:${bg}">${icon}</div><div class="nm">${label}</div></button>`;
+  let h=cell('auto','linear-gradient(135deg,#3a2a14,#141008)','🗓️','自動（日付）')+cell('none','#1a1410','➖','なし');
+  h+=LOBBY_EVENTS.map(e=>cell(e.id,e.bg,Array.from(e.banner)[0],esc(e.name))).join('');
+  document.getElementById('sb-dev-grid').innerHTML=h;
+}
+function setDevLobbyEvent(v){
+  if(!isDevUser())return;
+  if(v==='auto')localStorage.removeItem('rikka_dev_event'); else localStorage.setItem('rikka_dev_event',v);
+  applyLobbyEvent();
+  renderDevSection();
+  closeSidebar();
+  const ev=LOBBY_EVENTS.find(e=>e.id===v);
+  toast(v==='auto'?'タイトル背景：自動（日付）':v==='none'?'タイトル背景：イベントなし':'タイトル背景：'+(ev?ev.name:v));
+}
+applyLobbyEvent();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)applyLobbyEvent();});
+setInterval(applyLobbyEvent,10*60*1000); // 日付をまたいだら自動で切り替わる
+
 
 let _tt=null;
 
@@ -4592,6 +4774,7 @@ document.getElementById('hand-tiles').addEventListener('scroll',()=>{if(G&&G.sel
   try {
     const u = JSON.parse(stored);
     gUser = {id:u.id||'', name:u.name||'', avatar:u.avatar||'', email:u.email||''};
+    applyLobbyEvent();
     const savedName = localStorage.getItem('rikka_name_' + gUser.id) || gUser.name;
     document.getElementById('pname').value = savedName;
     document.getElementById('google-login-area').style.display = 'none';
