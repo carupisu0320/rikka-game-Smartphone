@@ -187,7 +187,7 @@ background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(201,
 
 @keyframes tdot{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1.1);opacity:1}}
 
-#field-wrap{position:relative;isolation:isolate;flex:1;min-height:0;display:flex;flex-direction:column;
+#field-wrap{text-shadow:0 1px 4px rgba(0,0,0,.9);position:relative;isolation:isolate;flex:1;min-height:0;display:flex;flex-direction:column;
 
 padding:.5rem .9rem;border-bottom:1px solid #1e1208}
 
@@ -845,6 +845,27 @@ body.back-sakura .fback::after{color:rgba(255,140,180,.3)}
 body.back-indigo .fback{background:linear-gradient(165deg,#0a1030 0%,#040618 100%);border-color:#3a3a8a}
 body.back-indigo .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(100,100,255,.08) 4px,rgba(100,100,255,.08) 5px)}
 body.back-indigo .fback::after{color:rgba(100,100,255,.28)}
+body.back-jade .fback{background:linear-gradient(165deg,#0a2e26 0%,#04140f 100%);border-color:#2aa88a}
+body.back-jade .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(80,230,190,.09) 4px,rgba(80,230,190,.09) 5px)}
+body.back-jade .fback::after{color:rgba(80,230,190,.3)}
+body.back-ice .fback{background:linear-gradient(165deg,#0e2a3e 0%,#061420 100%);border-color:#7ac8e8}
+body.back-ice .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(180,235,255,.1) 4px,rgba(180,235,255,.1) 5px)}
+body.back-ice .fback::after{color:rgba(180,235,255,.32)}
+body.back-ember .fback{background:linear-gradient(165deg,#4a1408 0%,#1a0602 100%);border-color:#e0682a}
+body.back-ember .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,140,50,.1) 4px,rgba(255,140,50,.1) 5px)}
+body.back-ember .fback::after{color:rgba(255,150,60,.34)}
+body.back-obsidian .fback{background:linear-gradient(165deg,#1a1a22 0%,#050508 100%);border-color:#6a6a7a}
+body.back-obsidian .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(200,200,255,.05) 4px,rgba(200,200,255,.05) 5px)}
+body.back-obsidian .fback::after{color:rgba(220,220,255,.22)}
+body.back-galaxy .fback{background:radial-gradient(circle at 30% 20%,rgba(160,80,255,.5),transparent 55%),radial-gradient(circle at 72% 82%,rgba(60,140,255,.45),transparent 55%),linear-gradient(165deg,#0a0824,#02020c);border-color:#6a5ad8}
+body.back-galaxy .fback::before{background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 62% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#cfe8ff,transparent),radial-gradient(1px 1px at 82% 58%,#fff,transparent),radial-gradient(1px 1px at 14% 86%,#fff,transparent),radial-gradient(1px 1px at 70% 90%,#ffe8ff,transparent);animation:backTwinkle 3s ease-in-out infinite}
+body.back-galaxy .fback::after{color:rgba(200,180,255,.35)}
+@keyframes backTwinkle{0%,100%{opacity:.5}50%{opacity:1}}
+body.back-rainbow .fback{background:linear-gradient(165deg,#2a1840,#10203a);border-color:#d8a8ff}
+body.back-rainbow .fback::before{background:linear-gradient(115deg,rgba(255,80,120,.34),rgba(255,220,80,.34),rgba(80,255,160,.34),rgba(80,160,255,.34),rgba(200,80,255,.34),rgba(255,80,120,.34));background-size:300% 300%;animation:backHolo 6s linear infinite}
+body.back-rainbow .fback::after{color:rgba(255,255,255,.4)}
+@keyframes backHolo{from{background-position:0% 50%}to{background-position:300% 50%}}
+
 /* ── アシスト ── */
 .fback.assist-best,.tile.assist-best{border-color:#30e890!important;
   box-shadow:0 0 18px rgba(48,232,144,.8),0 0 6px rgba(48,232,144,.4)!important;
@@ -3175,22 +3196,235 @@ function renderAchievementsList(){
 // ガチャ
 // ============================================================
 const GACHA_COST=10;
+// ============================================================
+// リアルな場の背景（SVGで描いた風景。外部画像なしで動く）
+// ============================================================
+function _rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function _sceneUri(inner){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">${inner}</svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29');
+}
+// 山並み・稜線（中点変位法）
+function _ridge(r,o){
+  const levels=o.levels||7,n=(1<<levels)+1,h=new Array(n).fill(0),rough=o.rough||.55;
+  h[0]=(r()-.5)*o.amp;h[n-1]=(r()-.5)*o.amp;
+  let step=n-1,disp=o.amp;
+  while(step>1){const half=step/2;for(let i=half;i<n;i+=step)h[i]=(h[i-half]+h[i+half])/2+(r()-.5)*2*disp;disp*=rough;step=half;}
+  let top='';for(let i=0;i<n;i++)top+=`${i?'L':'M'}${(400*i/(n-1)).toFixed(1)} ${(o.base+h[i]).toFixed(1)}`;
+  return {fill:`${top}L400 ${o.bottom||800}L0 ${o.bottom||800}Z`,line:top};
+}
+// 滑らかな砂丘・雪丘
+function _dune(y,amp,ph){
+  let top='';for(let x=0;x<=400;x+=8){const yy=y+amp*Math.sin(x/70+ph)+amp*.5*Math.sin(x/33+ph*2)+amp*.25*Math.sin(x/17+ph*3);top+=`${x?'L':'M'}${x} ${yy.toFixed(1)}`;}
+  return {fill:`${top}L400 800L0 800Z`,line:top};
+}
+// 木のシルエット（針葉樹の連なり）
+function _pines(r,y,hMin,hMax,gap){
+  let d=`M-20 800V${y}H420V800Z`,x=-10;
+  while(x<410){const h=hMin+r()*(hMax-hMin),w=gap*(.9+r()*.7),c=x+w/2;
+    for(let i=0;i<3;i++){const ay=y-h+i*h*.26,by=ay+h*.44,hw=w/2*(.42+.27*i);
+      d+=`M${c.toFixed(1)} ${ay.toFixed(1)}L${(c+hw).toFixed(1)} ${by.toFixed(1)}L${(c-hw).toFixed(1)} ${by.toFixed(1)}Z`;}
+    x+=w*(.55+r()*.3);}
+  return d;
+}
+// 星（3段階の大きさ）
+function _stars(r,y0,y1,n){
+  const p=(k,sw,col,op)=>{let d='';for(let i=0;i<k;i++)d+=`M${(r()*400).toFixed(1)} ${(y0+r()*(y1-y0)).toFixed(1)}h.1`;return `<path d="${d}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" opacity="${op}" fill="none"/>`;};
+  return p(n,.9,'#fff',.55)+p(Math.round(n/5),1.5,'#dbe6ff',.8)+p(Math.max(2,Math.round(n/30)),2.5,'#fff',.95);
+}
+// 雲（ノイズで描く）。色rgbは0〜1、gain/biasで濃さと量を決める
+function _cloudDef(id,freq,oct,seed,rgb,gain,bias){
+  return `<filter id="${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="${freq}" numOctaves="${oct}" seed="${seed}"/><feColorMatrix values="0 0 0 0 ${rgb[0]} 0 0 0 0 ${rgb[1]} 0 0 0 0 ${rgb[2]} ${gain} 0 0 0 ${bias}"/></filter>`;
+}
+function _band(id,y0,y1,fa,fb){
+  return `<linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000"/><stop offset="${fa}" stop-color="#fff"/><stop offset="${fb}" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient><mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="800"><rect y="${y0}" width="400" height="${y1-y0}" fill="url(#${id}g)"/></mask>`;
+}
+const _glow=(id,c1,c2)=>`<radialGradient id="${id}"><stop offset="0" stop-color="${c1}" stop-opacity=".95"/><stop offset=".25" stop-color="${c2}" stop-opacity=".5"/><stop offset="1" stop-color="${c2}" stop-opacity="0"/></radialGradient>`;
+const _vgrad=(id,stops)=>`<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${stops.map(([o,c,a])=>`<stop offset="${o}" stop-color="${c}"${a!==undefined?` stop-opacity="${a}"`:''}/>`).join('')}</linearGradient>`;
+
+const LOBBY_SCENES={
+  // 夕焼けの海
+  sunset(){const r=_rng(11),hy=500;
+    let bars='';for(let i=0;i<44;i++){const w=(8+i*1.7)*(.6+r()*.8);bars+=`<rect x="${(250-w/2+(r()-.5)*12).toFixed(1)}" y="${(hy+4+i*5.4).toFixed(1)}" width="${w.toFixed(1)}" height="1.7" fill="#ffd890" opacity="${(.85-i*.017).toFixed(2)}"/>`;}
+    return `<defs>${_vgrad('sk',[[0,'#1a1038'],[.26,'#5a2a5a'],[.46,'#d8604a'],[.58,'#ffb060'],[.64,'#ffe2a8']])}${_vgrad('sea',[[0,'#f0a050'],[.12,'#9a4050'],[1,'#180e2e']])}${_glow('sg','#fff6d0','#ff9040')}
+      ${_cloudDef('c1','0.004 0.02',4,3,[1,.55,.42],2.8,-1.12)}${_cloudDef('c2','0.006 0.028',4,8,[.4,.16,.36],2.5,-1.0)}${_band('m1',100,520,.3,.75)}${_cloudDef('rp','0.012 0.24',3,5,[0,0,.1],1.5,-.45)}${_band('m2',500,800,.05,.5)}</defs>
+      <rect width="400" height="800" fill="url(#sk)"/><circle cx="250" cy="${hy-10}" r="270" fill="url(#sg)"/>
+      <rect width="400" height="800" filter="url(#c2)" mask="url(#m1)" opacity=".9"/><rect width="400" height="800" filter="url(#c1)" mask="url(#m1)" opacity=".9"/>
+      <circle cx="250" cy="${hy-20}" r="30" fill="#fff4c8"/><rect y="${hy}" width="400" height="300" fill="url(#sea)"/>${bars}
+      <rect width="400" height="800" filter="url(#rp)" mask="url(#m2)" opacity=".7"/><path d="${_ridge(r,{base:hy-4,amp:7,levels:6,bottom:hy}).fill}" fill="#26103a" transform="translate(-80 0) scale(.5 1)"/>`;},
+  // 深海
+  ocean(){const r=_rng(12);
+    let rays='';for(let i=0;i<6;i++){const x=40+i*62+r()*30,w=18+r()*30;rays+=`<polygon points="${x},-20 ${x+w},-20 ${x+w*3.2-60},620 ${x-w*1.6-60},620" fill="url(#ray)" opacity="${(.35+r()*.4).toFixed(2)}"/>`;}
+    let snow='';for(let i=0;i<150;i++)snow+=`<circle cx="${(r()*400).toFixed(1)}" cy="${(r()*800).toFixed(1)}" r="${(.4+r()*1.5).toFixed(2)}" fill="#bfeaff" opacity="${(.15+r()*.45).toFixed(2)}"/>`;
+    let fish='';for(let i=0;i<9;i++){const x=40+r()*320,y=380+r()*260,s=.6+r()*.9;fish+=`<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${s.toFixed(2)})" fill="#031420" opacity="${(.45+r()*.4).toFixed(2)}"><ellipse rx="9" ry="3.2"/><path d="M8 0L15 -4V4Z"/></g>`;}
+    return `<defs>${_vgrad('w',[[0,'#0a5a78'],[.25,'#06405e'],[.6,'#032a42'],[1,'#010a14']])}<linearGradient id="ray" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bff4ff" stop-opacity=".75"/><stop offset="1" stop-color="#5ac8e8" stop-opacity="0"/></linearGradient>
+      <filter id="bl"><feGaussianBlur stdDeviation="7"/></filter>${_cloudDef('ca','0.018 0.03',3,4,[.7,.95,1],3.2,-1.3)}${_band('mc',0,420,.0,.4)}</defs>
+      <rect width="400" height="800" fill="url(#w)"/><rect width="400" height="800" filter="url(#ca)" mask="url(#mc)" opacity=".3"/><g filter="url(#bl)">${rays}</g>${snow}${fish}
+      <path d="${_ridge(r,{base:735,amp:38,rough:.62}).fill}" fill="#010d16"/><path d="${_ridge(r,{base:770,amp:20,rough:.6}).fill}" fill="#00060c"/>`;},
+  // オーロラ
+  aurora(){const r=_rng(13),hy=520;
+    const cur=(y,amp,ph,w)=>{let top='',bot='';for(let x=0;x<=400;x+=10){top+=`${x?'L':'M'}${x} ${(y+amp*Math.sin(x/55+ph)+amp*.4*Math.sin(x/21+ph*2)).toFixed(1)}`;}
+      for(let x=400;x>=0;x-=10)bot+=`L${x} ${(y+w+amp*.6*Math.sin(x/70+ph*1.3)).toFixed(1)}`;return top+bot+'Z';};
+    const c1=cur(150,34,0,230),c2=cur(210,28,2,200),c3=cur(110,40,4,170);
+    return `<defs>${_vgrad('sk',[[0,'#02040e'],[.5,'#06122a'],[1,'#0c2a3c']])}${_vgrad('au',[[0,'#7dffb4',0],[.18,'#58ffa0',.85],[.55,'#2ad8b0',.45],[1,'#7a50ff',0]])}${_vgrad('au2',[[0,'#d070ff',0],[.2,'#b060ff',.6],[.6,'#40c0ff',.35],[1,'#40c0ff',0]])}
+      <filter id="b1"><feGaussianBlur stdDeviation="5"/></filter><filter id="b2"><feGaussianBlur stdDeviation="1.5"/></filter>
+      <filter id="ry" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.09 0.004" numOctaves="3" seed="6"/><feColorMatrix values="0 0 0 0 .6 0 0 0 0 1 0 0 0 0 .8 2.4 0 0 0 -.9"/></filter>
+      <mask id="mcur" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="800"><g filter="url(#b2)"><path d="${c1}" fill="#fff"/><path d="${c2}" fill="#fff" opacity=".8"/><path d="${c3}" fill="#fff" opacity=".7"/></g></mask>
+      <clipPath id="lake"><rect y="${hy}" width="400" height="300"/></clipPath>
+      <g id="sky"><rect width="400" height="${hy}" fill="url(#sk)"/>${_stars(r,0,hy,260)}
+        <g filter="url(#b1)"><path d="${c1}" fill="url(#au)"/><path d="${c2}" fill="url(#au2)"/><path d="${c3}" fill="url(#au)" opacity=".8"/></g>
+        <rect width="400" height="${hy}" filter="url(#ry)" mask="url(#mcur)" opacity=".85"/></g></defs>
+      <use href="#sky"/><rect y="${hy}" width="400" height="300" fill="#04101c"/>
+      <g clip-path="url(#lake)" opacity=".42"><use href="#sky" transform="translate(0 ${hy*2}) scale(1 -1)"/></g>
+      <path d="${_ridge(r,{base:hy-18,amp:46,rough:.6,bottom:hy}).fill}" fill="#05101a"/><path d="${_ridge(r,{base:hy-6,amp:20,rough:.55,bottom:hy+2}).fill}" fill="#030a12"/>
+      <rect y="${hy}" width="400" height="2" fill="#7affc0" opacity=".25"/>`;},
+  // 朝霧の森
+  forest(){const r=_rng(21);
+    return `<defs>${_vgrad('sk',[[0,'#bcd2cc'],[.5,'#f2ecc8'],[.7,'#fff6d8']])}${_glow('sun','#fffbe0','#ffe9a0')}${_vgrad('fg',[[0,'#fff',0],[.5,'#f4f8f0',.55],[1,'#fff',0]])}
+      <linearGradient id="ray" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6c8" stop-opacity=".7"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></linearGradient><filter id="bl"><feGaussianBlur stdDeviation="6"/></filter></defs>
+      <rect width="400" height="800" fill="url(#sk)"/><circle cx="60" cy="40" r="260" fill="url(#sun)"/>
+      <path d="${_pines(r,470,40,90,13)}" fill="#a2b8ae" opacity=".7"/><rect y="400" width="400" height="140" fill="url(#fg)"/>
+      <path d="${_pines(r,540,60,130,20)}" fill="#7a968a"/><rect y="460" width="400" height="150" fill="url(#fg)"/>
+      <path d="${_pines(r,620,90,190,28)}" fill="#3e5e52"/><rect y="540" width="400" height="160" fill="url(#fg)" opacity=".8"/>
+      <path d="${_pines(r,720,130,260,40)}" fill="#16342c"/><rect y="640" width="400" height="160" fill="url(#fg)" opacity=".6"/>
+      <g filter="url(#bl)"><polygon points="40,-20 120,-20 360,820 220,820" fill="url(#ray)" opacity=".7"/><polygon points="130,-20 170,-20 400,700 330,760" fill="url(#ray)" opacity=".5"/><polygon points="-20,-20 30,-20 150,820 40,820" fill="url(#ray)" opacity=".55"/></g>
+      <path d="M-10 800L-10 160L22 150L36 800Z" fill="#0a1c16"/><path d="M372 800L384 120L412 128L412 800Z" fill="#0a1c16"/>
+      ${(()=>{let s='';for(let i=0;i<80;i++)s+=`<circle cx="${(r()*400).toFixed(0)}" cy="${(r()*700).toFixed(0)}" r="${(.5+r()*1.2).toFixed(1)}" fill="#fff8d0" opacity="${(.2+r()*.5).toFixed(2)}"/>`;return s;})()}`;},
+  // 砂丘の夕景
+  dunes(){const r=_rng(31),d1=_dune(470,12,.4),d2=_dune(545,24,1.6),d3=_dune(640,34,3),d4=_dune(735,42,4.4);
+    return `<defs>${_vgrad('sk',[[0,'#2c2250'],[.3,'#b45a58'],[.5,'#ffa860'],[.58,'#ffdca0']])}${_glow('sg','#fff2c0','#ffa050')}
+      ${[['a','#f0a868','#8a4a48'],['b','#e0905a','#6a3a42'],['c','#c47450','#4a2a3a'],['d','#9a5a44','#2a1a2c']].map(([i,a,b])=>`<linearGradient id="${i}" x1="0" y1="0" x2="1" y2=".2"><stop offset="0" stop-color="${a}"/><stop offset=".55" stop-color="${b}"/></linearGradient>`).join('')}
+      ${_cloudDef('rp','0.02 0.3',3,9,[0,0,0],1.4,-.5)}<mask id="mr" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="800"><path d="${d2.fill}" fill="#fff"/></mask>${_cloudDef('c1','0.005 0.03',3,2,[1,.7,.5],2.4,-1.05)}${_band('m1',120,480,.3,.7)}</defs>
+      <rect width="400" height="800" fill="url(#sk)"/><circle cx="130" cy="440" r="250" fill="url(#sg)"/><rect width="400" height="800" filter="url(#c1)" mask="url(#m1)" opacity=".7"/><circle cx="130" cy="452" r="26" fill="#fff6d0"/>
+      <path d="${d1.fill}" fill="url(#a)"/><path d="${d2.fill}" fill="url(#b)"/><path d="${d3.fill}" fill="url(#c)"/><path d="${d4.fill}" fill="url(#d)"/>
+      <rect width="400" height="800" filter="url(#rp)" mask="url(#mr)" opacity=".5"/>
+      ${[[d1,.55],[d2,.5],[d3,.45],[d4,.35]].map(([d,o])=>`<path d="${d.line}" fill="none" stroke="#ffd8a0" stroke-width="1.4" opacity="${o}"/>`).join('')}
+      <rect y="440" width="400" height="60" fill="#ffc890" opacity=".14"/>`;},
+  // 雪原の夜
+  snowfield(){const r=_rng(41),d1=_dune(560,16,.8),d2=_dune(640,26,2.2),d3=_dune(735,34,3.6);
+    let sp='';for(let i=0;i<160;i++)sp+=`<circle cx="${(r()*400).toFixed(0)}" cy="${(540+r()*260).toFixed(0)}" r="${(.4+r()*.9).toFixed(1)}" fill="#fff" opacity="${(.25+r()*.6).toFixed(2)}"/>`;
+    return `<defs>${_vgrad('sk',[[0,'#03061a'],[.4,'#0c1a44'],[.7,'#26427e']])}${_glow('mg','#eaf2ff','#7aa0e8')}
+      ${[['a','#cfdcf8','#5a74b0'],['b','#dfe9ff','#4a64a0'],['c','#eef4ff','#3a5290']].map(([i,a,b])=>`<linearGradient id="${i}" x1="0" y1="0" x2="1" y2=".3"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`).join('')}
+      ${_cloudDef('c1','0.005 0.03',4,5,[.6,.7,.95],2.2,-1.0)}${_band('m1',60,420,.3,.7)}${_cloudDef('dr','0.01 0.05',3,2,[.9,.95,1],2.4,-1.1)}${_band('m2',560,800,.1,.6)}</defs>
+      <rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,520,240)}<circle cx="300" cy="170" r="150" fill="url(#mg)" opacity=".7"/><circle cx="300" cy="170" r="25" fill="#f4f8ff"/>
+      <rect width="400" height="800" filter="url(#c1)" mask="url(#m1)" opacity=".6"/>
+      <path d="${_pines(r,575,25,60,10)}" fill="#0a1634"/><path d="${d1.fill}" fill="url(#a)"/><path d="${_pines(r,640,40,80,16)}" fill="#08122a" opacity=".85"/><path d="${d2.fill}" fill="url(#b)"/><path d="${d3.fill}" fill="url(#c)"/>${sp}
+      <rect width="400" height="800" filter="url(#dr)" mask="url(#m2)" opacity=".5"/>
+      ${[d1,d2,d3].map(d=>`<path d="${d.line}" fill="none" stroke="#fff" stroke-width="1.2" opacity=".5"/>`).join('')}`;},
+  // 蛍の夜
+  fireflies(){const r=_rng(51),hy=520;
+    let blades='';for(let i=0;i<90;i++){const x=r()*400,h=50+r()*190,b=(r()-.5)*70;blades+=`<path d="M${x.toFixed(0)} 810Q${(x+b*.4).toFixed(0)} ${(800-h*.6).toFixed(0)} ${(x+b).toFixed(0)} ${(800-h).toFixed(0)}" fill="none" stroke="#020a0a" stroke-width="${(1.3+r()*2.2).toFixed(1)}" stroke-linecap="round"/>`;}
+    let ff='',rf='';for(let i=0;i<46;i++){const x=r()*400,y=300+r()*480,o=(.5+r()*.5).toFixed(2);ff+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(6+r()*7).toFixed(1)}" fill="url(#fg)" opacity="${o}"/><circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="1.5" fill="#f6ffb8"/>`;
+      if(y<hy-10)rf+=`<circle cx="${x.toFixed(0)}" cy="${(hy*2-y).toFixed(0)}" r="${(4+r()*5).toFixed(1)}" fill="url(#fg)" opacity=".28"/>`;}
+    return `<defs>${_vgrad('sk',[[0,'#01070a'],[.55,'#05222a'],[.8,'#0a3a40']])}${_vgrad('rv',[[0,'#0a3a40'],[.4,'#04181e'],[1,'#010608']])}${_glow('mg','#bfe8ff','#4a90a8')}<radialGradient id="fg"><stop offset="0" stop-color="#e8ff90" stop-opacity=".95"/><stop offset=".3" stop-color="#b8f040" stop-opacity=".45"/><stop offset="1" stop-color="#b8f040" stop-opacity="0"/></radialGradient>
+      ${_cloudDef('rp','0.01 0.18',3,7,[.5,.8,.9],1.6,-.55)}${_band('m2',520,800,.02,.6)}</defs>
+      <rect width="400" height="${hy}" fill="url(#sk)"/>${_stars(r,0,380,120)}<circle cx="280" cy="200" r="120" fill="url(#mg)" opacity=".5"/><circle cx="280" cy="200" r="16" fill="#e8f6ff" opacity=".9"/>
+      <path d="${_pines(r,hy,30,90,18)}" fill="#031418"/><path d="${_pines(r,hy+2,20,50,14)}" fill="#020c10"/>
+      <rect y="${hy}" width="400" height="300" fill="url(#rv)"/><rect width="400" height="800" filter="url(#rp)" mask="url(#m2)" opacity=".65"/>
+      <rect x="276" y="${hy+6}" width="8" height="150" fill="#cfeaff" opacity=".12"/>${rf}${blades}${ff}`;},
+  // 山稜の朝焼け
+  mountain(){const r=_rng(61),a=_ridge(r,{base:470,amp:46,rough:.6}),b=_ridge(r,{base:540,amp:60,rough:.58}),c=_ridge(r,{base:630,amp:70,rough:.58}),d=_ridge(r,{base:735,amp:56,rough:.6});
+    return `<defs>${_vgrad('sk',[[0,'#26245a'],[.3,'#7a4a80'],[.5,'#f08a68'],[.6,'#ffcc90']])}${_glow('sg','#fff0c0','#ff9a60')}
+      ${_cloudDef('c1','0.005 0.035',4,3,[1,.7,.62],2.5,-1.0)}${_band('m1',160,470,.3,.7)}${_cloudDef('c2','0.008 0.03',4,6,[1,.82,.8],2.6,-1.1)}${_band('mb',470,700,.2,.8)}</defs>
+      <rect width="400" height="800" fill="url(#sk)"/><circle cx="210" cy="470" r="280" fill="url(#sg)"/><rect width="400" height="800" filter="url(#c1)" mask="url(#m1)" opacity=".75"/>
+      <path d="${a.fill}" fill="#a2668e"/><path d="${a.line}" fill="none" stroke="#ffc8a0" stroke-width="1.3" opacity=".6"/>
+      <path d="${b.fill}" fill="#74508a"/><rect width="400" height="800" filter="url(#c2)" mask="url(#mb)" opacity=".7"/><path d="${b.line}" fill="none" stroke="#ffb090" stroke-width="1.2" opacity=".45"/>
+      <path d="${c.fill}" fill="#443468"/><rect width="400" height="800" filter="url(#c2)" mask="url(#mb)" opacity=".4" transform="translate(0 90)"/>
+      <path d="${d.fill}" fill="#1c1236"/>
+      ${[[90,300],[130,280],[160,310]].map(([x,y])=>`<path d="M${x} ${y}q4 -5 8 0q4 -5 8 0" fill="none" stroke="#2a1a3a" stroke-width="1.4"/>`).join('')}`;},
+  // 月夜の海
+  waves(){const r=_rng(71),hy=450;
+    let bars='';for(let i=0;i<46;i++){const w=(6+i*1.8)*(.5+r()*.9);bars+=`<rect x="${(250-w/2+(r()-.5)*10).toFixed(1)}" y="${(hy+3+i*5.6).toFixed(1)}" width="${w.toFixed(1)}" height="1.6" fill="#d4e6ff" opacity="${(.8-i*.016).toFixed(2)}"/>`;}
+    let foam='';for(let i=0;i<22;i++){const y=hy+40+r()*300,x=r()*380,w=10+r()*40;foam+=`<rect x="${x.toFixed(0)}" y="${y.toFixed(0)}" width="${w.toFixed(0)}" height="1.2" fill="#cfe0ff" opacity="${(.12+r()*.2).toFixed(2)}"/>`;}
+    return `<defs>${_vgrad('sk',[[0,'#03050e'],[.4,'#0c1a3c'],[.57,'#24427a']])}${_vgrad('sea',[[0,'#1a3a6a'],[.25,'#0a1e44'],[1,'#02060e']])}${_glow('mg','#eef4ff','#7098e0')}
+      ${_cloudDef('c1','0.006 0.03',4,4,[.18,.24,.42],2.6,-1.05)}${_band('m1',60,440,.2,.8)}${_cloudDef('c2','0.012 0.035',4,9,[.8,.88,1],2.2,-1.15)}${_band('m3',90,330,.25,.75)}${_cloudDef('wv','0.004 0.075',3,2,[.6,.75,1],2.0,-.85)}${_band('m2',450,800,.0,.5)}</defs>
+      <rect width="400" height="${hy}" fill="url(#sk)"/>${_stars(r,0,380,200)}<circle cx="250" cy="230" r="190" fill="url(#mg)" opacity=".8"/>
+      <rect width="400" height="800" filter="url(#c1)" mask="url(#m1)" opacity=".9"/><circle cx="250" cy="230" r="30" fill="#f4f8ff"/><rect width="400" height="800" filter="url(#c2)" mask="url(#m3)" opacity=".35"/>
+      <rect y="${hy}" width="400" height="360" fill="url(#sea)"/><rect width="400" height="800" filter="url(#wv)" mask="url(#m2)" opacity=".55"/>${bars}${foam}
+      <rect y="${hy}" width="400" height="1.5" fill="#6a90d0" opacity=".5"/>`;},
+  // 夜桜
+  sakuranight(){const r=_rng(81);
+    const blossoms=(x0,y0,x1,y1,n,spread)=>{let s='';for(let i=0;i<n;i++){const t=r(),x=x0+(x1-x0)*t+(r()-.5)*spread,y=y0+(y1-y0)*t+(r()-.5)*spread;const c=['#ffd6e6','#ffc0d8','#ffe8f0','#ff9ec4'][Math.floor(r()*4)];
+      s+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(3+r()*5).toFixed(1)}" fill="${c}" opacity="${(.6+r()*.4).toFixed(2)}"/>`;}return s;};
+    let pet='';for(let i=0;i<46;i++)pet+=`<ellipse cx="${(r()*400).toFixed(0)}" cy="${(r()*800).toFixed(0)}" rx="${(2+r()*2.4).toFixed(1)}" ry="${(1.2+r()*1.2).toFixed(1)}" fill="#ffd0e2" opacity="${(.4+r()*.5).toFixed(2)}" transform="rotate(${(r()*180).toFixed(0)} ${(r()*400).toFixed(0)} ${(r()*800).toFixed(0)})"/>`;
+    return `<defs>${_vgrad('sk',[[0,'#080614'],[.45,'#241638'],[.8,'#4a2a50']])}${_glow('mg','#fff0f4','#e8a0c8')}<filter id="bl"><feGaussianBlur stdDeviation="9"/></filter><filter id="b2"><feGaussianBlur stdDeviation="2"/></filter>
+      <radialGradient id="ln"><stop offset="0" stop-color="#ffc070" stop-opacity=".9"/><stop offset="1" stop-color="#ff8a30" stop-opacity="0"/></radialGradient></defs>
+      <rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,420,150)}<circle cx="110" cy="210" r="170" fill="url(#mg)" opacity=".6"/><circle cx="110" cy="210" r="34" fill="#fff6f2"/>
+      <g stroke="#0c0610" stroke-linecap="round" fill="none"><path d="M420 40C330 60 270 90 210 150S110 260 60 300" stroke-width="12"/><path d="M300 78C290 130 310 170 290 230" stroke-width="6"/><path d="M200 156C180 200 190 250 160 290" stroke-width="5"/><path d="M420 330C360 340 320 380 270 440" stroke-width="10"/><path d="M340 352C350 400 330 440 340 500" stroke-width="5"/><path d="M-20 520C40 500 90 540 130 600" stroke-width="10"/></g>
+      <g filter="url(#bl)" opacity=".7">${blossoms(380,50,70,300,26,40)}${blossoms(400,340,270,440,14,34)}</g>
+      <g>${blossoms(380,50,70,300,70,46)}${blossoms(400,330,270,440,40,40)}${blossoms(-10,520,130,600,28,36)}</g>${pet}
+      <path d="${_ridge(r,{base:735,amp:24,rough:.6}).fill}" fill="#0a0610"/><circle cx="80" cy="720" r="40" fill="url(#ln)"/><circle cx="318" cy="740" r="46" fill="url(#ln)"/><rect x="72" y="706" width="16" height="22" rx="4" fill="#ffb060"/><rect x="310" y="722" width="16" height="22" rx="4" fill="#ffb060"/>`;},
+  // 星雲
+  nebula(){const r=_rng(91);
+    const nb=(id,f,seed,rgb,g,b)=>_cloudDef(id,f,5,seed,rgb,g,b);
+    return `<defs><radialGradient id="bgc" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#1a0c30"/><stop offset="1" stop-color="#02010a"/></radialGradient>
+      ${nb('n1','0.006 0.005',2,[.95,.2,.7],2.6,-1.05)}${nb('n2','0.009 0.006',7,[.2,.45,1],2.6,-1.05)}${nb('n3','0.012 0.01',4,[1,.55,.2],2.4,-1.1)}${nb('n4','0.008 0.008',9,[.1,.9,.8],2.2,-1.1)}
+      <radialGradient id="mk1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient><mask id="m1" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="800"><ellipse cx="190" cy="340" rx="230" ry="300" fill="url(#mk1)"/></mask>
+      <mask id="m2" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="800"><ellipse cx="240" cy="520" rx="230" ry="260" fill="url(#mk1)"/></mask>${_glow('cg','#ffffff','#ffd0ff')}</defs>
+      <rect width="400" height="800" fill="url(#bgc)"/><rect width="400" height="800" filter="url(#n1)" mask="url(#m1)" opacity=".85"/><rect width="400" height="800" filter="url(#n2)" mask="url(#m2)" opacity=".8"/>
+      <rect width="400" height="800" filter="url(#n3)" mask="url(#m1)" opacity=".55"/><rect width="400" height="800" filter="url(#n4)" mask="url(#m2)" opacity=".45"/>
+      ${_stars(r,0,800,520)}<circle cx="200" cy="360" r="46" fill="url(#cg)"/><path d="M200 300V420M140 360H260" stroke="#fff" stroke-width=".8" opacity=".7"/>`;},
+  // 銀河
+  galaxy(){const r=_rng(101),cx=200,cy=400;
+    const arm=(off,k,col,sw,op)=>{let d='';for(let i=0;i<k;i++){const t=r()*4.2,rad=26*Math.exp(.36*t)*(.8+r()*.4),a=t*1.35+off,sc=(r()+r()+r()-1.5)*rad*.22;
+      const x=Math.cos(a)*rad+Math.cos(a+1.57)*sc,y=(Math.sin(a)*rad+Math.sin(a+1.57)*sc)*.52;const X=cx+x*Math.cos(-.5)-y*Math.sin(-.5),Y=cy+x*Math.sin(-.5)+y*Math.cos(-.5);d+=`M${X.toFixed(1)} ${Y.toFixed(1)}h.1`;}
+      return `<path d="${d}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" opacity="${op}" fill="none"/>`;};
+    return `<defs><radialGradient id="bgc" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="#0c0a22"/><stop offset="1" stop-color="#010108"/></radialGradient>${_glow('core','#fff6dc','#ffc880')}${_glow('halo','#9ab0ff','#4a50d0')}
+      <filter id="bl"><feGaussianBlur stdDeviation="7"/></filter>${_cloudDef('ds','0.015 0.03',4,5,[0,0,0],3.2,-1.5)}<mask id="mk" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="800"><ellipse cx="${cx}" cy="${cy}" rx="190" ry="110" transform="rotate(-29 ${cx} ${cy})" fill="#fff"/></mask></defs>
+      <rect width="400" height="800" fill="url(#bgc)"/>${_stars(r,0,800,440)}
+      <g transform="rotate(-29 ${cx} ${cy})"><ellipse cx="${cx}" cy="${cy}" rx="200" ry="104" fill="url(#halo)" opacity=".55"/></g>
+      <g filter="url(#bl)" opacity=".8">${arm(0,160,'#8a9cff',9,.5)}${arm(Math.PI,160,'#a890ff',9,.5)}</g>
+      ${arm(0,900,'#bcd0ff',1.3,.85)}${arm(Math.PI,900,'#d0c0ff',1.3,.85)}${arm(0,500,'#fff',.8,.9)}${arm(Math.PI,500,'#fff',.8,.9)}
+      <rect width="400" height="800" filter="url(#ds)" mask="url(#mk)" opacity=".5"/>
+      <g transform="rotate(-29 ${cx} ${cy})"><ellipse cx="${cx}" cy="${cy}" rx="110" ry="54" fill="url(#core)"/></g><circle cx="${cx}" cy="${cy}" r="10" fill="#fffbe8"/>`;},
+};
+const _sceneCache={};
+function sceneUri(name){return _sceneCache[name]||(_sceneCache[name]=_sceneUri(LOBBY_SCENES[name]()));}
+
+// 画面の形（縦長・横長）で見える範囲が変わるので、各風景の「見せたい高さ」を決めておく（%）
+const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50};
+
 const GACHA_ITEMS=[
-  {id:'theme_gold',    rarity:'common', category:'theme',    icon:'🟡', title:'金の裏地',     desc:'牌の裏デザイン：金',   value:'gold'},
-  {id:'theme_sakura',  rarity:'common', category:'theme',    icon:'🌸', title:'桜の裏地',     desc:'牌の裏デザイン：桜',   value:'sakura'},
-  {id:'theme_indigo',  rarity:'common', category:'theme',    icon:'🔷', title:'藍の裏地',     desc:'牌の裏デザイン：藍',   value:'indigo'},
-  {id:'bg_sunset',     rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌅', title:'夕焼けの場',   desc:'場の背景：夕焼け', value:'linear-gradient(165deg,#4a1e0a 0%,#8a3a10 40%,#e0803a 100%)'},
-  {id:'bg_ocean',      rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌊', title:'深海の場',     desc:'場の背景：深海',   value:'linear-gradient(165deg,#020a1a 0%,#053050 60%,#0a5878 100%)'},
-  {id:'bg_aurora',     rarity:'uncommon', category:'fieldbg', type:'gradient', icon:'🌌', title:'オーロラの場', desc:'場の背景：オーロラ', value:'linear-gradient(165deg,#0a1e2a 0%,#1a5a4a 40%,#3a2a6a 100%)'},
+  {id:'theme_gold', rarity:'common', category:'theme', icon:'🟡', title:'金の裏地', desc:'牌の裏デザイン：金', value:'gold'},
+  {id:'theme_sakura', rarity:'common', category:'theme', icon:'🌸', title:'桜の裏地', desc:'牌の裏デザイン：桜', value:'sakura'},
+  {id:'theme_indigo', rarity:'common', category:'theme', icon:'🔷', title:'藍の裏地', desc:'牌の裏デザイン：藍', value:'indigo'},
+  {id:'theme_jade', rarity:'common', category:'theme', icon:'🟢', title:'翡翠の裏地', desc:'牌の裏デザイン：翡翠', value:'jade'},
+  {id:'theme_ice', rarity:'common', category:'theme', icon:'🧊', title:'氷の裏地', desc:'牌の裏デザイン：氷', value:'ice'},
+  {id:'theme_ember', rarity:'uncommon', category:'theme', icon:'🔥', title:'炎の裏地', desc:'牌の裏デザイン：炎', value:'ember'},
+  {id:'theme_obsidian', rarity:'uncommon', category:'theme', icon:'⚫', title:'黒曜の裏地', desc:'牌の裏デザイン：黒曜', value:'obsidian'},
+  {id:'theme_galaxy', rarity:'rare', category:'theme', icon:'🌌', title:'銀河の裏地', desc:'牌の裏デザイン：銀河', value:'galaxy'},
+  {id:'theme_rainbow', rarity:'superrare', category:'theme', icon:'🌈', title:'虹の裏地', desc:'牌の裏デザイン：虹', value:'rainbow'},
+  {id:'bg_sunset', rarity:'uncommon', category:'fieldbg', type:'scene', icon:'🌅', title:'夕焼けの海', desc:'場の背景：夕焼けの海', get value(){return sceneUri('sunset');}},
+  {id:'bg_ocean', rarity:'uncommon', category:'fieldbg', type:'scene', icon:'🌊', title:'深海', desc:'場の背景：光が差す深海', get value(){return sceneUri('ocean');}},
+  {id:'bg_forest', rarity:'uncommon', category:'fieldbg', type:'scene', icon:'🌲', title:'朝霧の森', desc:'場の背景：朝霧の森', get value(){return sceneUri('forest');}},
+  {id:'bg_dunes', rarity:'uncommon', category:'fieldbg', type:'scene', icon:'🏜️', title:'砂丘の夕景', desc:'場の背景：砂丘の夕景', get value(){return sceneUri('dunes');}},
+  {id:'bg_snowfield', rarity:'uncommon', category:'fieldbg', type:'scene', icon:'⛄', title:'雪原の夜', desc:'場の背景：月明かりの雪原', get value(){return sceneUri('snowfield');}},
+  {id:'bg_fireflies', rarity:'uncommon', category:'fieldbg', type:'scene', icon:'🪲', title:'蛍の夜', desc:'場の背景：蛍が舞う水辺', get value(){return sceneUri('fireflies');}},
+  {id:'bg_aurora', rarity:'rare', category:'fieldbg', type:'scene', icon:'🌌', title:'オーロラ', desc:'場の背景：湖面に映るオーロラ', get value(){return sceneUri('aurora');}},
+  {id:'bg_mountain', rarity:'rare', category:'fieldbg', type:'scene', icon:'🏔️', title:'山稜の朝焼け', desc:'場の背景：雲海と山並みの朝焼け', get value(){return sceneUri('mountain');}},
+  {id:'bg_waves', rarity:'rare', category:'fieldbg', type:'scene', icon:'🌙', title:'月夜の海', desc:'場の背景：月明かりの海', get value(){return sceneUri('waves');}},
+  {id:'bg_sakuranight', rarity:'rare', category:'fieldbg', type:'scene', icon:'🌸', title:'夜桜', desc:'場の背景：月夜の夜桜', get value(){return sceneUri('sakuranight');}},
+  {id:'bg_nebula', rarity:'rare', category:'fieldbg', type:'scene', icon:'🔭', title:'星雲', desc:'場の背景：宇宙の星雲', get value(){return sceneUri('nebula');}},
   // Game Overシリーズ（GitHubにアップロードした画像を場の背景にする）。
-  // valueの中のファイル名（gameover1.png / gameover2.png）を、実際にアップロードしたファイル名に差し替えるだけで反映されます。
-  // 例：リポジトリ直下に "myimage.png" を置いた場合 → 'https://carupisu0320.github.io/rikka-game-Smartphone/myimage.png'
   {id:'bg_gameover1',  rarity:'rare', category:'fieldbg', type:'image', icon:'💀', title:'Game Over I',  desc:'場の背景：Game Overシリーズ', value:'https://carupisu0320.github.io/rikka-game-Smartphone/gameover1.png'},
   {id:'bg_gameover2',  rarity:'rare', category:'fieldbg', type:'image', icon:'💀', title:'Game Over II', desc:'場の背景：Game Overシリーズ', value:'https://carupisu0320.github.io/rikka-game-Smartphone/gameover2.png'},
+  {id:'bg_galaxy', rarity:'superrare', category:'fieldbg', type:'scene', icon:'🌠', title:'銀河', desc:'場の背景：渦を巻く銀河', get value(){return sceneUri('galaxy');}},
+  {id:'confetti_pop', rarity:'common', category:'confetti', icon:'🎉', title:'ポップな紙吹雪', desc:'カラフルな基本の紙吹雪', value:['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff']},
+  {id:'confetti_snow', rarity:'common', category:'confetti', icon:'❄️', title:'雪の結晶', desc:'紙吹雪が雪のように白く', value:['#ffffff','#e8f4ff','#c8e4ff','#a8d0ff','#f4faff']},
+  {id:'confetti_fire', rarity:'uncommon', category:'confetti', icon:'🔥', title:'炎の紙吹雪', desc:'紙吹雪が燃える色に', value:['#ff3a10','#ff7a20','#ffb030','#ffe070','#c81a08']},
   {id:'confetti_gold', rarity:'rare', category:'confetti', icon:'✨', title:'黄金の紙吹雪', desc:'上がった時の紙吹雪が金色に', value:['#f5e060','#ffd700','#e0a020','#fff4c0','#c9a84c']},
-  {id:'confetti_sakura',rarity:'rare', category:'confetti', icon:'🌸', title:'桜吹雪',       desc:'上がった時の紙吹雪が桜色に', value:['#ffb0c8','#ff8aa8','#ffd0dc','#e878b0','#fff0f4']},
-  {id:'title_rikka',   rarity:'superrare', category:'title', icon:'🏆', title:'六華の使い手', desc:'名前の横に称号が付きます',   value:'六華の使い手'},
-  {id:'title_legend',  rarity:'superrare', category:'title', icon:'👑', title:'伝説のプレイヤー', desc:'名前の横に称号が付きます', value:'伝説のプレイヤー'},
+  {id:'confetti_sakura', rarity:'rare', category:'confetti', icon:'🌸', title:'桜吹雪', desc:'上がった時の紙吹雪が桜色に', value:['#ffb0c8','#ff8aa8','#ffd0dc','#e878b0','#fff0f4']},
+  {id:'confetti_neon', rarity:'rare', category:'confetti', icon:'💠', title:'ネオン', desc:'紙吹雪がネオンカラーに', value:['#00ffd0','#ff30c0','#40a0ff','#ffee40','#a040ff']},
+  {id:'confetti_rainbow', rarity:'superrare', category:'confetti', icon:'🌈', title:'虹の紙吹雪', desc:'あらゆる色が舞う紙吹雪', value:['#ff4040','#ff9a30','#ffe030','#40d870','#30a8ff','#a050ff','#ff60c0']},
+  {id:'title_first', rarity:'common', category:'title', icon:'🔰', title:'駆け出しの打ち手', desc:'名前の横に称号が付きます', value:'駆け出しの打ち手'},
+  {id:'title_zoro', rarity:'uncommon', category:'title', icon:'🎲', title:'ゾロ目好き', desc:'名前の横に称号が付きます', value:'ゾロ目好き'},
+  {id:'title_apprentice', rarity:'uncommon', category:'title', icon:'📜', title:'牌の見習い', desc:'名前の横に称号が付きます', value:'牌の見習い'},
+  {id:'title_fate', rarity:'rare', category:'title', icon:'🎴', title:'運命の引き手', desc:'名前の横に称号が付きます', value:'運命の引き手'},
+  {id:'title_sight', rarity:'rare', category:'title', icon:'👁️', title:'千里眼', desc:'名前の横に称号が付きます', value:'千里眼'},
+  {id:'title_mountain', rarity:'rare', category:'title', icon:'⛰️', title:'山を張る者', desc:'名前の横に称号が付きます', value:'山を張る者'},
+  {id:'title_rikka', rarity:'superrare', category:'title', icon:'🏆', title:'六華の使い手', desc:'名前の横に称号が付きます', value:'六華の使い手'},
+  {id:'title_legend', rarity:'superrare', category:'title', icon:'👑', title:'伝説のプレイヤー', desc:'名前の横に称号が付きます', value:'伝説のプレイヤー'},
+  {id:'title_king', rarity:'superrare', category:'title', icon:'🔱', title:'六華の覇王', desc:'名前の横に称号が付きます', value:'六華の覇王'},
 ];
 const GACHA_RARITY_INFO={
   common:   {label:'コモン',   weight:60, color:'#9098a0'},
@@ -3446,7 +3680,7 @@ function gfxBurst(){
 }
 function gfxPreviewHtml(it){
   if(it.category==='fieldbg'){
-    const bg=it.type==='image'?`url('${it.value}') center/cover`:it.value;
+    const bg=fieldBgPreviewCss(it);
     return `<div class="gfx-prev" style="width:150px;height:76px;background:${bg}"></div>`;
   }
   if(it.category==='theme'){
@@ -3779,6 +4013,21 @@ function sanitizeFieldBgUrl(url){
   if(/["'\\()<>]/.test(url))return ''; // CSS/HTML属性から抜け出せる文字を含むものは拒否
   return url;
 }
+// 景品の背景を、小さなプレビュー用のCSS backgroundに直す
+function fieldBgPreviewCss(it){
+  if(it.type==='scene')return `url('${it.value}') 50% ${(FIELD_SCENE_FOCUS[it.id.replace('bg_','')]||50)}%/cover`;
+  if(it.type==='image')return `url('${it.value}') center/cover`;
+  return it.value;
+}
+// リアルな風景（SVG）を場の背景にする。牌が透けて背景が見えるようにする点は画像と同じ
+function applySceneBg(uri,id){
+  let styleEl=document.getElementById('field-bg-style');
+  if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
+  const fy=FIELD_SCENE_FOCUS[String(id||'').replace('bg_','')]||50;
+  styleEl.textContent=`#field-wrap::before{background-image:linear-gradient(rgba(8,5,3,.28),rgba(8,5,3,.28)),url('${uri}')!important;background-size:cover!important;background-position:50% ${fy}%!important}
+#field-wrap .fback{background:rgba(20,14,8,.72)!important}
+#field-wrap .fback::before{opacity:.7}`;
+}
 function applyFieldBg(url){
   let styleEl=document.getElementById('field-bg-style');
   if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
@@ -3821,11 +4070,12 @@ function updateFieldBgForTurn(){
   const isMe=(G.turn===myOnlineIdx);
   const val=isMe?myFieldBgValue():(cur.fieldBg||'');
   const bg=resolveFieldBg(val);
-  const key=bg?(bg.kind+':'+bg.value):'none';
+  const key=bg?(bg.kind+':'+(bg.kind==='scene'?bg.id:bg.value)):'none';
   if(key===_lastFieldBgKey)return; // 前回と同じ背景なら何もしない（アニメーションもしない）
   _lastFieldBgKey=key;
   triggerFieldWipeOut(()=>{
     if(bg&&bg.kind==='img') applyFieldBg(bg.value);
+    else if(bg&&bg.kind==='scene') applySceneBg(bg.value,bg.id);
     else if(bg) applyFieldBgGradient(bg.value);
     else applyFieldBg('');
     triggerFieldWipeIn();
@@ -3842,7 +4092,7 @@ function resolveFieldBg(val){
   if(typeof val!=='string'||!val)return null;
   if(val.startsWith('preset:')){
     const it=GACHA_ITEMS.find(x=>x.category==='fieldbg'&&x.id===val.slice(7));
-    return it?{kind:it.type==='image'?'img':'grad',value:it.value}:null;
+    return it?{kind:it.type==='image'?'img':it.type==='scene'?'scene':'grad',value:it.value,id:it.id}:null;
   }
   const safe=sanitizeFieldBgUrl(val);
   return safe?{kind:'img',value:safe}:null;
@@ -3894,7 +4144,7 @@ const BASE_BACK_THEMES=[
   {v:'green', label:'翠',   c1:'#0a2010', bd:'#2a6a3a'},
   {v:'purple',label:'紫',   c1:'#1a0a2e', bd:'#5a2a8a'},
 ];
-const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a']};
+const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a'],jade:['#0a2e26','#2aa88a'],ice:['#0e2a3e','#7ac8e8'],ember:['#4a1408','#e0682a'],obsidian:['#1a1a22','#6a6a7a'],galaxy:['#1a1048','#6a5ad8'],rainbow:['#3a2a6a','#d8a8ff']};
 let customizeTab='theme';
 function openCustomize(tab){
   closeSidebar();
@@ -3970,7 +4220,7 @@ function renderCustomize(){
     h+=GACHA_ITEMS.filter(it=>it.category==='fieldbg').map(it=>{
       const has=owned.has(it.id);
       const sel=has&&!hasCustom&&eq===it.id;
-      const bg=!has?'#1a1410':(it.type==='image'?`url('${it.value}') center/cover`:it.value);
+      const bg=!has?'#1a1410':fieldBgPreviewCss(it);
       return `<button class="custom-card${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectFieldBgPreset('${it.id}')"`:''}>
         ${sel?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:${bg}">${has?'':'🔒'}</div>
         <div class="nm">${has?esc(it.title):'ガチャで入手'}</div></button>`;
