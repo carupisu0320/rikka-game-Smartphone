@@ -155,6 +155,7 @@ padding:.22rem .75rem;font-size:.82rem;display:flex;align-items:center;gap:.4rem
 
 .spill-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid #4a9e8a;flex-shrink:0}
 
+#opp-area{display:none!important} /* 相手の名前・得点は上のスコア表示と重複するので非表示にして、その分を場に回す */
 #opp-area{display:flex;gap:.4rem;padding:.4rem .9rem;flex-shrink:0;flex-wrap:wrap;background:#0d0a08}
 
 .ocard{background:#141008;border:1px solid #2a1e12;border-radius:9px;padding:.38rem .8rem;
@@ -2390,6 +2391,7 @@ return`<div class="spill ${cls}">${avatarHtml}<span class="sn">${esc(p.name)}</s
 function renderOpponents(){
 
 const el=document.getElementById('opp-area');
+if(el){el.innerHTML='';return;}
 
 const opps=G.players.filter((_,i)=>i!==myOnlineIdx);
 
