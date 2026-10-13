@@ -280,7 +280,7 @@ box-shadow:0 4px 12px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,1)}
 .htile.selected{border-color:#e02020!important;
 box-shadow:0 0 16px rgba(220,30,30,.8),0 0 6px rgba(220,30,30,.5)!important;transform:translateY(-8px)!important}
 
-.rule-tile{width:52px;height:86px;border-radius:6px;
+.rule-tile{width:calc(52px*min(1,var(--tile-scale,1)));height:calc(86px*min(1,var(--tile-scale,1)));border-radius:6px;
 
 background:linear-gradient(160deg,#1e1a10,#2a2210);border:2px solid #7a6030;
 
@@ -303,7 +303,8 @@ font-size:.55rem;color:#A07800;pointer-events:none;z-index:3;line-height:1}
 
 .htile .tile-star{font-size:.55rem}
   
-#hand-area{flex-shrink:0;min-height:9.5rem;background:linear-gradient(0deg,#060402 0%,#0e0a06 100%);
+#hand-area{flex-shrink:0;min-height:calc(clamp(26px,8.5vw,38px)*var(--tile-scale,1)*1.625 + 6.6rem); /* 牌の大きさに合わせて手牌エリアの高さも変わる */
+background:linear-gradient(0deg,#060402 0%,#0e0a06 100%);
 
 border-top:1px solid #3a2810;box-shadow:0 -3px 14px rgba(0,0,0,0.55);padding:.55rem .9rem 1.6rem}
 
@@ -321,9 +322,9 @@ border-top:1px solid #3a2810;box-shadow:0 -3px 14px rgba(0,0,0,0.55);padding:.55
 
 #status.boturn{color:#b08dd4}
 
-.hand-row{display:flex;align-items:flex-end;gap:.7rem}
+.hand-row{display:flex;align-items:flex-end;gap:.4rem .7rem;flex-wrap:wrap;justify-content:flex-end}
 
-#hand-tiles{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch}
+#hand-tiles{display:flex;gap:4px;flex:1;min-width:calc(clamp(26px,8.5vw,38px)*var(--tile-scale,1)*5 + 16px); /* 牌が大きいときは横に並びきらないので、ルールブック等を下の段に回す */overflow-x:auto;padding:10px 0 3px;-webkit-overflow-scrolling:touch}
 
 .hand-right{display:flex;align-items:flex-end;gap:.5rem;flex-shrink:0}
 
