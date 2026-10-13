@@ -193,7 +193,10 @@ function isTenpaiServer(hand5, optR) {
 // 場の背景に使う画像URLの簡易サニタイズ。http(s)のみ許可し、
 // url(...)やHTML属性から抜け出せる引用符・バックスラッシュ・括弧を含むものは拒否する。
 // ガチャで入手した場の背景プリセット（'preset:<id>'の形で送られてくる。許可リストにあるものだけ通す）
-const FIELD_BG_PRESETS = new Set(['bg_sunset', 'bg_ocean', 'bg_aurora', 'bg_gameover1', 'bg_gameover2']);
+const FIELD_BG_PRESETS = new Set([
+  'bg_sunset', 'bg_ocean', 'bg_aurora', 'bg_gameover1', 'bg_gameover2',
+  'bg_forest', 'bg_dunes', 'bg_snowfield', 'bg_fireflies', 'bg_mountain', 'bg_waves', 'bg_sakuranight', 'bg_nebula', 'bg_galaxy',
+]);
 function sanitizeFieldBg(url) {
   if (typeof url !== 'string') return '';
   url = url.trim();
