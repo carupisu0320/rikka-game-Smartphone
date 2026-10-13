@@ -1058,7 +1058,7 @@ style="background:#1a1410;color:#6a5830">🌐 オンライン</button>
 
 <select id="bdiff" class="fselect">
 
-<option value="easy">弱い</option><option value="normal" selected>普通</option><option value="hard">強い</option>
+<option value="easy">弱い（勝利で🌸3）</option><option value="normal" selected>普通（勝利で🌸5）</option><option value="hard">強い（勝利で🌸10）</option>
 
 </select>
 
@@ -2264,6 +2264,7 @@ function declareRon(){
   res.bonus=Math.max(0,bonus-((res.pts+bonus)-taken));
   res.pts=taken-res.bonus;
   G.phase='roundEnd';
+  botGamePetals(myOnlineIdx,0);
   launchConfetti();
   const tsuideList=[];
   G.players.forEach((pl,i)=>{
@@ -2300,6 +2301,7 @@ function checkBotRon(discardedByIdx){
     res.bonus=Math.max(0,bonus-((res.pts+bonus)-taken));
     res.pts=taken-res.bonus;
     G.phase='roundEnd';
+    botGamePetals(winnerIdx,0);
     const tsuideList=[];
     G.players.forEach((p2,j)=>{
       if(j===winnerIdx||j===discardedByIdx)return;
@@ -2939,7 +2941,7 @@ function processWin(pi,res){
   G.phase='roundEnd';const bonus=(res.noBonus?0:countZorome(G.players[pi].hand))+(G.players[pi].riichi?1:0);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
   saveHistory(makeHistoryEntry(pi===myOnlineIdx,res.role,res.pts+bonus,onlineMode,G.players.map(p=>p.name)));
   const _newAch=checkAchievements(pi===myOnlineIdx,{role:res.role,bonus,ron:!!res.ron,riichi:!!G.players[pi].riichi,online:false});
-  addPetals(1+(pi===myOnlineIdx?2:0)+_newAch.length*5);
+  if(onlineMode)addPetals(1+(pi===myOnlineIdx?2:0)+_newAch.length*5); else botGamePetals(pi,_newAch.length*5);
   const optR=G?.optRoles??null;
   const tsuideList=[];
   G.players.forEach((p,i)=>{
@@ -2973,10 +2975,11 @@ const over=isGameOver(G.players,G?.goal),rows=G.players.map(pl=>`<tr><td>${esc(p
 const tiles=p.hand.map(t=>tileHTML(t,'','tile htile')).join(''),bonus=res.bonus||0,total=res.pts+bonus;
 
 const bLine=bonus>0?`<div style="font-size:.85rem;color:#f5d040;margin-bottom:.6rem">★ 輝きボーナス ×${bonus} = +${bonus}点</div>`:'';
+const petalLine=(!onlineMode&&_lastPetalGain>0)?`<div style="font-size:.85rem;color:#ff9ec8;margin:.3rem 0">🌸 花びら +${_lastPetalGain}</div>`:'';_lastPetalGain=0;
 const ronLine=res.ron?`<div style="font-size:.85rem;color:#e0a020;margin:.3rem 0">⚡ ロン！（${esc(res.ronFrom||'')} の捨て牌）</div>`:'';
 const riichiLine=(res.bonus>0&&p.riichi)?`<div style="font-size:.82rem;color:#f5d040">🀄 リーチボーナス +1点含む</div>`:'';
 
-document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div><p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
+document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div><p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${petalLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
 
 document.getElementById('modal').classList.add('open');
 
@@ -3196,6 +3199,16 @@ const GACHA_RARITY_INFO={
 function loadPetals(){ return parseInt(localStorage.getItem('rikka_petals')||'0',10)||0; }
 function savePetals(n){ localStorage.setItem('rikka_petals',String(Math.max(0,n))); updatePetalDisplays(); }
 function addPetals(n){ savePetals(loadPetals()+n); }
+// ボット対戦：自分が上がると強さに応じて花びらがもらえる（負けたラウンドは1枚）
+const BOT_WIN_PETALS={easy:3,normal:5,hard:10};
+let _lastPetalGain=0;
+function botGamePetals(winnerIdx,extra){
+  const bot=G&&G.players.find(p=>p.isBot);
+  const n=(winnerIdx===myOnlineIdx)?(BOT_WIN_PETALS[bot&&bot.diff]||5):1;
+  const total=n+(extra||0);
+  addPetals(total);_lastPetalGain=total;
+  return total;
+}
 function updatePetalDisplays(){
   const n=loadPetals();
   const a=document.getElementById('gacha-lobby-petals'); if(a)a.textContent=n;
