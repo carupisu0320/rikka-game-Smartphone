@@ -2364,7 +2364,7 @@ if(G.players[G.turn].isBot)scheduleBot();
 
 }
 
-function dealRound(){const deck=makeDeck();let idx=0;G.players.forEach(p=>{p.hand=deck.slice(idx,idx+5);idx+=5;});G.field=deck.slice(idx);G.turn=0;G.tphase='pick';G.selIdx=-1;G.phase='playing';setTimeout(animateFieldTiles,50);updateFieldBgForTurn();}
+function dealRound(){const deck=makeDeck();let idx=0;G.players.forEach(p=>{p.hand=deck.slice(idx,idx+5);idx+=5;});G.field=deck.slice(idx);G.players.forEach(p=>{p.lastDiscardId=null;});G.turn=0;G.tphase='pick';G.selIdx=-1;G.phase='playing';setTimeout(animateFieldTiles,50);updateFieldBgForTurn();}
 // ============================================================
 
 // 描画
@@ -2646,10 +2646,29 @@ if(G.phase!=='playing')return;const bot=G.players[G.turn];if(!bot?.isBot)return;
 
 if(G.tphase==='pick'){if(G.field.length===0){nextTurn();return;}
 
-let fi;
-if(bot.diff==='easy'){fi=Math.floor(Math.random()*G.field.length);}
-    else if(bot.diff==='normal'){let best=-Infinity;fi=0;G.field.forEach((t,i)=>{const s=evalHandNormal([...bot.hand,t]);if(s>best){best=s;fi=i;}});}
-    else{fi=botHardPickRikka(bot.hand,G.field);}
+let fi=-1;
+const _optP=G?.optRoles??null;
+// リーチ中：上がれる牌が場にあれば最優先で取る
+if(bot.riichi){
+  for(let i=0;i<G.field.length&&fi===-1;i++){
+    const base=[...bot.hand,G.field[i]],lim2=Math.min(1<<base.length,64);
+    for(let m=0;m<lim2;m++){
+      const h=base.map((t,k)=>({...t,flip:!!(m&(1<<k))}));
+      if(checkWin(h,_optP)){fi=i;break;}
+    }
+  }
+}
+if(fi===-1){
+  // 自分が直前に捨てた牌は取らない（同じ牌を捨てては拾う無限ループの防止）
+  let cand=G.field.map((_,i)=>i).filter(i=>G.field[i].id!==bot.lastDiscardId);
+  if(cand.length===0)cand=G.field.map((_,i)=>i);
+  const pool=cand.map(i=>G.field[i]);
+  let pi=0;
+  if(bot.riichi||bot.diff==='easy'){pi=Math.floor(Math.random()*pool.length);}
+  else if(bot.diff==='normal'){let best=-Infinity;pool.forEach((t,i)=>{const s=evalHandNormal([...bot.hand,t]);if(s>best){best=s;pi=i;}});}
+  else{pi=botHardPickRikka(bot.hand,pool);}
+  fi=cand[Math.max(0,Math.min(pool.length-1,pi))];
+}
 
 bot.hand.push(G.field.splice(fi,1)[0]);playSound('pick');G.tphase='discard';if(bot.diff==='hard')botHardFlipOptimize(bot.hand);render();
 const optR=G?.optRoles??null;
@@ -2695,7 +2714,7 @@ if(bot.riichi){di=bot.hand.length-1;}
 else if(bot.diff==='easy'){di=Math.floor(Math.random()*bot.hand.length);}
 else if(bot.diff==='normal'){di=botNormalDiscard(bot.hand);}
 else{di=botHardDiscardRikka(bot.hand);}
-const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();
+const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.lastDiscardId=tile.id;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();
 playSound('discard');
 if(Math.random()<0.15)botComment('discard');
 if(checkBotRon(G.turn))return;
