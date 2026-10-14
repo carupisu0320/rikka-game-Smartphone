@@ -2,6 +2,8 @@
 <html lang="ja">
 <head>
 <link rel="manifest" href="manifest.json">
+<link rel="icon" id="app-icon" href="icon.png" type="image/png">
+<link rel="apple-touch-icon" id="app-touch-icon" href="icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0d0a08">
 <meta charset="UTF-8">
@@ -6038,10 +6040,18 @@ function currentLobbyEvent(){
     return a<=b?(v>=a&&v<=b):(v>=a||v<=b);
   })||null;
 }
+// ブラウザのタブのアイコンと、iPhoneの「ホーム画面に追加」で使われるアイコンを、季節に合わせて切り替える
+function updateAppIcons(){
+  const ev=currentLobbyEvent(),id=ev?ev.id:'';
+  const i=document.getElementById('app-icon'),t=document.getElementById('app-touch-icon');
+  if(i)i.href=id?`icons/${id}-192.png`:'icon.png';
+  if(t)t.href=id?`icons/${id}-180.png`:'icon.png';
+}
 function applyLobbyEvent(){
   const ev=currentLobbyEvent(),id=ev?ev.id:'';
   if(id===_lobbyEventId)return; // 変わっていなければ何もしない
   _lobbyEventId=id;
+  updateAppIcons();
   stopLobbyCanvas();
   const lobby=document.getElementById('lobby'),fx=document.getElementById('lobby-fx'),bn=document.getElementById('lobby-event-banner');
   const st=lobby.style;
@@ -6110,6 +6120,7 @@ function setDevLobbyEvent(v){
   toast(v==='auto'?'タイトル背景：自動（日付）':v==='none'?'タイトル背景：イベントなし':'タイトル背景：'+(ev?ev.name:v));
 }
 applyLobbyEvent();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)applyLobbyEvent();});
 setInterval(applyLobbyEvent,10*60*1000); // 日付をまたいだら自動で切り替わる
 
