@@ -378,6 +378,7 @@ pointer-events:none;opacity:0;transition:opacity .22s,transform .22s;white-space
 #achievement-popup .ap-icon{font-size:2.1rem;flex-shrink:0}
 #achievement-popup .ap-label{font-size:.66rem;color:#c9a84c;font-weight:700;letter-spacing:.04em}
 #achievement-popup .ap-title{font-size:1rem;color:#f5e0a0;font-weight:700;margin-top:.1rem}
+#achievement-popup .ap-reward{font-size:.78rem;color:#ffd978;font-weight:700;margin-top:.25rem}
 #achievement-popup .ap-desc{font-size:.72rem;color:#8a7860;margin-top:.15rem}
 .ach-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .5rem;border-radius:8px;
   background:#150f0a;border:1px solid #241a10;margin-bottom:.35rem;opacity:.55}
@@ -385,6 +386,9 @@ pointer-events:none;opacity:0;transition:opacity .22s,transform .22s;white-space
 .ach-icon{font-size:1.3rem;flex-shrink:0;width:1.7rem;text-align:center}
 .ach-title{font-size:.76rem;color:#c8b898;font-weight:700}
 .ach-item.ach-done .ach-title{color:#e8c97a}
+.ach-prog{font-size:.64rem;color:#8a7048;margin-top:.15rem}
+.ach-reward{font-size:.64rem;color:#6a5830;margin-top:.15rem}
+.ach-reward.got{color:#d8b04a}
 .ach-desc{font-size:.66rem;color:#5a4820;margin-top:.1rem;line-height:1.35}
 
 /* ── MODAL ── */
@@ -863,6 +867,9 @@ body.back-galaxy .fback{background:radial-gradient(circle at 30% 20%,rgba(160,80
 body.back-galaxy .fback::before{background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 62% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#cfe8ff,transparent),radial-gradient(1px 1px at 82% 58%,#fff,transparent),radial-gradient(1px 1px at 14% 86%,#fff,transparent),radial-gradient(1px 1px at 70% 90%,#ffe8ff,transparent);animation:backTwinkle 3s ease-in-out infinite}
 body.back-galaxy .fback::after{color:rgba(200,180,255,.35)}
 @keyframes backTwinkle{0%,100%{opacity:.5}50%{opacity:1}}
+body.back-dragon .fback{background:linear-gradient(165deg,#0a3a24 0%,#031810 100%);border-color:#d8b04a}
+body.back-dragon .fback::before{background:radial-gradient(circle at 50% 100%,transparent 52%,rgba(216,176,74,.26) 54%,transparent 58%);background-size:12px 8px}
+body.back-dragon .fback::after{color:rgba(240,206,110,.4)}
 body.back-rainbow .fback{background:linear-gradient(165deg,#2a1840,#10203a);border-color:#d8a8ff}
 body.back-rainbow .fback::before{background:linear-gradient(115deg,rgba(255,80,120,.34),rgba(255,220,80,.34),rgba(80,255,160,.34),rgba(80,160,255,.34),rgba(200,80,255,.34),rgba(255,80,120,.34));background-size:300% 300%;animation:backHolo 6s linear infinite}
 body.back-rainbow .fback::after{color:rgba(255,255,255,.4)}
@@ -1513,6 +1520,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="ap-label">🏅 実績解除！</div>
     <div class="ap-title" id="ap-title"></div>
     <div class="ap-desc" id="ap-desc"></div>
+    <div class="ap-reward" id="ap-reward"></div>
   </div>
 </div>
 
@@ -2029,7 +2037,7 @@ const{winnerIdx,winnerName,hand=[],role,pts,bonus=0,scores=[],isGameOver,ron,rii
 playSound(ron ? 'ron' : 'win');
 
 saveHistory(makeHistoryEntry(Number(winnerIdx)===Number(myOnlineIdx),role,pts+bonus,true,scores.map(s=>s.name)));
-const _newAch=checkAchievements(Number(winnerIdx)===Number(myOnlineIdx),{role,bonus,ron:!!ron,riichi:!!riichi,online:true});
+const _newAch=checkAchievements(Number(winnerIdx)===Number(myOnlineIdx),{role,bonus,ron:!!ron,riichi:!!riichi,online:true,total:(Number(pts)||0)+(Number(bonus)||0)});
 addPetals(1+(Number(winnerIdx)===Number(myOnlineIdx)?2:0)+_newAch.length*5);
   const tsuideList=wd.tsuideList||[];
   _pendingOnlineGameOver = { scores, tsuideList };
@@ -2269,6 +2277,13 @@ function pickRonWinnerIdx(discardedByIdx, discardedTile, optR){
   });
   return bestIdx;
 }
+// ロンで終わったラウンドの記録（履歴・実績・花びら）
+function finishBotRoundStats(wi,role,bonus,pts,ron,riichi){
+  saveHistory(makeHistoryEntry(wi===myOnlineIdx,role,pts+bonus,false,G.players.map(p=>p.name)));
+  const newAch=checkAchievements(wi===myOnlineIdx,{role,bonus,ron,riichi:!!riichi,online:false,diff:(G.players.find(p=>p.isBot)||{}).diff,total:pts+bonus});
+  botGamePetals(wi,newAch.length*5);
+  return newAch;
+}
 function declareRon(){
   if(!G||G.phase!=='playing'||!_ronPending) return;
   const p=G.players[myOnlineIdx];
@@ -2290,7 +2305,8 @@ function declareRon(){
   res.bonus=Math.max(0,bonus-((res.pts+bonus)-taken));
   res.pts=taken-res.bonus;
   G.phase='roundEnd';
-  botGamePetals(myOnlineIdx,0);
+  const _achRon=finishBotRoundStats(myOnlineIdx,res.role,res.bonus,res.pts,true,p.riichi);
+  if(_achRon.length)setTimeout(()=>showAchievementPopup(_achRon),900);
   launchConfetti();
   const tsuideList=[];
   G.players.forEach((pl,i)=>{
@@ -2327,7 +2343,8 @@ function checkBotRon(discardedByIdx){
     res.bonus=Math.max(0,bonus-((res.pts+bonus)-taken));
     res.pts=taken-res.bonus;
     G.phase='roundEnd';
-    botGamePetals(winnerIdx,0);
+    const _achRonB=finishBotRoundStats(winnerIdx,res.role,res.bonus,res.pts,true,pl.riichi);
+    if(_achRonB.length)setTimeout(()=>showAchievementPopup(_achRonB),900);
     const tsuideList=[];
     G.players.forEach((p2,j)=>{
       if(j===winnerIdx||j===discardedByIdx)return;
@@ -2967,7 +2984,7 @@ function isGameOver(players, goal){
 function processWin(pi,res){
   G.phase='roundEnd';const bonus=(res.noBonus?0:countZorome(G.players[pi].hand))+(G.players[pi].riichi?1:0);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
   saveHistory(makeHistoryEntry(pi===myOnlineIdx,res.role,res.pts+bonus,onlineMode,G.players.map(p=>p.name)));
-  const _newAch=checkAchievements(pi===myOnlineIdx,{role:res.role,bonus,ron:!!res.ron,riichi:!!G.players[pi].riichi,online:false});
+  const _newAch=checkAchievements(pi===myOnlineIdx,{role:res.role,bonus,ron:!!res.ron,riichi:!!G.players[pi].riichi,online:false,diff:(G.players.find(p=>p.isBot)||{}).diff,total:res.pts+bonus});
   if(onlineMode)addPetals(1+(pi===myOnlineIdx?2:0)+_newAch.length*5); else botGamePetals(pi,_newAch.length*5);
   const optR=G?.optRoles??null;
   const tsuideList=[];
@@ -3092,21 +3109,37 @@ function saveHistory(entry){
 // 実績（バッジ）システム
 // ============================================================
 const ACHIEVEMENTS=[
-  {id:'first_win',        icon:'🏅', title:'初勝利',             desc:'はじめて役を完成させて勝利する'},
-  {id:'role_musou',       icon:'🐉', title:'無双の証',           desc:'「無双」で勝利する'},
-  {id:'role_kikou',       icon:'✨', title:'輝光の輝き',         desc:'「輝光」で勝利する'},
-  {id:'role_sanren',      icon:'🔗', title:'三連の道',           desc:'「三連」で勝利する'},
-  {id:'role_sanshiki',    icon:'🎨', title:'三色の彩',           desc:'「三色」で勝利する（ついで完成でもOK）'},
-  {id:'role_santui',      icon:'👯', title:'三対の絆',           desc:'「三対」で勝利する'},
-  {id:'role_isshoku',     icon:'🀄', title:'一色の道',           desc:'「一色」で勝利する'},
-  {id:'role_rikka',       icon:'🌸', title:'六華の頂',           desc:'「六華」で勝利する（最高難度の役）'},
-  {id:'role_all',         icon:'📖', title:'役図鑑コンプリート', desc:'7つの役すべてで勝利経験を積む'},
-  {id:'riichi_ron',       icon:'⚡', title:'リーチロン',         desc:'リーチ中にロンで勝利する'},
-  {id:'win_streak_3',     icon:'🔥', title:'3連勝',              desc:'3回連続で勝利する'},
-  {id:'bonus_master',     icon:'💎', title:'ぞろ目コレクター',   desc:'ぞろ目ボーナス2以上で勝利する'},
-  {id:'online_first_win', icon:'🌐', title:'オンライン初勝利',   desc:'オンライン対戦ではじめて勝利する'},
-  {id:'games_10',         icon:'🎮', title:'常連さん',           desc:'通算10戦プレイする'},
-  {id:'games_100',        icon:'🏆', title:'ベテラン',           desc:'通算100戦プレイする'},
+  // reward: 景品ID（場の背景・裏柄・紙吹雪）／ rt: 報酬の称号名（景品は自動で作られる）／ prog: 進み具合 [現在, 目標]
+  {id:'first_win',        icon:'🏅', title:'初勝利',             desc:'はじめて役を完成させて勝利する', rt:'初陣の勝者'},
+  {id:'win_5',            icon:'🥉', title:'5勝',                desc:'通算5回勝利する', rt:'五勝の打ち手', prog:s=>[s.totalWins,5]},
+  {id:'win_10',           icon:'🥈', title:'10勝',               desc:'通算10回勝利する', reward:'bg_koi', prog:s=>[s.totalWins,10]},
+  {id:'win_30',           icon:'🥇', title:'30勝',               desc:'通算30回勝利する', rt:'六華の達人', prog:s=>[s.totalWins,30]},
+  {id:'win_50',           icon:'💫', title:'50勝',               desc:'通算50回勝利する', reward:'bg_cityrain', prog:s=>[s.totalWins,50]},
+  {id:'win_100',          icon:'👑', title:'100勝',              desc:'通算100回勝利する', rt:'百戦錬磨', prog:s=>[s.totalWins,100]},
+  {id:'role_musou',       icon:'🐉', title:'無双の証',           desc:'「無双」で勝利する', reward:'theme_dragon'},
+  {id:'role_kikou',       icon:'✨', title:'輝光の輝き',         desc:'「輝光」で勝利する', rt:'光を纏う者'},
+  {id:'role_sanren',      icon:'🔗', title:'三連の道',           desc:'「三連」で勝利する', rt:'連なる道'},
+  {id:'role_sanshiki',    icon:'🎨', title:'三色の彩',           desc:'「三色」で勝利する（ついで完成でもOK）', rt:'三色の使い手'},
+  {id:'role_santui',      icon:'👯', title:'三対の絆',           desc:'「三対」で勝利する', rt:'対を成す者'},
+  {id:'role_isshoku',     icon:'🀄', title:'一色の道',           desc:'「一色」で勝利する', rt:'一色の求道者'},
+  {id:'role_rikka',       icon:'🌸', title:'六華の頂',           desc:'「六華」で勝利する（最高難度の役）', reward:'bg_fuji'},
+  {id:'role_all',         icon:'📖', title:'役図鑑コンプリート', desc:'7つの役すべてで勝利経験を積む', rt:'役の博士'},
+  {id:'riichi_ron',       icon:'⚡', title:'リーチロン',         desc:'リーチ中にロンで勝利する', rt:'雷鳴のロン'},
+  {id:'riichi_win',       icon:'🎯', title:'リーチの達人',       desc:'リーチをかけて上がる', rt:'リーチの申し子'},
+  {id:'ron_5',            icon:'🗡️', title:'ロン使い',           desc:'ロンで通算5回勝利する', rt:'ロン使い', prog:s=>[s.ronWins,5]},
+  {id:'win_streak_3',     icon:'🔥', title:'3連勝',              desc:'3回連続で勝利する', rt:'連勝の勢い'},
+  {id:'win_streak_5',     icon:'🌋', title:'5連勝',              desc:'5回連続で勝利する', rt:'破竹の勢い'},
+  {id:'win_streak_10',    icon:'☄️', title:'10連勝',             desc:'10回連続で勝利する', rt:'不敗の打ち手'},
+  {id:'bonus_master',     icon:'💎', title:'ぞろ目コレクター',   desc:'ぞろ目ボーナス2以上で勝利する', reward:'confetti_gems'},
+  {id:'big_win',          icon:'💥', title:'大物手',             desc:'1回の上がりで8点以上獲得する', rt:'大物手の持ち主'},
+  {id:'hard_win',         icon:'🤖', title:'強敵撃破',           desc:'「強い」ボットに勝利する', rt:'強者殺し'},
+  {id:'hard_win_10',      icon:'🦾', title:'強敵キラー',         desc:'「強い」ボットに通算10回勝利する', rt:'AI超え', prog:s=>[s.hardWins,10]},
+  {id:'online_first_win', icon:'🌐', title:'オンライン初勝利',   desc:'オンライン対戦ではじめて勝利する', rt:'ネットの勇者'},
+  {id:'online_win_10',    icon:'🌍', title:'オンライン10勝',     desc:'オンライン対戦で通算10回勝利する', rt:'オンラインの猛者', prog:s=>[s.onlineWins,10]},
+  {id:'games_10',         icon:'🎮', title:'常連さん',           desc:'通算10戦プレイする', rt:'常連の風格', prog:s=>[s.totalGames,10]},
+  {id:'games_100',        icon:'🏆', title:'ベテラン',           desc:'通算100戦プレイする', reward:'bg_fireworks', prog:s=>[s.totalGames,100]},
+  {id:'gacha_10',         icon:'🎰', title:'ガチャ好き',         desc:'ガチャを通算10回引く', rt:'ガチャの申し子', prog:s=>[s.gachaDraws,10]},
+  {id:'collector_20',     icon:'📦', title:'コレクター',         desc:'ガチャの景品を20種類集める', rt:'蒐集家', prog:s=>[realOwnedGachaCount(),20]},
 ];
 const ROLE_ACHIEVEMENT_ID={'無双':'role_musou','輝光':'role_kikou','三連':'role_sanren','三色':'role_sanshiki','三対':'role_santui','一色':'role_isshoku','六華':'role_rikka'};
 const ALL_ROLE_ACH_IDS=Object.values(ROLE_ACHIEVEMENT_ID);
@@ -3115,8 +3148,10 @@ function loadAchievementState(){
   try{
     const st=JSON.parse(localStorage.getItem('rikka_achievements')||'{}');
     st.unlocked=st.unlocked||[]; st.totalGames=st.totalGames||0; st.winStreak=st.winStreak||0;
+    ['totalWins','onlineWins','hardWins','ronWins','gachaDraws'].forEach(k=>{st[k]=st[k]||0;});
+    if(st.unlocked.includes('first_win')&&st.totalWins<1)st.totalWins=1;
     return st;
-  }catch(e){ return {unlocked:[],totalGames:0,winStreak:0}; }
+  }catch(e){ return {unlocked:[],totalGames:0,winStreak:0,totalWins:0,onlineWins:0,hardWins:0,ronWins:0,gachaDraws:0}; }
 }
 function saveAchievementState(st){
   try{ localStorage.setItem('rikka_achievements',JSON.stringify(st)); }catch(e){}
@@ -3128,8 +3163,12 @@ function saveAchievementState(st){
 function checkAchievements(won,opts){
   opts=opts||{};
   const st=loadAchievementState();
-  st.totalGames++;
-  st.winStreak=won?st.winStreak+1:0;
+  if(!opts.misc){
+    st.totalGames++;
+    st.winStreak=won?st.winStreak+1:0;
+    if(won){st.totalWins++;if(opts.online)st.onlineWins++;if(opts.diff==='hard'&&!opts.online)st.hardWins++;if(opts.ron)st.ronWins++;}
+  }
+  if(opts.gacha)st.gachaDraws++;
 
   const have=new Set(st.unlocked);
   const newly=[];
@@ -3140,23 +3179,55 @@ function checkAchievements(won,opts){
     if(a)newly.push(a);
   };
 
-  if(won){
+  if(won&&!opts.misc){
     unlock('first_win');
     if(opts.online)unlock('online_first_win');
     const roleId=ROLE_ACHIEVEMENT_ID[opts.role];
     if(roleId)unlock(roleId);
     if(ALL_ROLE_ACH_IDS.every(id=>have.has(id)))unlock('role_all');
     if(opts.ron&&opts.riichi)unlock('riichi_ron');
+    if(opts.riichi)unlock('riichi_win');
     if((opts.bonus||0)>=2)unlock('bonus_master');
+    if((opts.total||0)>=8)unlock('big_win');
+    if(!opts.online&&opts.diff==='hard')unlock('hard_win');
     if(st.winStreak>=3)unlock('win_streak_3');
+    if(st.winStreak>=5)unlock('win_streak_5');
+    if(st.winStreak>=10)unlock('win_streak_10');
   }
-  if(st.totalGames>=10)unlock('games_10');
-  if(st.totalGames>=100)unlock('games_100');
+  [['win_5','totalWins',5],['win_10','totalWins',10],['win_30','totalWins',30],['win_50','totalWins',50],['win_100','totalWins',100],
+   ['ron_5','ronWins',5],['hard_win_10','hardWins',10],['online_win_10','onlineWins',10],
+   ['games_10','totalGames',10],['games_100','totalGames',100],['gacha_10','gachaDraws',10]].forEach(([id,k,n])=>{if(st[k]>=n)unlock(id);});
+  if(realOwnedGachaCount()>=20)unlock('collector_20');
 
   st.unlocked=[...have];
   saveAchievementState(st);
+  newly.forEach(a=>{if(a.reward)grantItem(a.reward);}); // 報酬を受け取る
   renderAchievementsList();
   return newly;
+}
+// 端末に保存された「実際の」所持品に景品を足す（開発者アカウントの全所持表示には影響されない）
+function grantItem(id){
+  try{
+    const raw=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');
+    raw.owned=raw.owned||[];raw.equipped=raw.equipped||{};
+    if(raw.owned.includes(id))return false;
+    raw.owned.push(id);localStorage.setItem('rikka_gacha',JSON.stringify(raw));return true;
+  }catch(e){return false;}
+}
+function realOwnedGachaCount(){
+  try{const raw=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');return (raw.owned||[]).filter(id=>{const it=GACHA_ITEMS.find(x=>x.id===id);return it&&!it.achievement;}).length;}catch(e){return 0;}
+}
+// すでに解除済みの実績の報酬を受け取れていなければ渡す（この機能の追加前に解除した人向け）
+function backfillAchievementRewards(){
+  const st=loadAchievementState();
+  ACHIEVEMENTS.forEach(a=>{if(a.reward&&st.unlocked.includes(a.id))grantItem(a.reward);});
+}
+// 報酬の説明（ポップアップや実績一覧用）
+function achRewardInfo(a){
+  const it=a.reward&&GACHA_ITEMS.find(x=>x.id===a.reward);
+  if(!it)return null;
+  const kind={title:'称号',fieldbg:'場の背景',theme:'牌の裏柄',confetti:'紙吹雪'}[it.category]||'景品';
+  return {kind,item:it};
 }
 
 let _achPopupQueue=[];
@@ -3174,6 +3245,8 @@ function _drainAchievementPopup(){
   document.getElementById('ap-icon').textContent=next.icon;
   document.getElementById('ap-title').textContent=next.title;
   document.getElementById('ap-desc').textContent=next.desc;
+  const _ri=achRewardInfo(next),_re=document.getElementById('ap-reward');
+  if(_re){_re.textContent=_ri?`🎁 ${_ri.kind}「${_ri.item.title}」を獲得！`:'';_re.style.display=_ri?'':'none';}
   playSound('win');
   el.classList.add('show');
   setTimeout(()=>{
@@ -3187,7 +3260,7 @@ function toggleAchievements(){ achievementsOpen=!achievementsOpen; renderAchieve
 function renderAchievementsList(){
   const el=document.getElementById('achievements-list-sb');
   if(!el)return;
-  const st=loadAchievementState();
+  const st=loadAchievementState(),st2=st;
   const have=new Set(st.unlocked);
   const doneCount=ACHIEVEMENTS.filter(a=>have.has(a.id)).length;
   const countEl=document.getElementById('achievements-count');
@@ -3197,11 +3270,15 @@ function renderAchievementsList(){
   if(iconEl)iconEl.textContent=achievementsOpen?'▼':'▶';
   el.innerHTML=ACHIEVEMENTS.map(a=>{
     const done=have.has(a.id);
+    const pr=(!done&&a.prog)?a.prog(st2):null,ri=achRewardInfo(a);
+    const prog=pr?`<div class="ach-prog">${Math.min(pr[0],pr[1])} / ${pr[1]}</div>`:'';
+    const rw=ri?`<div class="ach-reward${done?' got':''}">🎁 ${ri.kind}「${esc(ri.item.title)}」${done?'（獲得済み）':''}</div>`:'';
     return `<div class="ach-item${done?' ach-done':''}">
       <div class="ach-icon">${done?a.icon:'🔒'}</div>
       <div class="ach-body">
         <div class="ach-title">${esc(a.title)}</div>
         <div class="ach-desc">${esc(a.desc)}</div>
+        ${prog}${rw}
       </div>
     </div>`;
   }).join('');
@@ -3609,12 +3686,170 @@ function startFieldAnim(key,fy){
     const g=document.getElementById('game');
     if(!g||!g.classList.contains('active')||document.hidden||S.W<2){last=now;return;}
     const dt=Math.min(2.5,(now-last)/16.67);last=now;
-    ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
-    ctx.setTransform(S.dpr*S.scale,0,0,S.dpr*S.scale,S.dpr*S.ox,S.dpr*S.oy);ctx.globalAlpha=1;
+    if(!step.trail){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);}
+    ctx.setTransform(S.dpr*S.scale,0,0,S.dpr*S.scale,S.dpr*S.ox,S.dpr*S.oy);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
     step(ctx,dt,now,S);
   };
   A.raf=requestAnimationFrame(frame);
 }
+
+// ── 実績報酬の風景 ──
+Object.assign(LOBBY_SCENES,{
+  // 赤富士
+  fuji(){const r=_rng(111),hy=560;
+    const BODY='M-120 560C0 548 110 500 160 404C175 362 187 326 196 310Q200 306 204 310C213 326 225 362 240 404C290 500 400 548 520 560Z';
+    let dark='',light='';
+    for(let k=0;k<16;k++){const t=(k/15)*2-1,d=`M${(200+t*14).toFixed(1)} ${(314+r()*6).toFixed(1)}Q${(200+t*62).toFixed(1)} ${(430+r()*16-8).toFixed(1)} ${(200+t*230).toFixed(1)} ${hy}`;
+      if(k%2)dark+=`<path d="${d}" stroke="rgba(60,12,44,.42)" stroke-width="${(1+r()*2.6).toFixed(1)}" fill="none"/>`;else light+=`<path d="${d}" stroke="rgba(255,176,120,.26)" stroke-width="${(1+r()*2.2).toFixed(1)}" fill="none"/>`;}
+    let snow='M140 290L260 290L262 376';for(let x=260,j=0;x>138;x-=8,j++){const tg=(j%3===1)?24+r()*34:4+r()*14;snow+=`L${x} ${(380+tg).toFixed(1)}L${x-4} ${(372+r()*8).toFixed(1)}`;}snow+='L138 376Z';
+    return `<defs><clipPath id="fc"><path d="${BODY}"/></clipPath>${_vgrad('sk',[[0,'#171046'],[.3,'#6a3470'],[.55,'#f08a58'],[.7,'#ffd090']])}${_glow('sg','#fff2b8','#ff9a5a')}
+      ${_vgrad('fb',[[0,'#e8704c'],[.3,'#b8443e'],[.7,'#7a2a44'],[1,'#3a1a40']])}${_vgrad('fs',[[0,'#fff4ea'],[1,'#ffc4aa']])}
+      <linearGradient id="sh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a0a30" stop-opacity="0"/><stop offset="1" stop-color="#2a0a30" stop-opacity=".7"/></linearGradient>
+      ${_vgrad('lk',[[0,'#d0643e'],[.35,'#5a2a4a'],[1,'#1a1030']])}${_vgrad('hz',[[0,'#ffb890',0],[1,'#ffb890',.5]])}
+      ${_cloudDef('c1','0.006 0.04',4,5,[1,.78,.7],2.6,-1.05)}${_band('m1',380,560,.2,.8)}${_cloudDef('rp','0.012 0.2',3,6,[1,.7,.5],1.4,-.45)}${_band('m2',560,800,.0,.5)}<filter id="bb"><feGaussianBlur stdDeviation="1.6"/></filter></defs>
+      <rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,330,120)}<circle cx="200" cy="300" r="330" fill="url(#sg)"/><circle cx="200" cy="298" r="17" fill="#fff6d0"/>
+      <path d="M0 560V520Q60 500 120 524T220 530T330 514T400 508V560Z" fill="#4a2450" opacity=".85"/>
+      <path d="${BODY}" fill="url(#fb)"/><g clip-path="url(#fc)">${dark}${light}<path d="M200 300L520 560L-120 560Z" fill="url(#sh)" opacity=".5"/><path d="${snow}" fill="url(#fs)"/><path d="${snow}" fill="url(#sh)" opacity=".28"/></g>
+      <path d="${BODY}" fill="none" stroke="rgba(255,206,150,.45)" stroke-width="1"/>
+      <rect width="400" height="800" filter="url(#c1)" mask="url(#m1)" opacity=".38"/><rect y="500" width="400" height="62" fill="url(#hz)"/>
+      <rect y="${hy}" width="400" height="240" fill="url(#lk)"/>
+      <g opacity=".42" filter="url(#bb)"><g transform="translate(0 ${hy*1.7}) scale(1 -.7)"><path d="${BODY}" fill="url(#fb)"/><path d="${snow}" fill="url(#fs)" clip-path="url(#fc)"/></g></g>
+      <rect width="400" height="800" filter="url(#rp)" mask="url(#m2)" opacity=".55"/><rect y="${hy}" width="400" height="2" fill="rgba(255,190,140,.4)"/>
+      <clipPath id="edge"><rect x="0" y="380" width="96" height="190"/><rect x="304" y="380" width="96" height="190"/></clipPath><path d="${_pines(r,hy,60,130,24)}" fill="#10061a" clip-path="url(#edge)"/>`;},
+  // 雨の街
+  cityrain(){const r=_rng(121),NE=[[70,640,'#ff3aa0'],[170,610,'#3ad8ff'],[262,650,'#ffd23a'],[340,620,'#ff3aa0'],[120,690,'#a060ff']];
+    const bld=(base,hMin,hMax,wMin,wMax,fill,win)=>{let s='',x=-5;while(x<405){const w=wMin+r()*(wMax-wMin),h=hMin+r()*(hMax-hMin);s+=`<rect x="${x.toFixed(1)}" y="${(base-h).toFixed(1)}" width="${(w+1).toFixed(1)}" height="${h.toFixed(1)}" fill="${fill}"/>`;
+      if(r()<.25)s+=`<rect x="${(x+w/2-1).toFixed(1)}" y="${(base-h-12).toFixed(1)}" width="2" height="12" fill="${fill}"/>`;
+      if(win){for(let wy=base-h+6;wy<base-6;wy+=7)for(let wx=x+3;wx<x+w-3;wx+=6){if(r()<win)s+=`<rect x="${wx.toFixed(1)}" y="${wy.toFixed(1)}" width="3" height="4" fill="${['#ffd88a','#ffe8b0','#8ae8ff','#ff9ad0'][Math.floor(r()*4)]}" opacity="${(.5+r()*.5).toFixed(2)}"/>`;}}x+=w+r()*3;}return s;};
+    const neon=NE.map(([x,y,c])=>`<g><rect x="${x-14}" y="${y-5}" width="28" height="10" rx="3" fill="${c}" filter="url(#nb)" opacity=".85"/><rect x="${x-12}" y="${y-3}" width="24" height="6" rx="2" fill="${c}"/><rect x="${x-9}" y="${y-1}" width="18" height="2" fill="#fff" opacity=".7"/></g>`).join('');
+    const refl=NE.map(([x,y,c])=>`<rect x="${x-10}" y="702" width="20" height="${70+r()*50}" fill="${c}" opacity=".22" filter="url(#nb2)"/>`).join('');
+    return `<defs>${_vgrad('sk',[[0,'#080414'],[.35,'#1c0c3a'],[.62,'#5a2060'],[.8,'#a03a70']])}${_vgrad('rd',[[0,'#1a0c2c'],[.4,'#0a0618'],[1,'#030208']])}
+      <filter id="nb"><feGaussianBlur stdDeviation="5"/></filter><filter id="nb2"><feGaussianBlur stdDeviation="4"/></filter>
+      ${_cloudDef('c1','0.005 0.03',4,4,[.7,.25,.55],2.6,-1.05)}${_band('m1',200,640,.2,.8)}${_cloudDef('wt','0.01 0.12',3,3,[.7,.5,.9],1.6,-.7)}${_band('m2',700,800,.05,.7)}</defs>
+      <rect width="400" height="800" fill="url(#sk)"/><rect width="400" height="800" filter="url(#c1)" mask="url(#m1)" opacity=".8"/>
+      ${bld(610,40,130,10,26,'#1a0c32',.18)}${bld(650,60,190,14,34,'#10081f',.24)}${bld(704,100,260,20,44,'#08040f',.28)}${neon}
+      <rect y="700" width="400" height="100" fill="url(#rd)"/>${refl}<rect width="400" height="800" filter="url(#wt)" mask="url(#m2)" opacity=".5"/>
+      <path d="M0 770H400" stroke="#ffd88a" stroke-width="1.4" stroke-dasharray="26 20" opacity=".25"/><rect y="700" width="400" height="2" fill="#ff8ac8" opacity=".35"/>`;},
+  // 鯉の池
+  koi(){const r=_rng(131);
+    let pads='';for(let i=0;i<13;i++){const x=40+r()*320,y=120+r()*600,rad=14+r()*20,a=r()*6;
+      pads+=`<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${(a*57).toFixed(0)})"><path d="M0 0L${(rad*.966).toFixed(1)} ${(-rad*.259).toFixed(1)}A${rad} ${rad} 0 1 0 ${(rad*.966).toFixed(1)} ${(rad*.259).toFixed(1)}Z" fill="url(#pad)"/><path d="M0 0L${rad*.9} ${(rad*.3).toFixed(1)}M0 0L${(-rad*.5).toFixed(1)} ${(rad*.8).toFixed(1)}M0 0L${(-rad*.5).toFixed(1)} ${(-rad*.8).toFixed(1)}" stroke="rgba(10,50,20,.5)" stroke-width=".8" fill="none"/></g>`;}
+    let lot='';for(let i=0;i<5;i++){const x=60+r()*280,y=160+r()*540;let p='';for(let k=0;k<8;k++)p+=`<ellipse cx="0" cy="-7" rx="3.4" ry="8" transform="rotate(${k*45})" fill="${k%2?'#ffd0e2':'#ffb0cc'}"/>`;lot+=`<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)})">${p}<circle r="3" fill="#ffe27a"/></g>`;}
+    let rocks='';for(let i=0;i<14;i++){const left=i<7,y=40+i%7*110+r()*30,x=left?r()*26:400-r()*26,rx=22+r()*22,ry=18+r()*18;rocks+=`<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" fill="url(#rk)"/><ellipse cx="${(x-rx*.25).toFixed(0)}" cy="${(y-ry*.3).toFixed(0)}" rx="${(rx*.5).toFixed(0)}" ry="${(ry*.3).toFixed(0)}" fill="rgba(255,255,255,.12)"/>`;}
+    return `<defs><radialGradient id="wt" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="#1a7078"/><stop offset=".6" stop-color="#0c4650"/><stop offset="1" stop-color="#05262e"/></radialGradient>
+      <radialGradient id="pad" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#6ac060"/><stop offset="1" stop-color="#1e6a34"/></radialGradient><radialGradient id="rk" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#6a7078"/><stop offset="1" stop-color="#1c2026"/></radialGradient>
+      ${_cloudDef('cs','0.012 0.012',4,6,[.7,1,1],2.8,-1.2)}${_cloudDef('dk','0.006 0.006',3,2,[0,.06,.08],1.6,-.5)}<filter id="sd"><feGaussianBlur stdDeviation="3"/></filter></defs>
+      <rect width="400" height="800" fill="url(#wt)"/><rect width="400" height="800" filter="url(#dk)" opacity=".6"/><rect width="400" height="800" filter="url(#cs)" opacity=".22"/>
+      <g filter="url(#sd)" opacity=".4" transform="translate(5 6)">${pads}</g>${pads}${lot}${rocks}`;},
+  // 花火大会
+  fireworks(){const r=_rng(141),hy=560;
+    const city=(base,hMin,hMax,fill)=>{let s='',x=-5;while(x<405){const w=8+r()*22,h=hMin+r()*(hMax-hMin);s+=`<rect x="${x.toFixed(1)}" y="${(base-h).toFixed(1)}" width="${(w+1).toFixed(1)}" height="${h.toFixed(1)}" fill="${fill}"/>`;for(let wy=base-h+5;wy<base-4;wy+=6)for(let wx=x+2;wx<x+w-2;wx+=5)if(r()<.28)s+=`<rect x="${wx.toFixed(1)}" y="${wy.toFixed(1)}" width="2.4" height="3" fill="#ffd890" opacity="${(.4+r()*.6).toFixed(2)}"/>`;x+=w+r()*2;}return s;};
+    let lights='';for(let i=0;i<46;i++){const x=r()*400;lights+=`<rect x="${x.toFixed(1)}" y="${hy+2}" width="2.6" height="${(20+r()*70).toFixed(0)}" fill="${['#ffd890','#ff9ad0','#8ae8ff'][Math.floor(r()*3)]}" opacity="${(.12+r()*.2).toFixed(2)}"/>`;}
+    return `<defs>${_vgrad('sk',[[0,'#02030c'],[.45,'#0a0c30'],[.7,'#241040']])}${_vgrad('wt',[[0,'#1c1040'],[.3,'#0a0a28'],[1,'#02020a']])}<filter id="bl"><feGaussianBlur stdDeviation="2.5"/></filter>
+      ${_cloudDef('wv','0.008 0.1',3,3,[.7,.6,1],1.5,-.6)}${_band('m2',560,800,.02,.6)}</defs>
+      <rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,520,260)}
+      <path d="${_ridge(r,{base:540,amp:24,rough:.6,bottom:hy}).fill}" fill="#0a0820"/>${city(hy,14,60,'#0c0a22')}
+      <rect y="${hy}" width="400" height="240" fill="url(#wt)"/><g filter="url(#bl)">${lights}</g><rect width="400" height="800" filter="url(#wv)" mask="url(#m2)" opacity=".5"/>
+      ${[[90,640],[300,700]].map(([x,y])=>`<g transform="translate(${x} ${y})"><path d="M-16 0Q0 8 16 0L12 6H-12Z" fill="#05040e"/><circle cx="0" cy="-4" r="2.2" fill="#ffb060"/><circle cx="0" cy="-4" r="9" fill="#ffb060" opacity=".25"/></g>`).join('')}
+      <rect y="${hy}" width="400" height="1.6" fill="#8a70d0" opacity=".4"/>`;},
+});
+Object.assign(FIELD_SCENE_FOCUS,{fuji:42,cityrain:70,koi:50,fireworks:72});
+
+// ── 実績報酬の風景のアニメーション ──
+Object.assign(FIELD_ANIMS,{
+  fuji(){
+    const spr=glowSprite('255,214,226'),gl=glowSprite('255,226,170'),w=Array.from({length:8},()=>({x:_R(-100,400),y:_R(400,540),w:_R(150,270),h:_R(24,50),vx:_R(.05,.16)}));
+    const birds=Array.from({length:4},()=>({x:_R(0,400),y:_R(200,330),s:_R(4,7),sp:_R(.2,.45),ph:_R(0,6)}));
+    const gl2=Array.from({length:70},()=>{const i=Math.random();return{x:200+(Math.random()-.5)*(30+i*300),y:565+i*170,ph:_R(0,6.28),sp:_R(.002,.006),w:_R(3,12)};});
+    return (c,dt,now,S)=>{
+      c.globalCompositeOperation='lighter';c.globalAlpha=.16+.08*Math.sin(now*.0008);c.drawImage(gl,50,150,300,300);
+      c.globalAlpha=.3;for(const m of w){m.x+=m.vx*dt;if(m.x>420)m.x=-m.w;c.drawImage(spr,m.x,m.y,m.w,m.h);}
+      c.fillStyle='#ffd0a0';for(const g of gl2){c.globalAlpha=Math.max(0,Math.sin(g.ph+now*g.sp))*.55;c.fillRect(g.x+Math.sin(now*.001+g.ph)*3-g.w/2,g.y,g.w,1.2);}
+      c.globalCompositeOperation='source-over';c.strokeStyle='#2a1a3a';c.lineWidth=1.2;c.globalAlpha=.8;c.lineCap='round';
+      for(const b of birds){b.x+=b.sp*dt;if(b.x>S.x1+20)b.x=S.x0-20;b.ph+=.08*dt;_bird(c,b.x,b.y+Math.sin(now*.0006+b.ph)*6,b.s,b.ph);}
+    };
+  },
+  cityrain(){
+    const NE=[[70,640,'255,58,160'],[170,610,'58,216,255'],[262,650,'255,210,58'],[340,620,'255,58,160'],[120,690,'160,96,255']];
+    const sp=NE.map(n=>glowSprite(n[2])),rain=[],rip=[],cars=[{x:-40,y:740,dir:1,sp:2.4,c:'255,240,200'},{x:440,y:770,dir:-1,sp:1.8,c:'255,70,70'}];let ready=false,nr=0;
+    const hl=glowSprite('255,240,200'),tl=glowSprite('255,70,70');
+    return (c,dt,now,S)=>{
+      if(!ready){for(let i=0;i<190;i++)rain.push({x:_rv(S,'x'),y:_rv(S,'y'),len:_R(9,24),v:_R(9,15),a:_R(.18,.5)});ready=true;}
+      c.globalCompositeOperation='lighter';
+      NE.forEach((n,i)=>{const f=.5+.35*Math.sin(now*.003+i*2)+(Math.random()<.01?-.3:0);c.globalAlpha=Math.max(.1,f);c.drawImage(sp[i],n[0]-34,n[1]-34,68,68);});
+      for(const car of cars){car.x+=car.dir*car.sp*dt;if(car.x>460||car.x<-60){car.x=car.dir>0?-40:440;}
+        c.globalAlpha=.9;c.drawImage(car.dir>0?hl:tl,car.x-16,car.y-12,32,24);c.globalAlpha=.5;c.drawImage(car.dir>0?tl:hl,car.x-car.dir*22-8,car.y-6,16,12);c.globalAlpha=.18;c.drawImage(car.dir>0?hl:tl,car.x-26,car.y+22,52,40);}
+      c.globalCompositeOperation='source-over';
+      c.strokeStyle='#cfe0ff';c.lineWidth=.8;
+      for(const d of rain){d.y+=d.v*dt;d.x-=d.v*.22*dt;if(d.y>S.y1+10||d.x<S.x0-10){d.y=S.y0-_R(0,40);d.x=_R(S.x0,S.x1+60);}
+        c.globalAlpha=d.a;c.beginPath();c.moveTo(d.x,d.y);c.lineTo(d.x+d.len*.22,d.y-d.len);c.stroke();}
+      nr-=dt;if(nr<=0){rip.push({x:_R(10,390),y:_R(712,792),r:1,l:1});nr=_R(1,3);}
+      c.strokeStyle='#d8e8ff';
+      for(let i=rip.length-1;i>=0;i--){const g=rip[i];g.r+=.35*dt;g.l-=.03*dt;if(g.l<=0){rip.splice(i,1);continue;}c.globalAlpha=g.l*.5;c.beginPath();c.ellipse(g.x,g.y,g.r*2.2,g.r*.6,0,0,6.283);c.stroke();}
+    };
+  },
+  koi(){
+    const mk=(i)=>{const n=[];const x=_R(80,320),y=_R(220,640),a=_R(0,6.28);for(let k=0;k<13;k++)n.push({x:x-Math.cos(a)*k*5,y:y-Math.sin(a)*k*5});
+      return {n,a,t:_R(0,6),sp:_R(.5,.9),sz:_R(.8,1.25),kind:i%4,tx:_R(80,320),ty:_R(200,660),ph:_R(0,6)};};
+    const K=Array.from({length:6},(_,i)=>mk(i)),rip=[],petals=Array.from({length:12},()=>({x:_R(0,400),y:_R(0,800),vx:_R(-.1,.1),vy:_R(-.08,.08),rot:_R(0,6),s:_R(3,5)}));let nr=1;
+    const cols=[['#ff7a28','#fff1e0','#222'],['#fff1e0','#ff6a20','#222'],['#ff9a40','#ffe8c8','#ff4a10'],['#f4f0e8','#222','#ff7a28']];
+    return (c,dt,now,S)=>{
+      for(const k of K){
+        const h=k.n[0];k.t-=dt;if(k.t<=0||Math.hypot(k.tx-h.x,k.ty-h.y)<30){k.tx=_R(70,330);k.ty=_R(Math.max(160,S.y0+30),Math.min(700,S.y1-30));k.t=_R(120,360);}
+        let d=Math.atan2(k.ty-h.y,k.tx-h.x)-k.a;while(d>Math.PI)d-=6.283;while(d<-Math.PI)d+=6.283;k.a+=Math.max(-.035,Math.min(.035,d))*dt;
+        const sp=k.sp*(.8+.2*Math.sin(now*.002+k.ph));h.x+=Math.cos(k.a)*sp*dt;h.y+=Math.sin(k.a)*sp*dt;
+        for(let i=1;i<k.n.length;i++){const p=k.n[i-1],q=k.n[i],dx=p.x-q.x,dy=p.y-q.y,L=Math.hypot(dx,dy)||1,gap=5*k.sz;q.x=p.x-dx/L*gap;q.y=p.y-dy/L*gap;}
+        const col=cols[k.kind];c.globalAlpha=.16;c.fillStyle='#000';
+        for(let i=0;i<k.n.length;i++){const q=k.n[i],r=(i<3?3.2+i*.9:(5.4-(i-3)*.42))*k.sz;c.beginPath();c.arc(q.x+5,q.y+7,Math.max(1,r),0,6.283);c.fill();}
+        c.globalAlpha=.95;
+        // 尾びれ
+        const tl=k.n[k.n.length-1],tp=k.n[k.n.length-3],ta=Math.atan2(tl.y-tp.y,tl.x-tp.x),wag=Math.sin(now*.008*k.sp+k.ph)*.5;
+        c.fillStyle=col[0];c.beginPath();c.moveTo(tl.x,tl.y);c.lineTo(tl.x+Math.cos(ta+wag+.5)*13*k.sz,tl.y+Math.sin(ta+wag+.5)*13*k.sz);c.lineTo(tl.x+Math.cos(ta+wag-.5)*13*k.sz,tl.y+Math.sin(ta+wag-.5)*13*k.sz);c.closePath();c.globalAlpha=.7;c.fill();c.globalAlpha=.95;
+        for(let i=k.n.length-1;i>=0;i--){const q=k.n[i],r=(i<3?3.2+i*.9:(5.4-(i-3)*.42))*k.sz;c.fillStyle=(i%5===2)?col[1]:(i%5===4?col[2]:col[0]);if(i===0||i===1)c.fillStyle=col[0];c.beginPath();c.arc(q.x,q.y,Math.max(1.2,r),0,6.283);c.fill();}
+        // 胸びれ
+        const f=k.n[2],fa=k.a;c.fillStyle=col[0];c.globalAlpha=.6;[-1,1].forEach(sd=>{c.beginPath();c.ellipse(f.x-Math.cos(fa)*2+Math.cos(fa+sd*1.6)*5,f.y-Math.sin(fa)*2+Math.sin(fa+sd*1.6)*5,4,1.6,fa+sd*.9+Math.sin(now*.006+k.ph)*.3,0,6.283);c.fill();});
+        c.globalAlpha=1;c.fillStyle='#111';[-1,1].forEach(sd=>{c.beginPath();c.arc(h.x+Math.cos(k.a+sd*.9)*3,h.y+Math.sin(k.a+sd*.9)*3,.8,0,6.283);c.fill();});
+        if(Math.random()<.004)rip.push({x:h.x+Math.cos(k.a)*8,y:h.y+Math.sin(k.a)*8,r:2,l:1});
+      }
+      nr-=dt/60;if(nr<=0){rip.push({x:_R(40,360),y:_R(Math.max(100,S.y0),Math.min(720,S.y1)),r:2,l:1});nr=_R(1.2,3);}
+      c.strokeStyle='#bfeeee';c.lineWidth=.9;
+      for(let i=rip.length-1;i>=0;i--){const g=rip[i];g.r+=.32*dt;g.l-=.007*dt;if(g.l<=0){rip.splice(i,1);continue;}c.globalAlpha=g.l*.5;c.beginPath();c.arc(g.x,g.y,g.r,0,6.283);c.stroke();}
+      c.fillStyle='#ffc8dc';for(const p of petals){p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=.004*dt;if(p.x<-10)p.x=410;if(p.x>410)p.x=-10;if(p.y<-10)p.y=810;if(p.y>810)p.y=-10;c.globalAlpha=.8;c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.beginPath();c.ellipse(0,0,p.s,p.s*.55,0,0,6.283);c.fill();c.restore();}
+    };
+  },
+  fireworks(){
+    const HUES=[0,18,42,50,120,170,200,265,310,335],hy=560;let rockets=[],parts=[],glows=[],next=.3;
+    const spr=glowSprite('255,230,200');
+    const burst=(x,y,hue)=>{
+      glows.push({x,y,r:_R(70,120),l:16,m:16,hue});
+      const q=Math.random(),kind=q<.4?'peony':q<.65?'chrys':q<.82?'willow':q<.94?'ring':'heart',add=(n,f)=>{for(let i=0;i<n;i++)parts.push(f(i,n));};
+      const base=(vx,vy,o)=>Object.assign({x,y,vx,vy,hue,drag:.982,grav:.04,size:1.4,flick:false,life:80,max:80},o);
+      if(kind==='peony')add(90,()=>{const a=_R(0,6.28),v=_R(1.6,4.2);return base(Math.cos(a)*v,Math.sin(a)*v,{max:_R(60,85),life:0});});
+      else if(kind==='chrys')add(110,()=>{const a=_R(0,6.28),v=_R(1.2,4.6);return base(Math.cos(a)*v,Math.sin(a)*v,{max:_R(75,100),flick:true,life:0});});
+      else if(kind==='willow')add(80,()=>{const a=_R(0,6.28),v=_R(1.1,3.4);return base(Math.cos(a)*v,Math.sin(a)*v,{max:_R(110,150),drag:.972,grav:.05,hue:42,flick:true,life:0});});
+      else if(kind==='ring'){const tilt=_R(.35,1),rot=_R(0,3.14);add(60,(i,n)=>{const a=i/n*6.28,v=3.4,vx0=Math.cos(a)*v,vy0=Math.sin(a)*v*tilt;return base(vx0*Math.cos(rot)-vy0*Math.sin(rot),vx0*Math.sin(rot)+vy0*Math.cos(rot),{max:_R(60,75),life:0});});}
+      else add(80,(i,n)=>{const t=i/n*6.28,hx=16*Math.pow(Math.sin(t),3),hy2=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));return base(hx*.2,hy2*.2,{max:80,hue:335,drag:.986,life:0});});
+      parts.forEach(p=>{if(p.life===0)p.life=p.max;});
+    };
+    const f=(c,dt,now,S)=>{
+      c.globalCompositeOperation='destination-out';c.fillStyle=`rgba(0,0,0,${Math.min(.5,.2*dt)})`;c.fillRect(S.x0-5,S.y0-5,S.x1-S.x0+10,S.y1-S.y0+10);
+      c.globalCompositeOperation='lighter';
+      next-=dt/60;if(next<=0&&rockets.length<3){const tx=_R(60,340),top=_R(120,380),dist=hy-top,g=.1;rockets.push({x:tx,y:hy-4,vy:-Math.sqrt(2*g*dist),g,hue:HUES[Math.floor(Math.random()*HUES.length)]});next=_R(.8,2.2);}
+      rockets=rockets.filter(r=>{r.vy+=r.g*dt;r.y+=r.vy*dt;
+        for(let i=0;i<2;i++)parts.push({x:r.x+_R(-.8,.8),y:r.y,vx:_R(-.2,.2),vy:_R(.2,.8),life:_R(10,18),max:18,hue:40,drag:.95,grav:.02,size:.8,spark:true});
+        c.globalAlpha=1;c.fillStyle='hsl(45,100%,85%)';c.beginPath();c.arc(r.x,r.y,1.6,0,6.283);c.fill();
+        if(r.vy>=-.6){burst(r.x,r.y,r.hue);return false;}return true;});
+      glows=glows.filter(g=>{g.l-=dt;if(g.l<=0)return false;const k=g.l/g.m,gr=c.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r);gr.addColorStop(0,`hsla(${g.hue},100%,70%,${.32*k})`);gr.addColorStop(1,`hsla(${g.hue},100%,50%,0)`);c.globalAlpha=1;c.fillStyle=gr;c.beginPath();c.arc(g.x,g.y,g.r,0,6.283);c.fill();return true;});
+      parts=parts.filter(p=>{p.life-=dt;if(p.life<=0)return false;const dr=Math.pow(p.drag,dt);p.vx*=dr;p.vy=p.vy*dr+p.grav*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const k=p.life/p.max;
+        if(p.flick&&k<.5&&Math.random()<.35)return true;const l=p.spark?70:(55+35*Math.pow(k,3));c.fillStyle=`hsla(${p.hue},100%,${l}%,${Math.min(1,k*1.6)})`;c.globalAlpha=1;
+        c.beginPath();c.arc(p.x,p.y,p.size*(.5+.5*k),0,6.283);c.fill();
+        if(p.y<hy&&!p.spark){c.globalAlpha=.22;c.beginPath();c.arc(p.x,hy*2-p.y,p.size*(.5+.5*k),0,6.283);c.fill();} // 水面に映る
+        return true;});
+      c.globalCompositeOperation='source-over';c.globalAlpha=1;
+    };
+    f.trail=true;return f;
+  },
+});
 
 const GACHA_ITEMS=[
   {id:'theme_gold', rarity:'common', category:'theme', icon:'🟡', title:'金の裏地', desc:'牌の裏デザイン：金', value:'gold'},
@@ -3658,6 +3893,23 @@ const GACHA_ITEMS=[
   {id:'title_legend', rarity:'superrare', category:'title', icon:'👑', title:'伝説のプレイヤー', desc:'名前の横に称号が付きます', value:'伝説のプレイヤー'},
   {id:'title_king', rarity:'superrare', category:'title', icon:'🔱', title:'六華の覇王', desc:'名前の横に称号が付きます', value:'六華の覇王'},
 ];
+// 実績の報酬（ガチャには出ない景品）。achievement に、もらえる実績のIDを入れる
+GACHA_ITEMS.push(
+  {id:'bg_koi',        rarity:'rare', category:'fieldbg', type:'scene', icon:'🐟', title:'鯉の池',     desc:'場の背景：蓮の池を泳ぐ鯉', achievement:'win_10',     get value(){return sceneUri('koi');}},
+  {id:'bg_cityrain',   rarity:'rare', category:'fieldbg', type:'scene', icon:'🌃', title:'雨の街',     desc:'場の背景：ネオンが滲む雨の夜', achievement:'win_50',  get value(){return sceneUri('cityrain');}},
+  {id:'bg_fuji',       rarity:'rare', category:'fieldbg', type:'scene', icon:'🗻', title:'赤富士',     desc:'場の背景：朝日に染まる赤富士', achievement:'role_rikka', get value(){return sceneUri('fuji');}},
+  {id:'bg_fireworks',  rarity:'rare', category:'fieldbg', type:'scene', icon:'🎆', title:'花火大会',   desc:'場の背景：水面に映る花火', achievement:'games_100',    get value(){return sceneUri('fireworks');}},
+  {id:'theme_dragon',  rarity:'rare', category:'theme', icon:'🐉', title:'龍の裏地', desc:'牌の裏デザイン：龍', value:'dragon', achievement:'role_musou'},
+  {id:'confetti_gems', rarity:'rare', category:'confetti', icon:'💎', title:'宝石の紙吹雪', desc:'上がった時の紙吹雪が宝石の色に', value:['#ff4d6d','#4dd8ff','#6dff9a','#ffe14d','#c77dff'], achievement:'bonus_master'},
+);
+// 称号の報酬は実績の定義から自動で作る
+ACHIEVEMENTS.forEach(a=>{
+  if(!a.rt)return;
+  const id='title_a_'+a.id;
+  GACHA_ITEMS.push({id,rarity:'rare',category:'title',icon:a.icon,title:a.rt,desc:'実績「'+a.title+'」の報酬',value:a.rt,achievement:a.id});
+  a.reward=id;
+});
+backfillAchievementRewards();
 const GACHA_RARITY_INFO={
   common:   {label:'コモン',   weight:60, color:'#9098a0'},
   uncommon: {label:'アンコモン', weight:25, color:'#60c870'},
@@ -3718,7 +3970,7 @@ function drawGacha(){
   if(petals<GACHA_COST){ toast('花びらが足りません'); return; }
   addPetals(-GACHA_COST);
   const rarity=pickGachaRarity();
-  const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity);
+  const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement);
   const item=pool[Math.floor(Math.random()*pool.length)];
   const st=loadGachaState();
   const isDup=st.owned.includes(item.id);
@@ -3728,8 +3980,10 @@ function drawGacha(){
   } else {
     addPetals(Math.ceil(GACHA_COST/2)); // 重複は花びらを一部還元
   }
+  _gfxPendingAch=checkAchievements(false,{misc:true,gacha:true});
   startGachaFx(item,isDup);
 }
+let _gfxPendingAch=[];
 
 // ============================================================
 // ガチャ演出（光の玉が力をためる → 閃光 → カードが登場）。レア度が高いほど長く豪華になる
@@ -3980,6 +4234,7 @@ function closeGachaFx(){
   const wasActive=_gfx.stage!=='idle'; _gfx.stage='idle';
   document.getElementById('gacha-fx').style.display='none';
   if(wasActive&&_gfx.item){ showGachaResult(_gfx.item,_gfx.isDup); renderGachaCollection(); }
+  if(_gfxPendingAch.length){const l=_gfxPendingAch;_gfxPendingAch=[];setTimeout(()=>showAchievementPopup(l),400);}
 }
 function gfxAgain(){ closeGachaFx(); drawGacha(); }
 
@@ -3999,7 +4254,7 @@ function renderGachaCollection(){
   const st=loadGachaState();
   const owned=new Set(st.owned);
   const groups={};
-  GACHA_ITEMS.forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
+  GACHA_ITEMS.filter(it=>!it.achievement).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
   let html='';
   for(const [rarity,info] of Object.entries(GACHA_RARITY_INFO)){
     const items=groups[rarity]||[];
@@ -4017,6 +4272,21 @@ function renderGachaCollection(){
         </div>
         ${btn}
       </div>`;
+    }).join('');
+  }
+  // 実績の報酬（ガチャには出ない）
+  const rw=GACHA_ITEMS.filter(it=>it.achievement);
+  if(rw.length){
+    html+=`<div class="gacha-rarity-title" style="color:#ffd978">🏅 実績の報酬</div>`;
+    html+=rw.map(it=>{
+      const has=owned.has(it.id),isEquipped=st.equipped[it.category]===it.id,a=ACHIEVEMENTS.find(x=>x.id===it.achievement);
+      const btn=has?`<button class="gacha-equip-btn${isEquipped?' gacha-equipped':''}" onclick="equipGachaItem('${it.category}','${it.id}')">${isEquipped?'使用中':'使う'}</button>`:'';
+      return `<div class="gacha-item${has?' gacha-owned':''}">
+        <div class="gacha-item-icon">${has?it.icon:'🔒'}</div>
+        <div class="gacha-item-body">
+          <div class="gacha-item-title">${esc(it.title)}</div>
+          <div class="gacha-item-desc">${has?esc(it.desc):'実績「'+esc(a?a.title:'')+'」で入手'}</div>
+        </div>${btn}</div>`;
     }).join('');
   }
   el.innerHTML=html;
@@ -4394,7 +4664,7 @@ const BASE_BACK_THEMES=[
   {v:'green', label:'翠',   c1:'#0a2010', bd:'#2a6a3a'},
   {v:'purple',label:'紫',   c1:'#1a0a2e', bd:'#5a2a8a'},
 ];
-const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a'],jade:['#0a2e26','#2aa88a'],ice:['#0e2a3e','#7ac8e8'],ember:['#4a1408','#e0682a'],obsidian:['#1a1a22','#6a6a7a'],galaxy:['#1a1048','#6a5ad8'],rainbow:['#3a2a6a','#d8a8ff']};
+const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a'],jade:['#0a2e26','#2aa88a'],ice:['#0e2a3e','#7ac8e8'],ember:['#4a1408','#e0682a'],obsidian:['#1a1a22','#6a6a7a'],galaxy:['#1a1048','#6a5ad8'],rainbow:['#3a2a6a','#d8a8ff'],dragon:['#0a3a24','#d8b04a']};
 let customizeTab='theme';
 function openCustomize(tab){
   closeSidebar();
@@ -4427,7 +4697,7 @@ function renderCustomize(){
       const dots=(isC&&has)?`<div class="dots">${it.value.map(c=>`<i style="background:${c}"></i>`).join('')}</div>`:'';
       return `<button class="custom-row${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectGachaEquip('${cat}','${it.id}')"`:''}>
         <div class="ic">${has?it.icon:'🔒'}</div>
-        <div class="tx">${has?esc(it.title):'ガチャで入手'}<div class="ds">${has?esc(it.desc):''}</div>${dots}</div>
+        <div class="tx">${has?esc(it.title):(it.achievement?'実績で入手':'ガチャで入手')}<div class="ds">${has?esc(it.desc):''}</div>${dots}</div>
         ${sel?'<span class="chk">✔</span>':''}</button>`;
     }).join('');
     h+='</div>';
@@ -4456,7 +4726,7 @@ function renderCustomize(){
       const sel=has&&cur===it.value;
       return `<button class="custom-card${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectBackTheme('${it.value}','${it.id}')"`:''}>
         ${sel?'<span class="chk">✔</span>':''}<div class="sw" style="background:${has?sw[0]:'#1a1410'};border-color:${has?sw[1]:'#3e2e1e'}"></div>
-        <div class="nm">${has?esc(it.title):'🔒 ガチャで入手'}</div></button>`;
+        <div class="nm">${has?esc(it.title):(it.achievement?'🔒 実績で入手':'🔒 ガチャで入手')}</div></button>`;
     }).join('');
     h+='</div>';
     body.innerHTML=h;
@@ -4473,7 +4743,7 @@ function renderCustomize(){
       const bg=!has?'#1a1410':fieldBgPreviewCss(it);
       return `<button class="custom-card${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectFieldBgPreset('${it.id}')"`:''}>
         ${sel?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:${bg}">${has?'':'🔒'}</div>
-        <div class="nm">${has?esc(it.title):'ガチャで入手'}</div></button>`;
+        <div class="nm">${has?esc(it.title):(it.achievement?'実績で入手':'ガチャで入手')}</div></button>`;
     }).join('');
     h+='</div>';
     h+='<div class="custom-sub">オンライン対戦では、自分の番のときに相手の画面でもこの背景になります。</div>';
