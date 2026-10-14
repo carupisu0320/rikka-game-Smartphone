@@ -196,6 +196,7 @@ function isTenpaiServer(hand5, optR) {
 const FIELD_BG_PRESETS = new Set([
   'bg_sunset', 'bg_ocean', 'bg_aurora', 'bg_gameover1', 'bg_gameover2',
   'bg_forest', 'bg_dunes', 'bg_snowfield', 'bg_fireflies', 'bg_mountain', 'bg_waves', 'bg_sakuranight', 'bg_nebula', 'bg_galaxy',
+  'bg_koi', 'bg_cityrain', 'bg_fuji', 'bg_fireworks',
 ]);
 function sanitizeFieldBg(url) {
   if (typeof url !== 'string') return '';
@@ -217,7 +218,8 @@ function sanitizeAvatar(url) {
 }
 // 称号（ガチャの景品ID）。許可リストにあるIDだけ通す
 const TITLE_IDS = new Set(['title_first', 'title_zoro', 'title_apprentice', 'title_fate', 'title_sight', 'title_mountain', 'title_rikka', 'title_legend', 'title_king']);
-function sanitizeTitle(id) { return (typeof id === 'string' && TITLE_IDS.has(id)) ? id : ''; }
+// 実績の報酬の称号は 'title_a_<実績ID>' の形
+function sanitizeTitle(id) { return (typeof id === 'string' && (TITLE_IDS.has(id) || /^title_a_[a-z0-9_]{1,30}$/.test(id))) ? id : ''; }
 function genCode() {
   let c;
   do { c = Math.random().toString(36).slice(2, 6).toUpperCase(); } while (rooms.has(c));
