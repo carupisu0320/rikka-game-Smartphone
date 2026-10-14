@@ -3665,7 +3665,8 @@ function fieldAnimEnabled(){
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
   return true;
 }
-function startFieldAnim(key,fy){
+function startFieldAnim(key,fy,fyL){
+  if(fyL===undefined)fyL=fy;
   stopFieldAnim();
   const make=FIELD_ANIMS[key];const wrap=document.getElementById('field-wrap');
   if(!make||!wrap||!fieldAnimEnabled())return;
@@ -3674,7 +3675,7 @@ function startFieldAnim(key,fy){
   const fit=()=>{
     const r=wrap.getBoundingClientRect();if(r.width<2||r.height<2)return;
     S.dpr=Math.min(window.devicePixelRatio||1,1.5);S.W=r.width;S.H=r.height;cv.width=Math.round(r.width*S.dpr);cv.height=Math.round(r.height*S.dpr);
-    S.scale=Math.max(S.W/400,S.H/800);S.ox=(S.W-400*S.scale)*.5;S.oy=(S.H-800*S.scale)*(fy/100);
+    S.scale=Math.max(S.W/400,S.H/800);S.ox=(S.W-400*S.scale)*.5;S.oy=(S.H-800*S.scale)*((S.W>S.H?fyL:fy)/100);
     S.x0=-S.ox/S.scale;S.x1=(S.W-S.ox)/S.scale;S.y0=-S.oy/S.scale;S.y1=(S.H-S.oy)/S.scale;
   };
   fit();
@@ -3697,25 +3698,25 @@ function startFieldAnim(key,fy){
 Object.assign(LOBBY_SCENES,{
   // 赤富士
   fuji(){const r=_rng(111),hy=560;
-    const BODY='M-120 560C0 548 110 500 160 404C175 362 187 326 196 310Q200 306 204 310C213 326 225 362 240 404C290 500 400 548 520 560Z';
+    const BODY='M-160 560C-70 548 10 510 60 455C100 410 160 350 188 326Q200 318 212 326C240 350 300 410 340 455C390 510 470 548 560 560Z';
     let dark='',light='';
-    for(let k=0;k<16;k++){const t=(k/15)*2-1,d=`M${(200+t*14).toFixed(1)} ${(314+r()*6).toFixed(1)}Q${(200+t*62).toFixed(1)} ${(430+r()*16-8).toFixed(1)} ${(200+t*230).toFixed(1)} ${hy}`;
+    for(let k=0;k<18;k++){const t=(k/17)*2-1,d=`M${(200+t*18).toFixed(1)} ${(330+r()*6).toFixed(1)}Q${(200+t*100).toFixed(1)} ${(440+r()*16-8).toFixed(1)} ${(200+t*340).toFixed(1)} ${hy}`;
       if(k%2)dark+=`<path d="${d}" stroke="rgba(60,12,44,.42)" stroke-width="${(1+r()*2.6).toFixed(1)}" fill="none"/>`;else light+=`<path d="${d}" stroke="rgba(255,176,120,.26)" stroke-width="${(1+r()*2.2).toFixed(1)}" fill="none"/>`;}
-    let snow='M140 290L260 290L262 376';for(let x=260,j=0;x>138;x-=8,j++){const tg=(j%3===1)?24+r()*34:4+r()*14;snow+=`L${x} ${(380+tg).toFixed(1)}L${x-4} ${(372+r()*8).toFixed(1)}`;}snow+='L138 376Z';
+    let snow='M90 300L310 300L312 392';for(let x=310,j=0;x>88;x-=9,j++){const tg=(j%3===1)?26+r()*40:4+r()*16;snow+=`L${x} ${(396+tg).toFixed(1)}L${x-4.5} ${(388+r()*8).toFixed(1)}`;}snow+='L88 392Z';
     return `<defs><clipPath id="fc"><path d="${BODY}"/></clipPath>${_vgrad('sk',[[0,'#171046'],[.3,'#6a3470'],[.55,'#f08a58'],[.7,'#ffd090']])}${_glow('sg','#fff2b8','#ff9a5a')}
       ${_vgrad('fb',[[0,'#e8704c'],[.3,'#b8443e'],[.7,'#7a2a44'],[1,'#3a1a40']])}${_vgrad('fs',[[0,'#fff4ea'],[1,'#ffc4aa']])}
       <linearGradient id="sh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a0a30" stop-opacity="0"/><stop offset="1" stop-color="#2a0a30" stop-opacity=".7"/></linearGradient>
       ${_vgrad('lk',[[0,'#d0643e'],[.35,'#5a2a4a'],[1,'#1a1030']])}${_vgrad('hz',[[0,'#ffb890',0],[1,'#ffb890',.5]])}
       ${_cloudDef('c1','0.006 0.04',4,5,[1,.78,.7],2.6,-1.05)}${_band('m1',380,560,.2,.8)}${_cloudDef('rp','0.012 0.2',3,6,[1,.7,.5],1.4,-.45)}${_band('m2',560,800,.0,.5)}<filter id="bb"><feGaussianBlur stdDeviation="1.6"/></filter></defs>
-      <rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,330,120)}<circle cx="200" cy="300" r="330" fill="url(#sg)"/><circle cx="200" cy="298" r="17" fill="#fff6d0"/>
+      <rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,330,120)}<circle cx="200" cy="318" r="340" fill="url(#sg)"/><circle cx="200" cy="312" r="17" fill="#fff6d0"/>
       <path d="M0 560V520Q60 500 120 524T220 530T330 514T400 508V560Z" fill="#4a2450" opacity=".85"/>
-      <path d="${BODY}" fill="url(#fb)"/><g clip-path="url(#fc)">${dark}${light}<path d="M200 300L520 560L-120 560Z" fill="url(#sh)" opacity=".5"/><path d="${snow}" fill="url(#fs)"/><path d="${snow}" fill="url(#sh)" opacity=".28"/></g>
+      <path d="${BODY}" fill="url(#fb)"/><g clip-path="url(#fc)">${dark}${light}<path d="M200 318L560 560L-160 560Z" fill="url(#sh)" opacity=".5"/><path d="${snow}" fill="url(#fs)"/><path d="${snow}" fill="url(#sh)" opacity=".28"/></g>
       <path d="${BODY}" fill="none" stroke="rgba(255,206,150,.45)" stroke-width="1"/>
       <rect width="400" height="800" filter="url(#c1)" mask="url(#m1)" opacity=".38"/><rect y="500" width="400" height="62" fill="url(#hz)"/>
       <rect y="${hy}" width="400" height="240" fill="url(#lk)"/>
       <g opacity=".42" filter="url(#bb)"><g transform="translate(0 ${hy*1.7}) scale(1 -.7)"><path d="${BODY}" fill="url(#fb)"/><path d="${snow}" fill="url(#fs)" clip-path="url(#fc)"/></g></g>
       <rect width="400" height="800" filter="url(#rp)" mask="url(#m2)" opacity=".55"/><rect y="${hy}" width="400" height="2" fill="rgba(255,190,140,.4)"/>
-      <clipPath id="edge"><rect x="0" y="380" width="96" height="190"/><rect x="304" y="380" width="96" height="190"/></clipPath><path d="${_pines(r,hy,60,130,24)}" fill="#10061a" clip-path="url(#edge)"/>`;},
+      <clipPath id="edge"><rect x="0" y="380" width="70" height="190"/><rect x="330" y="380" width="70" height="190"/></clipPath><path d="${_pines(r,hy,60,130,24)}" fill="#10061a" clip-path="url(#edge)"/>`;},
   // 雨の街
   cityrain(){const r=_rng(121),NE=[[70,640,'#ff3aa0'],[170,610,'#3ad8ff'],[262,650,'#ffd23a'],[340,620,'#ff3aa0'],[120,690,'#a060ff']];
     const bld=(base,hMin,hMax,wMin,wMax,fill,win)=>{let s='',x=-5;while(x<405){const w=wMin+r()*(wMax-wMin),h=hMin+r()*(hMax-hMin);s+=`<rect x="${x.toFixed(1)}" y="${(base-h).toFixed(1)}" width="${(w+1).toFixed(1)}" height="${h.toFixed(1)}" fill="${fill}"/>`;
@@ -3753,7 +3754,7 @@ Object.assign(LOBBY_SCENES,{
       ${[[90,640],[300,700]].map(([x,y])=>`<g transform="translate(${x} ${y})"><path d="M-16 0Q0 8 16 0L12 6H-12Z" fill="#05040e"/><circle cx="0" cy="-4" r="2.2" fill="#ffb060"/><circle cx="0" cy="-4" r="9" fill="#ffb060" opacity=".25"/></g>`).join('')}
       <rect y="${hy}" width="400" height="1.6" fill="#8a70d0" opacity=".4"/>`;},
 });
-Object.assign(FIELD_SCENE_FOCUS,{fuji:42,cityrain:70,koi:50,fireworks:72});
+Object.assign(FIELD_SCENE_FOCUS,{fuji:44,cityrain:70,koi:50,fireworks:[72,62]});
 
 // ── 実績報酬の風景のアニメーション ──
 Object.assign(FIELD_ANIMS,{
@@ -3819,11 +3820,12 @@ Object.assign(FIELD_ANIMS,{
   },
   fireworks(){
     const HUES=[0,18,42,50,120,170,200,265,310,335],hy=560;let rockets=[],parts=[],glows=[],next=.3;
-    const spr=glowSprite('255,230,200');
+    const spr=glowSprite('255,230,200');let SV={y0:0,y1:800};
     const burst=(x,y,hue)=>{
-      glows.push({x,y,r:_R(70,120),l:16,m:16,hue});
+      const K=Math.max(.2,Math.min(1,(SV.y1-SV.y0)/460)); // 画面が低いときは花火を小さく
+      glows.push({x,y,r:_R(70,120)*K,l:16,m:16,hue});
       const q=Math.random(),kind=q<.4?'peony':q<.65?'chrys':q<.82?'willow':q<.94?'ring':'heart',add=(n,f)=>{for(let i=0;i<n;i++)parts.push(f(i,n));};
-      const base=(vx,vy,o)=>Object.assign({x,y,vx,vy,hue,drag:.982,grav:.04,size:1.4,flick:false,life:80,max:80},o);
+      const base=(vx,vy,o)=>Object.assign({x,y,vx:vx*K,vy:vy*K,hue,drag:.982,grav:.04*K,size:Math.max(.8,1.4*K+.3),flick:false,life:80,max:80},o);
       if(kind==='peony')add(90,()=>{const a=_R(0,6.28),v=_R(1.6,4.2);return base(Math.cos(a)*v,Math.sin(a)*v,{max:_R(60,85),life:0});});
       else if(kind==='chrys')add(110,()=>{const a=_R(0,6.28),v=_R(1.2,4.6);return base(Math.cos(a)*v,Math.sin(a)*v,{max:_R(75,100),flick:true,life:0});});
       else if(kind==='willow')add(80,()=>{const a=_R(0,6.28),v=_R(1.1,3.4);return base(Math.cos(a)*v,Math.sin(a)*v,{max:_R(110,150),drag:.972,grav:.05,hue:42,flick:true,life:0});});
@@ -3832,9 +3834,15 @@ Object.assign(FIELD_ANIMS,{
       parts.forEach(p=>{if(p.life===0)p.life=p.max;});
     };
     const f=(c,dt,now,S)=>{
+      SV=S;
       c.globalCompositeOperation='destination-out';c.fillStyle=`rgba(0,0,0,${Math.min(.5,.2*dt)})`;c.fillRect(S.x0-5,S.y0-5,S.x1-S.x0+10,S.y1-S.y0+10);
       c.globalCompositeOperation='lighter';
-      next-=dt/60;if(next<=0&&rockets.length<3){const tx=_R(60,340),top=_R(120,380),dist=hy-top,g=.1;rockets.push({x:tx,y:hy-4,vy:-Math.sqrt(2*g*dist),g,hue:HUES[Math.floor(Math.random()*HUES.length)]});next=_R(.8,2.2);}
+      next-=dt/60;
+      if(next<=0&&rockets.length<3){
+        const vh=S.y1-S.y0;let lo=Math.max(S.y0+vh*.38,300),hi=Math.min(hy-70,S.y1-vh*.15);
+        if(hi<lo){lo=S.y0+vh*.2;hi=S.y0+vh*.6;}
+        const tx=_R(Math.max(40,S.x0+30),Math.min(360,S.x1-30)),top=_R(lo,hi),startY=Math.min(hy-4,S.y1+12),dist=Math.max(30,startY-top),g=.1;
+        rockets.push({x:tx,y:startY,vy:-Math.sqrt(2*g*dist),g,hue:HUES[Math.floor(Math.random()*HUES.length)]});next=_R(.8,2.2);}
       rockets=rockets.filter(r=>{r.vy+=r.g*dt;r.y+=r.vy*dt;
         for(let i=0;i<2;i++)parts.push({x:r.x+_R(-.8,.8),y:r.y,vx:_R(-.2,.2),vy:_R(.2,.8),life:_R(10,18),max:18,hue:40,drag:.95,grav:.02,size:.8,spark:true});
         c.globalAlpha=1;c.fillStyle='hsl(45,100%,85%)';c.beginPath();c.arc(r.x,r.y,1.6,0,6.283);c.fill();
@@ -4530,7 +4538,7 @@ function sanitizeFieldBgUrl(url){
 }
 // 景品の背景を、小さなプレビュー用のCSS backgroundに直す
 function fieldBgPreviewCss(it){
-  if(it.type==='scene')return `url('${it.value}') 50% ${(FIELD_SCENE_FOCUS[it.id.replace('bg_','')]||50)}%/cover`;
+  if(it.type==='scene'){const fo=FIELD_SCENE_FOCUS[it.id.replace('bg_','')]||50;return `url('${it.value}') 50% ${Array.isArray(fo)?fo[0]:fo}%/cover`;}
   if(it.type==='image')return `url('${it.value}') center/cover`;
   return it.value;
 }
@@ -4541,11 +4549,12 @@ function applySceneBg(uri,id){
   if(key==='galaxy'&&animOn)uri=sceneUri('galaxybase'); // 銀河は腕を動かすので、腕なしの下地を使う
   let styleEl=document.getElementById('field-bg-style');
   if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
-  const fy=FIELD_SCENE_FOCUS[key]||50;
+  const fo=FIELD_SCENE_FOCUS[key]||50,fy=Array.isArray(fo)?fo[0]:fo,fyL=Array.isArray(fo)?fo[1]:fo;
   styleEl.textContent=`#field-wrap::before{background-image:linear-gradient(rgba(8,5,3,.28),rgba(8,5,3,.28)),url('${uri}')!important;background-size:cover!important;background-position:50% ${fy}%!important}
+@media (orientation:landscape){#field-wrap::before{background-position:50% ${fyL}%!important}}
 #field-wrap .fback{background:rgba(20,14,8,.72)!important}
 #field-wrap .fback::before{opacity:.7}`;
-  if(animOn)startFieldAnim(key,fy);else stopFieldAnim();
+  if(animOn)startFieldAnim(key,fy,fyL);else stopFieldAnim();
 }
 function applyFieldBg(url){
   stopFieldAnim();
