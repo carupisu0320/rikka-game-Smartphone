@@ -3674,10 +3674,21 @@ function loadGachaState(){
   try{
     const st=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');
     st.owned=st.owned||[]; st.equipped=st.equipped||{};
+    // 開発者アカウントは、ガチャの景品をすべて持っている扱いにする（景品が増えても自動で含まれる）
+    if(isDevUser())st.owned=GACHA_ITEMS.map(i=>i.id);
     return st;
   }catch(e){ return {owned:[],equipped:{}}; }
 }
-function saveGachaState(st){ try{ localStorage.setItem('rikka_gacha',JSON.stringify(st)); }catch(e){} }
+function saveGachaState(st){
+  try{
+    // 開発者の「全部持っている」状態は端末に保存しない（ログアウト後に残らないように、元の所持だけを保存）
+    if(isDevUser()){
+      let real=[];try{real=(JSON.parse(localStorage.getItem('rikka_gacha')||'{}').owned)||[];}catch(e){}
+      st=Object.assign({},st,{owned:real});
+    }
+    localStorage.setItem('rikka_gacha',JSON.stringify(st));
+  }catch(e){}
+}
 
 function pickGachaRarity(){
   const roll=Math.random()*100;
