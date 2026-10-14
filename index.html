@@ -683,6 +683,7 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 @keyframes cloudDrift{from{transform:translateX(-260px)}to{transform:translateX(120vw)}}
 .lf-moon2{position:absolute;filter:drop-shadow(0 0 26px var(--mg,rgba(255,235,170,.55)))}
 #field-fx{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.win-title{display:inline-block;margin:.15rem 0 .35rem;padding:.16rem .75rem;border-radius:999px;border:1px solid #c9a84c;background:rgba(201,168,76,.12);color:#f5d78a;font-size:.78rem;font-weight:700;letter-spacing:.06em}
 .lf-bottom{position:absolute;bottom:0;left:0;width:100%;height:auto;overflow:visible}
 
 .santa{position:absolute;top:17%;left:0;width:190px;opacity:.97;will-change:transform;
@@ -1946,7 +1947,7 @@ socket.on('disconnect',()=>{if(onlineMode)showModal(`<div class="mtitle">⚠ 切
 
 }
 
-function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl()});}
+function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});}
 
 function cancelQueue(){socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
 
@@ -1957,14 +1958,14 @@ const goalEl=document.querySelector('input[name="room-goal"]:checked');
   const goal=goalEl?parseInt(goalEl.value):10;
   const useRiichi2=document.getElementById('room-opt-リーチ')?.checked||false;
   const useRon2=document.getElementById('room-opt-ロン')?.checked||false;
-  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:myFieldBgValue(),avatar:myAvatarUrl()});}
+  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});}
 function copyRoomCode(){const code=document.getElementById('room-code-display').textContent;navigator.clipboard?.writeText(code).then(()=>toast('コードをコピーしました！'));}
 
 function cancelRoom(){document.getElementById('room-host-box').style.display='none';document.getElementById('btn-create-room').disabled=false;}
 
 function hostStartGame(){socket?.emit('start_game',{code:currentCode});}
 
-function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:myFieldBgValue(),avatar:myAvatarUrl()});}
+function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});}
 
 function setOnlineStatus(msg,color){const el=document.getElementById('online-status');if(el){el.textContent=msg;el.style.color=color||'#6a5030';}const cb=document.getElementById('btn-cancel-quick');if(cb)cb.style.display=msg?'':'none';}
 
@@ -1976,7 +1977,7 @@ myOnlineIdx=st.myIdx;
 
 if(!G||G.players.length!==st.scores.length){
 
-G={players:st.scores.map(s=>({name:s.name,hand:[],score:s.score,isBot:false,fieldBg:s.fieldBg||'',avatar:s.avatar||''})),field:[],turn:0,tphase:'pick',selIdx:-1,phase:'playing'};
+G={players:st.scores.map(s=>({name:s.name,hand:[],score:s.score,isBot:false,fieldBg:s.fieldBg||'',avatar:s.avatar||'',title:s.title||''})),field:[],turn:0,tphase:'pick',selIdx:-1,phase:'playing'};
 
 }
 
@@ -2010,7 +2011,7 @@ G.useRiichi = st.useRiichi || false;
 G.useRon    = st.useRon    || false;
 G.goal = st.goal || 10;
 
-st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;G.players[i].fieldBg=s.fieldBg||'';G.players[i].avatar=s.avatar||'';G.players[i].riichi=s.riichi||false;});
+st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;G.players[i].fieldBg=s.fieldBg||'';G.players[i].avatar=s.avatar||'';G.players[i].title=s.title||'';G.players[i].riichi=s.riichi||false;});
 
 st.oppCounts.forEach((cnt,i)=>{if(i===st.myIdx)return;G.players[i].hand=Array.from({length:Math.max(0,cnt)},(_,j)=>({id:`ph${i}_${j}`,top:1,bot:1,flip:false,discarded:false,hidden:true}));});
 
@@ -2040,12 +2041,13 @@ const tiles=hand.map(t=>tileHTML(t,'','tile htile')).join('');
 const b=bonus>0?`<div style="font-size:.85rem;color:#f5d040;margin-bottom:.6rem">★ 輝きボーナス×${bonus}=+${bonus}点</div>`:'';
 
 const iAm=Number(winnerIdx)===Number(myOnlineIdx);
+const _wTitle=iAm?myTitleId():((G&&G.players&&G.players[winnerIdx]&&G.players[winnerIdx].title)||'');
 
 document.getElementById('mbox').innerHTML=`
 
 <div class="mtitle">${iAm?'🎆 上がり！':'😔 相手の上がり'}</div>
 
-<p style="color:#8a7860;font-size:.9rem">${esc(winnerName)} が役を完成</p>
+${titleBadgeHtml(_wTitle)}<p style="color:#8a7860;font-size:.9rem">${esc(winnerName)} が役を完成</p>
 
 <div class="mrole">${esc(role)}</div>
 
@@ -3004,7 +3006,8 @@ const petalLine=(!onlineMode&&_lastPetalGain>0)?`<div style="font-size:.85rem;co
 const ronLine=res.ron?`<div style="font-size:.85rem;color:#e0a020;margin:.3rem 0">⚡ ロン！（${esc(res.ronFrom||'')} の捨て牌）</div>`:'';
 const riichiLine=(res.bonus>0&&p.riichi)?`<div style="font-size:.82rem;color:#f5d040">🀄 リーチボーナス +1点含む</div>`:'';
 
-document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div><p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${petalLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
+const _wTitle=p.isBot?(BOT_TITLE_BY_DIFF[p.diff]||''):myTitleId();
+document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div>${titleBadgeHtml(_wTitle)}<p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${petalLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
 
 document.getElementById('modal').classList.add('open');
 
@@ -3062,6 +3065,17 @@ function avatarImgHtml(url,cls){
   const safe=sanitizeFieldBgUrl(url||'');
   return safe?`<img class="${cls}" src="${esc(safe)}" alt="" onerror="this.style.display='none'">`:'';
 }
+function myTitleId(){
+  try{const st=loadGachaState(),id=st.equipped.title;return(id&&st.owned.includes(id))?id:'';}catch(e){return '';}
+}
+function syncMyTitle(){if(currentCode)socket?.emit('set_title',{code:currentCode,id:myTitleId()});}
+// 称号のバッジ（上がったときの画面などで名前の上に出す）
+function titleBadgeHtml(id){
+  const it=id&&GACHA_ITEMS.find(x=>x.category==='title'&&x.id===id);
+  return it?`<div class="win-title">${it.icon} ${esc(it.title)}</div>`:'';
+}
+// ボットにも強さに応じた称号を付ける
+const BOT_TITLE_BY_DIFF={easy:'title_first',normal:'title_apprentice',hard:'title_rikka'};
 function syncMyAvatar(){if(currentCode)socket?.emit('set_avatar',{code:currentCode,url:myAvatarUrl()});}
 let currentStatsTab = 'bot';
 
@@ -4015,6 +4029,7 @@ function equipGachaItem(category,id){
   saveGachaState(st);
   applyEquippedGachaItems();
   if(category==='fieldbg'&&currentCode)socket?.emit('set_field_bg',{code:currentCode,url:myFieldBgValue()});
+  if(category==='title')syncMyTitle();
   renderGachaCollection();
   updateSbTitle();
   refreshCustomize();
@@ -4492,6 +4507,7 @@ function selectGachaEquip(category,id){
   if(id&&!st.owned.includes(id))return;
   if(id)st.equipped[category]=id; else delete st.equipped[category];
   saveGachaState(st);
+  if(category==='title')syncMyTitle();
   updateSbTitle();
   renderCustomize();
   renderGachaCollection();
