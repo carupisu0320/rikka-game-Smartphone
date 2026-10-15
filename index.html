@@ -789,13 +789,23 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 #match-fx.found .mf-ring{border-color:#ffd24a;animation-duration:1s;animation-iteration-count:2}
 #match-fx.found .mf-title{color:#ffe9a0;text-shadow:0 0 14px rgba(255,200,60,.8);animation:mfPop .5s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes mfPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
-.mf-vs{display:none;align-items:center;gap:.7rem;margin-top:1.1rem}
+.mf-vs{display:none;align-items:center;gap:.7rem;margin-top:1rem}
 #match-fx.found .mf-vs{display:flex}
-.mf-name{padding:.5rem 1rem;border-radius:10px;background:rgba(20,34,46,.85);border:1px solid #4a8a94;color:#fff;font-weight:700;max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mf-name.l{animation:mfL .5s .15s cubic-bezier(.2,1.2,.4,1) both}.mf-name.r{animation:mfR .5s .15s cubic-bezier(.2,1.2,.4,1) both}
+.mf-card{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.8rem .9rem;min-width:min(34vw,140px);max-width:42vw;border-radius:14px;
+  background:linear-gradient(160deg,rgba(24,40,54,.92),rgba(10,18,28,.92));border:1px solid #4a8a94;box-shadow:0 0 18px rgba(74,200,192,.25)}
+.mf-card.me{border-color:#ffd24a;box-shadow:0 0 18px rgba(255,200,60,.3)}
+.mf-card.l{animation:mfL .55s .1s cubic-bezier(.2,1.2,.4,1) both}.mf-card.r{animation:mfR .55s .1s cubic-bezier(.2,1.2,.4,1) both}
 @keyframes mfL{from{transform:translateX(-80vw)}to{transform:none}}@keyframes mfR{from{transform:translateX(80vw)}to{transform:none}}
-.mf-vsmark{font-weight:900;font-size:1.5rem;color:#ffd24a;text-shadow:0 0 12px #ff9a20;animation:mfPop .4s .55s cubic-bezier(.2,1.8,.4,1) both}
+.mf-av{width:72px;height:72px;border-radius:50%;overflow:hidden;background:#2a1e12;border:2px solid #c9a84c;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#e8c97a}
+.mf-av img{width:100%;height:100%;object-fit:cover;display:block}
+.mf-card .win-title{margin:.1rem 0 0;font-size:.7rem;padding:.1rem .55rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:mfPop .4s .6s cubic-bezier(.2,1.6,.4,1) both}
+.mf-name{font-weight:700;color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.95rem}
+.mf-you{font-size:.62rem;color:#ffd24a;letter-spacing:.14em}
+.mf-vs.multi{margin-top:.8rem}.mf-multi{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;max-width:92vw}
+.mf-multi .mf-card{min-width:min(28vw,110px)}.mf-multi .mf-av{width:54px;height:54px;font-size:1.5rem}
+.mf-vsmark{font-weight:900;font-size:1.6rem;color:#ffd24a;text-shadow:0 0 12px #ff9a20;animation:mfPop .4s .5s cubic-bezier(.2,1.8,.4,1) both}
 #match-fx.found .mf-tip,#match-fx.found .mf-cancel,#match-fx.found .mf-meta{display:none}
+#match-fx.found::after{content:'タップでスキップ';position:absolute;bottom:2rem;left:0;right:0;text-align:center;font-size:.72rem;color:rgba(255,255,255,.35);letter-spacing:.14em}
 @media (prefers-reduced-motion:reduce){.mf-ring,.mf-radar,.mf-orbit,.mf-flower{animation:none}}
 /* ── ガチャ演出 ── */
 #gacha-fx{position:fixed;inset:0;z-index:950;display:none;overflow:hidden;
@@ -1985,7 +1995,7 @@ socket.on('connect_error',()=>{hideMatchFx(true);setOnlineStatus('サーバー�
 
 socket.on('queued',({pos})=>{if(!document.getElementById('match-fx'))showMatchFx();setOnlineStatus(`⟳ マッチング中... (待機${pos}人)`,'#6fc4ae');document.getElementById('btn-cancel-quick').style.display='';});
 
-socket.on('matched',({code,names})=>{currentCode=code;matchFoundFx(names);setOnlineStatus(`✓ マッチング成立！(${names.join(' vs ')})`,'#60e888');document.getElementById('btn-cancel-quick').style.display='none';});
+socket.on('matched',({code,names,players,you})=>{currentCode=code;matchFoundFx(players||(names||[]).map(n=>({name:n})),you,'対戦相手が見つかりました！');setOnlineStatus(`✓ マッチング成立！(${names.join(' vs ')})`,'#60e888');document.getElementById('btn-cancel-quick').style.display='none';});
 
 socket.on('queue_cancelled',()=>{hideMatchFx(true);setOnlineStatus('','');document.getElementById('btn-quick').disabled=false;document.getElementById('btn-cancel-quick').style.display='none';});
 
@@ -2005,8 +2015,8 @@ const js=document.getElementById('join-status');if(js&&!js.textContent.includes(
 
 });
 
-socket.on('game_start',()=>{
-  hideMatchFx(false);
+socket.on('game_start',(d)=>{
+  if(d&&d.players)matchFoundFx(d.players,d.you,'対戦開始！');
   onlineMode=true;
   showScreen('game');
   document.getElementById('chat-toggle').style.display='flex';
@@ -2082,23 +2092,41 @@ function showMatchFx(){
   const tip=()=>{const t=document.getElementById('mf-tip');if(!t)return;t.style.opacity=0;setTimeout(()=>{t.textContent='💡 '+MATCH_TIPS[ti%MATCH_TIPS.length];ti++;t.style.opacity=1;},350);};
   tip();_matchTipTimer=setInterval(tip,4500);
 }
-function matchFoundFx(names){
+// 対戦前の紹介画面：アイコン・称号・名前を並べて見せてから、対局に入る
+let _matchHideTimer=null;
+function matchCardHtml(p,isMe,cls){
+  const av=sanitizeFieldBgUrl(p.avatar||'');
+  const ini=esc((p.name||'?')[0]);
+  const face=av?`<img src="${esc(av)}" alt="" data-i="${ini}" onerror="this.parentNode.textContent=this.dataset.i">`:`<span>${ini}</span>`;
+  return `<div class="mf-card ${cls}${isMe?' me':''}"><div class="mf-av">${face}</div>${titleBadgeHtml(p.title)||'<div class="win-title" style="visibility:hidden">　</div>'}<div class="mf-name">${esc(p.name||'')}</div>${isMe?'<div class="mf-you">あなた</div>':''}</div>`;
+}
+function matchFoundFx(players,you,label){
+  if(!document.getElementById('match-fx'))showMatchFx();
   const el=document.getElementById('match-fx');if(!el)return;
-  _matchFoundAt=Date.now();
-  clearInterval(_matchFxTimer);clearInterval(_matchTipTimer);
-  const nm=(names||[]).map(n=>esc(n));
-  document.getElementById('mf-title').textContent='対戦相手が見つかりました！';
-  document.getElementById('mf-vs').innerHTML=`<span class="mf-name l">${nm[0]||''}</span><span class="mf-vsmark">VS</span><span class="mf-name r">${nm[1]||''}</span>`;
+  clearInterval(_matchFxTimer);clearInterval(_matchTipTimer);clearTimeout(_matchHideTimer);
+  if(!Array.isArray(players)||!players.length)players=[];
+  const me=Number.isInteger(you)?you:0;
+  document.getElementById('mf-title').textContent=label||'対戦相手が見つかりました！';
+  const others=players.filter((_,i)=>i!==me);
+  let html;
+  if(players.length===2){
+    html=matchCardHtml(players[me],true,'l')+`<span class="mf-vsmark">VS</span>`+matchCardHtml(others[0],false,'r');
+  }else{
+    html=`<div class="mf-multi">${[players[me],...others].map((p,i)=>matchCardHtml(p,i===0,i%2?'r':'l')).join('')}</div>`;
+  }
+  const vs=document.getElementById('mf-vs');vs.innerHTML=html;vs.classList.toggle('multi',players.length!==2);
   el.classList.add('found');
+  el.onclick=()=>hideMatchFx(false);
   _gfxAudio(ctx=>{const now=ctx.currentTime,m=ctx.createGain();m.gain.value=soundVolume*.5;m.connect(ctx.destination);
     [[659.25,0],[880,.12],[1318.5,.26]].forEach(([f,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,now+t);g.gain.linearRampToValueAtTime(.6,now+t+.02);g.gain.exponentialRampToValueAtTime(.001,now+t+.5);o.connect(g);g.connect(m);o.start(now+t);o.stop(now+t+.55);});});
+  _matchHideTimer=setTimeout(()=>hideMatchFx(false),3600); // しばらく見せてから対局へ
 }
-// immediate=true なら即座に消す。そうでなければ、見つかった演出を最低限見せてから消す
+// immediate=true なら即座に消す。そうでなければ、ふわっと消す
 function hideMatchFx(immediate){
-  clearInterval(_matchFxTimer);clearInterval(_matchTipTimer);
+  clearInterval(_matchFxTimer);clearInterval(_matchTipTimer);clearTimeout(_matchHideTimer);
   const el=document.getElementById('match-fx');if(!el)return;
-  const wait=immediate?0:Math.max(0,1700-(Date.now()-_matchFoundAt));
-  setTimeout(()=>{if(immediate){el.remove();return;}el.classList.add('out');setTimeout(()=>el.remove(),420);},_matchFoundAt?wait:0);
+  if(immediate){el.remove();return;}
+  el.onclick=null;el.classList.add('out');setTimeout(()=>el.remove(),420);
 }
 function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});showMatchFx();}
 
