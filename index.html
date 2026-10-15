@@ -2612,6 +2612,8 @@ const _startBot=G.players.find(p=>p.isBot);
 if(_startBot)setTimeout(()=>addBotChatMsg(_startBot.name,
   ['よろしく！','さあ始めよう！','負けないよ！','楽しもう！'][Math.floor(Math.random()*4)],false),600);
 if(G.players[G.turn].isBot)scheduleBot();
+// 対戦前の紹介画面（自分とボットのアイコン・称号・名前）
+matchFoundFx(G.players.map((p,i)=>({name:p.name,avatar:i===0?myAvatarUrl():'',title:i===0?myTitleId():(BOT_TITLE_BY_DIFF[p.diff]||'')})),0,'対戦開始！');
 
 }
 
