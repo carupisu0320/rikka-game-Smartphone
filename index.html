@@ -737,15 +737,20 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 .cf-spark{position:absolute;left:50%;top:46%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:50%;background:var(--c2);box-shadow:0 0 8px var(--c1);
   opacity:0;animation:cfSpark .75s .3s ease-out both}
 @keyframes cfSpark{0%{opacity:1;transform:rotate(var(--a)) translateX(0)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d))}}
-/* リーチ：点棒が落ちてくる */
-.cf-stick{position:absolute;left:50%;top:-40px;width:clamp(110px,28vw,170px);height:clamp(14px,3.4vw,22px);margin-left:calc(clamp(110px,28vw,170px)/-2);border-radius:4px;
-  background:linear-gradient(180deg,#fff,#d8e0ee);box-shadow:0 3px 10px rgba(0,0,0,.6);animation:cfStick .55s .2s cubic-bezier(.5,0,.8,.6) both}
-.cf-stick::before{content:'';position:absolute;left:50%;top:50%;width:34%;height:34%;transform:translate(-50%,-50%);border-radius:50%;background:#d02a2a;box-shadow:-190% 0 0 -30% #5a8aee,190% 0 0 -30% #5a8aee}
-@keyframes cfStick{0%{transform:translateY(0) rotate(-14deg);opacity:0}15%{opacity:1}70%{transform:translateY(calc(46vh - clamp(78px,17vw,110px))) rotate(0)}85%{transform:translateY(calc(46vh - clamp(92px,20vw,126px))) rotate(0)}100%{transform:translateY(calc(46vh - clamp(78px,17vw,110px))) rotate(0)}}
 /* ロン：斬撃 */
 .cf-slash{position:absolute;left:-10%;width:120%;height:5px;top:46%;background:linear-gradient(90deg,transparent,#fff 30%,#fff 70%,transparent);box-shadow:0 0 14px var(--c1),0 0 30px var(--c1);transform-origin:center;opacity:0;animation:cfSlash .3s .22s ease-out both}
 .cf-slash.s1{transform:rotate(-14deg)}.cf-slash.s2{transform:rotate(12deg);animation-delay:.3s}
 @keyframes cfSlash{0%{opacity:1;clip-path:inset(0 100% 0 0)}60%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 0)}}
+/* 上がり：金色と六華の花 */
+#call-fx.cf-win{--c1:#ffc830;--c2:#fff4c0}
+#call-fx.cf-win .cf-text{background:linear-gradient(180deg,#fffdf0 5%,#ffe27a 45%,#e8a020 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #ffc830) drop-shadow(0 4px 0 rgba(70,40,0,.7))}
+#call-fx.cf-win .cf-band{background:linear-gradient(180deg,transparent,rgba(40,24,0,.86) 18%,rgba(40,24,0,.86) 82%,transparent)}
+#call-fx.cf-win .cf-dim{background:radial-gradient(circle at 50% 46%,rgba(50,30,0,.35),rgba(0,0,0,.8))}
+.cf-flower{position:absolute;left:50%;top:46%;width:min(120vw,620px);height:min(120vw,620px);margin:calc(min(120vw,620px)/-2) 0 0 calc(min(120vw,620px)/-2);opacity:0;animation:cfFlower 1.5s .12s ease-out both}
+.cf-flower svg{width:100%;height:100%;display:block}
+@keyframes cfFlower{0%{opacity:0;transform:rotate(-60deg) scale(.2)}25%{opacity:.9}100%{opacity:0;transform:rotate(40deg) scale(1.15)}}
+.cf-petal-fall{position:absolute;top:-30px;width:var(--s);height:calc(var(--s)*.55);border-radius:50%;background:var(--c2);opacity:.9;left:var(--x);animation:cfFall var(--t) var(--dl) linear both}
+@keyframes cfFall{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--dx),108vh) rotate(var(--r))}}
 #call-fx.cf-ron{--c1:#ff4a1a;--c2:#ffd9a0}
 #call-fx.cf-ron .cf-text{background:linear-gradient(180deg,#fff 5%,#ffe28a 40%,#ff5a20 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #ff4a1a) drop-shadow(0 4px 0 rgba(60,0,0,.7))}
 #call-fx.cf-ron .cf-band{background:linear-gradient(180deg,transparent,rgba(40,0,0,.88) 18%,rgba(40,0,0,.88) 82%,transparent)}
@@ -1972,7 +1977,7 @@ socket.on('state',st=>{onlineMode=true;applyOnlineState(st);});
 
 socket.on('round_win',wd=>{
   if(wd&&wd.ron){const ms=showCallFx('ron',wd.winnerName);setTimeout(()=>showOnlineWinMsg(wd),ms-150);}
-  else showOnlineWinMsg(wd);
+  else if(wd){const ms=showCallFx('win',wd.winnerName,wd.role);setTimeout(()=>showOnlineWinMsg(wd),ms-200);}
 });
 socket.on('player_riichi',({name,idx})=>{
   if(G&&G.players[idx]) G.players[idx].riichi=true;
@@ -2087,8 +2092,8 @@ let _pendingOnlineGameOver = { scores: [], tsuideList: [] };
 function showOnlineWinMsg(wd){
 
 const{winnerIdx,winnerName,hand=[],role,pts,bonus=0,scores=[],isGameOver,ron,riichi}=wd;
-if(!(ron&&_skipRonSound))playSound(ron ? 'ron' : 'win');
-_skipRonSound=false;
+if(_skipSnd!==(ron?'ron':'win'))playSound(ron ? 'ron' : 'win');
+_skipSnd='';
 
 saveHistory(makeHistoryEntry(Number(winnerIdx)===Number(myOnlineIdx),role,pts+bonus,true,scores.map(s=>s.name)));
 const _newAch=checkAchievements(Number(winnerIdx)===Number(myOnlineIdx),{role,bonus,ron:!!ron,riichi:!!riichi,online:true,total:(Number(pts)||0)+(Number(bonus)||0)});
@@ -2293,21 +2298,28 @@ function showRiichiBtn(show){
 // ============================================================
 // リーチ・ロンの演出（画面中央に大きく宣言を出す。操作はじゃましない）
 // ============================================================
-let _callFxTimer=null,_skipRonSound=false;
+let _callFxTimer=null,_skipSnd='';
+const CF_FLOWER='<div class="cf-flower"><svg viewBox="-100 -100 200 200"><defs><radialGradient id="cfp" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#fff8d0" stop-opacity=".95"/><stop offset="1" stop-color="#ffc830" stop-opacity=".25"/></radialGradient></defs>'+
+  [0,1,2,3,4,5].map(k=>`<ellipse cx="0" cy="-52" rx="19" ry="48" transform="rotate(${k*60})" fill="url(#cfp)" stroke="#fff4c0" stroke-width="1.2"/>`).join('')+'<circle r="10" fill="#fff8d0"/></svg></div>';
 function showCallFx(kind,name,sub){
   const old=document.getElementById('call-fx');if(old)old.remove();clearTimeout(_callFxTimer);
-  const ron=kind==='ron',dur=ron?1.8:1.55;
+  const ron=kind==='ron',win=kind==='win',dur=ron?1.8:(win?1.9:1.55);
   const el=document.createElement('div');
-  el.id='call-fx';el.className=ron?'cf-ron shake':'cf-riichi';el.style.setProperty('--dur',dur+'s');
+  el.id='call-fx';el.className=ron?'cf-ron shake':(win?'cf-win':'cf-riichi');el.style.setProperty('--dur',dur+'s');
   let sparks='';
   for(let i=0;i<(ron?30:22);i++){const a=Math.random()*360,d=(ron?160:130)+Math.random()*(ron?260:200),s=(ron?4:3)+Math.random()*5;sparks+=`<i class="cf-spark" style="--a:${a.toFixed(0)}deg;--d:${d.toFixed(0)}px;--s:${s.toFixed(1)}px"></i>`;}
   el.innerHTML=`<div class="cf-dim"></div><div class="cf-rays"></div><div class="cf-band"></div><div class="cf-line"></div><div class="cf-line b"></div>
-    ${ron?'<div class="cf-slash s1"></div><div class="cf-slash s2"></div>':'<div class="cf-stick"></div>'}
-    <div class="cf-text">${ron?'ロン！':'リーチ！'}</div>
+    ${ron?'<div class="cf-slash s1"></div><div class="cf-slash s2"></div>':''}${win?CF_FLOWER:''}
+    <div class="cf-text">${ron?'ロン！':(win?'上がり！':'リーチ！')}</div>
     <div class="cf-sub">${esc(name||'')}${sub?'　'+esc(sub):''}</div>
     <div class="cf-ring"></div><div class="cf-ring r2"></div>${sparks}<div class="cf-flash"></div>`;
+  if(win){ // 金の花びらが降る
+    let f='';for(let i=0;i<26;i++){f+=`<i class="cf-petal-fall" style="--s:${(7+Math.random()*9).toFixed(0)}px;--x:${(Math.random()*100).toFixed(0)}%;--t:${(1.2+Math.random()*1).toFixed(2)}s;--dl:${(.25+Math.random()*.7).toFixed(2)}s;--dx:${(Math.random()*120-60).toFixed(0)}px;--r:${(Math.random()*540).toFixed(0)}deg"></i>`;}
+    el.insertAdjacentHTML('beforeend',f);
+  }
   document.body.appendChild(el);
-  if(ron){_skipRonSound=true;playSound('ron');}
+  if(ron){_skipSnd='ron';playSound('ron');}
+  else if(win){_skipSnd='win';playSound('win');}
   _callFxTimer=setTimeout(()=>{el.remove();},dur*1000+50);
   return dur*1000;
 }
@@ -3086,14 +3098,15 @@ const _isMyWin=pi===myOnlineIdx;
     if(!G.players.find(p=>p.name===t.name&&!p.isBot))
       setTimeout(()=>addBotChatMsg(t.name,rndComment('tsuide'),false),700);
   });
-  showWinModal(G.players[pi],res,tsuideList);
+  const _fxMsW=showCallFx('win',G.players[pi].name,res.role);
+  setTimeout(()=>showWinModal(G.players[pi],res,tsuideList),_fxMsW-200);
   if(_newAch.length)setTimeout(()=>showAchievementPopup(_newAch),900);
 }
 
 let _pendingBotGameOverTsuide = [];
 function showWinModal(p,res,tsuideList=[]){
-if(!(res.ron&&_skipRonSound))playSound(res.ron ? 'ron' : 'win');
-_skipRonSound=false;
+if(_skipSnd!==(res.ron?'ron':'win'))playSound(res.ron ? 'ron' : 'win');
+_skipSnd='';
 if(p===G.players[myOnlineIdx])launchConfetti();
 _pendingBotGameOverTsuide = tsuideList;
 const over=isGameOver(G.players,G?.goal),rows=G.players.map(pl=>`<tr><td>${esc(pl.name)}</td><td>${pl.score}点</td></tr>`).join('');
