@@ -703,6 +703,54 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 .lf-drift{animation:lfDrift 24s ease-in-out infinite alternate}
 @keyframes lfDrift{from{transform:translateX(-18px)}to{transform:translateX(22px)}}
 @media (prefers-reduced-motion:reduce){.santa,.lf-drift{animation:none}.santa{display:none}.lf,.lf-star,.lf-cloud,#lobby-fx canvas{display:none}.hw-spider,.hw-fog,.hw-pump{animation:none}}
+
+/* ── リーチ・ロンの演出 ── */
+#call-fx{position:fixed;inset:0;z-index:940;pointer-events:none;overflow:hidden;--c1:#4aa8ff;--c2:#d6eeff;--dur:1.6s;animation:cfLife var(--dur) linear forwards}
+@keyframes cfLife{0%{opacity:1}86%{opacity:1}100%{opacity:0}}
+#call-fx.shake{animation:cfLife var(--dur) linear forwards,cfShake .5s .28s linear}
+@keyframes cfShake{0%,100%{transform:translate(0)}12%{transform:translate(-10px,6px)}28%{transform:translate(9px,-7px)}44%{transform:translate(-7px,-4px)}60%{transform:translate(6px,6px)}78%{transform:translate(-3px,3px)}}
+.cf-dim{position:absolute;inset:0;background:radial-gradient(circle at 50% 46%,rgba(0,0,0,.35),rgba(0,0,0,.78));animation:cfDim .25s ease-out both}
+@keyframes cfDim{from{opacity:0}to{opacity:1}}
+.cf-rays{position:absolute;left:50%;top:46%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;
+  background:repeating-conic-gradient(var(--c1) 0 3deg,transparent 3deg 12deg);opacity:0;
+  -webkit-mask-image:radial-gradient(circle closest-side,rgba(0,0,0,.9),transparent 26%);mask-image:radial-gradient(circle closest-side,rgba(0,0,0,.9),transparent 26%);
+  animation:cfRays var(--dur) linear forwards}
+@keyframes cfRays{0%{opacity:0;transform:rotate(0) scale(.4)}14%{opacity:.5;transform:rotate(12deg) scale(1)}100%{opacity:.25;transform:rotate(70deg) scale(1.1)}}
+.cf-band{position:absolute;left:0;right:0;top:46%;height:clamp(110px,24vw,170px);margin-top:calc(clamp(110px,24vw,170px)/-2);
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.85) 18%,rgba(0,0,0,.85) 82%,transparent);animation:cfBand .28s cubic-bezier(.2,.9,.3,1) both}
+@keyframes cfBand{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
+.cf-line{position:absolute;left:0;right:0;height:2px;top:calc(46% - clamp(55px,12vw,85px));background:linear-gradient(90deg,transparent,var(--c2),transparent);box-shadow:0 0 12px var(--c1)}
+.cf-line.b{top:calc(46% + clamp(55px,12vw,85px))}
+.cf-text{position:absolute;left:0;right:0;top:46%;text-align:center;transform:translateY(-52%);
+  font-family:'Hiragino Mincho ProN','Yu Mincho','Noto Serif CJK JP',serif;font-weight:900;font-size:clamp(4rem,21vw,8.5rem);letter-spacing:.06em;line-height:1;white-space:nowrap;
+  background:linear-gradient(180deg,#fff 10%,var(--c2) 45%,var(--c1) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 14px var(--c1)) drop-shadow(0 4px 0 rgba(0,0,0,.6));animation:cfSlam .34s cubic-bezier(.2,1.5,.4,1) .12s both}
+@keyframes cfSlam{0%{transform:translateY(-52%) scale(3.4);opacity:0}60%{opacity:1}100%{transform:translateY(-52%) scale(1);opacity:1}}
+.cf-sub{position:absolute;left:0;right:0;top:calc(46% + clamp(70px,15vw,105px));text-align:center;color:#fff;font-weight:700;font-size:clamp(.9rem,3.6vw,1.2rem);
+  letter-spacing:.12em;text-shadow:0 2px 8px #000,0 0 12px var(--c1);animation:cfSub .3s .38s both}
+@keyframes cfSub{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.cf-ring{position:absolute;left:50%;top:46%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:4px solid var(--c2);opacity:0;animation:cfRing .75s .3s ease-out both}
+.cf-ring.r2{border-color:var(--c1);animation-delay:.38s}
+@keyframes cfRing{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(22)}}
+.cf-flash{position:absolute;inset:0;background:var(--c2);opacity:0;animation:cfFlash .5s .3s ease-out both}
+@keyframes cfFlash{0%{opacity:.85}100%{opacity:0}}
+.cf-spark{position:absolute;left:50%;top:46%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:50%;background:var(--c2);box-shadow:0 0 8px var(--c1);
+  opacity:0;animation:cfSpark .75s .3s ease-out both}
+@keyframes cfSpark{0%{opacity:1;transform:rotate(var(--a)) translateX(0)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d))}}
+/* リーチ：点棒が落ちてくる */
+.cf-stick{position:absolute;left:50%;top:-40px;width:clamp(110px,28vw,170px);height:clamp(14px,3.4vw,22px);margin-left:calc(clamp(110px,28vw,170px)/-2);border-radius:4px;
+  background:linear-gradient(180deg,#fff,#d8e0ee);box-shadow:0 3px 10px rgba(0,0,0,.6);animation:cfStick .55s .2s cubic-bezier(.5,0,.8,.6) both}
+.cf-stick::before{content:'';position:absolute;left:50%;top:50%;width:34%;height:34%;transform:translate(-50%,-50%);border-radius:50%;background:#d02a2a;box-shadow:-190% 0 0 -30% #5a8aee,190% 0 0 -30% #5a8aee}
+@keyframes cfStick{0%{transform:translateY(0) rotate(-14deg);opacity:0}15%{opacity:1}70%{transform:translateY(calc(46vh - clamp(78px,17vw,110px))) rotate(0)}85%{transform:translateY(calc(46vh - clamp(92px,20vw,126px))) rotate(0)}100%{transform:translateY(calc(46vh - clamp(78px,17vw,110px))) rotate(0)}}
+/* ロン：斬撃 */
+.cf-slash{position:absolute;left:-10%;width:120%;height:5px;top:46%;background:linear-gradient(90deg,transparent,#fff 30%,#fff 70%,transparent);box-shadow:0 0 14px var(--c1),0 0 30px var(--c1);transform-origin:center;opacity:0;animation:cfSlash .3s .22s ease-out both}
+.cf-slash.s1{transform:rotate(-14deg)}.cf-slash.s2{transform:rotate(12deg);animation-delay:.3s}
+@keyframes cfSlash{0%{opacity:1;clip-path:inset(0 100% 0 0)}60%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 0)}}
+#call-fx.cf-ron{--c1:#ff4a1a;--c2:#ffd9a0}
+#call-fx.cf-ron .cf-text{background:linear-gradient(180deg,#fff 5%,#ffe28a 40%,#ff5a20 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #ff4a1a) drop-shadow(0 4px 0 rgba(60,0,0,.7))}
+#call-fx.cf-ron .cf-band{background:linear-gradient(180deg,transparent,rgba(40,0,0,.88) 18%,rgba(40,0,0,.88) 82%,transparent)}
+#call-fx.cf-ron .cf-dim{background:radial-gradient(circle at 50% 46%,rgba(60,0,0,.4),rgba(0,0,0,.82))}
+@media (prefers-reduced-motion:reduce){#call-fx.shake{animation:cfLife var(--dur) linear forwards}.cf-rays,.cf-spark,.cf-ring{display:none}}
 /* ── ガチャ演出 ── */
 #gacha-fx{position:fixed;inset:0;z-index:950;display:none;overflow:hidden;
   background:radial-gradient(circle at 50% 42%,#2a1a34 0%,#0c060f 60%,#040205 100%);
@@ -1922,10 +1970,13 @@ socket.on('game_start',()=>{
   });
 socket.on('state',st=>{onlineMode=true;applyOnlineState(st);});
 
-socket.on('round_win',wd=>showOnlineWinMsg(wd));
+socket.on('round_win',wd=>{
+  if(wd&&wd.ron){const ms=showCallFx('ron',wd.winnerName);setTimeout(()=>showOnlineWinMsg(wd),ms-150);}
+  else showOnlineWinMsg(wd);
+});
 socket.on('player_riichi',({name,idx})=>{
   if(G&&G.players[idx]) G.players[idx].riichi=true;
-  if(Number(idx)!==Number(myOnlineIdx)) playSound('riichi');
+  if(Number(idx)!==Number(myOnlineIdx)){ playSound('riichi'); showCallFx('riichi',name); }
   toast(`🀄 ${esc(name)} がリーチ！`);
   render();
 });
@@ -2036,7 +2087,8 @@ let _pendingOnlineGameOver = { scores: [], tsuideList: [] };
 function showOnlineWinMsg(wd){
 
 const{winnerIdx,winnerName,hand=[],role,pts,bonus=0,scores=[],isGameOver,ron,riichi}=wd;
-playSound(ron ? 'ron' : 'win');
+if(!(ron&&_skipRonSound))playSound(ron ? 'ron' : 'win');
+_skipRonSound=false;
 
 saveHistory(makeHistoryEntry(Number(winnerIdx)===Number(myOnlineIdx),role,pts+bonus,true,scores.map(s=>s.name)));
 const _newAch=checkAchievements(Number(winnerIdx)===Number(myOnlineIdx),{role,bonus,ron:!!ron,riichi:!!riichi,online:true,total:(Number(pts)||0)+(Number(bonus)||0)});
@@ -2237,6 +2289,28 @@ function showRiichiBtn(show){
   const el=document.getElementById('riichi-btn');
   if(el) el.style.display=show?'block':'none';
 }
+
+// ============================================================
+// リーチ・ロンの演出（画面中央に大きく宣言を出す。操作はじゃましない）
+// ============================================================
+let _callFxTimer=null,_skipRonSound=false;
+function showCallFx(kind,name,sub){
+  const old=document.getElementById('call-fx');if(old)old.remove();clearTimeout(_callFxTimer);
+  const ron=kind==='ron',dur=ron?1.8:1.55;
+  const el=document.createElement('div');
+  el.id='call-fx';el.className=ron?'cf-ron shake':'cf-riichi';el.style.setProperty('--dur',dur+'s');
+  let sparks='';
+  for(let i=0;i<(ron?30:22);i++){const a=Math.random()*360,d=(ron?160:130)+Math.random()*(ron?260:200),s=(ron?4:3)+Math.random()*5;sparks+=`<i class="cf-spark" style="--a:${a.toFixed(0)}deg;--d:${d.toFixed(0)}px;--s:${s.toFixed(1)}px"></i>`;}
+  el.innerHTML=`<div class="cf-dim"></div><div class="cf-rays"></div><div class="cf-band"></div><div class="cf-line"></div><div class="cf-line b"></div>
+    ${ron?'<div class="cf-slash s1"></div><div class="cf-slash s2"></div>':'<div class="cf-stick"></div>'}
+    <div class="cf-text">${ron?'ロン！':'リーチ！'}</div>
+    <div class="cf-sub">${esc(name||'')}${sub?'　'+esc(sub):''}</div>
+    <div class="cf-ring"></div><div class="cf-ring r2"></div>${sparks}<div class="cf-flash"></div>`;
+  document.body.appendChild(el);
+  if(ron){_skipRonSound=true;playSound('ron');}
+  _callFxTimer=setTimeout(()=>{el.remove();},dur*1000+50);
+  return dur*1000;
+}
 function declareRiichi(){
   if(!G||G.phase!=='playing'||!G.useRiichi) return;
   const p=G.players[myOnlineIdx];
@@ -2247,6 +2321,7 @@ function declareRiichi(){
   if(!ok){toast('テンパイしていません');return;}
   p.riichi=true;
   playSound('riichi');
+  showCallFx('riichi',p.name);
   if(onlineMode) socket?.emit('riichi',{code:currentCode});
   showRiichiBtn(false);
   const chatLog=document.getElementById(onlineMode?'chat-log':'bot-chat-log');
@@ -2316,7 +2391,8 @@ function declareRon(){
     const tr=checkTsuide(pl.hand,G.field,optR,pl.riichi);
     if(tr){pl.score+=tr.total;tsuideList.push({name:pl.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
   });
-  showWinModal(p,res,tsuideList);
+  const _fxMs=showCallFx('ron',p.name,discarder.name+' の牌');
+  setTimeout(()=>showWinModal(p,res,tsuideList),_fxMs-150);
 }
 function checkBotRon(discardedByIdx){
   if(!G||onlineMode||(!G.useRiichi&&!G.useRon)) return false;
@@ -2353,7 +2429,8 @@ function checkBotRon(discardedByIdx){
       const tr=checkTsuide(p2.hand,G.field,optR,p2.riichi);
       if(tr){p2.score+=tr.total;tsuideList.push({name:p2.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
     });
-    showWinModal(pl,res,tsuideList);
+    const _fxMsB=showCallFx('ron',pl.name,discarder.name+' の牌');
+    setTimeout(()=>showWinModal(pl,res,tsuideList),_fxMsB-150);
   },800);
   return true;
 }
@@ -2732,6 +2809,7 @@ if(G?.useRiichi&&!bot.riichi&&!_wr2){
   if(afterDiscard&&isTenpai(afterDiscard,optR)&&Math.random()<0.7){
     bot.riichi=true;
     playSound('riichi');
+    showCallFx('riichi',bot.name);
     const chatLog=document.getElementById('bot-chat-log');
     if(chatLog){
       const div=document.createElement('div');
@@ -3014,7 +3092,8 @@ const _isMyWin=pi===myOnlineIdx;
 
 let _pendingBotGameOverTsuide = [];
 function showWinModal(p,res,tsuideList=[]){
-playSound(res.ron ? 'ron' : 'win');
+if(!(res.ron&&_skipRonSound))playSound(res.ron ? 'ron' : 'win');
+_skipRonSound=false;
 if(p===G.players[myOnlineIdx])launchConfetti();
 _pendingBotGameOverTsuide = tsuideList;
 const over=isGameOver(G.players,G?.goal),rows=G.players.map(pl=>`<tr><td>${esc(pl.name)}</td><td>${pl.score}点</td></tr>`).join('');
