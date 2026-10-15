@@ -284,7 +284,9 @@ if (queue.length >= 2) {
   io.sockets.sockets.get(p1.id)?.join(code);  // ← p1を追加（これが抜けていた）
   socket.join(code);                           // ← p2（現在のsocket）
   dealRound(room);
-  io.to(code).emit('matched', { code, names: room.players.map(p => p.name) });
+  // 対戦前の紹介画面用に、全員の名前・アイコン・称号を送る（you は受け取った本人の位置）
+  const intro = room.players.map(p => ({ name: p.name, avatar: p.avatar || '', title: p.title || '' }));
+  room.players.forEach((p, i) => io.to(p.id).emit('matched', { code, names: room.players.map(q => q.name), players: intro, you: i }));
   sendState(room);
 }
   });
@@ -363,7 +365,8 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     const room = rooms.get(code);
     if (!room || room.host !== socket.id || room.players.length < 2) return;
     dealRound(room);
-    io.to(code).emit('game_start', { names: room.players.map(p => p.name) });
+    const intro = room.players.map(p => ({ name: p.name, avatar: p.avatar || '', title: p.title || '' }));
+    room.players.forEach((p, i) => io.to(p.id).emit('game_start', { names: room.players.map(q => q.name), players: intro, you: i }));
     sendState(room);
   });
 
