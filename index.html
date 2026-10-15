@@ -756,6 +756,47 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 #call-fx.cf-ron .cf-band{background:linear-gradient(180deg,transparent,rgba(40,0,0,.88) 18%,rgba(40,0,0,.88) 82%,transparent)}
 #call-fx.cf-ron .cf-dim{background:radial-gradient(circle at 50% 46%,rgba(60,0,0,.4),rgba(0,0,0,.82))}
 @media (prefers-reduced-motion:reduce){#call-fx.shake{animation:cfLife var(--dur) linear forwards}.cf-rays,.cf-spark,.cf-ring{display:none}}
+
+/* ── クイックマッチの待機演出 ── */
+#match-fx{position:fixed;inset:0;z-index:930;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 42%,#14283a 0%,#0a1220 55%,#04070e 100%);animation:mfIn .35s ease-out both;overflow:hidden}
+#match-fx.out{animation:mfOut .4s ease-in forwards}
+@keyframes mfIn{from{opacity:0}to{opacity:1}}@keyframes mfOut{to{opacity:0}}
+#match-fx .mf-stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#bfe8ff;animation:lfTwinkle 3s ease-in-out infinite}
+.mf-center{position:relative;width:min(66vw,280px);height:min(66vw,280px);margin-bottom:1.4rem}
+.mf-ring{position:absolute;inset:0;border-radius:50%;border:2px solid #4ac8c0;opacity:0;animation:mfRing 3.2s ease-out infinite}
+.mf-ring:nth-child(2){animation-delay:1.07s}.mf-ring:nth-child(3){animation-delay:2.14s}
+@keyframes mfRing{0%{opacity:.8;transform:scale(.3)}100%{opacity:0;transform:scale(1.55)}}
+.mf-radar{position:absolute;inset:6%;border-radius:50%;background:conic-gradient(from 0deg,rgba(74,200,192,0) 0deg,rgba(74,200,192,.0) 250deg,rgba(74,200,192,.45) 360deg);
+  -webkit-mask-image:radial-gradient(circle,transparent 22%,#000 23%);mask-image:radial-gradient(circle,transparent 22%,#000 23%);animation:mfSpin 2.4s linear infinite}
+.mf-grid{position:absolute;inset:6%;border-radius:50%;border:1px solid rgba(74,200,192,.3);background:radial-gradient(circle,transparent 30%,rgba(74,200,192,.08) 31%,transparent 32%,transparent 62%,rgba(74,200,192,.08) 63%,transparent 64%)}
+.mf-flower{position:absolute;left:50%;top:50%;width:34%;height:34%;margin:-17% 0 0 -17%;animation:mfSpin 14s linear infinite,mfPulse 2.2s ease-in-out infinite}
+.mf-flower svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 10px #ffc830)}
+@keyframes mfSpin{to{transform:rotate(360deg)}}
+@keyframes mfPulse{0%,100%{opacity:.8}50%{opacity:1}}
+.mf-orbit{position:absolute;inset:0;animation:mfSpin 7s linear infinite}
+.mf-tile{position:absolute;left:50%;top:50%;width:16px;height:25px;margin:-12px 0 0 -8px;border-radius:3px;border:1px solid #c9a84c;
+  background:linear-gradient(160deg,#2a1e12,#120c06);transform:rotate(calc(var(--i)*60deg)) translateY(min(-30vw,-128px));box-shadow:0 0 8px rgba(201,168,76,.4)}
+.mf-tile::after{content:'❋';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:rgba(201,168,76,.6)}
+.mf-title{font-size:1.15rem;font-weight:700;color:#d8f4f0;letter-spacing:.14em;text-shadow:0 0 12px rgba(74,200,192,.6)}
+.mf-dots i{display:inline-block;animation:mfDot 1.4s infinite;font-style:normal}.mf-dots i:nth-child(2){animation-delay:.2s}.mf-dots i:nth-child(3){animation-delay:.4s}
+@keyframes mfDot{0%,100%{opacity:.2}40%{opacity:1}}
+.mf-meta{margin-top:.5rem;font-size:.82rem;color:#7ab8b4;letter-spacing:.08em}
+.mf-tip{margin-top:1.4rem;max-width:80vw;text-align:center;font-size:.78rem;line-height:1.6;color:#9ab0b8;min-height:2.6em;transition:opacity .5s}
+.mf-cancel{margin-top:1.2rem;padding:.6rem 2.2rem;border-radius:999px;border:1px solid #4a6a74;background:rgba(10,24,34,.7);color:#bfe0e4;font-family:inherit;font-size:.9rem;cursor:pointer}
+/* 見つかったとき */
+#match-fx.found .mf-radar,#match-fx.found .mf-orbit,#match-fx.found .mf-grid{display:none}
+#match-fx.found .mf-ring{border-color:#ffd24a;animation-duration:1s;animation-iteration-count:2}
+#match-fx.found .mf-title{color:#ffe9a0;text-shadow:0 0 14px rgba(255,200,60,.8);animation:mfPop .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes mfPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.mf-vs{display:none;align-items:center;gap:.7rem;margin-top:1.1rem}
+#match-fx.found .mf-vs{display:flex}
+.mf-name{padding:.5rem 1rem;border-radius:10px;background:rgba(20,34,46,.85);border:1px solid #4a8a94;color:#fff;font-weight:700;max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mf-name.l{animation:mfL .5s .15s cubic-bezier(.2,1.2,.4,1) both}.mf-name.r{animation:mfR .5s .15s cubic-bezier(.2,1.2,.4,1) both}
+@keyframes mfL{from{transform:translateX(-80vw)}to{transform:none}}@keyframes mfR{from{transform:translateX(80vw)}to{transform:none}}
+.mf-vsmark{font-weight:900;font-size:1.5rem;color:#ffd24a;text-shadow:0 0 12px #ff9a20;animation:mfPop .4s .55s cubic-bezier(.2,1.8,.4,1) both}
+#match-fx.found .mf-tip,#match-fx.found .mf-cancel,#match-fx.found .mf-meta{display:none}
+@media (prefers-reduced-motion:reduce){.mf-ring,.mf-radar,.mf-orbit,.mf-flower{animation:none}}
 /* ── ガチャ演出 ── */
 #gacha-fx{position:fixed;inset:0;z-index:950;display:none;overflow:hidden;
   background:radial-gradient(circle at 50% 42%,#2a1a34 0%,#0c060f 60%,#040205 100%);
@@ -1940,13 +1981,13 @@ catch(e){setOnlineStatus('Socket.IOの読み込みに失敗しました','#f0705
 
 socket.on('connect',()=>{ clearTimeout(_wakeTimer); setOnlineStatus('',''); });
 
-socket.on('connect_error',()=>setOnlineStatus('サーバーに接続できません','#f07050'));
+socket.on('connect_error',()=>{hideMatchFx(true);setOnlineStatus('サーバーに接続できません','#f07050');});
 
-socket.on('queued',({pos})=>{setOnlineStatus(`⟳ マッチング中... (待機${pos}人)`,'#6fc4ae');document.getElementById('btn-cancel-quick').style.display='';});
+socket.on('queued',({pos})=>{if(!document.getElementById('match-fx'))showMatchFx();setOnlineStatus(`⟳ マッチング中... (待機${pos}人)`,'#6fc4ae');document.getElementById('btn-cancel-quick').style.display='';});
 
-socket.on('matched',({code,names})=>{currentCode=code;setOnlineStatus(`✓ マッチング成立！(${names.join(' vs ')})`,'#60e888');document.getElementById('btn-cancel-quick').style.display='none';});
+socket.on('matched',({code,names})=>{currentCode=code;matchFoundFx(names);setOnlineStatus(`✓ マッチング成立！(${names.join(' vs ')})`,'#60e888');document.getElementById('btn-cancel-quick').style.display='none';});
 
-socket.on('queue_cancelled',()=>{setOnlineStatus('','');document.getElementById('btn-quick').disabled=false;document.getElementById('btn-cancel-quick').style.display='none';});
+socket.on('queue_cancelled',()=>{hideMatchFx(true);setOnlineStatus('','');document.getElementById('btn-quick').disabled=false;document.getElementById('btn-cancel-quick').style.display='none';});
 
 socket.on('room_created',({code})=>{currentCode=code;document.getElementById('room-code-display').textContent=code;document.getElementById('room-host-box').style.display='';document.getElementById('btn-create-room').disabled=false;});
 
@@ -1965,6 +2006,7 @@ const js=document.getElementById('join-status');if(js&&!js.textContent.includes(
 });
 
 socket.on('game_start',()=>{
+  hideMatchFx(false);
   onlineMode=true;
   showScreen('game');
   document.getElementById('chat-toggle').style.display='flex';
@@ -2009,13 +2051,58 @@ socket.on('err',msg=>toast(msg));
 
 socket.on('player_left',({name})=>showModal(`<div class="mtitle">⚠ 退出</div><p style="color:#a89868;margin:.8rem 0">${esc(name)} が退出しました</p><button class="mbtn" onclick="location.reload()">最初からやり直す</button>`));
 
-socket.on('disconnect',()=>{if(onlineMode)showModal(`<div class="mtitle">⚠ 切断</div><p style="color:#a89868;margin:.8rem 0">接続が切れました</p><button class="mbtn" onclick="location.reload()">最初からやり直す</button>`);});
+socket.on('disconnect',()=>{hideMatchFx(true);if(onlineMode)showModal(`<div class="mtitle">⚠ 切断</div><p style="color:#a89868;margin:.8rem 0">接続が切れました</p><button class="mbtn" onclick="location.reload()">最初からやり直す</button>`);});
 
 }
 
-function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});}
 
-function cancelQueue(){socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
+// ============================================================
+// クイックマッチの待機演出（相手が見つかるまで／見つかった瞬間）
+// ============================================================
+let _matchFxTimer=null,_matchTipTimer=null,_matchStart=0,_matchFoundAt=0;
+const MATCH_TIPS=['ロンは、相手が捨てた牌で自分の役が完成するときに宣言できます','リーチをして上がると、+1点になります','上下の数字が同じ★ゾロ目牌は、ボーナス点の対象です','「六華」は最高難度の役。6点が入ります','牌は反転させると、上下が入れ替わります','称号やアイコンは、メニューのカスタマイズから変えられます','ガチャの景品は、花びらを貯めて引けます'];
+function showMatchFx(){
+  hideMatchFx(true);
+  const flower='<svg viewBox="-100 -100 200 200">'+[0,1,2,3,4,5].map(k=>`<ellipse cx="0" cy="-50" rx="17" ry="46" transform="rotate(${k*60})" fill="#ffd45a" fill-opacity=".55" stroke="#fff0a0" stroke-width="2"/>`).join('')+'<circle r="9" fill="#fff6c0"/></svg>';
+  let stars='';for(let i=0;i<40;i++)stars+=`<i style="left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*100).toFixed(1)}%;animation-delay:-${(Math.random()*3).toFixed(1)}s"></i>`;
+  const el=document.createElement('div');el.id='match-fx';
+  el.innerHTML=`<div class="mf-stars">${stars}</div>
+    <div class="mf-center"><div class="mf-ring"></div><div class="mf-ring"></div><div class="mf-ring"></div><div class="mf-grid"></div><div class="mf-radar"></div>
+      <div class="mf-orbit">${[0,1,2,3,4,5].map(i=>`<i class="mf-tile" style="--i:${i}"></i>`).join('')}</div><div class="mf-flower">${flower}</div></div>
+    <div class="mf-title" id="mf-title">対戦相手を探しています<span class="mf-dots"><i>.</i><i>.</i><i>.</i></span></div>
+    <div class="mf-vs" id="mf-vs"></div>
+    <div class="mf-meta" id="mf-meta">経過 0:00</div>
+    <div class="mf-tip" id="mf-tip"></div>
+    <button class="mf-cancel" onclick="cancelQueue()">キャンセル</button>`;
+  document.body.appendChild(el);
+  _matchStart=Date.now();_matchFoundAt=0;
+  const tick=()=>{const m=document.getElementById('mf-meta');if(!m)return;const sec=Math.floor((Date.now()-_matchStart)/1000);m.textContent=`経過 ${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;};
+  _matchFxTimer=setInterval(tick,1000);
+  let ti=Math.floor(Math.random()*MATCH_TIPS.length);
+  const tip=()=>{const t=document.getElementById('mf-tip');if(!t)return;t.style.opacity=0;setTimeout(()=>{t.textContent='💡 '+MATCH_TIPS[ti%MATCH_TIPS.length];ti++;t.style.opacity=1;},350);};
+  tip();_matchTipTimer=setInterval(tip,4500);
+}
+function matchFoundFx(names){
+  const el=document.getElementById('match-fx');if(!el)return;
+  _matchFoundAt=Date.now();
+  clearInterval(_matchFxTimer);clearInterval(_matchTipTimer);
+  const nm=(names||[]).map(n=>esc(n));
+  document.getElementById('mf-title').textContent='対戦相手が見つかりました！';
+  document.getElementById('mf-vs').innerHTML=`<span class="mf-name l">${nm[0]||''}</span><span class="mf-vsmark">VS</span><span class="mf-name r">${nm[1]||''}</span>`;
+  el.classList.add('found');
+  _gfxAudio(ctx=>{const now=ctx.currentTime,m=ctx.createGain();m.gain.value=soundVolume*.5;m.connect(ctx.destination);
+    [[659.25,0],[880,.12],[1318.5,.26]].forEach(([f,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,now+t);g.gain.linearRampToValueAtTime(.6,now+t+.02);g.gain.exponentialRampToValueAtTime(.001,now+t+.5);o.connect(g);g.connect(m);o.start(now+t);o.stop(now+t+.55);});});
+}
+// immediate=true なら即座に消す。そうでなければ、見つかった演出を最低限見せてから消す
+function hideMatchFx(immediate){
+  clearInterval(_matchFxTimer);clearInterval(_matchTipTimer);
+  const el=document.getElementById('match-fx');if(!el)return;
+  const wait=immediate?0:Math.max(0,1700-(Date.now()-_matchFoundAt));
+  setTimeout(()=>{if(immediate){el.remove();return;}el.classList.add('out');setTimeout(()=>el.remove(),420);},_matchFoundAt?wait:0);
+}
+function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});showMatchFx();}
+
+function cancelQueue(){hideMatchFx(true);socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
 
 function createRoom(){
   if(!socket||!socket.connected){initSocket();setTimeout(createRoom,1000);return;}
