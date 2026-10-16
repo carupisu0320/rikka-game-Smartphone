@@ -380,6 +380,7 @@ pointer-events:none;opacity:0;transition:opacity .22s,transform .22s;white-space
 #achievement-popup .ap-icon{font-size:2.1rem;flex-shrink:0}
 #achievement-popup .ap-label{font-size:.66rem;color:#c9a84c;font-weight:700;letter-spacing:.04em}
 #achievement-popup .ap-title{font-size:1rem;color:#f5e0a0;font-weight:700;margin-top:.1rem}
+#achievement-popup{z-index:960!important}
 #achievement-popup .ap-reward{font-size:.78rem;color:#ffd978;font-weight:700;margin-top:.25rem}
 #achievement-popup .ap-desc{font-size:.72rem;color:#8a7860;margin-top:.15rem}
 .ach-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .5rem;border-radius:8px;
@@ -808,6 +809,30 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 #match-fx.found .mf-tip,#match-fx.found .mf-cancel,#match-fx.found .mf-meta{display:none}
 #match-fx.found::after{content:'タップでスキップ';position:absolute;bottom:2rem;left:0;right:0;text-align:center;font-size:.72rem;color:rgba(255,255,255,.35);letter-spacing:.14em}
 @media (prefers-reduced-motion:reduce){.mf-ring,.mf-radar,.mf-orbit,.mf-flower{animation:none}}
+
+.gacha-multi{display:flex;gap:.6rem;justify-content:center;margin-top:.7rem;flex-wrap:wrap}
+.gacha-multi-btn{padding:.7rem 1.3rem;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;color:#160e00;
+  background:linear-gradient(135deg,#f5d078,#c9a84c);box-shadow:0 4px 14px rgba(201,168,76,.35)}
+.gacha-multi-btn.big{background:linear-gradient(135deg,#ffb4d8,#e060a8);color:#2a0618;box-shadow:0 4px 14px rgba(224,96,168,.4)}
+.gacha-multi-btn small{display:block;font-size:.7rem;font-weight:600;opacity:.8}
+.gacha-multi-btn:disabled{opacity:.4;cursor:default;box-shadow:none}
+#gacha-summary{position:fixed;inset:0;z-index:945;background:rgba(6,4,10,.94);display:flex;align-items:center;justify-content:center;animation:mfIn .3s ease-out both}
+.gs-box{width:min(420px,94vw);max-height:92vh;display:flex;flex-direction:column;background:linear-gradient(160deg,#241a14,#120c08);border:1.5px solid #c9a84c;border-radius:16px;padding:1rem;box-shadow:0 0 30px rgba(201,168,76,.3)}
+.gs-title{text-align:center;font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.25rem;font-weight:700;color:#f5d78a;letter-spacing:.1em}
+.gs-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:.3rem .8rem;margin:.5rem 0;font-size:.74rem;color:#b8a070}
+.gs-stats b{color:#ffe28a}
+.gs-rar{display:flex;justify-content:center;gap:.5rem;margin-bottom:.5rem;font-size:.72rem;font-weight:700}
+.gs-list{overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:.45rem;padding:.2rem;-webkit-overflow-scrolling:touch}
+.gs-card{position:relative;padding:.45rem .2rem .35rem;border-radius:10px;background:#141008;border:1.5px solid var(--rc,#555);text-align:center;animation:gsPop .35s var(--d,0s) cubic-bezier(.2,1.5,.4,1) both}
+@keyframes gsPop{from{opacity:0;transform:scale(.4) translateY(14px)}to{opacity:1;transform:none}}
+.gs-card .ic{font-size:1.5rem;line-height:1.2}
+.gs-card .nm{font-size:.62rem;color:#d8c898;line-height:1.25;margin-top:.15rem;min-height:2.5em;display:flex;align-items:center;justify-content:center}
+.gs-card .new{position:absolute;top:-6px;right:-4px;background:linear-gradient(135deg,#ff5a5a,#c02020);color:#fff;font-size:.55rem;font-weight:900;padding:.05rem .35rem;border-radius:6px}
+.gs-card .cnt{position:absolute;top:2px;left:4px;font-size:.62rem;font-weight:800;color:#ffe28a}
+.gs-card.sr{box-shadow:0 0 12px rgba(245,208,64,.55)}.gs-card.r{box-shadow:0 0 8px rgba(96,168,240,.4)}
+.gs-btns{display:flex;gap:.5rem;margin-top:.7rem}
+.gs-btns button{flex:1;padding:.65rem;border-radius:10px;border:none;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer}
+.gs-btns .main{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}.gs-btns .sub{background:#2a1e14;color:#e8c97a;border:1px solid #5a4028}.gs-btns button:disabled{opacity:.4;cursor:default}
 /* ── ガチャ演出 ── */
 #gacha-fx{position:fixed;inset:0;z-index:950;display:none;overflow:hidden;
   background:radial-gradient(circle at 50% 42%,#2a1a34 0%,#0c060f 60%,#040205 100%);
@@ -1489,7 +1514,8 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   </div>
   <div class="gacha-main">
     <button class="gacha-draw-btn" id="gacha-draw-btn" onclick="drawGacha()">ガチャを引く</button>
-    <div class="gacha-cost">花びら<span id="gacha-cost-label">10</span>枚で1回。対局を遊ぶと貯まります</div>
+    <div class="gacha-multi"><button class="gacha-multi-btn" id="gacha-draw10" onclick="drawGachaMulti(10)">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" id="gacha-draw100" onclick="drawGachaMulti(100)">100連<small>🌸 1000</small></button></div>
+    <div class="gacha-cost">花びら<span id="gacha-cost-label">10</span>枚で1回。対局を遊ぶと貯まります<br>10連・100連は、10回ごとにレア以上が1つ確定です</div>
     <div class="gacha-result" id="gacha-result"></div>
   </div>
   <div class="gacha-collection" id="gacha-collection"></div>
@@ -3380,7 +3406,7 @@ function checkAchievements(won,opts){
     st.winStreak=won?st.winStreak+1:0;
     if(won){st.totalWins++;if(opts.online)st.onlineWins++;if(opts.diff==='hard'&&!opts.online)st.hardWins++;if(opts.ron)st.ronWins++;}
   }
-  if(opts.gacha)st.gachaDraws++;
+  if(opts.gacha)st.gachaDraws+=(typeof opts.gacha==='number'?opts.gacha:1);
 
   const have=new Set(st.unlocked);
   const newly=[];
@@ -4154,6 +4180,8 @@ function updatePetalDisplays(){
   const n=loadPetals();
   const a=document.getElementById('gacha-lobby-petals'); if(a)a.textContent=n;
   const b=document.getElementById('gacha-petals'); if(b)b.textContent=n;
+  const d1=document.getElementById('gacha-draw-btn'),d10=document.getElementById('gacha-draw10'),d100=document.getElementById('gacha-draw100');
+  if(d1)d1.disabled=n<GACHA_COST; if(d10)d10.disabled=n<GACHA_COST*10; if(d100)d100.disabled=n<GACHA_COST*100;
 }
 
 function loadGachaState(){
@@ -4184,6 +4212,62 @@ function pickGachaRarity(){
     if(roll<acc) return key;
   }
   return 'common';
+}
+
+// ============================================================
+// 10連・100連ガチャ。10回ごとに、レア以上が1つ確定
+// ============================================================
+let _gachaBatch=null;
+const RARITY_ORDER={common:0,uncommon:1,rare:2,superrare:3};
+function drawGachaMulti(n){
+  const cost=GACHA_COST*n;
+  if(loadPetals()<cost){toast('花びらが足りません');return;}
+  addPetals(-cost);
+  const owned=new Set(loadGachaState().owned);
+  const results=[];let refund=0;
+  for(let g=0;g<n/10;g++){
+    let haveRare=false;
+    for(let k=0;k<10;k++){
+      let rarity=pickGachaRarity();
+      if(k===9&&!haveRare){ // 10回目：レア以上がまだ出ていなければ、レア（超レアは少しだけ）に差し替える
+        rarity=Math.random()*(GACHA_RARITY_INFO.rare.weight+GACHA_RARITY_INFO.superrare.weight)<GACHA_RARITY_INFO.superrare.weight?'superrare':'rare';
+      }
+      if(RARITY_ORDER[rarity]>=2)haveRare=true;
+      const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement);
+      const item=pool[Math.floor(Math.random()*pool.length)];
+      const isDup=owned.has(item.id);
+      if(!isDup){owned.add(item.id);grantItem(item.id);}else refund+=Math.ceil(GACHA_COST/2);
+      results.push({item,isDup});
+    }
+  }
+  if(refund)addPetals(refund);
+  const best=results.reduce((a,b)=>{
+    const ra=RARITY_ORDER[a.item.rarity],rb=RARITY_ORDER[b.item.rarity];
+    return rb>ra||(rb===ra&&a.isDup&&!b.isDup)?b:a;},results[0]);
+  _gachaBatch={n,cost,refund,results};
+  _gfxPendingAch=checkAchievements(false,{misc:true,gacha:n});
+  startGachaFx(best.item,best.isDup);
+}
+function showGachaSummary(b){
+  const old=document.getElementById('gacha-summary');if(old)old.remove();
+  // 同じ景品はまとめる（回数つき）。レアが上に来るよう並べる
+  const map=new Map();
+  b.results.forEach(r=>{const e=map.get(r.item.id)||{item:r.item,count:0,isNew:false};e.count++;if(!r.isDup)e.isNew=true;map.set(r.item.id,e);});
+  const list=[...map.values()].sort((a,b2)=>RARITY_ORDER[b2.item.rarity]-RARITY_ORDER[a.item.rarity]||(b2.isNew-a.isNew)||b2.count-a.count);
+  const cnt={common:0,uncommon:0,rare:0,superrare:0};b.results.forEach(r=>cnt[r.item.rarity]++);
+  const newN=list.filter(e=>e.isNew).length;
+  const cards=list.map((e,i)=>{const info=GACHA_RARITY_INFO[e.item.rarity];
+    return `<div class="gs-card ${e.item.rarity==='superrare'?'sr':e.item.rarity==='rare'?'r':''}" style="--rc:${info.color};--d:${Math.min(i*.04,1.2).toFixed(2)}s">
+      ${e.count>1?`<span class="cnt">×${e.count}</span>`:''}${e.isNew?'<span class="new">NEW</span>':''}<div class="ic">${e.item.icon}</div><div class="nm">${esc(e.item.title)}</div></div>`;}).join('');
+  const canAgain=loadPetals()>=GACHA_COST*b.n;
+  const el=document.createElement('div');el.id='gacha-summary';
+  el.innerHTML=`<div class="gs-box"><div class="gs-title">${b.n}連ガチャ 結果</div>
+    <div class="gs-stats"><span>使った花びら <b>🌸${b.cost}</b></span><span>戻った花びら <b>🌸${b.refund}</b></span><span>新しい景品 <b>${newN}個</b></span></div>
+    <div class="gs-rar">${['superrare','rare','uncommon','common'].map(k=>`<span style="color:${GACHA_RARITY_INFO[k].color}">${GACHA_RARITY_INFO[k].label} ${cnt[k]}</span>`).join('')}</div>
+    <div class="gs-list">${cards}</div>
+    <div class="gs-btns"><button class="sub" ${canAgain?'':'disabled'} onclick="document.getElementById('gacha-summary').remove();drawGachaMulti(${b.n})">もう一度（${b.n}連）</button><button class="main" onclick="document.getElementById('gacha-summary').remove()">閉じる</button></div></div>`;
+  document.body.appendChild(el);
+  try{if(typeof soundEnabled!=='undefined')gfxRevealSound(cnt.superrare?'superrare':cnt.rare?'rare':'uncommon');}catch(e){}
 }
 function drawGacha(){
   const petals=loadPetals();
@@ -4422,7 +4506,7 @@ function gfxReveal(){
     <div class="gfx-card">
       ${_gfx.isDup?'':'<div class="gfx-new">NEW!</div>'}
       <div class="gfx-stars">${stars}</div>
-      <div class="gfx-rlabel">${esc(info.label)}</div>
+      <div class="gfx-rlabel">${_gachaBatch?_gachaBatch.n+'連の最高レア　':''}${esc(info.label)}</div>
       <div class="gfx-icon">${item.icon}</div>
       <div class="gfx-title">${esc(item.title)}</div>
       ${gfxPreviewHtml(item)}
@@ -4430,8 +4514,8 @@ function gfxReveal(){
       ${_gfx.isDup?'<div class="gfx-dup">すでに持っています（花びら一部還元）</div>':''}
       <div class="gfx-btns">
         ${canUse?'<button class="gfx-btn main" id="gfx-equip-btn" onclick="event.stopPropagation();gfxEquipNow()">✨ 今すぐ使う</button>':''}
-        <button class="gfx-btn sub" ${canAgain?'':'disabled'} onclick="event.stopPropagation();gfxAgain()">🌸 もう一度引く（${GACHA_COST}）</button>
-        <button class="gfx-btn ghost" onclick="event.stopPropagation();closeGachaFx()">閉じる</button>
+        ${_gachaBatch?`<button class="gfx-btn main" onclick="event.stopPropagation();closeGachaFx()">📋 ${_gachaBatch.n}連の結果を見る</button>`:`<button class="gfx-btn sub" ${canAgain?'':'disabled'} onclick="event.stopPropagation();gfxAgain()">🌸 もう一度引く（${GACHA_COST}）</button>
+        <button class="gfx-btn ghost" onclick="event.stopPropagation();closeGachaFx()">閉じる</button>`}
       </div>
     </div>`;
   gfxRevealSound(_gfx.rarity);
@@ -4453,7 +4537,10 @@ function closeGachaFx(){
   gfxStopChargeSound();
   const wasActive=_gfx.stage!=='idle'; _gfx.stage='idle';
   document.getElementById('gacha-fx').style.display='none';
-  if(wasActive&&_gfx.item){ showGachaResult(_gfx.item,_gfx.isDup); renderGachaCollection(); }
+  if(wasActive&&_gfx.item){
+    if(_gachaBatch){const b=_gachaBatch;_gachaBatch=null;renderGachaCollection();showGachaSummary(b);}
+    else{ showGachaResult(_gfx.item,_gfx.isDup); renderGachaCollection(); }
+  }
   if(_gfxPendingAch.length){const l=_gfxPendingAch;_gfxPendingAch=[];setTimeout(()=>showAchievementPopup(l),400);}
 }
 function gfxAgain(){ closeGachaFx(); drawGacha(); }
