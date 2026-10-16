@@ -4780,44 +4780,125 @@ const TILE_BACK_ANIMS={
 };
 
 // 場全体を横切る動き。牌の表面にだけ映る（牌のすきまでは見えなくなるので、牌から牌へ伝っていくように見える）
-function _drawDragonBody(c,nodes,ts){
-  const N=nodes.length-1;c.lineCap='round';c.lineJoin='round';
-  for(let k=N;k>=0;k--){
-    const p=nodes[k],q=nodes[Math.max(0,k-1)],nx=nodes[Math.min(N,k+1)];
-    const ang=k===0?Math.atan2(nodes[0].y-nodes[1].y,nodes[0].x-nodes[1].x):Math.atan2(q.y-nx.y,q.x-nx.x),f=k/N,r=ts*(.2-.12*f);
-    if(k>0&&k%3===0){ // 背びれ
-      c.fillStyle='#b8501a';const nxv=Math.cos(ang+1.57),nyv=Math.sin(ang+1.57);
-      c.beginPath();c.moveTo(p.x+nxv*r*.8,p.y+nyv*r*.8);c.lineTo(p.x+nxv*r*2.1+Math.cos(ang)*r*.8,p.y+nyv*r*2.1+Math.sin(ang)*r*.8);c.lineTo(p.x+nxv*r*.8+Math.cos(ang)*r*1.8,p.y+nyv*r*.8+Math.sin(ang)*r*1.8);c.fill();
-    }
-    const g=c.createRadialGradient(p.x-r*.3,p.y-r*.3,0,p.x,p.y,r*1.25);g.addColorStop(0,'#fff0a0');g.addColorStop(.6,'#e8b830');g.addColorStop(1,'#8a5a10');
-    c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,Math.max(1,r),0,6.283);c.fill();
-    if(k%2===0){c.strokeStyle='rgba(120,70,10,.55)';c.lineWidth=Math.max(.5,ts*.016);c.beginPath();c.arc(p.x,p.y,Math.max(.8,r*.72),ang-1.2,ang+1.2);c.stroke();}
-    if(k===0){ // 頭：角・ひげ・目
-      const hr=r*1.45;c.fillStyle='#f4c844';c.beginPath();c.ellipse(p.x+Math.cos(ang)*r*.6,p.y+Math.sin(ang)*r*.6,hr*1.2,hr*.85,ang,0,6.283);c.fill();
-      c.lineWidth=Math.max(.7,ts*.024);
-      [-1,1].forEach(sd=>{const a=ang+sd*.75;
-        c.strokeStyle='#fff0b0';c.beginPath();c.moveTo(p.x+Math.cos(ang)*r*.2,p.y+Math.sin(ang)*r*.2);c.lineTo(p.x+Math.cos(a)*hr*1.9,p.y+Math.sin(a)*hr*1.9);c.stroke();
-        c.strokeStyle='#e8d890';c.beginPath();c.moveTo(p.x+Math.cos(ang)*r*2,p.y+Math.sin(ang)*r*2);c.quadraticCurveTo(p.x+Math.cos(ang+sd*.45)*hr*3,p.y+Math.sin(ang+sd*.45)*hr*3,p.x+Math.cos(ang+sd*.8)*hr*4,p.y+Math.sin(ang+sd*.8)*hr*4);c.stroke();
-        c.fillStyle='#e02a10';c.beginPath();c.arc(p.x+Math.cos(ang)*r*1.1+Math.cos(ang+sd*1.4)*hr*.5,p.y+Math.sin(ang)*r*1.1+Math.sin(ang+sd*1.4)*hr*.5,Math.max(.7,r*.22),0,6.283);c.fill();});
-    }
+// ── リアルな龍の描画 ──
+function _catmull(nodes,per){
+  const n=nodes.length,out=[];
+  for(let i=0;i<n-1;i++){
+    const p0=nodes[Math.max(i-1,0)],p1=nodes[i],p2=nodes[i+1],p3=nodes[Math.min(i+2,n-1)];
+    for(let k=0;k<per;k++){const u=k/per,u2=u*u,u3=u2*u;
+      out.push({x:.5*((2*p1.x)+(-p0.x+p2.x)*u+(2*p0.x-5*p1.x+4*p2.x-p3.x)*u2+(-p0.x+3*p1.x-3*p2.x+p3.x)*u3),
+                y:.5*((2*p1.y)+(-p0.y+p2.y)*u+(2*p0.y-5*p1.y+4*p2.y-p3.y)*u2+(-p0.y+3*p1.y-3*p2.y+p3.y)*u3)});}
   }
+  out.push({x:nodes[n-1].x,y:nodes[n-1].y});return out;
 }
+function _ribbon(c,P,shift,wf,fill,alpha,from,to){
+  const a=from||0,b=to||P.length-1;c.globalAlpha=alpha===undefined?1:alpha;c.fillStyle=fill;c.beginPath();
+  for(let i=a;i<=b;i++){const p=P[i];c.lineTo(p.x+p.nx*p.r*(shift+wf),p.y+p.ny*p.r*(shift+wf));}
+  for(let i=b;i>=a;i--){const p=P[i];c.lineTo(p.x+p.nx*p.r*(shift-wf),p.y+p.ny*p.r*(shift-wf));}
+  c.closePath();c.fill();c.globalAlpha=1;
+}
+function _drawDragon(c,nodes,ts,t,dir){
+  const S=_catmull(nodes,4),L=S.length,R0=ts*.27;
+  const P=S.map((p,i)=>{
+    const a=S[Math.max(0,i-1)],b=S[Math.min(L-1,i+1)];let tx=b.x-a.x,ty=b.y-a.y;const m=Math.hypot(tx,ty)||1;tx/=m;ty/=m;
+    const nx=-ty*dir,ny=tx*dir; // (nx,ny) は常に「背中側」（左へ進むときも右へ進むときも、背中が上）
+    const f=i/(L-1);
+    return {x:p.x,y:p.y,tx,ty,nx,ny,f,r:R0*(.2+.8*Math.pow(1-f,.75))*(i<6?.82+.03*i:1)};
+  });
+  const gold=ts*.025;c.lineCap='round';c.lineJoin='round';
+  // ---- 脚（体の後ろ側に描く） ----
+  [[.30,0],[.62,1]].forEach(([f,ph])=>{
+    const p=P[Math.floor(f*(L-1))];if(!p)return;
+    [-1,1].forEach(side=>{
+      const sw=Math.sin(t*3.4+ph*2+side)*.4,bx=p.x-p.nx*p.r*.6,by=p.y-p.ny*p.r*.6;
+      const a1=Math.atan2(-p.ny,-p.nx)+side*.9+sw,l1=ts*.42,k1x=bx+Math.cos(a1)*l1,k1y=by+Math.sin(a1)*l1;
+      const a2=a1-side*.9+sw*.6,l2=ts*.36,fx=k1x+Math.cos(a2)*l2,fy=k1y+Math.sin(a2)*l2;
+      c.strokeStyle='#6a4208';c.lineWidth=p.r*.55;c.beginPath();c.moveTo(bx,by);c.lineTo(k1x,k1y);c.lineTo(fx,fy);c.stroke();
+      c.strokeStyle='#d8a82a';c.lineWidth=p.r*.34;c.beginPath();c.moveTo(bx,by);c.lineTo(k1x,k1y);c.lineTo(fx,fy);c.stroke();
+      c.strokeStyle='#fff0c0';c.lineWidth=Math.max(.6,ts*.02);
+      for(let k=-1;k<=1;k++){const ca=a2+k*.55;c.beginPath();c.moveTo(fx,fy);c.quadraticCurveTo(fx+Math.cos(ca)*ts*.1,fy+Math.sin(ca)*ts*.1,fx+Math.cos(ca+.4)*ts*.16,fy+Math.sin(ca+.4)*ts*.16);c.stroke();}
+    });
+  });
+  // ---- 背びれ・たてがみ（背中側） ----
+  for(let i=2;i<L-2;i+=3){
+    const p=P[i],s=p.r*(1.1-.5*p.f)*(p.f<.22?1.7:1),tipx=p.x+p.nx*(p.r+s)+p.tx*s*.9,tipy=p.y+p.ny*(p.r+s)+p.ty*s*.9;
+    const g=c.createLinearGradient(p.x+p.nx*p.r,p.y+p.ny*p.r,tipx,tipy);g.addColorStop(0,'#e8a020');g.addColorStop(1,'#d83a14');
+    c.fillStyle=g;c.beginPath();c.moveTo(p.x+p.nx*p.r*.9-p.tx*p.r*.5,p.y+p.ny*p.r*.9-p.ty*p.r*.5);c.quadraticCurveTo(p.x+p.nx*(p.r+s*.7),p.y+p.ny*(p.r+s*.7),tipx,tipy);
+    c.lineTo(p.x+p.nx*p.r*.9+p.tx*p.r*.6,p.y+p.ny*p.r*.9+p.ty*p.r*.6);c.closePath();c.fill();
+  }
+  // ---- 胴体（円筒に見えるよう、明るさの違う帯を重ねる） ----
+  _ribbon(c,P,0,1.0,'#3a2204');                    // 輪郭
+  _ribbon(c,P,0,.93,'#a86a14');                    // 影
+  _ribbon(c,P,.12,.78,'#d8a42a');             // 本体
+  _ribbon(c,P,.4,.26,'#fff0a8',.55,0,L-1);            // ハイライト（背中側にずらす）
+  // 腹の板（淡い色）
+  for(let i=4;i<L-4;i+=2){const p=P[i];
+    c.fillStyle='rgba(246,226,160,.85)';c.beginPath();
+    const a=P[i],b=P[Math.min(L-1,i+2)];
+    c.moveTo(a.x-a.nx*a.r*.5,a.y-a.ny*a.r*.5);c.lineTo(a.x-a.nx*a.r*.95,a.y-a.ny*a.r*.95);c.lineTo(b.x-b.nx*b.r*.95,b.y-b.ny*b.r*.95);c.lineTo(b.x-b.nx*b.r*.5,b.y-b.ny*b.r*.5);c.closePath();c.fill();
+    c.strokeStyle='rgba(150,100,20,.7)';c.lineWidth=Math.max(.4,ts*.012);c.beginPath();c.moveTo(a.x-a.nx*a.r*.5,a.y-a.ny*a.r*.5);c.lineTo(a.x-a.nx*a.r*.95,a.y-a.ny*a.r*.95);c.stroke();}
+  // うろこ（重なる小さな弧）
+  c.strokeStyle='rgba(70,40,4,.5)';c.lineWidth=Math.max(.4,ts*.014);
+  for(let i=6;i<L-2;i+=2){const p=P[i];
+    for(let row=-1;row<=1;row++){const off=row*p.r*.5+((i/2)%2?p.r*.25:0),cx=p.x+p.nx*off,cy=p.y+p.ny*off,ang=Math.atan2(p.ty,p.tx);
+      c.beginPath();c.arc(cx,cy,Math.max(.8,p.r*.42),ang-1.3,ang+1.3);c.stroke();}}
+  // しっぽの先の飾り毛
+  const e=P[L-1];c.strokeStyle='#d83a14';c.lineWidth=Math.max(.8,ts*.03);
+  for(let k=-2;k<=2;k++){const a=Math.atan2(e.ty,e.tx)+k*.4+Math.sin(t*5+k)*.12;c.beginPath();c.moveTo(e.x,e.y);c.quadraticCurveTo(e.x+Math.cos(a)*ts*.3,e.y+Math.sin(a)*ts*.3,e.x+Math.cos(a+.5)*ts*.55,e.y+Math.sin(a+.5)*ts*.55);c.stroke();}
+  // ---- 頭 ----
+  const h=P[0],fx=-h.tx,fy=-h.ty,ux=h.nx,uy=h.ny,hr=R0*1.25,open=.1+.06*Math.sin(t*2.4);
+  const H=(a,b)=>({x:h.x+fx*hr*a+ux*hr*b,y:h.y+fy*hr*a+uy*hr*b});
+  // 角（枝分かれ）
+  c.strokeStyle='#f2e2a0';c.lineWidth=Math.max(.9,ts*.04);
+  [[.3,.9,-.9],[.5,.7,-.5]].forEach(([a,b,dx],i)=>{const s0=H(a,b),s1=H(a-1.3,b+.9+i*.1),s2=H(a-2,b+.5);
+    c.beginPath();c.moveTo(s0.x,s0.y);c.quadraticCurveTo(s1.x,s1.y,s2.x,s2.y);c.stroke();
+    const br=H(a-1.4,b+.95);c.beginPath();c.moveTo(br.x,br.y);const bt=H(a-1.1,b+1.8);c.lineTo(bt.x,bt.y);c.stroke();});
+  // 下あご
+  const j0=H(-.2,-.5),j1=H(1.5,-.5-open*5),j2=H(2.5,-.2-open*4),j3=H(.2,-1.0);
+  c.fillStyle='#b27a1a';c.strokeStyle='#3a2204';c.lineWidth=gold;c.beginPath();c.moveTo(j0.x,j0.y);c.quadraticCurveTo(j1.x,j1.y,j2.x,j2.y);c.quadraticCurveTo(H(1.4,-1.0-open*4).x,H(1.4,-1.0-open*4).y,j3.x,j3.y);c.closePath();c.fill();c.stroke();
+  c.fillStyle='#d83a2a';c.beginPath();c.moveTo(H(.6,-.55).x,H(.6,-.55).y);c.lineTo(H(2,-.5-open*3).x,H(2,-.5-open*3).y);c.lineTo(H(1.2,-.8-open*3).x,H(1.2,-.8-open*3).y);c.fill(); // 舌
+  // 頭本体（鼻づらがせり出し、額が盛り上がる）
+  const t0=H(-.8,.5),t1=H(.3,1.5),t2=H(1.6,1.0),t3=H(2.9,.35),t4=H(2.8,-.1),t5=H(1.4,-.05),t6=H(-.6,-.4);
+  const hg=c.createLinearGradient(t1.x,t1.y,t6.x,t6.y);hg.addColorStop(0,'#f6d058');hg.addColorStop(1,'#a8701a');
+  c.fillStyle=hg;c.strokeStyle='#3a2204';c.lineWidth=gold;c.beginPath();c.moveTo(t0.x,t0.y);c.quadraticCurveTo(t1.x,t1.y,t2.x,t2.y);c.quadraticCurveTo(H(2.5,.9).x,H(2.5,.9).y,t3.x,t3.y);
+  c.quadraticCurveTo(H(3.1,.1).x,H(3.1,.1).y,t4.x,t4.y);c.quadraticCurveTo(t5.x,t5.y,H(.6,-.2).x,H(.6,-.2).y);c.lineTo(t6.x,t6.y);c.closePath();c.fill();c.stroke();
+  // 牙
+  c.fillStyle='#fffbe8';[1.0,1.7,2.4].forEach(a=>{const b0=H(a,-.12-open*1.5),b1=H(a+.18,-.12-open*1.5),tp=H(a+.08,-.5-open*3);c.beginPath();c.moveTo(b0.x,b0.y);c.lineTo(b1.x,b1.y);c.lineTo(tp.x,tp.y);c.fill();});
+  // 鼻・まゆ・目
+  c.fillStyle='#4a2a06';const ns=H(2.7,.45);c.beginPath();c.arc(ns.x,ns.y,Math.max(.7,hr*.1),0,6.283);c.fill();
+  c.strokeStyle='#7a4a0a';c.lineWidth=Math.max(.7,ts*.03);c.beginPath();const b0=H(.5,1.0),b1=H(1.5,1.0);c.moveTo(b0.x,b0.y);c.lineTo(b1.x,b1.y);c.stroke();
+  const ey=H(.95,.62);c.fillStyle='#fff4c0';c.beginPath();c.arc(ey.x,ey.y,Math.max(1,hr*.2),0,6.283);c.fill();
+  c.fillStyle='#e02010';c.beginPath();c.arc(ey.x+fx*hr*.04,ey.y+fy*hr*.04,Math.max(.8,hr*.13),0,6.283);c.fill();
+  c.globalCompositeOperation='lighter';const eg=c.createRadialGradient(ey.x,ey.y,0,ey.x,ey.y,hr*.7);eg.addColorStop(0,'rgba(255,90,40,.55)');eg.addColorStop(1,'rgba(255,90,40,0)');c.fillStyle=eg;c.fillRect(ey.x-hr,ey.y-hr,hr*2,hr*2);c.globalCompositeOperation='source-over';
+  // ひげ（ゆらゆら流れる）
+  c.strokeStyle='#f6ecb0';c.lineWidth=Math.max(.7,ts*.028);
+  [[2.2,.5,1],[2.3,.1,-1]].forEach(([a,b,sd],i)=>{const s0=H(a,b),w=Math.sin(t*3+i*2)*.5;
+    const c1=H(a+1.5,b+sd*1.6+w),c2=H(a+3.2,b+sd*.6-w*1.4),en=H(a+5,b+sd*2.2+w*2);
+    c.beginPath();c.moveTo(s0.x,s0.y);c.bezierCurveTo(c1.x,c1.y,c2.x,c2.y,en.x,en.y);c.stroke();});
+  // あごひげ
+  c.strokeStyle='#e8d890';c.lineWidth=Math.max(.6,ts*.02);
+  for(let k=0;k<3;k++){const s0=H(.9+k*.3,-.9),w=Math.sin(t*3.5+k)*.3,e1=H(.2+k*.2,-2.2+w);c.beginPath();c.moveTo(s0.x,s0.y);c.quadraticCurveTo(H(.8,-1.7).x,H(.8,-1.7).y,e1.x,e1.y);c.stroke();}
+  // 宝珠（龍が追いかける、光る玉）
+  const pb=H(6.4+Math.sin(t*2)*.3,1.2+Math.cos(t*1.7)*.3);
+  c.globalCompositeOperation='lighter';const pg=c.createRadialGradient(pb.x,pb.y,0,pb.x,pb.y,hr*1.6);pg.addColorStop(0,'rgba(255,250,210,.95)');pg.addColorStop(.35,'rgba(255,220,100,.5)');pg.addColorStop(1,'rgba(255,200,60,0)');c.fillStyle=pg;c.beginPath();c.arc(pb.x,pb.y,hr*1.6,0,6.283);c.fill();
+  c.globalCompositeOperation='source-over';c.fillStyle='#fff8d8';c.beginPath();c.arc(pb.x,pb.y,Math.max(1.2,hr*.34),0,6.283);c.fill();
+}
+
 const TILE_BACK_GLOBAL={
   // 龍：場の端から端まで、牌のうえを泳いで渡る（2匹が別のタイミングで）
   dragon(c,box,ts,t,st,dt){
-    if(!st.d){st.d=[{dir:-1,ph:.0,sp:1/16,nodes:null,last:1},{dir:1,ph:.5,sp:1/19,nodes:null,last:1}];}
-    const sp=ts*.30;
+    if(!st.d){st.d=[{dir:-1,ph:.0,sp:1/21,nodes:null,last:1},{dir:1,ph:.5,sp:1/25,nodes:null,last:1}];}
+    const sp=ts*.27,NN=34;
     for(const d of st.d){
       const u=_fr(t*d.sp+d.ph);
-      const prog=d.dir<0?(1.25-1.5*u):(-.25+1.5*u);
-      const hx=box.w*prog,hy=box.h*(.5+.3*Math.sin(u*Math.PI*2*2.1+d.ph*9));
-      if(!d.nodes||u<d.last-.5){d.nodes=Array.from({length:30},(_,i)=>({x:hx-d.dir*i*sp,y:hy}));} // 端に戻ったら、画面の外から出直す
+      const prog=d.dir<0?(1.3-1.6*u):(-.3+1.6*u);
+      const hx=box.w*prog,hy=box.h*(.5+.28*Math.sin(u*Math.PI*2*1.9+d.ph*9));
+      if(!d.nodes||u<d.last-.5){d.nodes=Array.from({length:NN},(_,i)=>({x:hx-d.dir*i*sp,y:hy}));} // 端に戻ったら、画面の外から出直す
       d.last=u;
       d.nodes[0].x=hx;d.nodes[0].y=hy;
       for(let i=1;i<d.nodes.length;i++){const a=d.nodes[i-1],b=d.nodes[i],dx=a.x-b.x,dy=a.y-b.y,L=Math.hypot(dx,dy)||1;b.x=a.x-dx/L*sp;b.y=a.y-dy/L*sp;}
-      _drawDragonBody(c,d.nodes,ts);
-      // ほんのり金色に光る
-      c.globalCompositeOperation='lighter';const gl=c.createRadialGradient(hx,hy,0,hx,hy,ts*1.6);gl.addColorStop(0,'rgba(255,200,60,.2)');gl.addColorStop(1,'rgba(255,200,60,0)');c.fillStyle=gl;c.fillRect(hx-ts*2,hy-ts*2,ts*4,ts*4);c.globalCompositeOperation='source-over';
+      _drawDragon(c,d.nodes,ts,t,d.dir);
+      c.globalCompositeOperation='lighter';const gl=c.createRadialGradient(hx,hy,0,hx,hy,ts*1.8);gl.addColorStop(0,'rgba(255,200,60,.16)');gl.addColorStop(1,'rgba(255,200,60,0)');c.fillStyle=gl;c.fillRect(hx-ts*2,hy-ts*2,ts*4,ts*4);c.globalCompositeOperation='source-over';
     }
   },
   // 光の帯が、場全体をななめに横切る
