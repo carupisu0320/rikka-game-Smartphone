@@ -688,6 +688,7 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
   background:radial-gradient(ellipse,rgba(190,200,225,.3),transparent 70%);filter:blur(8px);animation:cloudDrift 70s linear infinite}
 @keyframes cloudDrift{from{transform:translateX(-260px)}to{transform:translateX(120vw)}}
 .lf-moon2{position:absolute;filter:drop-shadow(0 0 26px var(--mg,rgba(255,235,170,.55)))}
+#tile-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
 #field-fx{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .win-title{display:inline-block;margin:.15rem 0 .35rem;padding:.16rem .75rem;border-radius:999px;border:1px solid #c9a84c;background:rgba(201,168,76,.12);color:#f5d78a;font-size:.78rem;font-weight:700;letter-spacing:.06em}
 .lf-bottom{position:absolute;bottom:0;left:0;width:100%;height:auto;overflow:visible}
@@ -4728,11 +4729,165 @@ function resetIcon(){
 // サイドバー
 
 // ============================================================
+// ============================================================
+// 牌の裏柄のアニメーション（場に伏せてある牌の上に、柄ごとの動きを重ねる）
+//  龍の裏地では、金色の龍が牌の中を泳ぎます
+// ============================================================
+const _fr=x=>x-Math.floor(x);
+function _star4t(c,x,y,r){c.beginPath();for(let k=0;k<8;k++){const rr=k%2?r*.28:r,a=k*Math.PI/4;c.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}c.closePath();c.fill();}
+function _sweep(c,w,h,s,rgb,al,wd){ // 斜めの光の帯（s: 0→1 で左上から右下へ）
+  const p=(s*(w+h*.6)-h*.3);c.save();c.translate(p,0);c.transform(1,0,-.45,1,0,0);
+  const g=c.createLinearGradient(-wd,0,wd,0);g.addColorStop(0,`rgba(${rgb},0)`);g.addColorStop(.5,`rgba(${rgb},${al})`);g.addColorStop(1,`rgba(${rgb},0)`);
+  c.fillStyle=g;c.fillRect(-wd,-4,wd*2,h+8);c.restore();
+}
+const TILE_BACK_ANIMS={
+  ember(c,w,h,t,ph){
+    const gl=c.createRadialGradient(w/2,h*1.05,0,w/2,h*1.05,h*.7);gl.addColorStop(0,`rgba(255,120,30,${.25+.1*Math.sin(t*5+ph*9)})`);gl.addColorStop(1,'rgba(255,120,30,0)');c.fillStyle=gl;c.fillRect(0,0,w,h);
+    c.globalCompositeOperation='lighter';
+    for(let k=0;k<7;k++){const s=_fr(t*.35+ph+k/7),x=w*(.15+.7*_fr(k*.37+ph))+Math.sin(t*2+k*2)*w*.06,y=h*(1.05-1.15*s);
+      c.fillStyle=`rgba(255,${(150+90*(1-s))|0},40,${Math.sin(Math.PI*s)*.95})`;c.beginPath();c.arc(x,y,1.1+(1-s)*.9,0,6.283);c.fill();}
+    c.globalCompositeOperation='source-over';
+  },
+  ice(c,w,h,t,ph){
+    c.fillStyle='#fff';c.globalCompositeOperation='lighter';
+    [[.25,.3],[.7,.68]].forEach(([x,y],i)=>{c.globalAlpha=Math.max(0,Math.sin(t*2+ph*8+i*2.4));_star4t(c,w*x,h*y,w*.09);});
+    c.globalAlpha=1;c.globalCompositeOperation='source-over';
+  },
+  sakura(c,w,h,t,ph){
+    c.fillStyle='#ffc0d4';
+    for(let k=0;k<3;k++){const s=_fr(t*.18+ph+k/3),x=w*(.2+.6*_fr(k*.41+ph))+Math.sin(t*1.4+k*2)*w*.12,y=h*(-.1+1.2*s);
+      c.globalAlpha=Math.sin(Math.PI*s)*.85;c.save();c.translate(x,y);c.rotate(t*.8+k);c.scale(1,.45+.55*Math.abs(Math.cos(t*1.2+k)));c.beginPath();c.ellipse(0,0,w*.09,w*.05,0,0,6.283);c.fill();c.restore();}
+    c.globalAlpha=1;
+  },
+  jade(c,w,h,t,ph){
+    c.globalCompositeOperation='lighter';const g=c.createRadialGradient(w/2,h/2,0,w/2,h/2,h*.55);g.addColorStop(0,`rgba(80,230,180,${.1+.08*Math.sin(t*1.5+ph*8)})`);g.addColorStop(1,'rgba(80,230,180,0)');c.fillStyle=g;c.fillRect(0,0,w,h);c.globalCompositeOperation='source-over';
+  },
+  gold(c,w,h,t,ph){
+    c.fillStyle='#fff6c0';c.globalCompositeOperation='lighter';c.globalAlpha=Math.max(0,Math.sin(t*2.2+ph*7))*.9;_star4t(c,w*.72,h*.25,w*.08);c.globalAlpha=1;c.globalCompositeOperation='source-over';
+  },
+  indigo(c,w,h,t,ph){
+    const s=_fr(t/3.8+ph);
+    if(s<.3){const k=s/.3,x=w*(-.1+1.2*k),y=h*(-.05+.7*k),g=c.createLinearGradient(x,y,x-w*.5,y-h*.35);g.addColorStop(0,'rgba(220,230,255,.95)');g.addColorStop(1,'rgba(220,230,255,0)');
+      c.strokeStyle=g;c.lineWidth=1.2;c.beginPath();c.moveTo(x,y);c.lineTo(x-w*.5,y-h*.35);c.stroke();}
+    c.fillStyle='#cfe0ff';[[.2,.3],[.75,.55],[.4,.8]].forEach(([x,y],i)=>{c.globalAlpha=.2+.7*Math.abs(Math.sin(t*1.6+ph*6+i*2));c.beginPath();c.arc(w*x,h*y,.9,0,6.283);c.fill();});c.globalAlpha=1;
+  },
+  galaxy(c,w,h,t,ph){
+    c.fillStyle='#fff';
+    for(let k=0;k<7;k++){c.globalAlpha=.15+.8*Math.abs(Math.sin(t*(.9+k*.13)+ph*9+k*2));c.beginPath();c.arc(w*_fr(k*.6180+ph),h*_fr(k*.3819+ph*.7),.7+(k%3)*.3,0,6.283);c.fill();}
+    c.globalAlpha=1;const s=_fr(t/4+ph);
+    if(s<.28){const k=s/.28,x=w*(1.1-1.2*k),y=h*(.05+.5*k),g=c.createLinearGradient(x,y,x+w*.5,y-h*.3);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(1,'rgba(255,255,255,0)');c.strokeStyle=g;c.lineWidth=1.1;c.beginPath();c.moveTo(x,y);c.lineTo(x+w*.5,y-h*.3);c.stroke();}
+  },
+};
+
+// 場全体を横切る動き。牌の表面にだけ映る（牌のすきまでは見えなくなるので、牌から牌へ伝っていくように見える）
+function _drawDragonBody(c,nodes,ts){
+  const N=nodes.length-1;c.lineCap='round';c.lineJoin='round';
+  for(let k=N;k>=0;k--){
+    const p=nodes[k],q=nodes[Math.max(0,k-1)],nx=nodes[Math.min(N,k+1)];
+    const ang=k===0?Math.atan2(nodes[0].y-nodes[1].y,nodes[0].x-nodes[1].x):Math.atan2(q.y-nx.y,q.x-nx.x),f=k/N,r=ts*(.2-.12*f);
+    if(k>0&&k%3===0){ // 背びれ
+      c.fillStyle='#b8501a';const nxv=Math.cos(ang+1.57),nyv=Math.sin(ang+1.57);
+      c.beginPath();c.moveTo(p.x+nxv*r*.8,p.y+nyv*r*.8);c.lineTo(p.x+nxv*r*2.1+Math.cos(ang)*r*.8,p.y+nyv*r*2.1+Math.sin(ang)*r*.8);c.lineTo(p.x+nxv*r*.8+Math.cos(ang)*r*1.8,p.y+nyv*r*.8+Math.sin(ang)*r*1.8);c.fill();
+    }
+    const g=c.createRadialGradient(p.x-r*.3,p.y-r*.3,0,p.x,p.y,r*1.25);g.addColorStop(0,'#fff0a0');g.addColorStop(.6,'#e8b830');g.addColorStop(1,'#8a5a10');
+    c.fillStyle=g;c.beginPath();c.arc(p.x,p.y,Math.max(1,r),0,6.283);c.fill();
+    if(k%2===0){c.strokeStyle='rgba(120,70,10,.55)';c.lineWidth=Math.max(.5,ts*.016);c.beginPath();c.arc(p.x,p.y,Math.max(.8,r*.72),ang-1.2,ang+1.2);c.stroke();}
+    if(k===0){ // 頭：角・ひげ・目
+      const hr=r*1.45;c.fillStyle='#f4c844';c.beginPath();c.ellipse(p.x+Math.cos(ang)*r*.6,p.y+Math.sin(ang)*r*.6,hr*1.2,hr*.85,ang,0,6.283);c.fill();
+      c.lineWidth=Math.max(.7,ts*.024);
+      [-1,1].forEach(sd=>{const a=ang+sd*.75;
+        c.strokeStyle='#fff0b0';c.beginPath();c.moveTo(p.x+Math.cos(ang)*r*.2,p.y+Math.sin(ang)*r*.2);c.lineTo(p.x+Math.cos(a)*hr*1.9,p.y+Math.sin(a)*hr*1.9);c.stroke();
+        c.strokeStyle='#e8d890';c.beginPath();c.moveTo(p.x+Math.cos(ang)*r*2,p.y+Math.sin(ang)*r*2);c.quadraticCurveTo(p.x+Math.cos(ang+sd*.45)*hr*3,p.y+Math.sin(ang+sd*.45)*hr*3,p.x+Math.cos(ang+sd*.8)*hr*4,p.y+Math.sin(ang+sd*.8)*hr*4);c.stroke();
+        c.fillStyle='#e02a10';c.beginPath();c.arc(p.x+Math.cos(ang)*r*1.1+Math.cos(ang+sd*1.4)*hr*.5,p.y+Math.sin(ang)*r*1.1+Math.sin(ang+sd*1.4)*hr*.5,Math.max(.7,r*.22),0,6.283);c.fill();});
+    }
+  }
+}
+const TILE_BACK_GLOBAL={
+  // 龍：場の端から端まで、牌のうえを泳いで渡る（2匹が別のタイミングで）
+  dragon(c,box,ts,t,st,dt){
+    if(!st.d){st.d=[{dir:-1,ph:.0,sp:1/16,nodes:null,last:1},{dir:1,ph:.5,sp:1/19,nodes:null,last:1}];}
+    const sp=ts*.30;
+    for(const d of st.d){
+      const u=_fr(t*d.sp+d.ph);
+      const prog=d.dir<0?(1.25-1.5*u):(-.25+1.5*u);
+      const hx=box.w*prog,hy=box.h*(.5+.3*Math.sin(u*Math.PI*2*2.1+d.ph*9));
+      if(!d.nodes||u<d.last-.5){d.nodes=Array.from({length:30},(_,i)=>({x:hx-d.dir*i*sp,y:hy}));} // 端に戻ったら、画面の外から出直す
+      d.last=u;
+      d.nodes[0].x=hx;d.nodes[0].y=hy;
+      for(let i=1;i<d.nodes.length;i++){const a=d.nodes[i-1],b=d.nodes[i],dx=a.x-b.x,dy=a.y-b.y,L=Math.hypot(dx,dy)||1;b.x=a.x-dx/L*sp;b.y=a.y-dy/L*sp;}
+      _drawDragonBody(c,d.nodes,ts);
+      // ほんのり金色に光る
+      c.globalCompositeOperation='lighter';const gl=c.createRadialGradient(hx,hy,0,hx,hy,ts*1.6);gl.addColorStop(0,'rgba(255,200,60,.2)');gl.addColorStop(1,'rgba(255,200,60,0)');c.fillStyle=gl;c.fillRect(hx-ts*2,hy-ts*2,ts*4,ts*4);c.globalCompositeOperation='source-over';
+    }
+  },
+  // 光の帯が、場全体をななめに横切る
+  gold(c,box,ts,t){const s=_fr(t/6);if(s<.6)_gSweep(c,box,s/.6,'255,236,160',.4,ts*1.1);},
+  ice(c,box,ts,t){_gSweep(c,box,_fr(t/5),'200,240,255',.3,ts*1.2);},
+  jade(c,box,ts,t){_gSweep(c,box,_fr(t/7),'120,255,200',.24,ts*1.5);},
+  obsidian(c,box,ts,t){const s=_fr(t/7);if(s<.5)_gSweep(c,box,s/.5,'210,210,255',.26,ts*.7);},
+};
+function _gSweep(c,box,s,rgb,al,wd){
+  const p=s*(box.w+box.h*.5+wd*3)-wd*1.5-box.h*.25;c.save();c.translate(p,0);c.transform(1,0,-.45,1,0,0);
+  const g=c.createLinearGradient(-wd,0,wd,0);g.addColorStop(0,`rgba(${rgb},0)`);g.addColorStop(.5,`rgba(${rgb},${al})`);g.addColorStop(1,`rgba(${rgb},0)`);
+  c.fillStyle=g;c.fillRect(-wd,-box.h*.5,wd*2,box.h*2);c.restore();
+}
+let _tileAnim=null;
+function tileAnimEnabled(){
+  if(localStorage.getItem('rikka_tile_anim')==='0')return false;
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
+  return true;
+}
+function stopTileBackAnim(){
+  if(!_tileAnim)return;_tileAnim.alive=false;cancelAnimationFrame(_tileAnim.raf);_tileAnim.ro&&_tileAnim.ro.disconnect();
+  const cv=document.getElementById('tile-fx');if(cv)cv.remove();_tileAnim=null;
+}
+function refreshTileBackAnim(){
+  stopTileBackAnim();
+  const theme=localStorage.getItem('rikka_back_theme')||'';
+  const draw=TILE_BACK_ANIMS[theme],glob=TILE_BACK_GLOBAL[theme],wrap=document.getElementById('field-wrap');
+  if((!draw&&!glob)||!wrap||!tileAnimEnabled())return;
+  const cv=document.createElement('canvas');cv.id='tile-fx';wrap.appendChild(cv);
+  const ctx=cv.getContext('2d'),S={dpr:1,W:0,H:0},A={alive:true,raf:0,ro:null},state={};_tileAnim=A;
+  const fit=()=>{const r=wrap.getBoundingClientRect();if(r.width<2)return;S.dpr=Math.min(window.devicePixelRatio||1,1.5);S.W=r.width;S.H=r.height;cv.width=Math.round(r.width*S.dpr);cv.height=Math.round(r.height*S.dpr);};
+  fit();if(window.ResizeObserver){A.ro=new ResizeObserver(fit);A.ro.observe(wrap);}
+  const rr=(c,x,y,w,h,r)=>{c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();};
+  let last=performance.now();
+  const frame=now=>{
+    if(!A.alive)return;A.raf=requestAnimationFrame(frame);
+    const g=document.getElementById('game');if(!g||!g.classList.contains('active')||document.hidden||S.W<2){last=now;return;}
+    const dt=Math.min(2.5,(now-last)/16.67);last=now;
+    ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.setTransform(S.dpr,0,0,S.dpr,0,0);
+    const wr=wrap.getBoundingClientRect(),tiles=[...wrap.querySelectorAll('.fback')],t=now/1000;
+    if(!tiles.length)return;
+    const pr=tiles[0].parentElement.getBoundingClientRect();
+    const box={x:pr.left-wr.left,y:pr.top-wr.top,w:pr.width,h:pr.height};
+    const vis=[];
+    tiles.forEach((el,i)=>{const r=el.getBoundingClientRect();if(r.width<4||r.bottom<pr.top||r.top>pr.bottom)return;vis.push({x:r.left-wr.left,y:r.top-wr.top,w:r.width,h:r.height,i:i+1});});
+    if(!vis.length)return;
+    const ts=vis[0].w,rad=5*(ts/34);
+    // 牌の表面だけに描く（すきまには出さない）
+    ctx.save();ctx.beginPath();ctx.rect(box.x,box.y,box.w,box.h);ctx.clip();
+    if(glob){
+      // 牌が並んでいる範囲（すべての牌を囲む四角）を基準に動かす
+      const x0=Math.min(...vis.map(v=>v.x)),y0=Math.min(...vis.map(v=>v.y)),x1=Math.max(...vis.map(v=>v.x+v.w)),y1=Math.max(...vis.map(v=>v.y+v.h));
+      const gb={x:x0,y:y0,w:x1-x0,h:y1-y0};
+      ctx.save();ctx.beginPath();vis.forEach(v=>rr(ctx,v.x,v.y,v.w,v.h,rad));ctx.clip();
+      ctx.translate(gb.x,gb.y);glob(ctx,gb,ts,t,state,dt);ctx.restore();
+    }
+    if(draw){
+      vis.forEach(v=>{ctx.save();ctx.beginPath();rr(ctx,v.x,v.y,v.w,v.h,rad);ctx.clip();ctx.translate(v.x,v.y);try{draw(ctx,v.w,v.h,t,((v.i*0.6180339)%1));}catch(e){}ctx.restore();});
+    }
+    ctx.restore();
+  };
+  A.raf=requestAnimationFrame(frame);
+}
+
 function setBackTheme(theme){
   document.body.className=document.body.className
     .replace(/\bback-\w+/g,'').trim();
   if(theme) document.body.classList.add('back-'+theme);
   localStorage.setItem('rikka_back_theme', theme);
+  try{refreshTileBackAnim();}catch(e){}
 }
 
 // ============================================================
@@ -4921,6 +5076,7 @@ function renderCustomize(){
         ${sel?'<span class="chk">✔</span>':''}</button>`;
     }).join('');
     h+='</div>';
+    h+=`<button class="custom-img-btn" style="margin-bottom:.5rem" onclick="toggleTileAnim()">✨ 牌の裏を動かす：${localStorage.getItem('rikka_tile_anim')==='0'?'OFF':'ON'}</button><div class="custom-sub">龍・炎・氷・桜・翡翠・金・藍・黒曜・銀河の裏地は、牌の中で動きます。</div>`;
     body.innerHTML=h;
   } else if(customizeTab==='icon'){
     const av=customAvatarUrl||(gUser&&gUser.avatar)||'';
@@ -5001,6 +5157,12 @@ function selectGachaEquip(category,id){
   updateSbTitle();
   renderCustomize();
   renderGachaCollection();
+}
+window.addEventListener('load',()=>{try{refreshTileBackAnim();}catch(e){}});
+function toggleTileAnim(){
+  const off=localStorage.getItem('rikka_tile_anim')==='0';
+  if(off)localStorage.removeItem('rikka_tile_anim'); else localStorage.setItem('rikka_tile_anim','0');
+  refreshTileBackAnim();renderCustomize();
 }
 function toggleBgAnim(){
   const off=localStorage.getItem('rikka_bg_anim')==='0';
