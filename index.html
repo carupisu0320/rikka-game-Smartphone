@@ -689,6 +689,20 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
   background:radial-gradient(ellipse,rgba(190,200,225,.3),transparent 70%);filter:blur(8px);animation:cloudDrift 70s linear infinite}
 @keyframes cloudDrift{from{transform:translateX(-260px)}to{transform:translateX(120vw)}}
 .lf-moon2{position:absolute;filter:drop-shadow(0 0 26px var(--mg,rgba(255,235,170,.55)))}
+
+#assist-info{display:none;margin:.2rem 0 .1rem;padding:.35rem .6rem;border-radius:8px;background:rgba(42,158,110,.12);border:1px solid rgba(42,158,110,.4);font-size:.72rem;color:#c8f0e0;line-height:1.7}
+#assist-info.on{display:block}
+#assist-info b{color:#ffe28a}
+.am-tile{display:inline-flex;flex-direction:column;position:relative;width:20px;height:31px;margin:0 3px;vertical-align:middle;border:1px solid #c9a84c;border-radius:4px;background:#f4ead0}
+.am-tile>span{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5px}
+.am-tile>span:first-child{border-bottom:1px solid #c9a84c}
+.am-tile svg{width:100%;height:100%}
+.am-tile i{position:absolute;right:-5px;bottom:-6px;min-width:13px;height:13px;border-radius:7px;background:#2a1e14;border:1px solid #c9a84c;color:#ffe28a;font-style:normal;font-size:.55rem;line-height:11px;text-align:center}
+.tile.assist-win{border-color:#ffd24a!important;box-shadow:0 0 16px rgba(255,210,70,.95),0 0 4px #fff3a0!important;animation:assistPulse .7s infinite;position:relative}
+.tile.assist-win::after{content:'上がり！';position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);background:#ffd24a;color:#2a1a00;font-size:.5rem;font-weight:900;padding:0 .3rem;border-radius:5px;white-space:nowrap}
+.tile.assist-wait{border-color:#60a8f0!important;box-shadow:0 0 10px rgba(96,168,240,.7)!important}
+.htile.assist-danger{position:relative}
+.htile.assist-danger::before{content:'⚠';position:absolute;top:-8px;left:-3px;font-size:.8rem;filter:drop-shadow(0 0 3px #000);z-index:3}
 #tile-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
 #field-fx{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .win-title{display:inline-block;margin:.15rem 0 .35rem;padding:.16rem .75rem;border-radius:999px;border:1px solid #c9a84c;background:rgba(201,168,76,.12);color:#f5d78a;font-size:.78rem;font-weight:700;letter-spacing:.06em}
@@ -2705,7 +2719,21 @@ if(assistMode&&canPick){
     bestDiscardTile=r.bestDiscardTile;bestDiscardScore=r.bestDiscardScore;
   }catch(e){bestNormalTile=null;bestDiscardTile=null;}
 }
-const normalIsBetter=bestNormalScore>=bestDiscardScore;
+let normalIsBetter=bestNormalScore>=bestDiscardScore;
+let _winSet=new Set(),_waitSet=new Set();
+if(assistMode){
+  try{
+    const p2=G.players[myOnlineIdx];
+    if(p2&&p2.hand.length===5){
+      const optR2=onlineMode?(G?.optRoles??null):getOptRoles('bot-opt-');
+      const v=calcAssistV2(p2,G,optR2,myOnlineIdx);
+      if(v.waits.length){
+        if(canPick){_winSet=new Set(v.winDiscards);normalIsBetter=_winSet.size===0;} // 上がれる捨て牌があればそれを、なければ山から引いて待ち牌を狙う
+        else _waitSet=new Set(v.winDiscards);
+      }
+    }
+  }catch(e){}
+}
 
 if(normalTiles.length>0){
   const label=document.createElement('div');label.className='fsec';label.textContent='🀄 場の牌（好きな1枚を選ぼう）';grid.appendChild(label);
@@ -2728,7 +2756,9 @@ if(discardTiles.length>0){
     const fi=G.field.indexOf(t),div=document.createElement('div');
     div.className=canPick?'tile discarded pickable':'tile discarded nopick';
     div.innerHTML=tileInner(t);
-    if(assistMode&&canPick&&!normalIsBetter&&t===bestDiscardTile)div.classList.add('assist-best');
+    if(assistMode&&canPick&&!normalIsBetter&&t===bestDiscardTile&&_winSet.size===0)div.classList.add('assist-best');
+    if(_winSet.has(t))div.classList.add('assist-win');
+    if(_waitSet.has(t))div.classList.add('assist-wait');
     if(canPick)div.addEventListener('click',()=>pickField(fi));
     grid.appendChild(div);
   });
@@ -2770,17 +2800,29 @@ const tenpaiFlags=(!!(G?.useRiichi)&&isDiscard&&has6&&!winRes&&!p.riichi)
   ? p.hand.map((_,i)=>isTenpai(p.hand.filter((_,j)=>j!==i),optR))
   : [];
 
-// アシスト: 捨てるべき牌を赤く光らせる
-if(assistMode && isDiscard && has6 && !winRes){
-  try{
-    const r=calcAssist(p.hand,G.field,optR);
-    const assistDiscardIdx=r.discardIdx;
-    if(assistDiscardIdx!==-1){
-      const tiles=document.getElementById('hand-tiles').querySelectorAll('.htile');
-      if(tiles[assistDiscardIdx])tiles[assistDiscardIdx].classList.add('assist-discard');
-    }
-  }catch(e){}
-}
+// アシスト: 捨てるべき牌を赤く光らせる（待ち牌・残り枚数・期待点・相手のリーチまで見て選ぶ）
+// 計算に少し時間がかかるので、画面を先に描いてから行う
+const _tok=++_assistTok;
+if(assistMode){
+  setTimeout(()=>{
+    if(_tok!==_assistTok||!G||!G.players[myOnlineIdx])return;
+    let html='';
+    try{
+      const p2=G.players[myOnlineIdx],has6b=p2.hand.length===6,isDisc=G.turn===myOnlineIdx&&G.tphase==='discard';
+      const win2=(isDisc&&has6b)?checkWin(p2.hand,optR):null;
+      if(isDisc&&has6b&&!win2){
+        const v=calcAssistV2(p2,G,optR,myOnlineIdx);
+        const tiles=document.getElementById('hand-tiles').querySelectorAll('.htile');
+        if(v.bestIdx!==-1&&tiles[v.bestIdx])tiles[v.bestIdx].classList.add('assist-discard');
+        v.danger.forEach((d,i)=>{if(d>0&&tiles[i])tiles[i].classList.add('assist-danger');});
+        html=assistInfoHtml(v,p2,G);
+      }else if(p2.hand.length===5){
+        html=assistInfoHtml(calcAssistV2(p2,G,optR,myOnlineIdx),p2,G);
+      }
+    }catch(e){}
+    updateAssistInfo(html);
+  },0);
+}else updateAssistInfo('');
 // リーチ判定: 捨てればテンパイになる牌を赤く点滅させる（assistModeのON/OFFに関係なく常に表示）
 if(tenpaiFlags.some(Boolean)){
   const tiles=document.getElementById('hand-tiles').querySelectorAll('.htile');
@@ -2905,7 +2947,7 @@ function clickHand(i){if(G.phase!=='playing')return;const prev=G.selIdx;if(prev=
 
 function flipHand(e,i){e.preventDefault();if(G.phase!=='playing')return;const tile=G.players[myOnlineIdx].hand[i];if(!tile)return false;tile.flip=!tile.flip;playSound('flip');render();if(onlineMode)socket?.emit('flip',{code:currentCode,tileId:tile.id});return false;}
 
-function doDiscard(){if(G.tphase!=='discard'||G.turn!==myOnlineIdx)return;const p=G.players[myOnlineIdx];if(G.selIdx===-1){toast('捨てる牌を選んでください');return;}if(p.hand.length<=5){toast('これ以上捨てれないよ！');return;}if(onlineMode){socket?.emit('discard',{code:currentCode,tileId:p.hand[G.selIdx].id});playSound('discard');G.selIdx=-1;render();return;}const tile=p.hand.splice(G.selIdx,1)[0];tile.discarded=true;G.field.push(tile);playSound('discard');G.selIdx=-1;if(checkBotRon(myOnlineIdx))return;nextTurn();}
+function doDiscard(){if(G.tphase!=='discard'||G.turn!==myOnlineIdx)return;const p=G.players[myOnlineIdx];if(G.selIdx===-1){toast('捨てる牌を選んでください');return;}if(p.hand.length<=5){toast('これ以上捨てれないよ！');return;}if(onlineMode){socket?.emit('discard',{code:currentCode,tileId:p.hand[G.selIdx].id});playSound('discard');G.selIdx=-1;render();return;}const tile=p.hand.splice(G.selIdx,1)[0];tile.discarded=true;tile.by=myOnlineIdx;tile.afterRiichi=!!p.riichi;G.field.push(tile);playSound('discard');G.selIdx=-1;if(checkBotRon(myOnlineIdx))return;nextTurn();}
 
 function doWin(){if(G.tphase!=='discard'||G.turn!==myOnlineIdx)return;const p=G.players[myOnlineIdx];if(p.hand.length!==6){toast('手牌が6枚のときだけ上がれます');return;}
                  const optR = onlineMode ? (G?.optRoles ?? null) : getOptRoles('bot-opt-');
@@ -2996,7 +3038,7 @@ if(bot.riichi){di=bot.hand.length-1;}
 else if(bot.diff==='easy'){di=Math.floor(Math.random()*bot.hand.length);}
 else if(bot.diff==='normal'){di=botNormalDiscard(bot.hand);}
 else{di=botHardDiscardRikka(bot.hand);}
-const tile=bot.hand.splice(di,1)[0];tile.discarded=true;bot.lastDiscardId=tile.id;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();
+const tile=bot.hand.splice(di,1)[0];tile.discarded=true;tile.by=G.turn;tile.afterRiichi=!!bot.riichi;bot.lastDiscardId=tile.id;bot.hand.sort((a,b)=>eTop(a)-eTop(b));G.field.push(tile);render();
 playSound('discard');
 if(Math.random()<0.15)botComment('discard');
 if(checkBotRon(G.turn))return;
@@ -3131,6 +3173,100 @@ function calcAssist(hand, field, optR){
   _assistCache=result;_assistCacheKey=key;
   return result;
 }
+
+// ============================================================
+// アシストv2：待ち牌（上がれる牌）・残り枚数・期待点・リーチ・放銃の危険度まで見て判断する
+// ============================================================
+function tKey(t){return Math.min(t.top,t.bot)+'-'+Math.max(t.top,t.bot);}
+// 自分の手牌と、表向きの捨て牌から、見えている牌の枚数を数える（同じ種類の牌は2枚ずつ）
+function knownCounts(hand,field){const m={};[...hand,...field.filter(t=>t.discarded)].forEach(t=>{const k=tKey(t);m[k]=(m[k]||0)+1;});return m;}
+// 5枚の手牌が上がれる牌の一覧。total は役点＋ぞろ目ボーナス（向きを変えて最も高くなる形）
+function waitsOf(hand5,optR,known){
+  const out=[];
+  for(let a=1;a<=6;a++)for(let b=a;b<=6;b++){
+    const h=[...hand5,{top:a,bot:b}].map(t=>({top:t.top,bot:t.bot,flip:false}));let best=null; // 牌のオブジェクトを使い回して速くする
+    const fl=[];h.forEach((t,i)=>{if(t.top!==t.bot)fl.push(i);}); // ぞろ目は向きを変えても同じなので、向きを試すのは1枚ずつ違う牌だけ
+    for(let m=0;m<(1<<fl.length);m++){
+      for(let k=0;k<fl.length;k++)h[fl[k]].flip=!!(m&(1<<k));
+      const w=checkWin(h,optR);
+      if(w){const total=w.pts+(w.noBonus?0:countZorome(h));if(!best||total>best.total)best={role:w.role,total};}
+    }
+    if(best)out.push({a,b,role:best.role,total:best.total,left:Math.max(0,2-(known[a+'-'+b]||0))});
+  }
+  return out;
+}
+const waitScore=ws=>ws.reduce((x,w)=>x+w.left*(w.total+.5),0);
+// 相手のリーチに対する危険度（0〜1）。リーチ後に相手が捨てた牌と同じ種類は安全。ボット対戦のみ（捨てた人の記録があるとき）
+function dangerOf(t,G,myIdx){
+  const opp=G.players.map((q,i)=>({q,i})).filter(o=>o.i!==myIdx&&o.q.riichi);
+  if(!opp.length||G.field.every(x=>x.by===undefined))return 0;
+  const k=tKey(t);let unsafe=0;
+  opp.forEach(o=>{if(!G.field.some(x=>x.discarded&&x.by===o.i&&x.afterRiichi&&tKey(x)===k))unsafe++;});
+  return unsafe/opp.length;
+}
+let _a2Cache=null,_a2Key='',_assistTok=0;
+function calcAssistV2(p,G,optR,myIdx){
+  const hand=p.hand,field=G.field;
+  const key=hand.map(t=>`${t.top}${t.bot}${t.flip?1:0}`).join(',')+'|'+field.map(t=>`${t.top}${t.bot}${t.discarded?1:0}${t.by===undefined?'':t.by}${t.afterRiichi?'r':''}`).join(',')+'|'+(optR?optR.join(','):'N')+'|'+(p.riichi?1:0)+'|'+G.players.map(q=>q.riichi?1:0).join('');
+  if(_a2Cache&&_a2Key===key)return _a2Cache;
+  const known=knownCounts(hand,field),res={waits:[],winDiscards:[],options:[],bestIdx:-1,danger:[]};
+  if(hand.length===5){
+    res.waits=waitsOf(hand,optR,known);
+    const wk=new Set(res.waits.map(w=>w.a+'-'+w.b));
+    res.winDiscards=field.filter(t=>t.discarded&&wk.has(tKey(t)));
+  }else if(hand.length===6){
+    hand.forEach((_,i)=>{
+      const waits=waitsOf(hand.filter((_,j)=>j!==i),optR,known);
+      const dg=dangerOf(hand[i],G,myIdx),sc=waitScore(waits)*(1-.4*dg);
+      res.options.push({idx:i,waits,score:sc,danger:dg});
+      res.danger[i]=dg;
+    });
+    const tp=res.options.filter(o=>o.waits.length>0&&o.waits.some(w=>w.left>0));
+    if(tp.length){tp.sort((x,y)=>y.score-x.score);res.bestIdx=tp[0].idx;res.best=tp[0];}
+    else{ // テンパイできないときは、従来の評価で最もよい牌。放銃が心配なときは、同じくらいの牌から安全な牌を選ぶ
+      const base=calcAssist(hand,field,optR).discardIdx;res.bestIdx=base;res.best=null;
+      if(res.danger.some(d=>d>0)&&base>=0&&res.danger[base]>0){
+        const safe=hand.map((_,i)=>i).filter(i=>res.danger[i]===0);
+        if(safe.length){let bi=safe[0],bs=-Infinity;safe.forEach(i=>{const sc=evalHandFull(hand.filter((_,j)=>j!==i),optR);if(sc>bs){bs=sc;bi=i;}});
+          const baseSc=evalHandFull(hand.filter((_,j)=>j!==base),optR);if(bs>=baseSc*.85)res.bestIdx=bi;}
+      }
+    }
+  }
+  _a2Cache=res;_a2Key=key;return res;
+}
+const amTile=(a,b,n)=>`<span class="am-tile"><span>${SYM_SVG[a]}</span><span>${SYM_SVG[b]}</span>${n!==undefined?`<i>${n}</i>`:''}</span>`;
+function assistInfoHtml(v,p,G){
+  const riichiOK=!!G.useRiichi&&!p.riichi;
+  const waitsHtml=ws=>ws.filter(w=>w.left>0).sort((x,y)=>y.total-x.total).map(w=>amTile(w.a,w.b,w.left)).join('')||'<b>残り0枚</b>';
+  const maxPts=ws=>ws.reduce((m,w)=>Math.max(m,w.total),0);
+  if(p.hand.length===6){
+    if(v.best){
+      const ws=v.best.waits,add=riichiOK?`（リーチなら＋1点）`:'';
+      let h=`🎯 赤く光る牌を捨てるとテンパイ！ 待ち：${waitsHtml(ws)} 最大<b>${maxPts(ws)+(p.riichi?1:0)}点</b>${add}`;
+      if(riichiOK)h+=`<br>🀄 リーチをすると、上がったとき＋1点です`;
+      if(v.danger.some(d=>d>0))h+=`<br>⚠ リーチ中の相手がいます。⚠の牌は、放銃（ロンされる）の危険があります`;
+      return h;
+    }
+    let h=`🎯 赤く光る牌を捨てましょう（まだテンパイではありません）`;
+    if(v.danger.some(d=>d>0))h+=`<br>⚠ リーチ中の相手がいます。⚠の牌は危険です`;
+    return h;
+  }
+  if(p.hand.length===5&&v.waits.length){
+    const live=v.waits.filter(w=>w.left>0);
+    let h=`👀 テンパイ中！ 待ち：${waitsHtml(v.waits)} ${live.length?`最大<b>${maxPts(v.waits)+(p.riichi?1:0)}点</b>`:'（待ち牌が残っていません）'}`;
+    const myTurnPick=G.turn===G.players.indexOf(p)&&G.tphase==='pick';
+    if(v.winDiscards.length)h+=myTurnPick?`<br>✨ 金色に光る捨て牌を取ると、上がれます！`:`<br>👀 捨て牌に待ち牌があります（青く光る牌）。自分の番で取ると上がれます`;
+    else if(myTurnPick)h+=`<br>🀄 場から1枚引いて、待ち牌を狙いましょう`;
+    return h;
+  }
+  return '';
+}
+function updateAssistInfo(html){
+  let el=document.getElementById('assist-info');
+  if(!el){el=document.createElement('div');el.id='assist-info';const st=document.getElementById('status');st.parentNode.insertBefore(el,st.nextSibling);}
+  el.innerHTML=html||'';el.classList.toggle('on',!!html);
+}
+
   function evalHand(hand, optR) {
   if(hand.length === 6){
     const w = checkWin(hand, optR);
