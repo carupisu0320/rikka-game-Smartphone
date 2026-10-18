@@ -722,6 +722,19 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 .iu-btns .main{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}
 .iu-btns .sub{background:#2a1e14;color:#e8c97a;border:1px solid #5a4028}
 .iu-btns .ghost{background:transparent;color:#8a7048;font-weight:400}
+
+/* ── 「あなたの番です」の演出 ── */
+#turn-fx{position:fixed;left:0;right:0;top:30%;height:clamp(84px,21vw,120px);z-index:920;pointer-events:none;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#turn-fx .tf-band{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(24,16,6,.9) 16%,rgba(24,16,6,.9) 84%,transparent);animation:tfBand 1.35s cubic-bezier(.2,.9,.3,1) forwards}
+@keyframes tfBand{0%{transform:translateX(-100%)}20%{transform:translateX(0)}80%{transform:translateX(0)}100%{transform:translateX(100%)}}
+#turn-fx .tf-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#ffe28a,transparent);box-shadow:0 0 10px #ffc830;top:0;animation:tfBand 1.35s cubic-bezier(.2,.9,.3,1) forwards}
+#turn-fx .tf-line.b{top:auto;bottom:0}
+#turn-fx .tf-text{position:relative;font-family:'Hiragino Mincho ProN','Yu Mincho','Noto Serif CJK JP',serif;font-weight:900;font-size:clamp(1.8rem,9vw,3rem);letter-spacing:.14em;white-space:nowrap;
+  background:linear-gradient(180deg,#fffdf0 10%,#ffe27a 55%,#e8a020 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,200,48,.8)) drop-shadow(0 3px 0 rgba(60,30,0,.7));animation:tfText 1.35s ease-out forwards}
+@keyframes tfText{0%,14%{opacity:0;transform:scale(1.7)}30%{opacity:1;transform:scale(1)}80%{opacity:1;transform:none}100%{opacity:0;transform:translateX(50px)}}
+#turn-fx .tf-hint{position:relative;margin-top:.15rem;font-size:clamp(.72rem,3.2vw,.9rem);color:#e8d8b0;letter-spacing:.12em;text-shadow:0 2px 6px #000;animation:tfHint 1.35s ease-out forwards}
+@keyframes tfHint{0%,30%{opacity:0;transform:translateY(8px)}46%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){#turn-fx .tf-text{animation:tfHint 1.35s ease-out forwards}}
 #tile-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
 #field-fx{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .win-title{display:inline-block;margin:.15rem 0 .35rem;padding:.16rem .75rem;border-radius:999px;border:1px solid #c9a84c;background:rgba(201,168,76,.12);color:#f5d78a;font-size:.78rem;font-weight:700;letter-spacing:.06em}
@@ -2684,7 +2697,34 @@ function dealRound(){const deck=makeDeck();let idx=0;G.players.forEach(p=>{p.han
 
 // ============================================================
 
-function render(){renderHeader();renderOpponents();renderField();renderHand();renderStatus();requestAnimationFrame(updateFlipPopup);updateTurnGlow();}
+
+// ============================================================
+// 自分の番になったときの演出（「あなたの番です」）
+// ============================================================
+let _prevTurnMine=false,_turnCuePending=false,_turnCueTimer=null;
+function checkTurnCue(){
+  if(!G||G.phase!=='playing'||typeof myOnlineIdx==='undefined'||!G.players||!G.players[myOnlineIdx])return;
+  const isMine=G.turn===myOnlineIdx;
+  if(isMine&&!_prevTurnMine)_turnCuePending=true;
+  if(!isMine||G.players[myOnlineIdx].riichi)_turnCuePending=false; // リーチ中は自動で進むので出さない
+  _prevTurnMine=isMine;
+  if(_turnCuePending)tryTurnCue();
+}
+function tryTurnCue(){
+  const blocked=document.getElementById('match-fx')||document.getElementById('call-fx')||(document.getElementById('gacha-fx')&&document.getElementById('gacha-fx').style.display==='block')||document.getElementById('icon-update-modal')||(document.getElementById('modal')&&document.getElementById('modal').classList.contains('open'));
+  if(blocked)return; // ほかの演出や画面が出ているあいだは待つ
+  _turnCuePending=false;
+  const old=document.getElementById('turn-fx');if(old)old.remove();
+  const hint=G.tphase==='pick'?'場から牌を1枚引こう':'捨てる牌を選ぼう';
+  const el=document.createElement('div');el.id='turn-fx';
+  el.innerHTML=`<div class="tf-band"></div><div class="tf-line"></div><div class="tf-line b"></div><div class="tf-text">あなたの番です</div><div class="tf-hint">${hint}</div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1450);
+  _gfxAudio(ctx=>{const now=ctx.currentTime,m=ctx.createGain();m.gain.value=soundVolume*.35;m.connect(ctx.destination);
+    [[784,0],[1174.7,.1]].forEach(([f,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,now+t);g.gain.linearRampToValueAtTime(.7,now+t+.015);g.gain.exponentialRampToValueAtTime(.001,now+t+.45);o.connect(g);g.connect(m);o.start(now+t);o.stop(now+t+.5);});});
+}
+setInterval(()=>{if(_turnCuePending)checkTurnCue();},350); // 紹介画面などが終わるのを待って出す
+function render(){renderHeader();renderOpponents();renderField();renderHand();renderStatus();requestAnimationFrame(updateFlipPopup);updateTurnGlow();checkTurnCue();}
 function renderHeader(){
   const gl=document.getElementById('goal-label');
   if(gl)gl.textContent=`${G?.goal||WIN_SCORE}点先取`;
