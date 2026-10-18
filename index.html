@@ -5264,7 +5264,7 @@ function setBackTheme(theme){
     .replace(/\bback-\w+/g,'').trim();
   if(theme) document.body.classList.add('back-'+theme);
   localStorage.setItem('rikka_back_theme', theme);
-  try{refreshTileBackAnim();}catch(e){}
+  try{refreshTileBackAnim();warmTileBacks();}catch(e){}
 }
 
 // ============================================================
@@ -5305,12 +5305,30 @@ function preloadImage(url){const safe=sanitizeFieldBgUrl(url);if(!safe)return;co
 // 自分と対戦相手の背景を、対戦前の紹介画面のあいだに読み込んでおく
 let _warmKey='';
 function warmFieldBgs(){
+  warmTileBacks();
   if(!G||!G.players)return;
   const vals=[myFieldBgValue(),...G.players.map(p=>p&&p.fieldBg)].filter(Boolean);
   const key=vals.join('|');if(key===_warmKey)return;_warmKey=key;
   setTimeout(()=>{vals.forEach(v=>{const bg=resolveFieldBg(v);if(!bg)return;
     if(bg.kind==='scene'){const k=String(bg.id).replace('bg_',''),fk=(k==='galaxy'&&fieldAnimEnabled())?'galaxybase':k;bakeScene(fk);}
     else if(bg.kind==='img')preloadImage(bg.value);});},document.getElementById('match-fx')?900:0);
+}
+// ── 牌の裏柄の先読み：描画の処理を数回ぶん空回しして、最初のコマが重くならないようにする ──
+let _tileWarmed='';
+function warmTileBacks(){
+  const theme=localStorage.getItem('rikka_back_theme')||'';
+  const draw=TILE_BACK_ANIMS[theme],glob=TILE_BACK_GLOBAL[theme];
+  if((!draw&&!glob)||_tileWarmed===theme)return;_tileWarmed=theme;
+  setTimeout(()=>{
+    try{
+      const cv=document.createElement('canvas');cv.width=cv.height=300;const c=cv.getContext('2d');
+      const st={};
+      for(let k=0;k<8;k++){
+        if(draw){c.save();c.clearRect(0,0,300,300);draw(c,34,54,k*.13,.3+k*.07);c.restore();}
+        if(glob){c.save();c.clearRect(0,0,300,300);glob(c,{w:290,h:230},34,k*.13+.2,st,1);c.restore();}
+      }
+    }catch(e){}
+  },document.getElementById('match-fx')?1100:0);
 }
 function applySceneBg(uri,id,swapOnly){
   const key=String(id||'').replace('bg_','');
