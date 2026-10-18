@@ -1890,6 +1890,18 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       <span style="font-size:.9rem;color:#6a5830">大</span>
     </div>
   </div>
+  <div class="sb-section">
+    <div class="sb-section-title">― 動き ―</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem">
+      <span style="font-size:.82rem;color:#c8b898">背景を動かす</span>
+      <button id="bg-anim-btn" onclick="toggleBgAnim()" style="padding:.28rem .75rem;border-radius:6px;border:1px solid #3e2e1e;background:#2a1e14;color:#8a7048;font-family:inherit;font-size:.82rem;cursor:pointer">ON</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+      <span style="font-size:.82rem;color:#c8b898">牌の裏を動かす</span>
+      <button id="tile-anim-btn" onclick="toggleTileAnim()" style="padding:.28rem .75rem;border-radius:6px;border:1px solid #3e2e1e;background:#2a1e14;color:#8a7048;font-family:inherit;font-size:.82rem;cursor:pointer">ON</button>
+    </div>
+    <div style="font-size:.7rem;color:#5a4820;line-height:1.55">場の背景・牌の裏柄（龍など）の動きを切り替えます。電池が気になるときは、OFFにしてください</div>
+  </div>
     <div class="sb-section-title">― 戦績 ―</div>
     <div style="display:flex;gap:.4rem;margin-bottom:.6rem">
       <button id="stats-tab-bot" onclick="switchStatsTab('bot')"
@@ -2711,7 +2723,7 @@ function checkTurnCue(){
   if(_turnCuePending)tryTurnCue();
 }
 function tryTurnCue(){
-  const blocked=document.getElementById('match-fx')||document.getElementById('call-fx')||(document.getElementById('gacha-fx')&&document.getElementById('gacha-fx').style.display==='block')||document.getElementById('icon-update-modal')||(document.getElementById('modal')&&document.getElementById('modal').classList.contains('open'));
+  const blocked=document.getElementById('match-fx')||document.getElementById('call-fx')||(document.getElementById('gacha-fx')&&document.getElementById('gacha-fx').style.display==='block')||document.getElementById('icon-update-modal')||(document.getElementById('sidebar')&&document.getElementById('sidebar').style.display==='block')||(document.getElementById('modal')&&document.getElementById('modal').classList.contains('open'));
   if(blocked)return; // ほかの演出や画面が出ているあいだは待つ
   _turnCuePending=false;
   const old=document.getElementById('turn-fx');if(old)old.remove();
@@ -5439,7 +5451,7 @@ function renderCustomize(){
         ${sel?'<span class="chk">✔</span>':''}</button>`;
     }).join('');
     h+='</div>';
-    h+=`<button class="custom-img-btn" style="margin-bottom:.5rem" onclick="toggleTileAnim()">✨ 牌の裏を動かす：${localStorage.getItem('rikka_tile_anim')==='0'?'OFF':'ON'}</button><div class="custom-sub">龍・炎・氷・桜・翡翠・金・藍・黒曜・銀河の裏地は、牌の中で動きます。</div>`;
+    h+='<div class="custom-sub">龍・炎・氷・桜・翡翠・金・藍・黒曜・銀河の裏地は、牌の中で動きます。ON/OFFは、メニューの「動き」で切り替えられます。</div>';
     body.innerHTML=h;
   } else if(customizeTab==='icon'){
     const av=customAvatarUrl||(gUser&&gUser.avatar)||'';
@@ -5486,7 +5498,7 @@ function renderCustomize(){
     }).join('');
     h+='</div>';
     h+='<div class="custom-sub">オンライン対戦では、自分の番のときに相手の画面でもこの背景になります。</div>';
-    h+=`<button class="custom-img-btn" style="margin-bottom:.5rem" onclick="toggleBgAnim()">✨ 背景を動かす：${localStorage.getItem('rikka_bg_anim')==='0'?'OFF':'ON'}</button>`;
+    h+='<div class="custom-sub">背景の動きのON/OFFは、メニューの「動き」で切り替えられます。</div>';
     h+=`<button class="custom-img-btn" onclick="openFieldBgModal()">🖼️ 自分の画像URLで設定${hasCustom?'（設定中）':''}</button>`;
     body.innerHTML=h;
   }
@@ -5522,17 +5534,24 @@ function selectGachaEquip(category,id){
   renderGachaCollection();
 }
 window.addEventListener('load',()=>{try{refreshTileBackAnim();}catch(e){}});
+function updateAnimUI(){
+  [['bg-anim-btn','rikka_bg_anim'],['tile-anim-btn','rikka_tile_anim']].forEach(([id,key])=>{
+    const b=document.getElementById(id);if(!b)return;const on=localStorage.getItem(key)!=='0';
+    b.textContent=on?'ON':'OFF';b.style.background=on?'linear-gradient(135deg,#2a9e6e,#1a6e40)':'#2a1e14';
+    b.style.color=on?'#e0fff8':'#8a7048';b.style.borderColor=on?'#2a9e6e':'#3e2e1e';
+  });
+}
 function toggleTileAnim(){
   const off=localStorage.getItem('rikka_tile_anim')==='0';
   if(off)localStorage.removeItem('rikka_tile_anim'); else localStorage.setItem('rikka_tile_anim','0');
-  refreshTileBackAnim();renderCustomize();
+  refreshTileBackAnim();updateAnimUI();
 }
 function toggleBgAnim(){
   const off=localStorage.getItem('rikka_bg_anim')==='0';
   if(off)localStorage.removeItem('rikka_bg_anim'); else localStorage.setItem('rikka_bg_anim','0');
   _lastFieldBgKey=''; // 背景を作り直して、動き（のON/OFF）をすぐ反映する
   if(typeof updateFieldBgForTurn==='function')updateFieldBgForTurn();
-  renderCustomize();
+  updateAnimUI();
 }
 function selectFieldBgPreset(id){
   // 画像URLの設定が優先されてしまうので、プリセットを選んだらURL設定は外す
@@ -5921,6 +5940,7 @@ function openSidebar(){
   updateSbTitle();
   updateSoundUI();
   updateTileScaleUI();
+  updateAnimUI();
   renderDevSection();
 }
 
