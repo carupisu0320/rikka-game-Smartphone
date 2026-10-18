@@ -2282,6 +2282,7 @@ st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.
 
 st.oppCounts.forEach((cnt,i)=>{if(i===st.myIdx)return;G.players[i].hand=Array.from({length:Math.max(0,cnt)},(_,j)=>({id:`ph${i}_${j}`,top:1,bot:1,flip:false,discarded:false,hidden:true}));});
 
+warmFieldBgs(); // 自分と相手の背景を先に読み込む
 updateFieldBgForTurn();
 showScreen('game');render();
 
@@ -2690,6 +2691,7 @@ G = {players, field:[], turn:0, tphase:'pick', selIdx:-1, phase:'playing', optRo
 myOnlineIdx=0;onlineMode=false;currentCode='';
 
 matchFoundFx(G.players.map((p,i)=>({name:p.name,avatar:i===0?myAvatarUrl():'',title:i===0?myTitleId():(BOT_TITLE_BY_DIFF[p.diff]||'')})),0,'対戦開始！'); // 場が見える前に紹介画面で覆う
+warmFieldBgs(); // 紹介画面のあいだに、場の背景を読み込んでおく
 dealRound();showScreen('game');render();
 document.getElementById('bot-chat-toggle').style.display='flex';
 document.getElementById('bot-chat-log').innerHTML='';
@@ -3738,7 +3740,7 @@ const GACHA_COST=10;
 // ============================================================
 function _rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
 function _sceneUri(inner){
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">${inner}</svg>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="800" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">${inner}</svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29');
 }
 // 山並み・稜線（中点変位法）
@@ -4837,7 +4839,7 @@ function getEquippedFieldBgItem(){
   return GACHA_ITEMS.find(it=>it.id===st.equipped.fieldbg)||null;
 }
 function applyFieldBgGradient(gradientCss){
-  stopFieldAnim();
+  stopFieldAnim();_wantScene=null;_sceneApplied=null;
   let styleEl=document.getElementById('field-bg-style');
   if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
   styleEl.textContent=gradientCss?`#field-wrap::before{background:${gradientCss}!important}`:'';
@@ -5284,10 +5286,44 @@ function fieldBgPreviewCss(it){
   return it.value;
 }
 // リアルな風景（SVG）を場の背景にする。牌が透けて背景が見えるようにする点は画像と同じ
-function applySceneBg(uri,id){
+// ── 場の背景の先読み：風景は一度だけ画像に焼いておく（SVGを毎回描き直さないので、重くならない） ──
+const _bakedScenes={},_preloadedImgs=[];let _bakeQueue=Promise.resolve(),_wantScene=null,_sceneApplied=null;
+function bakeScene(k){
+  if(_bakedScenes[k])return Promise.resolve();
+  _bakeQueue=_bakeQueue.then(async()=>{ // 1つずつ順番に（同時に重い処理をしない）
+    if(_bakedScenes[k])return;
+    try{
+      const img=new Image();img.src=sceneUri(k);await img.decode();
+      const cv=document.createElement('canvas');cv.width=800;cv.height=1600;cv.getContext('2d').drawImage(img,0,0,800,1600);
+      const blob=await new Promise(res=>cv.toBlob(res,'image/png'));
+      if(blob)_bakedScenes[k]=URL.createObjectURL(blob);
+    }catch(e){}
+  });
+  return _bakeQueue;
+}
+function preloadImage(url){const safe=sanitizeFieldBgUrl(url);if(!safe)return;const im=new Image();im.decoding='async';im.src=safe;_preloadedImgs.push(im);if(_preloadedImgs.length>12)_preloadedImgs.shift();}
+// 自分と対戦相手の背景を、対戦前の紹介画面のあいだに読み込んでおく
+let _warmKey='';
+function warmFieldBgs(){
+  if(!G||!G.players)return;
+  const vals=[myFieldBgValue(),...G.players.map(p=>p&&p.fieldBg)].filter(Boolean);
+  const key=vals.join('|');if(key===_warmKey)return;_warmKey=key;
+  setTimeout(()=>{vals.forEach(v=>{const bg=resolveFieldBg(v);if(!bg)return;
+    if(bg.kind==='scene'){const k=String(bg.id).replace('bg_',''),fk=(k==='galaxy'&&fieldAnimEnabled())?'galaxybase':k;bakeScene(fk);}
+    else if(bg.kind==='img')preloadImage(bg.value);});},document.getElementById('match-fx')?900:0);
+}
+function applySceneBg(uri,id,swapOnly){
   const key=String(id||'').replace('bg_','');
   const animOn=fieldAnimEnabled()&&!!FIELD_ANIMS[key];
-  if(key==='galaxy'&&animOn)uri=sceneUri('galaxybase'); // 銀河は腕を動かすので、腕なしの下地を使う
+  const sk=(key==='galaxy'&&animOn)?'galaxybase':key; // 銀河は腕を動かすので、腕なしの下地を使う
+  _wantScene={uri,id};
+  if(_bakedScenes[sk])uri=_bakedScenes[sk];
+  else{
+    uri=sceneUri(sk);
+    const intro=!!document.getElementById('match-fx');
+    setTimeout(()=>bakeScene(sk).then(()=>{if(_wantScene&&_wantScene.id===id)applySceneBg(_wantScene.uri,id,_sceneApplied===id);}),intro?700:0);
+    if(intro)return; // 紹介画面のあいだに焼いてから適用する（紹介画面の動きを止めない）
+  }
   let styleEl=document.getElementById('field-bg-style');
   if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
   const fo=FIELD_SCENE_FOCUS[key]||50,fy=Array.isArray(fo)?fo[0]:fo,fyL=Array.isArray(fo)?fo[1]:fo;
@@ -5295,10 +5331,13 @@ function applySceneBg(uri,id){
 @media (orientation:landscape){#field-wrap::before{background-position:50% ${fyL}%!important}}
 #field-wrap .fback{background:rgba(20,14,8,.72)!important}
 #field-wrap .fback::before{opacity:.7}`;
+  _sceneApplied=id;
+  if(swapOnly)return; // 画像の差し替えだけ（動きは、そのまま続ける）
   if(animOn)startFieldAnim(key,fy,fyL);else stopFieldAnim();
 }
 function applyFieldBg(url){
-  stopFieldAnim();
+  stopFieldAnim();_wantScene=null;_sceneApplied=null;
+  if(url)preloadImage(url);
   let styleEl=document.getElementById('field-bg-style');
   if(!styleEl){styleEl=document.createElement('style');styleEl.id='field-bg-style';document.head.appendChild(styleEl);}
   const safe=sanitizeFieldBgUrl(url);
