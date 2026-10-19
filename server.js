@@ -235,7 +235,7 @@ function sanitizeAvatar(url) {
 // 称号（ガチャの景品ID）。許可リストにあるIDだけ通す
 const TITLE_IDS = new Set(['title_first', 'title_zoro', 'title_apprentice', 'title_fate', 'title_sight', 'title_mountain', 'title_rikka', 'title_legend', 'title_king']);
 // 実績の報酬の称号は 'title_a_<実績ID>' の形
-function sanitizeTitle(id) { return (typeof id === 'string' && (TITLE_IDS.has(id) || /^title_a_[a-z0-9_]{1,30}$/.test(id) || /^title_login_[0-9]{1,3}$/.test(id) || id === 'title_gameovera')) ? id : ''; }
+function sanitizeTitle(id) { return (typeof id === 'string' && (TITLE_IDS.has(id) || /^title_a_[a-z0-9_]{1,30}$/.test(id) || /^title_login_[0-9]{1,3}$/.test(id) || /^title_ev_[a-z0-9_]{1,30}$/.test(id) || id === 'title_gameovera')) ? id : ''; }
 function genCode() {
   let c;
   do { c = Math.random().toString(36).slice(2, 6).toUpperCase(); } while (rooms.has(c));
