@@ -594,7 +594,9 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 .ltd-ico.locked::after{content:'🔒';position:absolute;font-size:1rem}
 .ltd-tile{width:30px;height:46px;display:flex;align-items:center;justify-content:center;animation:ltdFloat 2.4s ease-in-out infinite}
 .ltd-ico.big .ltd-tile{width:38px;height:58px}
-.ltd-tile .fback{width:100%;height:100%;aspect-ratio:auto;margin:0}
+.ltd-fb{width:100%;height:100%;box-sizing:border-box;border-radius:5px;background:linear-gradient(165deg,#2e2018,#120c06);border:1.5px solid #5a4028;position:relative;overflow:hidden}
+.ltd-fb::before{content:'';position:absolute;inset:0}
+.ltd-fb::after{content:'❋';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.9rem;color:rgba(201,168,76,.25);pointer-events:none}
 .ltd-sw{width:100%;height:100%;border-radius:5px;border:1.5px solid var(--b);background:linear-gradient(165deg,var(--a),#05030a);position:relative;overflow:hidden}
 .ltd-sw::after,.ltd-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.4) 50%,transparent 62%);background-size:260% 100%;animation:ltdShine 2.8s linear infinite}
 .ltd-bg{position:relative;overflow:hidden;width:100%;height:100%;border-radius:10px;border:1px solid rgba(255,255,255,.25);background-color:#140a1c;background-repeat:no-repeat;animation:ltdPan 7s ease-in-out infinite}
@@ -1123,19 +1125,19 @@ body.back-obsidian .fback::after{color:rgba(220,220,255,.22)}
 body.back-galaxy .fback{background:radial-gradient(circle at 30% 20%,rgba(160,80,255,.5),transparent 55%),radial-gradient(circle at 72% 82%,rgba(60,140,255,.45),transparent 55%),linear-gradient(165deg,#0a0824,#02020c);border-color:#6a5ad8}
 body.back-galaxy .fback::before{background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 62% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#cfe8ff,transparent),radial-gradient(1px 1px at 82% 58%,#fff,transparent),radial-gradient(1px 1px at 14% 86%,#fff,transparent),radial-gradient(1px 1px at 70% 90%,#ffe8ff,transparent);animation:backTwinkle 3s ease-in-out infinite}
 body.back-galaxy .fback::after{color:rgba(200,180,255,.35)}
-body.back-warning .fback,.pv-warning .fback{background:repeating-linear-gradient(45deg,#1a0a0a 0 8px,#3a1010 8px 16px);border-color:#e04040}
-body.back-warning .fback::before,.pv-warning .fback::before{background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(255,70,50,.3) 8px 16px);background-size:22.63px 22.63px;animation:backSlide 1.6s linear infinite}
-body.back-warning .fback,.pv-warning .fback{animation:backWarnPulse 1.2s ease-in-out infinite}
-body.back-warning .fback::after,.pv-warning .fback::after{color:rgba(255,120,100,.4)}
-body.back-glitch .fback,.pv-glitch .fback{background:linear-gradient(165deg,#10141c,#04060a);border-color:#40d8c8}
-body.back-glitch .fback::before,.pv-glitch .fback::before{background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(64,216,200,.12) 3px 4px);animation:backScan 1.2s steps(6) infinite}
-body.back-glitch .fback::after,.pv-glitch .fback::after{color:rgba(120,255,240,.35);animation:backGlitch 2.4s infinite}
-body.back-neongrid .fback,.pv-neongrid .fback{background:linear-gradient(165deg,#1a0a30,#06020e);border-color:#d040ff}
-body.back-neongrid .fback::before,.pv-neongrid .fback::before{background:linear-gradient(rgba(208,64,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(208,64,255,.22) 1px,transparent 1px);background-size:8px 8px;animation:backGrid 1.4s linear infinite}
-body.back-neongrid .fback::after,.pv-neongrid .fback::after{color:rgba(230,150,255,.4);animation:backTwinkle 2s ease-in-out infinite}
-body.back-crimson .fback,.pv-crimson .fback{background:radial-gradient(circle at 50% 30%,rgba(255,60,60,.4),transparent 60%),linear-gradient(165deg,#3a0610,#10020a);border-color:#ff5060}
-body.back-crimson .fback::before,.pv-crimson .fback::before{background:radial-gradient(circle at 50% 45%,rgba(255,90,90,.55),transparent 62%),repeating-linear-gradient(-45deg,transparent 0 4px,rgba(255,80,90,.1) 4px 5px);animation:backBeat 1.5s ease-in-out infinite}
-body.back-crimson .fback::after,.pv-crimson .fback::after{color:rgba(255,150,160,.4)}
+body.back-warning .fback,.pv-warning .ltd-fb{background:repeating-linear-gradient(45deg,#1a0a0a 0 8px,#3a1010 8px 16px);border-color:#e04040}
+body.back-warning .fback::before,.pv-warning .ltd-fb::before{background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(255,70,50,.3) 8px 16px);background-size:22.63px 22.63px;animation:backSlide 1.6s linear infinite}
+body.back-warning .fback,.pv-warning .ltd-fb{animation:backWarnPulse 1.2s ease-in-out infinite}
+body.back-warning .fback::after,.pv-warning .ltd-fb::after{color:rgba(255,120,100,.4)}
+body.back-glitch .fback,.pv-glitch .ltd-fb{background:linear-gradient(165deg,#10141c,#04060a);border-color:#40d8c8}
+body.back-glitch .fback::before,.pv-glitch .ltd-fb::before{background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(64,216,200,.12) 3px 4px);animation:backScan 1.2s steps(6) infinite}
+body.back-glitch .fback::after,.pv-glitch .ltd-fb::after{color:rgba(120,255,240,.35);animation:backGlitch 2.4s infinite}
+body.back-neongrid .fback,.pv-neongrid .ltd-fb{background:linear-gradient(165deg,#1a0a30,#06020e);border-color:#d040ff}
+body.back-neongrid .fback::before,.pv-neongrid .ltd-fb::before{background:linear-gradient(rgba(208,64,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(208,64,255,.22) 1px,transparent 1px);background-size:8px 8px;animation:backGrid 1.4s linear infinite}
+body.back-neongrid .fback::after,.pv-neongrid .ltd-fb::after{color:rgba(230,150,255,.4);animation:backTwinkle 2s ease-in-out infinite}
+body.back-crimson .fback,.pv-crimson .ltd-fb{background:radial-gradient(circle at 50% 30%,rgba(255,60,60,.4),transparent 60%),linear-gradient(165deg,#3a0610,#10020a);border-color:#ff5060}
+body.back-crimson .fback::before,.pv-crimson .ltd-fb::before{background:radial-gradient(circle at 50% 45%,rgba(255,90,90,.55),transparent 62%),repeating-linear-gradient(-45deg,transparent 0 4px,rgba(255,80,90,.1) 4px 5px);animation:backBeat 1.5s ease-in-out infinite}
+body.back-crimson .fback::after,.pv-crimson .ltd-fb::after{color:rgba(255,150,160,.4)}
 @keyframes backSlide{to{background-position:22.63px 0}}
 @keyframes backWarnPulse{0%,100%{border-color:#7a2020}50%{border-color:#ff5050}}
 @keyframes backScan{from{background-position:0 0}to{background-position:0 24px}}
@@ -5093,7 +5095,7 @@ GACHA_ITEMS.push(
 function ltdIcon(it,has,big){
   let inner;
   if(it.category==='theme'){
-    if(['warning','glitch','neongrid','crimson'].includes(it.value))inner=`<div class="ltd-tile pv-${it.value}"><div class="fback"></div></div>`;
+    if(['warning','glitch','neongrid','crimson'].includes(it.value))inner=`<div class="ltd-tile pv-${it.value}"><div class="ltd-fb"></div></div>`;
     else{const sw=GACHA_THEME_SWATCH[it.value]||['#2a1e12','#5a4028'];inner=`<div class="ltd-tile"><div class="ltd-sw" style="--a:${sw[0]};--b:${sw[1]}"></div></div>`;}
   }else if(it.category==='fieldbg'){
     inner=`<div class="ltd-bg ltd-bg-${it.id}" style="background-image:url('${esc(it.value)}')"></div>`;
@@ -5637,6 +5639,7 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
+  {id:'info_fix_ltd_preview', info:true, title:'🛠 不具合の修正', desc:'動く牌の裏の柄をカスタマイズで設定していると、期間限定ガチャの景品一覧に並ぶ牌の裏の柄が、設定中の柄に置き換わって表示されてしまう不具合を修正しました。一覧では、それぞれの景品本来の柄が表示されます。'},
   {id:'info_event_halloween2026', info:true, title:'🎃 ハロウィンナイト開催！', desc:'ロビーの「🎃 ハロウィンナイト」から遊べるイベント戦です（10/19 〜 11/1）。\nイベントだけのルール（お菓子ラウンド・ロンの祝福）と、勝利数に応じた限定報酬があります。期間が終わるとイベントは消えます。'},
   {id:'info_limited_gacha1', info:true, title:'✨ 期間限定ガチャ開催！', desc:'ガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n開催期間：10/19 〜 11/2\n最高レアは場の背景「Game Over Ⅲ・Ⅳ」。ほかに新しい牌の裏・場の背景・動くアイコン、称号「国富平針店のバイト」が出ます。'},
   {id:'info_update_login_draw', info:true, title:'🛠 アップデート内容', desc:'・毎日ログインボーナスを追加（花びら50枚／7日ごとに称号「日々の花」、次の7日ごとに★が増えます）\n・全員リーチで誰も上がれなくなった場合、引き分けになって次のラウンドへ進むようにしました（CPU戦・オンライン対戦とも）'},
