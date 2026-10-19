@@ -213,6 +213,7 @@ const FIELD_BG_PRESETS = new Set([
   'bg_forest', 'bg_dunes', 'bg_snowfield', 'bg_fireflies', 'bg_mountain', 'bg_waves', 'bg_sakuranight', 'bg_nebula', 'bg_galaxy',
   'bg_koi', 'bg_cityrain', 'bg_fuji', 'bg_fireworks',
   'bg_lanterns', 'bg_redmoon', 'bg_pumpkinfield', 'bg_haunted', // 期間限定ガチャ・ハロウィンイベントの背景
+  'bg_xmasnight', 'bg_newyearsun', 'bg_heartnight', 'bg_sakurastorm', 'bg_milkyway', 'bg_festival', 'bg_moonviewing', // 季節イベントの背景
 ]);
 function sanitizeFieldBg(url) {
   if (typeof url !== 'string') return '';
