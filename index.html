@@ -1145,27 +1145,36 @@ body.back-crimson .fback::after,.pv-crimson .fback::after{color:rgba(255,150,160
 body.back-pumpkin .fback{background:radial-gradient(circle at 50% 45%,#ff9a30,#b84a08 70%,#4a1a04);border-color:#ffb040}
 body.back-pumpkin .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(70,20,0,.35) 5px 6px)}
 body.back-pumpkin .fback::after{content:'🎃';font-size:.8rem;color:#ffd060;animation:backFlicker 1.6s ease-in-out infinite}
-body.back-xmas .fback{background:linear-gradient(165deg,#0e3a1e 0%,#3a0a0e 100%);border-color:#d8a8a0}
-body.back-xmas .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,255,255,.12) 5px 6px)}
-body.back-xmas .fback::after{content:'🎄';font-size:.8rem}
-body.back-newyear .fback{background:linear-gradient(165deg,#5a0a10 0%,#240408 100%);border-color:#e8c060}
-body.back-newyear .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(232,192,96,.2) 5px 6px)}
-body.back-newyear .fback::after{content:'🎍';font-size:.8rem}
+@keyframes bs85{to{background-position:8.485px 0}}
+@keyframes bs6{to{background-position:6px 0}}
+@keyframes bcSway{0%,100%{transform:translate(-50%,-50%) rotate(-9deg)}50%{transform:translate(-50%,-50%) rotate(9deg)}}
+@keyframes bcBeat{0%,100%{transform:translate(-50%,-50%) scale(.9)}20%{transform:translate(-50%,-50%) scale(1.3)}40%{transform:translate(-50%,-50%) scale(1)}55%{transform:translate(-50%,-50%) scale(1.2)}}
+@keyframes bcSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes bcFloat{0%,100%{transform:translate(-50%,-58%)}50%{transform:translate(-50%,-42%)}}
+@keyframes bcTwk{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(.85)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}}
+@keyframes bcBorderX{0%,100%{border-color:#e05050}50%{border-color:#50d070}}
+@keyframes bcGlow{0%,100%{box-shadow:inset 0 0 5px rgba(255,150,70,.25),0 2px 6px rgba(0,0,0,.5)}50%{box-shadow:inset 0 0 14px rgba(255,170,90,.85),0 2px 6px rgba(0,0,0,.5)}}
+body.back-xmas .fback{background:linear-gradient(165deg,#0e3a1e 0%,#3a0a0e 100%);border-color:#d8a8a0;animation:bcBorderX 1.4s steps(1) infinite}
+body.back-xmas .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,255,255,.16) 5px 6px);background-size:8.485px 8.485px;animation:bs85 1.6s linear infinite}
+body.back-xmas .fback::after{content:'🎄';font-size:.8rem;animation:bcTwk 1.6s ease-in-out infinite}
+body.back-newyear .fback{background:linear-gradient(165deg,#5a0a10 0%,#240408 100%);border-color:#e8c060;animation:bcGlow 2.2s ease-in-out infinite}
+body.back-newyear .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(232,192,96,.25) 5px 6px);background-size:6px 6px;animation:bs6 1.1s linear infinite}
+body.back-newyear .fback::after{content:'🎍';font-size:.8rem;animation:bcSway 2.4s ease-in-out infinite}
 body.back-valentine .fback{background:linear-gradient(165deg,#4a0a2a 0%,#1c0410 100%);border-color:#ff7aa8}
-body.back-valentine .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,130,170,.14) 5px 6px)}
-body.back-valentine .fback::after{content:'💝';font-size:.8rem}
+body.back-valentine .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,130,170,.2) 5px 6px);background-size:8.485px 8.485px;animation:bs85 2.2s linear infinite}
+body.back-valentine .fback::after{content:'💝';font-size:.8rem;animation:bcBeat 1.3s ease-in-out infinite}
 body.back-hanafubuki .fback{background:linear-gradient(165deg,#3a1a30 0%,#180a14 100%);border-color:#ffc0d8}
-body.back-hanafubuki .fback::before{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(255,192,216,.14) 5px 6px)}
-body.back-hanafubuki .fback::after{content:'🌸';font-size:.8rem}
+body.back-hanafubuki .fback::before{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(255,192,216,.2) 5px 6px);background-size:8.485px 8.485px;animation:bs85 2.4s linear infinite}
+body.back-hanafubuki .fback::after{content:'🌸';font-size:.8rem;animation:bcSpin 6s linear infinite}
 body.back-tanabata .fback{background:linear-gradient(165deg,#0a1040 0%,#04061c 100%);border-color:#8ab0ff}
-body.back-tanabata .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(150,180,255,.14) 5px 6px)}
-body.back-tanabata .fback::after{content:'⭐';font-size:.8rem}
-body.back-matsuri .fback{background:linear-gradient(165deg,#2a0a0a 0%,#100404 100%);border-color:#ff6a40}
-body.back-matsuri .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(255,110,60,.2) 5px 6px)}
-body.back-matsuri .fback::after{content:'🏮';font-size:.8rem}
-body.back-tsukimi .fback{background:linear-gradient(165deg,#1a1a3a 0%,#0a0a1c 100%);border-color:#ffe080}
-body.back-tsukimi .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,230,130,.12) 5px 6px)}
-body.back-tsukimi .fback::after{content:'🌕';font-size:.8rem}
+body.back-tanabata .fback::before{background:radial-gradient(circle at 25% 30%,#fff 0 1px,transparent 1.7px),radial-gradient(circle at 72% 72%,#cfe0ff 0 1px,transparent 1.7px);background-size:14px 14px,11px 11px;animation:backTwinkle 1.8s ease-in-out infinite}
+body.back-tanabata .fback::after{content:'⭐';font-size:.8rem;animation:bcTwk 1.9s ease-in-out infinite}
+body.back-matsuri .fback{background:linear-gradient(165deg,#2a0a0a 0%,#100404 100%);border-color:#ff6a40;animation:bcGlow 1.4s ease-in-out infinite}
+body.back-matsuri .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(255,110,60,.25) 5px 6px);animation:backFlicker 1.1s ease-in-out infinite}
+body.back-matsuri .fback::after{content:'🏮';font-size:.8rem;animation:bcSway 2s ease-in-out infinite}
+body.back-tsukimi .fback{background:linear-gradient(165deg,#1a1a3a 0%,#0a0a1c 100%);border-color:#ffe080;animation:bcGlow 3s ease-in-out infinite}
+body.back-tsukimi .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,230,130,.16) 5px 6px);animation:backTwinkle 3s ease-in-out infinite}
+body.back-tsukimi .fback::after{content:'🌕';font-size:.8rem;animation:bcFloat 3s ease-in-out infinite}
 @keyframes backFlicker{0%,100%{opacity:.85}45%{opacity:1}60%{opacity:.55}}
 @keyframes backTwinkle{0%,100%{opacity:.5}50%{opacity:1}}
 body.back-dragon .fback{background:linear-gradient(165deg,#0a3a24 0%,#031810 100%);border-color:#d8b04a}
@@ -4180,12 +4189,52 @@ LOBBY_SCENES.haunted=function(){const r=_rng(151);
     <g fill="#08040e"><rect x="70" y="500" width="260" height="240"/><polygon points="60,500 200,400 340,500"/><rect x="56" y="440" width="46" height="100"/><polygon points="50,440 79,392 108,440"/><rect x="300" y="450" width="40" height="90"/><polygon points="294,450 320,410 346,450"/><rect x="180" y="440" width="50" height="60"/><polygon points="176,440 205,400 234,440"/></g>${win}
     <path d="M360 800V620M360 680l-30-30M360 650l24-34M360 720l-34-22" stroke="#06020a" stroke-width="8" stroke-linecap="round" fill="none"/>
     <path d="${_ridge(r,{base:748,amp:20,rough:.5}).fill}" fill="#06020a"/>`;};
+// 季節イベント（クリスマス〜お月見）の動く背景
+const _XMAS_TREES=[[70,600,1.5],[330,585,1.7],[200,660,1.1],[18,700,1.0],[388,695,1.0]];
+const _XMAS_LIGHTS=(()=>{const o=[],off=[[-18,-30],[16,-22],[-28,0],[22,6],[-10,26],[30,34],[-34,40],[0,-60]];_XMAS_TREES.forEach(([x,y,s])=>off.forEach(([dx,dy])=>o.push([x+dx*s,y+dy*s])));return o;})();
+const _FEST_LAMPS=[...Array(9)].map((_,i)=>[22+i*44,96+Math.sin(i/8*Math.PI)*40]).concat([...Array(8)].map((_,i)=>[44+i*44,205+Math.sin(i/7*Math.PI)*28]));
+const _heartD=s=>`M0 ${.9*s}C${-1.3*s} ${.1*s} ${-.8*s} ${-.8*s} 0 ${-.3*s}C${.8*s} ${-.8*s} ${1.3*s} ${.1*s} 0 ${.9*s}Z`;
+LOBBY_SCENES.xmasnight=function(){const r=_rng(161);let t='',l='';
+  _XMAS_TREES.forEach(([x,y,s])=>{t+=`<g transform="translate(${x} ${y}) scale(${s})"><polygon points="0,-90 -34,-30 -22,-30 -44,10 -28,10 -52,52 52,52 28,10 44,10 22,-30 34,-30" fill="#0a2e1c"/><rect x="-6" y="52" width="12" height="14" fill="#2a1408"/><polygon points="0,-104 4,-93 15,-93 6,-86 9,-75 0,-82 -9,-75 -6,-86 -15,-93 -4,-93" fill="#ffd860"/></g>`;});
+  _XMAS_LIGHTS.forEach(([x,y],i)=>l+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="2.6" fill="${['#ff5050','#ffd060','#60b0ff','#70e080'][i%4]}"/>`);
+  return `<defs>${_vgrad('sk',[[0,'#050a24'],[.6,'#12285a'],[1,'#3a5088']])}${_glow('mg','#e8f0ff','#8aa8e8')}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,420,120)}
+    <circle cx="300" cy="170" r="95" fill="url(#mg)" opacity=".45"/><circle cx="300" cy="170" r="32" fill="#f4f8ff"/>
+    <path d="${_ridge(r,{base:640,amp:40,rough:.55}).fill}" fill="#c8d6f0"/><path d="${_ridge(r,{base:700,amp:24,rough:.5}).fill}" fill="#e8f0ff"/><rect y="760" width="400" height="40" fill="#e8f0ff"/>${t}${l}`;};
+LOBBY_SCENES.newyearsun=function(){const r=_rng(171);let c='';for(let i=0;i<6;i++)c+=`<ellipse cx="${(r()*400).toFixed(0)}" cy="${(380+r()*160).toFixed(0)}" rx="${(70+r()*90).toFixed(0)}" ry="${(8+r()*10).toFixed(0)}" fill="#ffb060" opacity=".45"/>`;
+  return `<defs>${_vgrad('sk',[[0,'#1a0a30'],[.4,'#8a2a40'],[.7,'#ff9a40'],[1,'#ffd870']])}${_glow('sg','#fff4c0','#ffb040')}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,260,60)}
+    <circle cx="200" cy="560" r="230" fill="url(#sg)" opacity=".6"/><circle cx="200" cy="560" r="86" fill="#fff0b0"/>${c}
+    <path d="${_ridge(r,{base:620,amp:46,rough:.5}).fill}" fill="#2a0e20"/><path d="${_pines(r,640,60,110,32)}" fill="#12060e"/><rect y="640" width="400" height="160" fill="#12060e"/>`;};
+LOBBY_SCENES.heartnight=function(){const r=_rng(181);let b='',hs='';
+  for(let i=0;i<30;i++)b+=`<circle cx="${(r()*400).toFixed(0)}" cy="${(r()*800).toFixed(0)}" r="${(6+r()*26).toFixed(0)}" fill="#ff7ab8" opacity="${(.05+r()*.12).toFixed(2)}"/>`;
+  [[90,180,90],[320,300,70],[200,520,120],[60,640,60],[340,700,80]].forEach(([x,y,s])=>hs+=`<path transform="translate(${x} ${y})" d="${_heartD(s)}" fill="#ff80b8" opacity=".12"/>`);
+  return `<defs>${_vgrad('sk',[[0,'#1c0838'],[.55,'#6a1a60'],[1,'#c0407a']])}${_glow('hg','#ff9ac8','#ff4090')}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,500,70)}${b}${hs}<circle cx="200" cy="720" r="260" fill="url(#hg)" opacity=".35"/>`;};
+LOBBY_SCENES.sakurastorm=function(){const r=_rng(191);let bl='';
+  for(let i=0;i<110;i++){const u=r(),x=-10+u*330,y=260-u*130+(r()-.5)*100;bl+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(8+r()*14).toFixed(0)}" fill="${['#ffb0d0','#ff90b8','#ffd0e0'][i%3]}" opacity="${(.55+r()*.35).toFixed(2)}"/>`;}
+  return `<defs>${_vgrad('sk',[[0,'#3a1a50'],[.5,'#c0608a'],[1,'#ffc0a0']])}${_glow('sg','#ffe0d0','#ff90a0')}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,260,50)}
+    <circle cx="300" cy="470" r="150" fill="url(#sg)" opacity=".5"/><circle cx="300" cy="470" r="46" fill="#fff0e8"/>
+    <path d="M-10 270Q90 230 170 180T330 120M90 232Q120 300 110 360M200 168Q230 230 260 270" stroke="#2a0a18" stroke-width="11" stroke-linecap="round" fill="none"/>${bl}
+    <path d="${_ridge(r,{base:690,amp:30,rough:.5}).fill}" fill="#3a1228"/><rect y="730" width="400" height="70" fill="#2a0a1c"/><ellipse cx="120" cy="750" rx="150" ry="9" fill="#ffb0d0" opacity=".5"/><ellipse cx="300" cy="768" rx="130" ry="8" fill="#ff90b8" opacity=".45"/>`;};
+LOBBY_SCENES.milkyway=function(){const r=_rng(201);let bam='';
+  [[40,0],[78,1],[112,2]].forEach(([x,k])=>{bam+=`<path d="M${x} 800Q${x+8} 600 ${x-6} ${380+k*30}" stroke="#14301e" stroke-width="7" fill="none"/>`;
+    for(let j=0;j<5;j++){const y=450+j*60+k*20;bam+=`<path d="M${x-2} ${y}l32 -16M${x-2} ${y+8}l-28 -14" stroke="#1a4a2a" stroke-width="3" stroke-linecap="round"/><path d="M${x+26} ${y-12}v30" stroke="#caa" stroke-width=".8"/><rect x="${x+22}" y="${y+14}" width="9" height="30" fill="${['#ff7ab0','#ffd060','#70c8ff','#a0e080'][(j+k)%4]}"/>`;}});
+  return `<defs>${_vgrad('sk',[[0,'#02030f'],[.5,'#0a1040'],[1,'#1a2a6a']])}<linearGradient id="mw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c8b8ff" stop-opacity="0"/><stop offset=".5" stop-color="#e0d8ff" stop-opacity=".6"/><stop offset="1" stop-color="#c8b8ff" stop-opacity="0"/></linearGradient><filter id="bl"><feGaussianBlur stdDeviation="14"/></filter></defs>
+    <rect width="400" height="800" fill="url(#sk)"/><g transform="rotate(-30 200 300)" filter="url(#bl)"><ellipse cx="200" cy="300" rx="380" ry="60" fill="url(#mw)"/></g>${_stars(r,0,640,260)}${bam}<path d="${_ridge(r,{base:760,amp:22,rough:.5}).fill}" fill="#05060f"/>`;};
+LOBBY_SCENES.festival=function(){const r=_rng(211);let lp='',st='';
+  const row=(a)=>a.map(p=>p.map(v=>v.toFixed(0)).join(' ')).join('L');
+  _FEST_LAMPS.forEach(([x,y])=>lp+=`<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="10" ry="13" fill="#e8382a"/><rect x="${(x-6).toFixed(0)}" y="${(y-14).toFixed(0)}" width="12" height="3" fill="#2a0808"/>`);
+  [[30,640,120],[200,630,150],[350,645,110]].forEach(([x,y,w])=>st+=`<rect x="${x-w/2}" y="${y}" width="${w}" height="130" fill="#12060a"/><polygon points="${x-w/2-8},${y} ${x+w/2+8},${y} ${x+w/2-6},${y-34} ${x-w/2+6},${y-34}" fill="#c02828"/><rect x="${x-w/2+10}" y="${y+16}" width="${w-20}" height="34" fill="#ffb050" opacity=".75"/>`);
+  return `<defs>${_vgrad('sk',[[0,'#0a0620'],[.6,'#201040'],[1,'#4a1a50']])}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,420,90)}
+    <path d="M${row(_FEST_LAMPS.slice(0,9))}" stroke="#1a0a0a" stroke-width="1.5" fill="none"/><path d="M${row(_FEST_LAMPS.slice(9))}" stroke="#1a0a0a" stroke-width="1.5" fill="none"/>${lp}<rect y="770" width="400" height="30" fill="#0a0408"/>${st}`;};
+LOBBY_SCENES.moonviewing=function(){const r=_rng(221);
+  return `<defs>${_vgrad('sk',[[0,'#0a1030'],[.6,'#1e2a5a'],[1,'#3a4a78']])}${_glow('mg','#fff4c8','#c8b878')}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,520,110)}
+    <circle cx="200" cy="280" r="190" fill="url(#mg)" opacity=".5"/><circle cx="200" cy="280" r="120" fill="#fff4c8"/><circle cx="170" cy="250" r="22" fill="#e8dca8" opacity=".5"/><circle cx="235" cy="300" r="30" fill="#e8dca8" opacity=".45"/><circle cx="210" cy="226" r="12" fill="#e8dca8" opacity=".5"/><circle cx="160" cy="320" r="14" fill="#e8dca8" opacity=".45"/>
+    <path d="${_ridge(r,{base:640,amp:46,rough:.5}).fill}" fill="#0e1430"/><path d="${_ridge(r,{base:710,amp:24,rough:.5}).fill}" fill="#070a1a"/><rect y="740" width="400" height="60" fill="#070a1a"/>`;};
 LOBBY_SCENES.galaxybase=()=>LOBBY_SCENES.galaxy(true);
 const _sceneCache={};
 function sceneUri(name){return _sceneCache[name]||(_sceneCache[name]=_sceneUri(LOBBY_SCENES[name]()));}
 
 // 画面の形（縦長・横長）で見える範囲が変わるので、各風景の「見せたい高さ」を決めておく（%）
-const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50,lanterns:55,redmoon:40,pumpkinfield:60,haunted:55};
+const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50,lanterns:55,redmoon:40,pumpkinfield:60,haunted:55,xmasnight:60,newyearsun:55,heartnight:50,sakurastorm:45,milkyway:55,festival:55,moonviewing:50};
 
 // ============================================================
 // 場の背景のアニメーション（風景の上に動きを重ねる）。座標は風景画と同じ 400x800 の世界で描く
@@ -4425,6 +4474,77 @@ FIELD_ANIMS.haunted=function(){
       const y=w.y+Math.sin(w.ph+now*.0014)*18;c.globalAlpha=.2+.15*Math.sin(w.ph+now*.002);c.drawImage(glow,w.x-w.s/2,y-w.s/2,w.s,w.s*1.3);}
     c.globalCompositeOperation='source-over';c.globalAlpha=1;
   };
+};
+FIELD_ANIMS.xmasnight=function(){
+  const cols=['255,80,80','255,210,90','100,170,255','110,230,130'].map(glowSprite),Sn=Array.from({length:80},()=>({x:_R(0,400),y:_R(0,820),vy:_R(.3,.9),ph:_R(0,6.28),r:_R(1,2.8)}));
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';
+    _XMAS_LIGHTS.forEach(([x,y],i)=>{c.globalAlpha=.45+.45*Math.sin(now*.004+i*1.7);c.drawImage(cols[i%4],x-9,y-9,18,18);});
+    c.globalCompositeOperation='source-over';c.fillStyle='#fff';c.globalAlpha=.85;
+    for(const s of Sn){s.y+=s.vy*dt;s.x+=Math.sin(s.ph+now*.0012)*.25*dt;if(s.y>S.y1+6){s.y=S.y0-6;s.x=_R(S.x0,S.x1);}c.beginPath();c.arc(s.x,s.y,s.r,0,6.283);c.fill();}
+    c.globalAlpha=1;};
+};
+FIELD_ANIMS.newyearsun=function(){
+  const gl=glowSprite('255,220,120'),P=Array.from({length:36},()=>({x:_R(0,400),y:_R(300,820),vy:_R(.15,.5),ph:_R(0,6.28),s:_R(5,13)}));
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';
+    c.save();c.translate(200,560);c.rotate(now*.00006);c.fillStyle='rgba(255,230,150,.1)';
+    for(let i=0;i<16;i++){c.rotate(Math.PI/8);c.beginPath();c.moveTo(0,0);c.lineTo(-18,-900);c.lineTo(18,-900);c.closePath();c.fill();}
+    c.restore();
+    for(const p of P){p.y-=p.vy*dt;if(p.y<S.y0-10){p.y=S.y1+10;p.x=_R(0,400);}c.globalAlpha=.3+.5*Math.max(0,Math.sin(p.ph+now*.004));c.drawImage(gl,p.x+Math.sin(p.ph+now*.001)*8-p.s/2,p.y-p.s/2,p.s,p.s);}
+    c.globalCompositeOperation='source-over';c.globalAlpha=1;};
+};
+FIELD_ANIMS.heartnight=function(){
+  const mk=col=>{const k=document.createElement('canvas');k.width=k.height=64;const x=k.getContext('2d');x.translate(32,34);x.fillStyle=col;heartPath(x,22);x.fill();return k;};
+  const sp=['#ff7ab8','#ff4a90','#ffb0d0'].map(mk),H=Array.from({length:26},()=>({x:_R(0,400),y:_R(0,840),vy:_R(.25,.8),ph:_R(0,6.28),s:_R(14,40),k:Math.floor(_R(0,3))}));
+  return (c,dt,now,S)=>{
+    for(const h of H){h.y-=h.vy*dt;if(h.y<S.y0-40){h.y=S.y1+40;h.x=_R(0,400);}
+      c.globalAlpha=.55;c.drawImage(sp[h.k],h.x+Math.sin(h.ph+now*.0015)*12-h.s/2,h.y-h.s/2,h.s,h.s);}
+    c.globalAlpha=1;};
+};
+FIELD_ANIMS.sakurastorm=function(){
+  const P=Array.from({length:70},()=>({x:_R(-100,400),y:_R(0,820),vx:_R(.8,2.2),vy:_R(.4,1.1),r:_R(0,6.28),vr:_R(-.06,.06),s:_R(4,9),c:['#ffc0d8','#ffa0c4','#fff0f4'][Math.floor(_R(0,3))]}));
+  return (c,dt,now,S)=>{
+    for(const p of P){p.x+=(p.vx+Math.sin(now*.002+p.y*.01)*.6)*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;
+      if(p.x>S.x1+20||p.y>S.y1+20){p.x=_R(S.x0-120,S.x0);p.y=_R(S.y0-20,S.y1*.7);}
+      c.save();c.translate(p.x,p.y);c.rotate(p.r);c.globalAlpha=.9;c.fillStyle=p.c;c.beginPath();c.ellipse(0,0,p.s,p.s*.55,0,0,6.283);c.fill();c.restore();}
+    c.globalAlpha=1;};
+};
+FIELD_ANIMS.milkyway=function(){
+  const gl=glowSprite('200,220,255'),T=Array.from({length:60},()=>({x:_R(0,400),y:_R(0,600),ph:_R(0,6.28),sp:_R(.002,.006),s:_R(5,13)})),M=[];let nxt=0;
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';
+    for(const t of T){c.globalAlpha=.2+.5*Math.max(0,Math.sin(t.ph+now*t.sp));c.drawImage(gl,t.x-t.s/2,t.y-t.s/2,t.s,t.s);}
+    if(now>nxt){nxt=now+_R(1800,4200);M.push({x:_R(80,400),y:_R(20,260),l:0});}
+    for(let i=M.length-1;i>=0;i--){const m=M[i];m.l+=dt*.035;m.x-=dt*7;m.y+=dt*3.4;if(m.l>1){M.splice(i,1);continue;}
+      const g=c.createLinearGradient(m.x,m.y,m.x+70,m.y-34);g.addColorStop(0,`rgba(255,255,255,${Math.sin(m.l*Math.PI)})`);g.addColorStop(1,'rgba(255,255,255,0)');
+      c.globalAlpha=1;c.strokeStyle=g;c.lineWidth=2;c.beginPath();c.moveTo(m.x,m.y);c.lineTo(m.x+70,m.y-34);c.stroke();}
+    c.globalCompositeOperation='source-over';c.globalAlpha=1;};
+};
+FIELD_ANIMS.festival=function(){
+  const gl=glowSprite('255,120,60'),cs=['255,90,90','255,220,120','120,200,255','180,255,150','255,150,255'].map(glowSprite),B=[];let nxt=0;
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';
+    _FEST_LAMPS.forEach(([x,y],i)=>{c.globalAlpha=.55+.3*Math.sin(now*.003+i*2.1);c.drawImage(gl,x-22,y-22,44,44);});
+    if(now>nxt){nxt=now+_R(900,2200);const n=36,ps=[];for(let i=0;i<n;i++){const a=i/n*6.283,v=_R(1.2,2.6);ps.push({vx:Math.cos(a)*v,vy:Math.sin(a)*v});}B.push({x:_R(60,340),y:_R(280,500),t:0,ps,k:Math.floor(_R(0,5))});}
+    for(let i=B.length-1;i>=0;i--){const b=B[i];b.t+=dt;if(b.t>90){B.splice(i,1);continue;}
+      const a=1-b.t/90,e=b.t*.9*(1-b.t/220);
+      for(const p of b.ps){c.globalAlpha=a;c.drawImage(cs[b.k],b.x+p.vx*e-7,b.y+p.vy*e+b.t*b.t*.004-7,14,14);}}
+    c.globalCompositeOperation='source-over';c.globalAlpha=1;};
+};
+FIELD_ANIMS.moonviewing=function(){
+  const gl=glowSprite('255,244,180'),F=Array.from({length:22},()=>({x:_R(0,400),y:_R(400,800),vx:_R(-.2,.2),ph:_R(0,6.28)})),
+    G=Array.from({length:30},(_,i)=>({x:i*14-6+_R(-4,4),h:_R(90,190),ph:_R(0,6.28)})),C=[{x:-80,y:250,w:150,v:.08},{x:250,y:330,w:120,v:.05}];
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';
+    for(const f of F){f.x+=f.vx*dt+Math.sin(f.ph+now*.001)*.15;f.y+=Math.cos(f.ph+now*.0012)*.2;c.globalAlpha=.3+.5*Math.max(0,Math.sin(f.ph+now*.004));c.drawImage(gl,f.x-5,f.y-5,10,10);}
+    c.globalCompositeOperation='source-over';c.fillStyle='#20284e';
+    for(const k of C){k.x+=k.v*dt;if(k.x-k.w>440)k.x=-k.w-20;c.globalAlpha=.35;c.beginPath();c.ellipse(k.x,k.y,k.w,k.w*.09,0,0,6.283);c.fill();}
+    const yb=S.y1+4;c.lineCap='round';
+    for(const g of G){const sw=Math.sin(g.ph+now*.0014)*14;
+      c.globalAlpha=1;c.strokeStyle='#0a0c1c';c.lineWidth=2;c.beginPath();c.moveTo(g.x,yb);c.quadraticCurveTo(g.x+sw*.3,yb-g.h*.55,g.x+sw,yb-g.h);c.stroke();
+      c.strokeStyle='#7a7a90';c.lineWidth=5;c.globalAlpha=.8;c.beginPath();c.moveTo(g.x+sw*.92,yb-g.h*.9);c.lineTo(g.x+sw,yb-g.h);c.stroke();}
+    c.globalAlpha=1;};
 };
 function startFieldAnim(key,fy,fyL){
   if(fyL===undefined)fyL=fy;
@@ -4809,10 +4929,19 @@ GACHA_ITEMS.push(
   {id:'theme_tsukimi', rarity:'rare', category:'theme', event:'tsukimi2027', icon:'🌕', title:'満月の裏地', desc:'牌の裏デザイン：お月見（お月見限定）', value:'tsukimi'},
 );
 // ===== 期間限定イベント（期間を過ぎるとロビーのボタンも遊べる場所も自動で消える）=====
+GACHA_ITEMS.push(
+  {id:'bg_xmasnight', rarity:'rare', category:'fieldbg', type:'scene', event:'christmas2026', icon:'🎄', title:'雪の聖夜', desc:'場の背景：雪降る聖夜とまたたく灯り（動く・クリスマス限定）', get value(){return sceneUri('xmasnight');}},
+  {id:'bg_newyearsun', rarity:'rare', category:'fieldbg', type:'scene', event:'newyear2027', icon:'🌅', title:'初日の出', desc:'場の背景：昇る初日の出と金色の光（動く・お正月限定）', get value(){return sceneUri('newyearsun');}},
+  {id:'bg_heartnight', rarity:'rare', category:'fieldbg', type:'scene', event:'valentine2027', icon:'💝', title:'ハートの夜', desc:'場の背景：舞い上がるハートの夜空（動く・バレンタイン限定）', get value(){return sceneUri('heartnight');}},
+  {id:'bg_sakurastorm', rarity:'rare', category:'fieldbg', type:'scene', event:'sakura2027', icon:'🌸', title:'桜吹雪の夕暮れ', desc:'場の背景：夕暮れの桜並木と吹き荒れる花びら（動く・お花見限定）', get value(){return sceneUri('sakurastorm');}},
+  {id:'bg_milkyway', rarity:'rare', category:'fieldbg', type:'scene', event:'tanabata2027', icon:'🌌', title:'天の川の夜', desc:'場の背景：天の川と流れ星、笹飾り（動く・七夕限定）', get value(){return sceneUri('milkyway');}},
+  {id:'bg_festival', rarity:'rare', category:'fieldbg', type:'scene', event:'matsuri2027', icon:'🏮', title:'夏祭りの夜', desc:'場の背景：提灯が並ぶ夜店と打ち上がる花火（動く・夏祭り限定）', get value(){return sceneUri('festival');}},
+  {id:'bg_moonviewing', rarity:'rare', category:'fieldbg', type:'scene', event:'tsukimi2027', icon:'🌕', title:'十五夜のすすき野', desc:'場の背景：大きな満月と揺れるすすき（動く・お月見限定）', get value(){return sceneUri('moonviewing');}},
+);
 // rules に書けるルール：round（ラウンドの得点アップ。chance=確率 / every=Nラウンドごと、mult=倍率 / add=加点）、
 //   ron（ロン上がりで加点）、tsumo（自分で上がると加点）、role（特定の役で加点）、first（最初のラウンドで加点）、streak（連勝で加点）
 // lobby は、ロビーの季節背景（LOBBY_EVENTS）のid。開発者モードで背景を切り替えると、イベント戦もその季節になります
-const _EV_R=(w3,gi,ti,th)=>[{key:'r0',wins:3,petals:100},{key:'r1',wins:8,item:gi},{key:'r2',wins:15,item:ti},{key:'r3',wins:25,item:th},{key:'r4',wins:40,petals:500}];
+const _EV_R=(w3,gi,ti,th,bg)=>[{key:'r0',wins:3,petals:100},{key:'r1',wins:8,item:gi},{key:'r2',wins:15,item:ti},{key:'r5',wins:20,item:bg},{key:'r3',wins:25,item:th},{key:'r4',wins:40,petals:500}];
 const EVENTS=[{
   id:'halloween2026', lobby:'halloween', title:'ハロウィンナイト', icon:'🎃', start:'2026-10-19', end:'2026-11-01',
   rules:{round:{chance:.34,mult:2,icon:'🍬',name:'お菓子ラウンド'},ron:{pts:2,icon:'👻',name:'ロンの祝福'}},
@@ -4822,37 +4951,37 @@ const EVENTS=[{
   id:'christmas2026', lobby:'christmas', title:'クリスマスナイト', icon:'🎄', start:'2026-12-15', end:'2026-12-25',
   rules:{round:{chance:.3,add:3,icon:'🎁',name:'プレゼントラウンド'},tsumo:{pts:1,icon:'🎅',name:'サンタの贈り物'}},
   ruleText:['🎁 プレゼントラウンド：ときどき、その回に上がると＋3点されます','🎅 サンタの贈り物：自分の手番で上がる（ロンではない）と＋1点されます'],
-  rewards:_EV_R(0,'gi_xmas','title_ev_christmas2026','theme_xmas'),
+  rewards:_EV_R(0,'gi_xmas','title_ev_christmas2026','theme_xmas','bg_xmasnight'),
 },{
   id:'newyear2027', lobby:'newyear', title:'お正月福引まつり', icon:'🎍', start:'2026-12-29', end:'2027-01-07',
   rules:{round:{chance:.3,mult:2,icon:'🎊',name:'福引ラウンド'},first:{pts:3,icon:'🌅',name:'初日の出'}},
   ruleText:['🎊 福引ラウンド：ときどき、その回の得点が2倍になります','🌅 初日の出：ゲームの最初のラウンドで上がると＋3点されます'],
-  rewards:_EV_R(0,'gi_kadomatsu','title_ev_newyear2027','theme_newyear'),
+  rewards:_EV_R(0,'gi_kadomatsu','title_ev_newyear2027','theme_newyear','bg_newyearsun'),
 },{
   id:'valentine2027', lobby:'valentine', title:'バレンタインデー', icon:'💝', start:'2027-02-07', end:'2027-02-14',
   rules:{round:{chance:.34,mult:2,icon:'🍫',name:'チョコレートラウンド'},role:{icon:'💞',name:'ペアの絆',map:{'三対':3}}},
   ruleText:['🍫 チョコレートラウンド：ときどき、その回の得点が2倍になります','💞 ペアの絆：役が「三対」で上がると＋3点されます'],
-  rewards:_EV_R(0,'gi_choco','title_ev_valentine2027','theme_valentine'),
+  rewards:_EV_R(0,'gi_choco','title_ev_valentine2027','theme_valentine','bg_heartnight'),
 },{
   id:'sakura2027', lobby:'sakura', title:'お花見', icon:'🌸', start:'2027-03-20', end:'2027-04-10',
   rules:{round:{chance:.25,mult:2,icon:'🌷',name:'満開ラウンド'},streak:{max:3,icon:'🌸',name:'花吹雪'}},
   ruleText:['🌷 満開ラウンド：ときどき、その回の得点が2倍になります','🌸 花吹雪：同じ人が連続で上がるたびに＋1点（最大＋3点）されます'],
-  rewards:_EV_R(0,'gi_hanafubuki','title_ev_sakura2027','theme_hanafubuki'),
+  rewards:_EV_R(0,'gi_hanafubuki','title_ev_sakura2027','theme_hanafubuki','bg_sakurastorm'),
 },{
   id:'tanabata2027', lobby:'tanabata', title:'七夕まつり', icon:'🎋', start:'2027-07-01', end:'2027-07-07',
   rules:{round:{every:3,mult:2,icon:'⭐',name:'願いの星'},role:{icon:'🌌',name:'天の川',map:{'三連':2}}},
   ruleText:['⭐ 願いの星：3ラウンドごとに、その回の得点が2倍になります','🌌 天の川：役が「三連」で上がると＋2点されます'],
-  rewards:_EV_R(0,'gi_tanzaku','title_ev_tanabata2027','theme_tanabata'),
+  rewards:_EV_R(0,'gi_tanzaku','title_ev_tanabata2027','theme_tanabata','bg_milkyway'),
 },{
   id:'matsuri2027', lobby:'fireworks', title:'夏祭り', icon:'🎆', start:'2027-07-20', end:'2027-08-31',
   rules:{round:{chance:.4,mult:2,icon:'🎆',name:'花火ラウンド'},ron:{pts:3,icon:'🎯',name:'射的の大当たり'}},
   ruleText:['🎆 花火ラウンド：よく（2〜3回に1回）、その回の得点が2倍になります','🎯 射的の大当たり：ロンで上がると＋3点されます'],
-  rewards:_EV_R(0,'gi_hanabi','title_ev_matsuri2027','theme_matsuri'),
+  rewards:_EV_R(0,'gi_hanabi','title_ev_matsuri2027','theme_matsuri','bg_festival'),
 },{
   id:'tsukimi2027', lobby:'tsukimi', title:'お月見', icon:'🌕', start:'2027-09-10', end:'2027-09-30',
   rules:{round:{chance:.3,mult:2,icon:'🌕',name:'満月ラウンド'},role:{icon:'🍡',name:'お月見団子',map:{'一色':2}}},
   ruleText:['🌕 満月ラウンド：ときどき、その回の得点が2倍になります','🍡 お月見団子：役が「一色」で上がると＋2点されます'],
-  rewards:_EV_R(0,'gi_tsukimi','title_ev_tsukimi2027','theme_tsukimi'),
+  rewards:_EV_R(0,'gi_tsukimi','title_ev_tsukimi2027','theme_tsukimi','bg_moonviewing'),
 }];
 function activeEvent(){
   // 開発者モードでタイトル背景を選んでいるときは、その季節のイベント戦を遊べる（確認用。報酬は実際にこの端末へ入る）
