@@ -297,6 +297,20 @@ if (queue.length >= 2) {
     socket.emit('queue_cancelled');
   });
 
+  // 待機中のルームの全員に、参加者の名前・アイコン・称号を送る（you は受け取った本人の位置）
+  function emitRoomUpdate(room, joinedName, leftName) {
+    const names = room.players.map(p => p.name);
+    const infos = room.players.map(p => ({ name: p.name, avatar: p.avatar || '', title: p.title || '' }));
+    room.players.forEach((p, i) => io.to(p.id).emit('room_update', { players: names, infos, code: room.code, host: 0, you: i, max: 4, joined: joinedName || '', left: leftName || '' }));
+  }
+  // 待機中のルームから抜ける。ホストが抜けたらルームを閉じる
+  function leaveWaitingRoom(room, socketId) {
+    const pi = room.players.findIndex(p => p.id === socketId);
+    if (pi === -1) return;
+    if (pi === 0) { io.to(room.code).emit('room_closed', { name: room.players[0].name }); rooms.delete(room.code); }
+    else { const name = room.players[pi].name; room.players.splice(pi, 1); emitRoomUpdate(room, '', name); }
+  }
+
   // ルーム作成
 socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avatar, title }) => {
     const code = genCode();
@@ -311,7 +325,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     });
     socket.join(code);
     socket.emit('room_created', { code });
-    socket.emit('room_update', { players: [name], code });
+    emitRoomUpdate(rooms.get(code), '', '');
   });
 
   // ルーム参加
@@ -325,7 +339,15 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     if (room.players.some(p => p.name === name)) { socket.emit('err', 'この名前はすでに使われています'); return; }
     room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title) });
     socket.join(c);
-    io.to(c).emit('room_update', { players: room.players.map(p => p.name), code: c });
+    emitRoomUpdate(room, name, '');
+  });
+
+  // 待機中のルームから抜ける
+  socket.on('leave_room', ({ code }) => {
+    const room = rooms.get(code);
+    if (!room || room.phase !== 'waiting') return;
+    leaveWaitingRoom(room, socket.id);
+    socket.leave(code);
   });
 
   // 称号を変更（対局中でも変更可能）
@@ -594,8 +616,8 @@ player.score += res.pts + bonus;
     if (room) {
       const pi = room.players.findIndex(p => p.id === socket.id);
       if (pi !== -1) {
-        io.to(room.code).emit('player_left', { name: room.players[pi].name });
-        rooms.delete(room.code);
+        if (room.phase === 'waiting') leaveWaitingRoom(room, socket.id); // 待機中なら、ほかの人はそのまま待てる
+        else { io.to(room.code).emit('player_left', { name: room.players[pi].name }); rooms.delete(room.code); }
       }
     }
   });
