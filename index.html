@@ -4985,6 +4985,8 @@ function closeGacha(){ showScreen('lobby'); }
 // ============================================================
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
+  {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
+  {id:'info_update_login_draw', info:true, title:'🛠 アップデート内容', desc:'・毎日ログインボーナスを追加（花びら50枚／7日ごとに称号「日々の花」、次の7日ごとに★が増えます）\n・全員リーチで誰も上がれなくなった場合、引き分けになって次のラウンドへ進むようにしました（CPU戦・オンライン対戦とも）'},
 ];
 function loadGiftboxClaimed(){
   try{ return JSON.parse(localStorage.getItem('rikka_giftbox_claimed')||'[]'); }catch(e){ return []; }
@@ -4996,18 +4998,34 @@ function isGiftEligible(gift){
 }
 function hasUnclaimedGift(){
   const claimed=new Set(loadGiftboxClaimed());
-  return GIFTBOX_ITEMS.some(g=>isGiftEligible(g)&&!claimed.has(g.id));
+  return GIFTBOX_ITEMS.some(g=>!g.info&&isGiftEligible(g)&&!claimed.has(g.id));
 }
 function updateGiftboxDot(){
   const el=document.getElementById('giftbox-dot-wrap');
   if(!el)return;
   el.innerHTML=hasUnclaimedGift()?'<span class="giftbox-dot"></span>':'';
 }
+// 一括受け取り：受け取れるものをまとめて受け取る
+function claimAllGifts(){
+  const claimed=loadGiftboxClaimed();let total=0;
+  GIFTBOX_ITEMS.forEach(g=>{
+    if(g.info||claimed.includes(g.id)||!isGiftEligible(g))return;
+    claimed.push(g.id);total+=g.petals||0;
+  });
+  if(!total)return;
+  saveGiftboxClaimed(claimed);
+  addPetals(total);
+  toast(`🌸 花びら${total}枚をまとめて受け取りました！`);
+  playSound('win');
+  launchConfetti();
+  renderGiftbox();
+  updateGiftboxDot();
+}
 function claimGift(id){
   const claimed=loadGiftboxClaimed();
   if(claimed.includes(id))return;
   const gift=GIFTBOX_ITEMS.find(g=>g.id===id);
-  if(!gift||!isGiftEligible(gift))return;
+  if(!gift||gift.info||!isGiftEligible(gift))return;
   claimed.push(id);
   saveGiftboxClaimed(claimed);
   if(gift.petals)addPetals(gift.petals);
@@ -5025,16 +5043,19 @@ function renderGiftbox(){
     el.innerHTML='<div class="giftbox-empty">現在お届け中のアイテムはありません</div>';
     return;
   }
-  el.innerHTML=GIFTBOX_ITEMS.map(g=>{
+  const pending=GIFTBOX_ITEMS.filter(g=>!g.info&&isGiftEligible(g)&&!claimed.has(g.id));
+  const allBtn=pending.length>1?`<button class="giftbox-claim-btn" style="margin-bottom:.8rem" onclick="claimAllGifts()">🌸 一括受け取り（花びら${pending.reduce((s,g)=>s+(g.petals||0),0)}枚）</button>`:'';
+  el.innerHTML=allBtn+GIFTBOX_ITEMS.map(g=>{
     const isClaimed=claimed.has(g.id);
     const eligible=isGiftEligible(g);
     let btnHtml;
-    if(isClaimed) btnHtml=`<button class="giftbox-claim-btn" disabled>受け取り済み</button>`;
+    if(g.info) btnHtml='';
+    else if(isClaimed) btnHtml=`<button class="giftbox-claim-btn" disabled>受け取り済み</button>`;
     else if(!eligible) btnHtml=`<button class="giftbox-claim-btn" disabled>🔒 Googleでログインすると受け取れます</button>`;
     else btnHtml=`<button class="giftbox-claim-btn" onclick="claimGift('${g.id}')">受け取る</button>`;
     return `<div class="giftbox-item">
       <div class="giftbox-item-title">${esc(g.title)}</div>
-      <div class="giftbox-item-desc">${esc(g.desc)}</div>
+      <div class="giftbox-item-desc" style="white-space:pre-line">${esc(g.desc)}</div>
       ${btnHtml}
     </div>`;
   }).join('');
