@@ -226,6 +226,7 @@ function sanitizeFieldBg(url) {
 function sanitizeAvatar(url) {
   if (typeof url !== 'string') return '';
   url = url.trim();
+  if (/^gicon:[a-z0-9_]{1,30}$/.test(url)) return url; // ガチャのアイコン
   if (url.length === 0 || url.length > 1000) return '';
   if (!/^https:\/\//i.test(url)) return '';
   if (/["'\\()<>\s]/.test(url)) return '';
