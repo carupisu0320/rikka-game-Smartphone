@@ -145,9 +145,24 @@ function pickRonWinnerIdx(players, discardedByIdx, tile, optR) {
 }
 // 手番プレイヤー(pi)がtileを捨てたあとの共通処理：ロン可能チェック→次の手番へ。
 // 手動の捨て・リーチ中の自動捨て、どちらからも呼ばれる。
+// 全員リーチ中で、誰も場のどの牌でも上がれない（＝お互いの欲しい牌が相手の手牌にある）なら詰み。
+// リーチ後は手牌が固定され、引いた牌をそのまま捨てるだけなので、場の牌の集合も変わらず永久に決着しない。
+function isRiichiDeadlock(room) {
+  if (!room.useRiichi || room.players.length < 2) return false;
+  if (!room.players.every(p => p.riichi)) return false;
+  const optR = room.roles !== undefined ? room.roles : null;
+  return room.players.every(p => room.field.every(t => !canRonServer(p.hand, t, optR)));
+}
 function resolveDiscard(room, code, pi, tile) {
   tile.discarded = true;
   room.field.push(tile);
+  if (isRiichiDeadlock(room)) {
+    if (room.ronTimer) { clearTimeout(room.ronTimer); room.ronTimer = null; }
+    room.ronPending = null;
+    room.phase = 'roundEnd';
+    io.to(code).emit('round_draw', { reason: 'riichi_deadlock', scores: room.players.map(p => ({ name: p.name, score: p.score })) });
+    return;
+  }
   const discardedTile = room.field.filter(t => t.discarded).slice(-1)[0];
   const optR = room.roles !== undefined ? room.roles : null;
   const winnerIdx = room.useRon ? pickRonWinnerIdx(room.players, pi, discardedTile, optR) : -1;
