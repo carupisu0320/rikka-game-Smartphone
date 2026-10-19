@@ -578,6 +578,29 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 .gacha-item{display:flex;align-items:center;gap:.6rem;padding:.5rem;border-radius:8px;
   background:#150f0a;border:1px solid #241a10;margin-bottom:.35rem;opacity:.5}
 .gacha-item.gacha-owned{opacity:1;border-color:#5a4020;background:#1e1610}
+.gacha-item-icon.ltd{width:46px;height:46px;display:flex;align-items:center;justify-content:center}
+.ltd-ico{position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ltd-ico.big{width:58px;height:58px}
+.ltd-ico.locked>*{filter:grayscale(.85) brightness(.55)}
+.ltd-ico.locked::after{content:'🔒';position:absolute;font-size:1rem}
+.ltd-tile{width:30px;height:46px;display:flex;align-items:center;justify-content:center;animation:ltdFloat 2.4s ease-in-out infinite}
+.ltd-ico.big .ltd-tile{width:38px;height:58px}
+.ltd-tile .fback{width:100%;height:100%;aspect-ratio:auto;margin:0}
+.ltd-sw{width:100%;height:100%;border-radius:5px;border:1.5px solid var(--b);background:linear-gradient(165deg,var(--a),#05030a);position:relative;overflow:hidden}
+.ltd-sw::after,.ltd-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.4) 50%,transparent 62%);background-size:260% 100%;animation:ltdShine 2.8s linear infinite}
+.ltd-bg{position:relative;overflow:hidden;width:100%;height:100%;border-radius:10px;border:1px solid rgba(255,255,255,.25);background-color:#140a1c;background-repeat:no-repeat;animation:ltdPan 7s ease-in-out infinite}
+.ltd-bg-bg_lanterns::before{content:'';position:absolute;inset:0;background:radial-gradient(circle,#ffc060 0 2px,transparent 3px) 20% 100%/18px 18px,radial-gradient(circle,#ffa040 0 1.5px,transparent 3px) 70% 100%/14px 22px;animation:ltdRise 3s linear infinite}
+.ltd-bg-bg_redmoon::before{content:'';position:absolute;left:50%;top:22%;width:16px;height:16px;margin-left:-4px;border-radius:50%;background:#ff5a48;box-shadow:0 0 12px 4px rgba(255,70,60,.7);animation:ltdBeat 1.6s ease-in-out infinite}
+.ltd-bg-bg_gameovera3,.ltd-bg-bg_gameovera4{animation:ltdPan 7s ease-in-out infinite,ltdFlick 3.2s steps(1) infinite}
+.ltd-ttl{font-size:1.7rem;animation:ltdBounce 1.5s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(255,200,90,.8))}
+.ltd-top-icons{display:flex;gap:.7rem;justify-content:center;margin:.1rem 0 .7rem}
+@keyframes ltdFloat{0%,100%{transform:translateY(1px) rotate(-3deg)}50%{transform:translateY(-3px) rotate(3deg)}}
+@keyframes ltdShine{from{background-position:130% 0}to{background-position:-130% 0}}
+@keyframes ltdPan{0%,100%{background-position:25% 40%;background-size:150%}50%{background-position:75% 60%;background-size:185%}}
+@keyframes ltdRise{from{background-position:20% 100%,70% 100%}to{background-position:20% -20%,70% -30%}}
+@keyframes ltdBeat{0%,100%{transform:scale(.85);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+@keyframes ltdFlick{0%,92%,100%{filter:none}94%{filter:hue-rotate(60deg) brightness(1.5)}97%{filter:invert(.15)}}
+@keyframes ltdBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.12)}}
 .gacha-item-icon{font-size:1.3rem;flex-shrink:0;width:1.8rem;text-align:center}
 .gacha-item-body{flex:1;min-width:0}
 .gacha-item-title{font-size:.78rem;color:#c8b898;font-weight:700}
@@ -1091,23 +1114,23 @@ body.back-obsidian .fback::after{color:rgba(220,220,255,.22)}
 body.back-galaxy .fback{background:radial-gradient(circle at 30% 20%,rgba(160,80,255,.5),transparent 55%),radial-gradient(circle at 72% 82%,rgba(60,140,255,.45),transparent 55%),linear-gradient(165deg,#0a0824,#02020c);border-color:#6a5ad8}
 body.back-galaxy .fback::before{background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 62% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#cfe8ff,transparent),radial-gradient(1px 1px at 82% 58%,#fff,transparent),radial-gradient(1px 1px at 14% 86%,#fff,transparent),radial-gradient(1px 1px at 70% 90%,#ffe8ff,transparent);animation:backTwinkle 3s ease-in-out infinite}
 body.back-galaxy .fback::after{color:rgba(200,180,255,.35)}
-body.back-warning .fback{background:repeating-linear-gradient(45deg,#1a0a0a 0 8px,#3a1010 8px 16px);border-color:#e04040}
-body.back-warning .fback::before{background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(255,70,50,.3) 8px 16px);background-size:22.63px 22.63px;animation:backSlide 1.6s linear infinite}
-body.back-warning .fback{animation:backWarnPulse 1.2s ease-in-out infinite}
-body.back-warning .fback::after{color:rgba(255,120,100,.4)}
-body.back-glitch .fback{background:linear-gradient(165deg,#10141c,#04060a);border-color:#40d8c8}
-body.back-glitch .fback::before{background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(64,216,200,.12) 3px 4px);animation:backScan 1.2s steps(6) infinite}
-body.back-glitch .fback::after{color:rgba(120,255,240,.35);animation:backGlitch 2.4s infinite}
-body.back-neongrid .fback{background:linear-gradient(165deg,#1a0a30,#06020e);border-color:#d040ff}
-body.back-neongrid .fback::before{background:linear-gradient(rgba(208,64,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(208,64,255,.22) 1px,transparent 1px);background-size:8px 8px;animation:backGrid 1.4s linear infinite}
-body.back-neongrid .fback::after{color:rgba(230,150,255,.4);animation:backTwinkle 2s ease-in-out infinite}
-body.back-crimson .fback{background:radial-gradient(circle at 50% 30%,rgba(255,60,60,.4),transparent 60%),linear-gradient(165deg,#3a0610,#10020a);border-color:#ff5060}
-body.back-crimson .fback::before{background:radial-gradient(circle at 50% 45%,rgba(255,90,90,.55),transparent 62%),repeating-linear-gradient(-45deg,transparent 0 4px,rgba(255,80,90,.1) 4px 5px);animation:backBeat 1.5s ease-in-out infinite}
-body.back-crimson .fback::after{color:rgba(255,150,160,.4)}
+body.back-warning .fback,.pv-warning .fback{background:repeating-linear-gradient(45deg,#1a0a0a 0 8px,#3a1010 8px 16px);border-color:#e04040}
+body.back-warning .fback::before,.pv-warning .fback::before{background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(255,70,50,.3) 8px 16px);background-size:22.63px 22.63px;animation:backSlide 1.6s linear infinite}
+body.back-warning .fback,.pv-warning .fback{animation:backWarnPulse 1.2s ease-in-out infinite}
+body.back-warning .fback::after,.pv-warning .fback::after{color:rgba(255,120,100,.4)}
+body.back-glitch .fback,.pv-glitch .fback{background:linear-gradient(165deg,#10141c,#04060a);border-color:#40d8c8}
+body.back-glitch .fback::before,.pv-glitch .fback::before{background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(64,216,200,.12) 3px 4px);animation:backScan 1.2s steps(6) infinite}
+body.back-glitch .fback::after,.pv-glitch .fback::after{color:rgba(120,255,240,.35);animation:backGlitch 2.4s infinite}
+body.back-neongrid .fback,.pv-neongrid .fback{background:linear-gradient(165deg,#1a0a30,#06020e);border-color:#d040ff}
+body.back-neongrid .fback::before,.pv-neongrid .fback::before{background:linear-gradient(rgba(208,64,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(208,64,255,.22) 1px,transparent 1px);background-size:8px 8px;animation:backGrid 1.4s linear infinite}
+body.back-neongrid .fback::after,.pv-neongrid .fback::after{color:rgba(230,150,255,.4);animation:backTwinkle 2s ease-in-out infinite}
+body.back-crimson .fback,.pv-crimson .fback{background:radial-gradient(circle at 50% 30%,rgba(255,60,60,.4),transparent 60%),linear-gradient(165deg,#3a0610,#10020a);border-color:#ff5060}
+body.back-crimson .fback::before,.pv-crimson .fback::before{background:radial-gradient(circle at 50% 45%,rgba(255,90,90,.55),transparent 62%),repeating-linear-gradient(-45deg,transparent 0 4px,rgba(255,80,90,.1) 4px 5px);animation:backBeat 1.5s ease-in-out infinite}
+body.back-crimson .fback::after,.pv-crimson .fback::after{color:rgba(255,150,160,.4)}
 @keyframes backSlide{to{background-position:22.63px 0}}
 @keyframes backWarnPulse{0%,100%{border-color:#7a2020}50%{border-color:#ff5050}}
 @keyframes backScan{from{background-position:0 0}to{background-position:0 24px}}
-@keyframes backGlitch{0%,88%,100%{transform:none;text-shadow:none}90%{transform:translateX(2px);text-shadow:-2px 0 #f0f,2px 0 #0ff}93%{transform:translateX(-2px)}96%{transform:translate(1px,-1px);text-shadow:2px 0 #f0f,-2px 0 #0ff}}
+@keyframes backGlitch{0%,88%,100%{transform:translate(-50%,-50%);text-shadow:none}90%{transform:translate(calc(-50% + 2px),-50%);text-shadow:-2px 0 #f0f,2px 0 #0ff}93%{transform:translate(calc(-50% - 2px),-50%)}96%{transform:translate(calc(-50% + 1px),calc(-50% - 1px));text-shadow:2px 0 #f0f,-2px 0 #0ff}}
 @keyframes backGrid{to{background-position:8px 8px}}
 @keyframes backBeat{0%,100%{opacity:.35}18%{opacity:1}36%{opacity:.5}54%{opacity:.9}}
 @keyframes backTwinkle{0%,100%{opacity:.5}50%{opacity:1}}
@@ -1639,6 +1662,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="gacha-ltd-badge">✨ 期間限定</div>
     <div class="gacha-ltd-period" id="gacha-ltd-period"></div>
     <div class="gacha-ltd-top">最高レア：Game Over Ⅲ・Ⅳ（場の背景）</div>
+    <div class="ltd-top-icons" id="ltd-top-icons"></div>
     <button class="gacha-draw-btn" onclick="drawGacha('limited')">限定ガチャを引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'limited')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'limited')">100連<small>🌸 1000</small></button></div>
     <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号</div>
@@ -1679,6 +1703,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       <button id="custom-tab-bg" class="custom-tab" onclick="switchCustomizeTab('bg')">場の背景</button>
       <button id="custom-tab-confetti" class="custom-tab" onclick="switchCustomizeTab('confetti')">紙吹雪</button>
       <button id="custom-tab-title" class="custom-tab" onclick="switchCustomizeTab('title')">称号</button>
+      <button id="custom-tab-gicon" class="custom-tab" onclick="switchCustomizeTab('gicon')">アイコン</button>
       <button id="custom-tab-icon" class="custom-tab" onclick="switchCustomizeTab('icon')">プロフィール</button>
     </div>
     <div id="custom-body" class="custom-body"></div>
@@ -2280,7 +2305,7 @@ function showMatchFx(instant){
 // 対戦前の紹介画面：アイコン・称号・名前を並べて見せてから、対局に入る
 let _matchHideTimer=null;
 function matchCardHtml(p,isMe,cls){
-  const av=sanitizeFieldBgUrl(p.avatar||'');
+  const av=avatarSrc(p.avatar||'');
   const ini=esc((p.name||'?')[0]);
   const face=av?`<img src="${esc(av)}" alt="" data-i="${ini}" onerror="this.parentNode.textContent=this.dataset.i">`:`<span>${ini}</span>`;
   return `<div class="mf-card ${cls}${isMe?' me':''}"><div class="mf-av">${face}</div>${titleBadgeHtml(p.title)||'<div class="win-title" style="visibility:hidden">　</div>'}<div class="mf-name">${esc(p.name||'')}</div>${isMe?'<div class="mf-you">あなた</div>':''}</div>`;
@@ -2333,7 +2358,7 @@ function copyRoomCode(){const code=document.getElementById('room-code-display').
 // ============================================================
 let _roomPrevNames=null,_roomFirst=true;
 function roomCardHtml(p,i,isMe,isNew,isHost){
-  const av=sanitizeFieldBgUrl(p.avatar||''),ini=esc((p.name||'?')[0]);
+  const av=avatarSrc(p.avatar||''),ini=esc((p.name||'?')[0]);
   const face=av?`<img src="${esc(av)}" alt="" data-i="${ini}" onerror="this.parentNode.textContent=this.dataset.i">`:`<span>${ini}</span>`;
   return `<div class="rw-card${isMe?' me':''}${isNew?' new':''}">${isHost?'<span class="rw-tag">👑 ホスト</span>':''}<div class="rw-av">${face}</div>${titleBadgeHtml(p.title)||'<div class="win-title" style="visibility:hidden">　</div>'}<div class="rw-name">${esc(p.name||'')}</div>${isMe?'<div class="rw-you">あなた</div>':''}</div>`;
 }
@@ -3690,10 +3715,18 @@ function goLobby(){
 // ============================================================
 
 let customAvatarUrl = localStorage.getItem('rikka_avatar') || '';
-function myAvatarUrl(){return customAvatarUrl||(gUser&&gUser.avatar)||'';}
+function myGiconId(){try{const st=loadGachaState(),id=st.equipped.gicon;return(id&&st.owned.includes(id))?id:'';}catch(e){return '';}}
+function myAvatarUrl(){const g=myGiconId();return g?'gicon:'+g:(customAvatarUrl||(gUser&&gUser.avatar)||'');}
+// 画面に出す用：ガチャのアイコン（gicon:ID）は、その場で動く画像にする
+function avatarSrc(url){
+  const m=typeof url==='string'&&/^gicon:([a-z0-9_]{1,30})$/.exec(url);
+  if(m)return GACHA_ITEMS.some(x=>x.category==='gicon'&&x.id===m[1])?giconUri(m[1]):'';
+  return sanitizeFieldBgUrl(url||'');
+}
+function myAvatarDisplaySrc(){const g=myGiconId();return g?giconUri(g):(customAvatarUrl||(gUser&&gUser.avatar)||'');}
 // 対戦画面に出すアイコン<img>。httpsのURLだけ通し、読み込めなければ非表示にする
 function avatarImgHtml(url,cls){
-  const safe=sanitizeFieldBgUrl(url||'');
+  const safe=avatarSrc(url);
   return safe?`<img class="${cls}" src="${esc(safe)}" alt="" onerror="this.style.display='none'">`:'';
 }
 function myTitleId(){
@@ -4567,6 +4600,63 @@ ACHIEVEMENTS.forEach(a=>{
 });
 // ログインボーナスの称号（7日ログインごとに★が1つ増える。ガチャには出さず、持っている分だけ称号一覧に出す）
 for(let n=1;n<=100;n++)GACHA_ITEMS.push({id:'title_login_'+n,rarity:'rare',category:'title',icon:'🌸',loginStar:n,title:'日々の花 '+(n<=5?'★'.repeat(n):'★×'+n),desc:'ログイン'+(n*7)+'日の記念称号',value:'日々の花 '+(n<=5?'★'.repeat(n):'★×'+n)});
+
+// ===== ガチャのアイコン（動くSVG。<img>に入れても動く）=====
+const _GI_STYLE='<style>.o{transform-box:fill-box;transform-origin:center}.b{transform-box:fill-box;transform-origin:50% 100%}'
+ +'@keyframes spin{to{transform:rotate(360deg)}}@keyframes tw{0%,100%{opacity:.2}50%{opacity:1}}@keyframes fall{from{transform:translate(0,-30px);opacity:0}15%{opacity:1}to{transform:translate(-14px,120px);opacity:.8}}'
+ +'@keyframes sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}@keyframes squash{0%,100%{transform:scale(1,1)}50%{transform:scale(1.1,.86)}}'
+ +'@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}@keyframes flick{0%,100%{transform:scale(1,1) skewX(0)}30%{transform:scale(.95,1.07) skewX(3deg)}60%{transform:scale(1.04,.95) skewX(-3deg)}}'
+ +'@keyframes rise{from{transform:translateY(0);opacity:1}to{transform:translateY(-46px);opacity:0}}@keyframes pulse{0%,100%{transform:scale(.8);opacity:.6}50%{transform:scale(1.2);opacity:1}}'
+ +'@keyframes bob{0%,100%{transform:translateY(2px)}50%{transform:translateY(-3px)}}@keyframes sweep{from{transform:translateX(-60px) skewX(-20deg)}to{transform:translateX(130px) skewX(-20deg)}}'
+ +'@keyframes twitch{0%,90%,100%{transform:rotate(0)}94%{transform:rotate(-14deg)}}</style>';
+function _giSvg(bg,body){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><clipPath id="c"><circle cx="50" cy="50" r="50"/></clipPath>${bg}</defs>${_GI_STYLE}<g clip-path="url(#c)"><rect width="100" height="100" fill="url(#bg)"/>${body}</g></svg>`;}
+const _giLG=(a,b)=>`<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+const _giRG=(a,b)=>`<radialGradient id="bg" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>`;
+const GICON_SVG={
+  gi_sakura(){let p='';for(let i=0;i<5;i++)p+=`<ellipse cx="50" cy="31" rx="11" ry="18" fill="#fff" fill-opacity=".93" transform="rotate(${i*72} 50 50)"/>`;
+    let f='';[[18,0,0],[72,1.3,1],[44,2.4,2],[84,.6,3]].forEach(([x,d,i])=>f+=`<ellipse cx="${x}" cy="0" rx="3.2" ry="1.9" fill="#fff" style="animation:fall ${4+i*.7}s linear ${d}s infinite"/>`);
+    return _giSvg(_giLG('#ffd6e6','#ff9ec4'),`<g class="o" style="animation:spin 16s linear infinite">${p}<circle cx="50" cy="50" r="7" fill="#ffcf40"/></g>${f}`);},
+  gi_moon(){let s='';[[18,20],[78,16],[70,70],[24,76],[50,10],[88,46]].forEach(([x,y],i)=>s+=`<circle cx="${x}" cy="${y}" r="1.6" fill="#fff" style="animation:tw ${1.6+i*.3}s ease-in-out ${i*.25}s infinite"/>`);
+    return _giSvg(_giLG('#0a0a30','#3a2070'),`${s}<g class="o" style="animation:sway 4s ease-in-out infinite"><path d="M60 20a31 31 0 1 0 0 60a25 25 0 1 1 0-60z" fill="#ffe9a8"/></g>`);},
+  gi_slime(){return _giSvg(_giLG('#d4f4dc','#7ad898'),`<g class="b" style="animation:squash 1.6s ease-in-out infinite"><path d="M18 82Q14 40 50 32Q86 40 82 82Z" fill="#5be08a" stroke="#2a9a58" stroke-width="3"/><ellipse cx="34" cy="48" rx="6" ry="3.5" fill="#fff" fill-opacity=".6"/>
+    <g class="o" style="animation:blink 3.4s infinite"><circle cx="38" cy="62" r="5" fill="#123"/><circle cx="62" cy="62" r="5" fill="#123"/></g><path d="M44 72q6 5 12 0" stroke="#123" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>`);},
+  gi_cat(){return _giSvg(_giLG('#ffe9a8','#ffb870'),`<g class="o" style="animation:twitch 4.5s infinite"><polygon points="24,44 26,16 46,32" fill="#fff"/><polygon points="29,38 30,23 40,32" fill="#ffb0c0"/></g><polygon points="76,44 74,16 54,32" fill="#fff"/><polygon points="71,38 70,23 60,32" fill="#ffb0c0"/>
+    <circle cx="50" cy="58" r="30" fill="#fff"/><g class="o" style="animation:blink 4s infinite"><ellipse cx="38" cy="56" rx="3.6" ry="5.2" fill="#222"/><ellipse cx="62" cy="56" rx="3.6" ry="5.2" fill="#222"/></g>
+    <polygon points="46,64 54,64 50,69" fill="#ff8aa0"/><path d="M50 69v3M50 72q-4 4-8 1M50 72q4 4 8 1" stroke="#222" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M18 62l14 2M18 70l14-2M82 62l-14 2M82 70l-14-2" stroke="#999" stroke-width="1.4"/>`);},
+  gi_flame(){let sp='';[[38,70,0],[60,72,.7],[50,66,1.4]].forEach(([x,y,d])=>sp+=`<circle cx="${x}" cy="${y}" r="1.8" fill="#ffd060" style="animation:rise 2s ease-out ${d}s infinite"/>`);
+    return _giSvg(_giRG('#601a10','#1a0402')+'<linearGradient id="f1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb040"/><stop offset="1" stop-color="#e02810"/></linearGradient>',`<g class="b" style="animation:flick .9s ease-in-out infinite"><path d="M50 12C62 32 78 42 74 66C72 82 58 90 50 90C42 90 28 82 26 66C24 50 40 44 44 30C46 24 48 20 50 12Z" fill="url(#f1)"/><path d="M50 44C58 56 64 62 62 74C60 82 54 86 50 86C46 86 40 82 38 74C36 64 46 58 50 44Z" fill="#ffe070"/></g>${sp}`);},
+  gi_rikka(){let a='';for(let i=0;i<6;i++)a+=`<path d="M50 50V15M50 31l-8-8M50 31l8-8M50 40l-5-5M50 40l5-5" stroke="#d8f4ff" stroke-width="3" stroke-linecap="round" fill="none" transform="rotate(${i*60} 50 50)"/>`;
+    return _giSvg(_giRG('#12486a','#040e1a'),`<circle cx="50" cy="50" r="22" fill="#7ac8e8" opacity=".25" class="o" style="animation:pulse 2.4s ease-in-out infinite"/><g class="o" style="animation:spin 20s linear infinite">${a}</g><circle cx="50" cy="50" r="5" fill="#fff"/>`);},
+  gi_galaxy(){let d='';for(let k=0;k<2;k++)for(let i=0;i<34;i++){const t=i/34*3.6,r=4+t*10.5,an=t*1.5+k*Math.PI;d+=`<circle cx="${(50+Math.cos(an)*r).toFixed(1)}" cy="${(50+Math.sin(an)*r).toFixed(1)}" r="${(.8+(1-i/34)*1.5).toFixed(1)}" fill="${k?'#c8b8ff':'#a8d0ff'}"/>`;}
+    let s='';[[14,18],[84,22],[20,84],[80,80],[50,8]].forEach(([x,y],i)=>s+=`<circle cx="${x}" cy="${y}" r="1.3" fill="#fff" style="animation:tw ${1.5+i*.4}s ease-in-out ${i*.3}s infinite"/>`);
+    return _giSvg(_giRG('#1a1048','#02020c'),`${s}<g class="o" style="animation:spin 11s linear infinite">${d}</g><circle cx="50" cy="50" r="9" fill="#fff4d0" class="o" style="animation:pulse 2s ease-in-out infinite"/>`);},
+  gi_crown(){const star=(x,y,d)=>`<path d="M${x} ${y-7}L${x+1.8} ${y-1.8}L${x+7} ${y}L${x+1.8} ${y+1.8}L${x} ${y+7}L${x-1.8} ${y+1.8}L${x-7} ${y}L${x-1.8} ${y-1.8}Z" fill="#fff" class="o" style="animation:pulse 1.8s ease-in-out ${d}s infinite"/>`;
+    return _giSvg(_giRG('#4a3408','#0e0802')+'<linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0a0"/><stop offset="1" stop-color="#d89a18"/></linearGradient><clipPath id="cr"><path d="M20 70L24 38L40 55L50 28L60 55L76 38L80 70Z"/></clipPath>',
+    `<g style="animation:bob 2.6s ease-in-out infinite"><path d="M20 70L24 38L40 55L50 28L60 55L76 38L80 70Z" fill="url(#gd)" stroke="#a06a08" stroke-width="2"/><rect x="20" y="68" width="60" height="11" rx="3" fill="#e0a020" stroke="#a06a08" stroke-width="2"/>
+    <circle cx="32" cy="73.5" r="3" fill="#e03040"/><circle cx="50" cy="73.5" r="3.4" fill="#3090ff"/><circle cx="68" cy="73.5" r="3" fill="#30c060"/><circle cx="24" cy="36" r="3" fill="#fff"/><circle cx="50" cy="26" r="3.4" fill="#fff"/><circle cx="76" cy="36" r="3" fill="#fff"/>
+    <g clip-path="url(#cr)"><rect x="0" y="20" width="14" height="70" fill="#fff" opacity=".6" style="animation:sweep 2.6s linear infinite"/></g></g>${star(18,24,0)}${star(84,30,.6)}${star(80,84,1.2)}${star(16,80,.3)}`);},
+};
+const _giCache={};
+function giconUri(id){
+  if(_giCache[id])return _giCache[id];
+  const f=GICON_SVG[id];if(!f)return '';
+  return _giCache[id]='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(f()).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29');
+}
+GACHA_ITEMS.push(
+  {id:'gi_sakura', rarity:'common',   category:'gicon', icon:'🌸', title:'舞う桜',       desc:'アイコン：桜が舞う（動く）', value:'gi_sakura'},
+  {id:'gi_moon',   rarity:'common',   category:'gicon', icon:'🌙', title:'月夜',         desc:'アイコン：揺れる三日月（動く）', value:'gi_moon'},
+  {id:'gi_slime',  rarity:'uncommon', category:'gicon', icon:'🟢', title:'ぷるぷるスライム', desc:'アイコン：弾むスライム（動く）', value:'gi_slime'},
+  {id:'gi_cat',    rarity:'uncommon', category:'gicon', icon:'🐱', title:'まばたき猫',   desc:'アイコン：まばたきする猫（動く）', value:'gi_cat'},
+  {id:'gi_flame',  rarity:'rare',     category:'gicon', icon:'🔥', title:'揺れる炎',     desc:'アイコン：燃える炎（動く）', value:'gi_flame'},
+  {id:'gi_rikka',  rarity:'rare',     category:'gicon', icon:'❄️', title:'六華の結晶',   desc:'アイコン：回る雪の結晶（動く）', value:'gi_rikka'},
+  {id:'gi_galaxy', rarity:'rare',     category:'gicon', icon:'🌌', title:'渦巻く銀河',   desc:'アイコン：回る銀河（動く）', value:'gi_galaxy'},
+  {id:'gi_crown',  rarity:'superrare',category:'gicon', icon:'👑', title:'輝く王冠',     desc:'アイコン：きらめく王冠（動く）', value:'gi_crown'},
+);
+// ガチャ・図鑑・結果画面に出す景品アイコン（アイコン景品は動く画像）
+function itemIconHtml(it){
+  return it.category==='gicon'?`<img src="${giconUri(it.value)}" alt="" style="width:1.2em;height:1.2em;border-radius:50%;vertical-align:middle">`:it.icon;
+}
+
 // ===== 期間限定ガチャ（開催期間は start〜end の日付で変更できます）=====
 const LIMITED_GACHA={
   title:'期間限定ガチャ', start:'2026-10-19', end:'2026-11-02',
@@ -4584,6 +4674,17 @@ GACHA_ITEMS.push(
   {id:'bg_gameovera3', rarity:'superrare', category:'fieldbg', type:'image', limited:1, icon:'💀', title:'Game Over III', desc:'場の背景：Game Overシリーズ（期間限定）', value:_GO_BASE+'gameovera3.png'},
   {id:'bg_gameovera4', rarity:'superrare', category:'fieldbg', type:'image', limited:1, icon:'💀', title:'Game Over IV',  desc:'場の背景：Game Overシリーズ（期間限定）', value:_GO_BASE+'gameovera4.png'},
 );
+// 期間限定ガチャの景品アイコン（動くプレビュー）
+function ltdIcon(it,has,big){
+  let inner;
+  if(it.category==='theme'){
+    if(['warning','glitch','neongrid','crimson'].includes(it.value))inner=`<div class="ltd-tile pv-${it.value}"><div class="fback"></div></div>`;
+    else{const sw=GACHA_THEME_SWATCH[it.value]||['#2a1e12','#5a4028'];inner=`<div class="ltd-tile"><div class="ltd-sw" style="--a:${sw[0]};--b:${sw[1]}"></div></div>`;}
+  }else if(it.category==='fieldbg'){
+    inner=`<div class="ltd-bg ltd-bg-${it.id}" style="background-image:url('${esc(it.value)}')"></div>`;
+  }else inner=`<div class="ltd-ttl">${it.icon}</div>`;
+  return `<div class="ltd-ico${big?' big':''}${has?'':' locked'}">${inner}</div>`;
+}
 function isLimitedActive(){const t=_loginToday();return t>=LIMITED_GACHA.start&&t<=LIMITED_GACHA.end;}
 // ガチャの景品プール（banner='limited'なら期間限定、それ以外は恒常）
 function gachaPool(rarity,banner){
@@ -4697,7 +4798,7 @@ function showGachaSummary(b){
   const newN=list.filter(e=>e.isNew).length;
   const cards=list.map((e,i)=>{const info=GACHA_RARITY_INFO[e.item.rarity];
     return `<div class="gs-card ${e.item.rarity==='superrare'?'sr':e.item.rarity==='rare'?'r':''}" style="--rc:${info.color};--d:${Math.min(i*.04,1.2).toFixed(2)}s">
-      ${e.count>1?`<span class="cnt">×${e.count}</span>`:''}${e.isNew?'<span class="new">NEW</span>':''}<div class="ic">${e.item.icon}</div><div class="nm">${esc(e.item.title)}</div></div>`;}).join('');
+      ${e.count>1?`<span class="cnt">×${e.count}</span>`:''}${e.isNew?'<span class="new">NEW</span>':''}<div class="ic">${itemIconHtml(e.item)}</div><div class="nm">${esc(e.item.title)}</div></div>`;}).join('');
   const canAgain=loadPetals()>=GACHA_COST*b.n;
   const el=document.createElement('div');el.id='gacha-summary';
   el.innerHTML=`<div class="gs-box"><div class="gs-title">${b.n}連ガチャ 結果</div>
@@ -4947,7 +5048,7 @@ function gfxReveal(){
       ${_gfx.isDup?'':'<div class="gfx-new">NEW!</div>'}
       <div class="gfx-stars">${stars}</div>
       <div class="gfx-rlabel">${_gachaBatch?_gachaBatch.n+'連の最高レア　':''}${esc(info.label)}</div>
-      <div class="gfx-icon">${item.icon}</div>
+      <div class="gfx-icon">${itemIconHtml(item)}</div>
       <div class="gfx-title">${esc(item.title)}</div>
       ${gfxPreviewHtml(item)}
       <div class="gfx-desc">${esc(item.desc)}</div>
@@ -4990,7 +5091,7 @@ function showGachaResult(item,isDup){
   const el=document.getElementById('gacha-result');
   el.innerHTML=`<div class="gacha-result-card">
     <div class="gacha-result-rarity" style="color:${info.color}">★ ${esc(info.label)}</div>
-    <div class="gacha-result-icon">${item.icon}</div>
+    <div class="gacha-result-icon">${itemIconHtml(item)}</div>
     <div class="gacha-result-title">${esc(item.title)}</div>
     ${isDup?'<div class="gacha-result-dup">すでに持っています（花びら一部還元）</div>':''}
   </div>`;
@@ -5013,7 +5114,7 @@ function renderGachaCollection(){
       const isEquipped=st.equipped[it.category]===it.id;
       const btn=has?`<button class="gacha-equip-btn${isEquipped?' gacha-equipped':''}" onclick="equipGachaItem('${it.category}','${it.id}')">${isEquipped?'使用中':'使う'}</button>`:'';
       return `<div class="gacha-item${has?' gacha-owned':''}">
-        <div class="gacha-item-icon">${has?it.icon:'🔒'}</div>
+        <div class="gacha-item-icon${_lim?' ltd':''}">${_lim?ltdIcon(it,has):(has?itemIconHtml(it):'🔒')}</div>
         <div class="gacha-item-body">
           <div class="gacha-item-title">${esc(it.title)}</div>
           <div class="gacha-item-desc">${esc(it.desc)}</div>
@@ -5039,6 +5140,7 @@ function renderGachaCollection(){
   }
   el.innerHTML=html;
 }
+function refreshMyIcon(){updateAvatarDisplay();updateLobbyAvatar();syncMyAvatar();}
 function equipGachaItem(category,id){
   const st=loadGachaState();
   if(!st.owned.includes(id))return;
@@ -5048,6 +5150,7 @@ function equipGachaItem(category,id){
   applyEquippedGachaItems();
   if(category==='fieldbg'&&currentCode)socket?.emit('set_field_bg',{code:currentCode,url:myFieldBgValue()});
   if(category==='title')syncMyTitle();
+  if(category==='gicon')refreshMyIcon();
   renderGachaCollection();
   updateSbTitle();
   refreshCustomize();
@@ -5094,6 +5197,7 @@ function openGacha(){
   const lim=document.getElementById('gacha-banner-limited'),act=isLimitedActive();
   if(lim)lim.style.display=act?'':'none';
   document.getElementById('gacha-ltd-period').textContent=`開催期間：${LIMITED_GACHA.start.slice(5).replace('-','/')} 〜 ${LIMITED_GACHA.end.slice(5).replace('-','/')}`;
+  const ti=document.getElementById('ltd-top-icons');if(ti)ti.innerHTML=['bg_gameovera3','bg_gameovera4'].map(id=>ltdIcon(GACHA_ITEMS.find(x=>x.id===id),true,true)).join('');
   const bn=document.getElementById('gacha-banners');if(bn)bn.scrollLeft=0;
   updateGachaDots();
   showScreen('gacha');
@@ -5256,12 +5360,12 @@ function renderSidebarStats(){
 }
 function updateAvatarDisplay(){
   const wrap=document.getElementById('sb-avatar-wrap');
-  const av=customAvatarUrl||gUser.avatar||'';
+  const av=myAvatarDisplaySrc();
   if(av)wrap.innerHTML=`<img src="${av}" style="width:52px;height:52px;border-radius:50%;object-fit:cover" alt="">`;
   else{const name=document.getElementById('pname').value||'プレイヤー';wrap.innerHTML=name[0]||'👤';}
 }
 function updateLobbyAvatar(){
-  const av=customAvatarUrl||gUser.avatar||'';
+  const av=myAvatarDisplaySrc();
   const img=document.getElementById('google-avatar-img');
   if(img)img.src=av;
 }
@@ -5766,7 +5870,7 @@ function refreshCustomize(){
 function renderCustomize(){
   document.getElementById('custom-tab-theme').classList.toggle('active',customizeTab==='theme');
   document.getElementById('custom-tab-bg').classList.toggle('active',customizeTab==='bg');
-  ['confetti','title','icon'].forEach(t=>document.getElementById('custom-tab-'+t).classList.toggle('active',customizeTab===t));
+  ['confetti','title','gicon','icon'].forEach(t=>document.getElementById('custom-tab-'+t).classList.toggle('active',customizeTab===t));
   const st=loadGachaState();
   const owned=new Set(st.owned);
   const body=document.getElementById('custom-body');
@@ -5789,8 +5893,19 @@ function renderCustomize(){
     h+='</div>';
     h+='<div class="custom-sub">龍・炎・氷・桜・翡翠・金・藍・黒曜・銀河の裏地は、牌の中で動きます。ON/OFFは、メニューの「動き」で切り替えられます。</div>';
     body.innerHTML=h;
+  } else if(customizeTab==='gicon'){
+    const eq=st.equipped.gicon||'';
+    let h=`<div class="custom-sub">ガチャで出たアイコンを、プロフィールのアイコンにできます（対戦相手にも動いて見えます）</div><div class="custom-list">`;
+    h+=`<button class="custom-row${eq?'':' sel'}" onclick="selectGachaEquip('gicon','')"><div class="ic">👤</div><div class="tx">ふだんのアイコン<div class="ds">プロフィールで設定した画像（なければGoogleのアイコン）</div></div>${eq?'':'<span class="chk">✔</span>'}</button>`;
+    h+=GACHA_ITEMS.filter(it=>it.category==='gicon').map(it=>{
+      const has=owned.has(it.id),sel=has&&eq===it.id;
+      return `<button class="custom-row${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectGachaEquip('gicon','${it.id}')"`:''}>
+        <div class="ic">${has?itemIconHtml(it):'🔒'}</div>
+        <div class="tx">${has?esc(it.title):'ガチャで入手'}<div class="ds">${has?esc(it.desc):''}</div></div>${sel?'<span class="chk">✔</span>':''}</button>`;
+    }).join('');
+    body.innerHTML=h+'</div>';
   } else if(customizeTab==='icon'){
-    const av=customAvatarUrl||(gUser&&gUser.avatar)||'';
+    const av=myAvatarDisplaySrc();
     const nm=(document.getElementById('pname').value||'プレイヤー');
     const face=av?`<img src="${esc(av)}" style="width:96px;height:96px;border-radius:50%;object-fit:cover" alt="">`:`<span id="custom-face-initial">${esc(nm[0]||'👤')}</span>`;
     body.innerHTML=`<div style="text-align:center;padding:.3rem 0 .6rem">
@@ -5865,6 +5980,7 @@ function selectGachaEquip(category,id){
   if(id)st.equipped[category]=id; else delete st.equipped[category];
   saveGachaState(st);
   if(category==='title')syncMyTitle();
+  if(category==='gicon')refreshMyIcon();
   updateSbTitle();
   renderCustomize();
   renderGachaCollection();
@@ -7332,7 +7448,7 @@ document.getElementById('hand-tiles').addEventListener('scroll',()=>{if(G&&G.sel
     document.getElementById('pname').value = savedName;
     document.getElementById('google-login-area').style.display = 'none';
     document.getElementById('google-user-info').style.display = 'flex';
-    const av = customAvatarUrl || gUser.avatar || '';
+    const av = myAvatarDisplaySrc();
     if(av){
       document.getElementById('google-avatar-img').src = av;
       document.getElementById('google-avatar-img').style.display = '';
