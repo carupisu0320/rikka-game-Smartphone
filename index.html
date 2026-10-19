@@ -560,7 +560,18 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 .gacha-result-icon{font-size:2.4rem}
 .gacha-result-title{font-size:1rem;color:#f5e0a0;font-weight:700;margin-top:.3rem}
 .gacha-result-dup{font-size:.72rem;color:#8a7048;margin-top:.2rem}
-.gacha-collection{flex:1;overflow-y:auto}
+.gacha-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+.gacha-collection{flex:none;overflow:visible}
+.gacha-banners{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;flex-shrink:0;scrollbar-width:none}
+.gacha-banners::-webkit-scrollbar{display:none}
+.gacha-banner{flex:0 0 100%;scroll-snap-align:center;box-sizing:border-box}
+.gacha-limited{background:linear-gradient(160deg,#2a0f24,#150a1c);border-color:#a0407a}
+.gacha-ltd-badge{display:inline-block;padding:.15rem .8rem;border-radius:12px;font-size:.78rem;font-weight:700;background:linear-gradient(135deg,#ff9ad0,#c060ff);color:#2a0618;margin-bottom:.5rem}
+.gacha-ltd-period{font-size:.78rem;color:#e0a0d0;margin-bottom:.2rem}
+.gacha-ltd-top{font-size:.8rem;color:#f5d040;margin-bottom:.6rem}
+.gacha-dots{display:none;text-align:center;font-size:.74rem;color:#8a7048;margin-top:.4rem;flex-shrink:0}
+.gacha-dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4a3a28;margin:0 3px}
+.gacha-dots i.on{background:#ff9ad0}
 .gacha-rarity-title{font-size:.78rem;color:#8a7048;font-weight:700;letter-spacing:.05em;
   margin:.8rem 0 .4rem;padding-top:.5rem;border-top:1px solid #2a1e10}
 .gacha-rarity-title:first-child{margin-top:0;padding-top:0;border-top:none}
@@ -1080,6 +1091,18 @@ body.back-obsidian .fback::after{color:rgba(220,220,255,.22)}
 body.back-galaxy .fback{background:radial-gradient(circle at 30% 20%,rgba(160,80,255,.5),transparent 55%),radial-gradient(circle at 72% 82%,rgba(60,140,255,.45),transparent 55%),linear-gradient(165deg,#0a0824,#02020c);border-color:#6a5ad8}
 body.back-galaxy .fback::before{background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 62% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#cfe8ff,transparent),radial-gradient(1px 1px at 82% 58%,#fff,transparent),radial-gradient(1px 1px at 14% 86%,#fff,transparent),radial-gradient(1px 1px at 70% 90%,#ffe8ff,transparent);animation:backTwinkle 3s ease-in-out infinite}
 body.back-galaxy .fback::after{color:rgba(200,180,255,.35)}
+body.back-warning .fback{background:repeating-linear-gradient(45deg,#1a0a0a 0 8px,#3a1010 8px 16px);border-color:#e04040}
+body.back-warning .fback::before{background:none}
+body.back-warning .fback::after{color:rgba(255,120,100,.4)}
+body.back-glitch .fback{background:linear-gradient(165deg,#10141c,#04060a);border-color:#40d8c8}
+body.back-glitch .fback::before{background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(64,216,200,.12) 3px 4px);animation:backTwinkle 1.4s steps(2) infinite}
+body.back-glitch .fback::after{color:rgba(120,255,240,.35)}
+body.back-neongrid .fback{background:linear-gradient(165deg,#1a0a30,#06020e);border-color:#d040ff}
+body.back-neongrid .fback::before{background:linear-gradient(rgba(208,64,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(208,64,255,.22) 1px,transparent 1px);background-size:8px 8px}
+body.back-neongrid .fback::after{color:rgba(230,150,255,.4)}
+body.back-crimson .fback{background:radial-gradient(circle at 50% 30%,rgba(255,60,60,.4),transparent 60%),linear-gradient(165deg,#3a0610,#10020a);border-color:#ff5060}
+body.back-crimson .fback::before{background:repeating-linear-gradient(-45deg,transparent 0 4px,rgba(255,80,90,.1) 4px 5px)}
+body.back-crimson .fback::after{color:rgba(255,150,160,.4)}
 @keyframes backTwinkle{0%,100%{opacity:.5}50%{opacity:1}}
 body.back-dragon .fback{background:linear-gradient(165deg,#0a3a24 0%,#031810 100%);border-color:#d8b04a}
 body.back-dragon .fback::before{background:radial-gradient(circle at 50% 100%,transparent 52%,rgba(216,176,74,.26) 54%,transparent 58%);background-size:12px 8px}
@@ -1594,13 +1617,31 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="gacha-title">🌸 ガチャ</div>
     <div class="gacha-currency">🌸 <span id="gacha-petals">0</span></div>
   </div>
+  <div class="gacha-scroll">
+  <div class="gacha-banners" id="gacha-banners" onscroll="updateGachaDots()">
+  <div class="gacha-banner">
   <div class="gacha-main">
+    <div class="gacha-ltd-badge" style="background:#3a2a14;color:#c9a84c">🌸 恒常ガチャ</div>
     <button class="gacha-draw-btn" id="gacha-draw-btn" onclick="drawGacha()">ガチャを引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" id="gacha-draw10" onclick="drawGachaMulti(10)">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" id="gacha-draw100" onclick="drawGachaMulti(100)">100連<small>🌸 1000</small></button></div>
     <div class="gacha-cost">花びら<span id="gacha-cost-label">10</span>枚で1回。対局を遊ぶと貯まります<br>10連・100連は、10回ごとにレア以上が1つ確定です</div>
-    <div class="gacha-result" id="gacha-result"></div>
   </div>
+  </div>
+  <div class="gacha-banner" id="gacha-banner-limited" style="display:none">
+  <div class="gacha-main gacha-limited">
+    <div class="gacha-ltd-badge">✨ 期間限定</div>
+    <div class="gacha-ltd-period" id="gacha-ltd-period"></div>
+    <div class="gacha-ltd-top">最高レア：Game Over Ⅲ・Ⅳ（場の背景）</div>
+    <button class="gacha-draw-btn" onclick="drawGacha('limited')">限定ガチャを引く</button>
+    <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'limited')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'limited')">100連<small>🌸 1000</small></button></div>
+    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号</div>
+  </div>
+  </div>
+  </div>
+  <div class="gacha-dots" id="gacha-dots"></div>
+  <div class="gacha-result" id="gacha-result"></div>
   <div class="gacha-collection" id="gacha-collection"></div>
+  </div>
 </div>
 </div>
 
@@ -3781,7 +3822,7 @@ function grantItem(id){
   }catch(e){return false;}
 }
 function realOwnedGachaCount(){
-  try{const raw=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');return (raw.owned||[]).filter(id=>{const it=GACHA_ITEMS.find(x=>x.id===id);return it&&!it.achievement&&!it.loginStar;}).length;}catch(e){return 0;}
+  try{const raw=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');return (raw.owned||[]).filter(id=>{const it=GACHA_ITEMS.find(x=>x.id===id);return it&&!it.achievement&&!it.loginStar&&!it.limited;}).length;}catch(e){return 0;}
 }
 // すでに解除済みの実績の報酬を受け取れていなければ渡す（この機能の追加前に解除した人向け）
 function backfillAchievementRewards(){
@@ -4036,12 +4077,21 @@ const LOBBY_SCENES={
       <rect width="400" height="800" filter="url(#ds)" mask="url(#mk)" opacity=".5"/>
       <g transform="rotate(-29 ${cx} ${cy})"><ellipse cx="${cx}" cy="${cy}" rx="110" ry="54" fill="url(#core)"/></g><circle cx="${cx}" cy="${cy}" r="10" fill="#fffbe8"/>`;},
 };
+// 期間限定ガチャの新背景
+LOBBY_SCENES.lanterns=function(){const r=_rng(121);
+  let ln='';for(let i=0;i<34;i++){const x=r()*400,y=60+r()*620,s=.5+r()*1.1;ln+=`<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${s.toFixed(2)})" opacity="${(.55+r()*.45).toFixed(2)}"><circle r="26" fill="url(#lg)"/><rect x="-7" y="-9" width="14" height="18" rx="4" fill="#ffb050"/><rect x="-5" y="-7" width="10" height="14" rx="3" fill="#ffe2a0"/></g>`;}
+  return `<defs>${_vgrad('sk',[[0,'#05061a'],[.55,'#1a1238'],[1,'#3a1c40']])}${_glow('lg','#ffd890','#ff8a30')}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,500,160)}${ln}<path d="${_ridge(r,{base:735,amp:28,rough:.6}).fill}" fill="#07040e"/>`;};
+LOBBY_SCENES.redmoon=function(){const r=_rng(131);
+  let cl='';for(let i=0;i<7;i++)cl+=`<ellipse cx="${(r()*400).toFixed(0)}" cy="${(180+r()*300).toFixed(0)}" rx="${(90+r()*120).toFixed(0)}" ry="${(10+r()*16).toFixed(0)}" fill="#12040a"/>`;
+  return `<defs>${_vgrad('sk',[[0,'#0a0208'],[.5,'#2a0a14'],[.85,'#5a1418']])}${_glow('mg','#ff6a50','#c01820')}<filter id="bl"><feGaussianBlur stdDeviation="6"/></filter></defs>
+    <rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,420,70)}<circle cx="260" cy="250" r="190" fill="url(#mg)" opacity=".8"/><circle cx="260" cy="250" r="62" fill="#ff5a48"/><circle cx="260" cy="250" r="62" fill="#ffd0b8" opacity=".22"/>
+    <g filter="url(#bl)" opacity=".7">${cl}</g><path d="${_pines(r,770,70,130,34)}" fill="#050104"/>`;};
 LOBBY_SCENES.galaxybase=()=>LOBBY_SCENES.galaxy(true);
 const _sceneCache={};
 function sceneUri(name){return _sceneCache[name]||(_sceneCache[name]=_sceneUri(LOBBY_SCENES[name]()));}
 
 // 画面の形（縦長・横長）で見える範囲が変わるので、各風景の「見せたい高さ」を決めておく（%）
-const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50};
+const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50,lanterns:55,redmoon:40};
 
 // ============================================================
 // 場の背景のアニメーション（風景の上に動きを重ねる）。座標は風景画と同じ 400x800 の世界で描く
@@ -4485,6 +4535,32 @@ ACHIEVEMENTS.forEach(a=>{
 });
 // ログインボーナスの称号（7日ログインごとに★が1つ増える。ガチャには出さず、持っている分だけ称号一覧に出す）
 for(let n=1;n<=100;n++)GACHA_ITEMS.push({id:'title_login_'+n,rarity:'rare',category:'title',icon:'🌸',loginStar:n,title:'日々の花 '+(n<=5?'★'.repeat(n):'★×'+n),desc:'ログイン'+(n*7)+'日の記念称号',value:'日々の花 '+(n<=5?'★'.repeat(n):'★×'+n)});
+// ===== 期間限定ガチャ（開催期間は start〜end の日付で変更できます）=====
+const LIMITED_GACHA={
+  title:'期間限定ガチャ', start:'2026-10-19', end:'2026-11-02',
+  existing:['theme_ice','theme_ember','theme_obsidian','theme_galaxy','bg_aurora','bg_nebula'], // 元からある景品
+};
+const _GO_BASE='https://carupisu0320.github.io/rikka-game-Smartphone/';
+GACHA_ITEMS.push(
+  {id:'theme_warning', rarity:'common',   category:'theme', limited:1, icon:'⚠️', title:'警告の裏地',     desc:'牌の裏デザイン：警告', value:'warning'},
+  {id:'theme_glitch',  rarity:'uncommon', category:'theme', limited:1, icon:'📺', title:'ノイズの裏地',   desc:'牌の裏デザイン：ノイズ', value:'glitch'},
+  {id:'theme_neongrid',rarity:'uncommon', category:'theme', limited:1, icon:'🟣', title:'ネオングリッドの裏地', desc:'牌の裏デザイン：ネオングリッド', value:'neongrid'},
+  {id:'theme_crimson', rarity:'rare',     category:'theme', limited:1, icon:'🩸', title:'深紅の裏地',     desc:'牌の裏デザイン：深紅', value:'crimson'},
+  {id:'bg_lanterns',   rarity:'rare',     category:'fieldbg', type:'scene', limited:1, icon:'🏮', title:'灯籠の夜', desc:'場の背景：夜空に浮かぶ灯籠', get value(){return sceneUri('lanterns');}},
+  {id:'bg_redmoon',    rarity:'rare',     category:'fieldbg', type:'scene', limited:1, icon:'🌑', title:'赤い月の森', desc:'場の背景：赤い月と黒い森', get value(){return sceneUri('redmoon');}},
+  {id:'title_gameovera', rarity:'rare',   category:'title', limited:1, icon:'🎮', title:'国富平針店のバイト', desc:'名前の横に称号が付きます', value:'国富平針店のバイト'},
+  {id:'bg_gameovera3', rarity:'superrare', category:'fieldbg', type:'image', limited:1, icon:'💀', title:'Game Over III', desc:'場の背景：Game Overシリーズ（期間限定）', value:_GO_BASE+'gameovera3.png'},
+  {id:'bg_gameovera4', rarity:'superrare', category:'fieldbg', type:'image', limited:1, icon:'💀', title:'Game Over IV',  desc:'場の背景：Game Overシリーズ（期間限定）', value:_GO_BASE+'gameovera4.png'},
+);
+function isLimitedActive(){const t=_loginToday();return t>=LIMITED_GACHA.start&&t<=LIMITED_GACHA.end;}
+// ガチャの景品プール（banner='limited'なら期間限定、それ以外は恒常）
+function gachaPool(rarity,banner){
+  if(banner==='limited'){
+    const p=GACHA_ITEMS.filter(it=>it.rarity===rarity&&(it.limited||LIMITED_GACHA.existing.includes(it.id)));
+    if(p.length)return p;
+  }
+  return GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar&&!it.limited&&!it.limited);
+}
 backfillAchievementRewards();
 const GACHA_RARITY_INFO={
   common:   {label:'コモン',   weight:60, color:'#9098a0'},
@@ -4549,7 +4625,8 @@ function pickGachaRarity(){
 // ============================================================
 let _gachaBatch=null;
 const RARITY_ORDER={common:0,uncommon:1,rare:2,superrare:3};
-function drawGachaMulti(n){
+function drawGachaMulti(n,banner='std'){
+  if(banner==='limited'&&!isLimitedActive()){toast('期間限定ガチャは終了しました');return;}
   const cost=GACHA_COST*n;
   if(loadPetals()<cost){toast('花びらが足りません');return;}
   addPetals(-cost);
@@ -4563,7 +4640,7 @@ function drawGachaMulti(n){
         rarity=Math.random()*(GACHA_RARITY_INFO.rare.weight+GACHA_RARITY_INFO.superrare.weight)<GACHA_RARITY_INFO.superrare.weight?'superrare':'rare';
       }
       if(RARITY_ORDER[rarity]>=2)haveRare=true;
-      const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar);
+      const pool=gachaPool(rarity,banner);
       const item=pool[Math.floor(Math.random()*pool.length)];
       const isDup=owned.has(item.id);
       if(!isDup){owned.add(item.id);grantItem(item.id);}else refund+=Math.ceil(GACHA_COST/2);
@@ -4574,7 +4651,7 @@ function drawGachaMulti(n){
   const best=results.reduce((a,b)=>{
     const ra=RARITY_ORDER[a.item.rarity],rb=RARITY_ORDER[b.item.rarity];
     return rb>ra||(rb===ra&&a.isDup&&!b.isDup)?b:a;},results[0]);
-  _gachaBatch={n,cost,refund,results};
+  _gachaBatch={n,cost,refund,results,banner};
   _gfxPendingAch=checkAchievements(false,{misc:true,gacha:n});
   startGachaFx(best.item,best.isDup);
 }
@@ -4595,16 +4672,17 @@ function showGachaSummary(b){
     <div class="gs-stats"><span>使った花びら <b>🌸${b.cost}</b></span><span>戻った花びら <b>🌸${b.refund}</b></span><span>新しい景品 <b>${newN}個</b></span></div>
     <div class="gs-rar">${['superrare','rare','uncommon','common'].map(k=>`<span style="color:${GACHA_RARITY_INFO[k].color}">${GACHA_RARITY_INFO[k].label} ${cnt[k]}</span>`).join('')}</div>
     <div class="gs-list">${cards}</div>
-    <div class="gs-btns"><button class="sub" ${canAgain?'':'disabled'} onclick="document.getElementById('gacha-summary').remove();drawGachaMulti(${b.n})">もう一度（${b.n}連）</button><button class="main" onclick="document.getElementById('gacha-summary').remove()">閉じる</button></div></div>`;
+    <div class="gs-btns"><button class="sub" ${canAgain?'':'disabled'} onclick="document.getElementById('gacha-summary').remove();drawGachaMulti(${b.n},'${b.banner||'std'}')">もう一度（${b.n}連）</button><button class="main" onclick="document.getElementById('gacha-summary').remove()">閉じる</button></div></div>`;
   document.body.appendChild(el);
   try{if(typeof soundEnabled!=='undefined')gfxRevealSound(cnt.superrare?'superrare':cnt.rare?'rare':'uncommon');}catch(e){}
 }
-function drawGacha(){
+function drawGacha(banner='std'){
+  if(banner==='limited'&&!isLimitedActive()){toast('期間限定ガチャは終了しました');return;}
   const petals=loadPetals();
   if(petals<GACHA_COST){ toast('花びらが足りません'); return; }
   addPetals(-GACHA_COST);
   const rarity=pickGachaRarity();
-  const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar);
+  const pool=gachaPool(rarity,banner);
   const item=pool[Math.floor(Math.random()*pool.length)];
   const st=loadGachaState();
   const isDup=st.owned.includes(item.id);
@@ -4891,7 +4969,8 @@ function renderGachaCollection(){
   const st=loadGachaState();
   const owned=new Set(st.owned);
   const groups={};
-  GACHA_ITEMS.filter(it=>!it.achievement&&!it.loginStar).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
+  const _lim=_gachaView==='limited';
+  GACHA_ITEMS.filter(it=>_lim?(it.limited||LIMITED_GACHA.existing.includes(it.id)):(!it.achievement&&!it.loginStar&&!it.limited)).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
   let html='';
   for(const [rarity,info] of Object.entries(GACHA_RARITY_INFO)){
     const items=groups[rarity]||[];
@@ -4912,7 +4991,7 @@ function renderGachaCollection(){
     }).join('');
   }
   // 実績の報酬（ガチャには出ない）
-  const rw=GACHA_ITEMS.filter(it=>it.achievement);
+  const rw=_lim?[]:GACHA_ITEMS.filter(it=>it.achievement);
   if(rw.length){
     html+=`<div class="gacha-rarity-title" style="color:#ffd978">🏅 実績の報酬</div>`;
     html+=rw.map(it=>{
@@ -4973,12 +5052,29 @@ function updateSbTitle(){
   const item=GACHA_ITEMS.find(it=>it.id===st.equipped.title);
   el.textContent=item?item.value:'';
 }
+let _gachaView='std';
 function openGacha(){
+  _gachaView='std';
   document.getElementById('gacha-cost-label').textContent=GACHA_COST;
   updatePetalDisplays();
   document.getElementById('gacha-result').innerHTML='';
   renderGachaCollection();
+  const lim=document.getElementById('gacha-banner-limited'),act=isLimitedActive();
+  if(lim)lim.style.display=act?'':'none';
+  document.getElementById('gacha-ltd-period').textContent=`開催期間：${LIMITED_GACHA.start.slice(5).replace('-','/')} 〜 ${LIMITED_GACHA.end.slice(5).replace('-','/')}`;
+  const bn=document.getElementById('gacha-banners');if(bn)bn.scrollLeft=0;
+  updateGachaDots();
   showScreen('gacha');
+}
+function updateGachaDots(){
+  const el=document.getElementById('gacha-dots'),bn=document.getElementById('gacha-banners');
+  if(!el||!bn)return;
+  if(!isLimitedActive()){el.style.display='none';if(_gachaView!=='std'){_gachaView='std';renderGachaCollection();}return;}
+  const on=bn.scrollLeft>bn.clientWidth/2?1:0;
+  const v=on?'limited':'std';
+  if(v!==_gachaView){_gachaView=v;renderGachaCollection();}
+  el.style.display='block';
+  el.innerHTML=`<i class="${on?'':'on'}"></i><i class="${on?'on':''}"></i><br>${on?'← 恒常ガチャへ':'期間限定ガチャ開催中！ 横にスワイプ →'}`;
 }
 function closeGacha(){ showScreen('lobby'); }
 
@@ -4988,6 +5084,7 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
+  {id:'info_limited_gacha1', info:true, title:'✨ 期間限定ガチャ開催！', desc:'ガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n開催期間：10/19 〜 11/2\n最高レアは場の背景「Game Over Ⅲ・Ⅳ」。ほかに新しい牌の裏・場の背景、称号「国富平針店のバイト」が出ます。'},
   {id:'info_update_login_draw', info:true, title:'🛠 アップデート内容', desc:'・毎日ログインボーナスを追加（花びら50枚／7日ごとに称号「日々の花」、次の7日ごとに★が増えます）\n・全員リーチで誰も上がれなくなった場合、引き分けになって次のラウンドへ進むようにしました（CPU戦・オンライン対戦とも）'},
 ];
 function loadGiftboxClaimed(){
@@ -5621,7 +5718,7 @@ const BASE_BACK_THEMES=[
   {v:'green', label:'翠',   c1:'#0a2010', bd:'#2a6a3a'},
   {v:'purple',label:'紫',   c1:'#1a0a2e', bd:'#5a2a8a'},
 ];
-const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a'],jade:['#0a2e26','#2aa88a'],ice:['#0e2a3e','#7ac8e8'],ember:['#4a1408','#e0682a'],obsidian:['#1a1a22','#6a6a7a'],galaxy:['#1a1048','#6a5ad8'],rainbow:['#3a2a6a','#d8a8ff'],dragon:['#0a3a24','#d8b04a']};
+const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a'],jade:['#0a2e26','#2aa88a'],ice:['#0e2a3e','#7ac8e8'],ember:['#4a1408','#e0682a'],obsidian:['#1a1a22','#6a6a7a'],galaxy:['#1a1048','#6a5ad8'],rainbow:['#3a2a6a','#d8a8ff'],dragon:['#0a3a24','#d8b04a'],warning:['#3a1010','#e04040'],glitch:['#10141c','#40d8c8'],neongrid:['#1a0a30','#d040ff'],crimson:['#3a0610','#ff5060']};
 let customizeTab='theme';
 function openCustomize(tab){
   closeSidebar();
@@ -5648,7 +5745,7 @@ function renderCustomize(){
     let h=`<div class="custom-sub">${isC?'上がった時の紙吹雪':'名前の横に表示される称号'}</div><div class="custom-list">`;
     h+=`<button class="custom-row${eq?'':' sel'}" onclick="selectGachaEquip('${cat}','')">
       <div class="ic">${isC?'🎉':'➖'}</div><div class="tx">${isC?'通常':'なし'}</div>${eq?'':'<span class="chk">✔</span>'}</button>`;
-    h+=GACHA_ITEMS.filter(it=>it.category===cat&&(!it.loginStar||owned.has(it.id))).map(it=>{
+    h+=GACHA_ITEMS.filter(it=>it.category===cat&&((!it.loginStar&&!it.limited)||owned.has(it.id))).map(it=>{
       const has=owned.has(it.id);
       const sel=has&&eq===it.id;
       const dots=(isC&&has)?`<div class="dots">${it.value.map(c=>`<i style="background:${c}"></i>`).join('')}</div>`:'';
