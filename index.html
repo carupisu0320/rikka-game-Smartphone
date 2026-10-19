@@ -2154,6 +2154,17 @@ socket.on('round_win',wd=>{
   if(wd&&wd.ron){const ms=showCallFx('ron',wd.winnerName);setTimeout(()=>showOnlineWinMsg(wd),ms-150);}
   else if(wd){const ms=showCallFx('win',wd.winnerName,wd.role);setTimeout(()=>showOnlineWinMsg(wd),ms-200);}
 });
+socket.on('round_draw',({scores})=>{
+  clearRonWindow();
+  if(G)G.phase='roundEnd';
+  const rows=scores.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.score}点</td></tr>`).join('');
+  document.getElementById('mbox').innerHTML=`
+<div class="mtitle">🤝 引き分け</div>
+<p style="color:#8a7860;font-size:.9rem">全員リーチで、誰も上がれる牌がありません</p>
+<table class="mscores">${rows}</table>
+<button class="mbtn" onclick="doNextOnlineRound()">次のラウンドへ →</button>`;
+  document.getElementById('modal').classList.add('open');
+});
 socket.on('player_riichi',({name,idx})=>{
   if(G&&G.players[idx]) G.players[idx].riichi=true;
   if(Number(idx)!==Number(myOnlineIdx)){ playSound('riichi'); showCallFx('riichi',name); }
@@ -3129,7 +3140,16 @@ processWin(myOnlineIdx,res);}
 
 // ============================================================
 
-function nextTurn(){G.turn=(G.turn+1)%G.players.length;G.tphase='pick';G.selIdx=-1;updateFieldBgForTurn();render();if(G.players[G.turn].isBot)scheduleBot();}
+// CPU戦：全員リーチで誰も場のどの牌でも上がれない（詰み）なら引き分け
+function checkRiichiDeadlock(){
+  if(onlineMode||!G||!G.useRiichi||G.phase!=='playing'||!G.players.every(p=>p.riichi))return false;
+  const optR=G.optRoles??null;
+  if(!G.players.every(p=>G.field.every(t=>!canRon(p.hand,t,optR))))return false;
+  G.phase='roundEnd';clearRonWindow();render();
+  showModal(`<div class="mtitle">🤝 引き分け</div><p style="color:#8a7860;font-size:.9rem">全員リーチで、誰も上がれる牌がありません</p><table class="mscores">${G.players.map(pl=>`<tr><td>${esc(pl.name)}</td><td>${pl.score}点</td></tr>`).join('')}</table><button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`);
+  return true;
+}
+function nextTurn(){if(checkRiichiDeadlock())return;G.turn=(G.turn+1)%G.players.length;G.tphase='pick';G.selIdx=-1;updateFieldBgForTurn();render();if(G.players[G.turn].isBot)scheduleBot();}
 
 function scheduleBot(){if(G.phase!=='playing')return;const bot=G.players[G.turn];if(!bot?.isBot)return;const d={easy:1500,normal:1000,hard:600}[bot.diff]||1000;setTimeout(runBot,d);}
 
