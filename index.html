@@ -735,6 +735,40 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 #turn-fx .tf-hint{position:relative;margin-top:.15rem;font-size:clamp(.72rem,3.2vw,.9rem);color:#e8d8b0;letter-spacing:.12em;text-shadow:0 2px 6px #000;animation:tfHint 1.35s ease-out forwards}
 @keyframes tfHint{0%,30%{opacity:0;transform:translateY(8px)}46%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){#turn-fx .tf-text{animation:tfHint 1.35s ease-out forwards}}
+
+/* ── ルームの待機画面 ── */
+#room-wait{position:fixed;inset:0;z-index:925;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,#14283a,#080e18 60%,#04070e);animation:mfIn .3s ease-out both;overflow-y:auto}
+.rw-box{width:min(400px,94vw);padding:1.2rem 1rem;text-align:center}
+.rw-head{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.3rem;font-weight:700;color:#e8f6f4;letter-spacing:.08em;text-shadow:0 0 14px rgba(74,200,192,.6)}
+.rw-check{width:64px;height:64px;margin:0 auto .5rem;border-radius:50%;border:3px solid #60e8a0;display:flex;align-items:center;justify-content:center;color:#60e8a0;font-size:2rem;font-weight:900;box-shadow:0 0 20px rgba(96,232,160,.5);animation:rwCheck .6s cubic-bezier(.2,1.6,.4,1) both,rwRing 2.4s ease-in-out infinite}
+@keyframes rwCheck{from{transform:scale(0) rotate(-90deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes rwRing{0%,100%{box-shadow:0 0 14px rgba(96,232,160,.4)}50%{box-shadow:0 0 28px rgba(96,232,160,.8)}}
+.rw-codebox{margin:.8rem auto;padding:.5rem .8rem;border-radius:12px;background:rgba(0,0,0,.4);border:1px solid #3a6a50;display:inline-block}
+.rw-codelabel{font-size:.65rem;color:#6a9a80;letter-spacing:.14em}
+.rw-code{font-size:2rem;font-weight:700;color:#60e8a0;letter-spacing:.35em;padding-left:.35em;font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
+.rw-copy{margin-top:.15rem;padding:.2rem .7rem;border-radius:999px;border:1px solid #3a6a50;background:transparent;color:#8acaa8;font-family:inherit;font-size:.7rem;cursor:pointer}
+.rw-slots{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin:.9rem 0}
+.rw-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.7rem .5rem;border-radius:14px;background:linear-gradient(160deg,rgba(24,40,54,.92),rgba(10,18,28,.92));border:1px solid #4a8a94;min-height:128px;justify-content:center}
+.rw-card.me{border-color:#ffd24a;box-shadow:0 0 14px rgba(255,200,60,.3)}
+.rw-card.new{animation:rwPop .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes rwPop{0%{transform:scale(.3) rotate(-8deg);opacity:0}100%{transform:none;opacity:1}}
+.rw-card.new::after{content:'';position:absolute;inset:-4px;border-radius:16px;border:2px solid #60e8a0;opacity:0;animation:rwBurst .9s .15s ease-out both}
+@keyframes rwBurst{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(1.25)}}
+.rw-av{width:58px;height:58px;border-radius:50%;overflow:hidden;background:#2a1e12;border:2px solid #c9a84c;display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:700;color:#e8c97a}
+.rw-av img{width:100%;height:100%;object-fit:cover}
+.rw-card .win-title{margin:.05rem 0 0;font-size:.62rem;padding:.08rem .45rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-name{font-weight:700;color:#fff;font-size:.88rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-tag{position:absolute;top:5px;left:7px;font-size:.62rem;color:#ffd24a}
+.rw-you{font-size:.6rem;color:#ffd24a;letter-spacing:.14em}
+.rw-empty{border:1.5px dashed #3a5a68;background:rgba(10,20,30,.5);color:#5a8a98;font-size:.8rem}
+.rw-empty i{font-style:normal;animation:mfDot 1.6s infinite}
+.rw-status{font-size:.82rem;color:#9ad8d0;margin:.4rem 0}
+.rw-btns{display:flex;flex-direction:column;gap:.45rem;margin-top:.8rem}
+.rw-btns button{padding:.7rem;border-radius:10px;border:none;font-family:inherit;font-weight:700;font-size:.92rem;cursor:pointer}
+.rw-btns .main{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}.rw-btns .ghost{background:transparent;color:#7a98a0;font-weight:400}
+.rw-join-banner{position:fixed;left:50%;top:4%;transform:translateX(-50%);z-index:965;padding:.6rem 1.3rem;border-radius:999px;background:linear-gradient(135deg,rgba(20,60,50,.95),rgba(10,30,30,.95));border:1.5px solid #60e8a0;
+  color:#d8fff0;font-weight:700;letter-spacing:.06em;box-shadow:0 0 22px rgba(96,232,160,.5);animation:rwBanner 2.4s ease-out forwards;white-space:nowrap}
+@keyframes rwBanner{0%{opacity:0;transform:translate(-50%,-30px) scale(.8)}12%{opacity:1;transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-10px)}}
 #tile-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
 #field-fx{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .win-title{display:inline-block;margin:.15rem 0 .35rem;padding:.16rem .75rem;border-radius:999px;border:1px solid #c9a84c;background:rgba(201,168,76,.12);color:#f5d78a;font-size:.78rem;font-weight:700;letter-spacing:.06em}
@@ -2076,7 +2110,8 @@ catch(e){setOnlineStatus('Socket.IOの読み込みに失敗しました','#f0705
 
 socket.on('connect',()=>{ clearTimeout(_wakeTimer); setOnlineStatus('',''); });
 
-socket.on('connect_error',()=>{hideMatchFx(true);setOnlineStatus('サーバーに接続できません','#f07050');});
+socket.on('room_closed',({name})=>{hideRoomWait();currentCode='';const hb=document.getElementById('room-host-box');if(hb)hb.style.display='none';const cb=document.getElementById('btn-create-room');if(cb)cb.disabled=false;const js=document.getElementById('join-status');if(js)js.textContent='';toast(`${name} がルームを閉じました`);});
+socket.on('connect_error',()=>{hideRoomWait();hideMatchFx(true);setOnlineStatus('サーバーに接続できません','#f07050');});
 
 socket.on('queued',({pos})=>{if(!document.getElementById('match-fx'))showMatchFx();setOnlineStatus(`⟳ マッチング中... (待機${pos}人)`,'#6fc4ae');document.getElementById('btn-cancel-quick').style.display='';});
 
@@ -2086,7 +2121,9 @@ socket.on('queue_cancelled',()=>{hideMatchFx(true);setOnlineStatus('','');docume
 
 socket.on('room_created',({code})=>{currentCode=code;document.getElementById('room-code-display').textContent=code;document.getElementById('room-host-box').style.display='';document.getElementById('btn-create-room').disabled=false;});
 
-socket.on('room_update',({players,code})=>{
+// （ルームの待機画面は showRoomWait で表示）
+socket.on('room_update',(d)=>{
+const {players,code}=d;showRoomWait(d);
 
 currentCode=code;
 
@@ -2101,6 +2138,7 @@ const js=document.getElementById('join-status');if(js&&!js.textContent.includes(
 });
 
 socket.on('game_start',(d)=>{
+  hideRoomWait();
   if(d&&d.players)matchFoundFx(d.players,d.you,'対戦開始！');
   onlineMode=true;
   showScreen('game');
@@ -2142,11 +2180,11 @@ socket.on('rematch_start',()=>{
   receiveChat(name, msg, isMine);
 });
 
-socket.on('err',msg=>toast(msg));
+socket.on('err',msg=>{toast(msg);});
 
 socket.on('player_left',({name})=>showModal(`<div class="mtitle">⚠ 退出</div><p style="color:#a89868;margin:.8rem 0">${esc(name)} が退出しました</p><button class="mbtn" onclick="location.reload()">最初からやり直す</button>`));
 
-socket.on('disconnect',()=>{hideMatchFx(true);if(onlineMode)showModal(`<div class="mtitle">⚠ 切断</div><p style="color:#a89868;margin:.8rem 0">接続が切れました</p><button class="mbtn" onclick="location.reload()">最初からやり直す</button>`);});
+socket.on('disconnect',()=>{hideRoomWait();hideMatchFx(true);if(onlineMode)showModal(`<div class="mtitle">⚠ 切断</div><p style="color:#a89868;margin:.8rem 0">接続が切れました</p><button class="mbtn" onclick="location.reload()">最初からやり直す</button>`);});
 
 }
 
@@ -2228,6 +2266,65 @@ const goalEl=document.querySelector('input[name="room-goal"]:checked');
   socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});}
 function copyRoomCode(){const code=document.getElementById('room-code-display').textContent;navigator.clipboard?.writeText(code).then(()=>toast('コードをコピーしました！'));}
 
+
+// ============================================================
+// プライベートルームの待機画面（参加できたことが一目で分かるようにする）
+// ============================================================
+let _roomPrevNames=null,_roomFirst=true;
+function roomCardHtml(p,i,isMe,isNew,isHost){
+  const av=sanitizeFieldBgUrl(p.avatar||''),ini=esc((p.name||'?')[0]);
+  const face=av?`<img src="${esc(av)}" alt="" data-i="${ini}" onerror="this.parentNode.textContent=this.dataset.i">`:`<span>${ini}</span>`;
+  return `<div class="rw-card${isMe?' me':''}${isNew?' new':''}">${isHost?'<span class="rw-tag">👑 ホスト</span>':''}<div class="rw-av">${face}</div>${titleBadgeHtml(p.title)||'<div class="win-title" style="visibility:hidden">　</div>'}<div class="rw-name">${esc(p.name||'')}</div>${isMe?'<div class="rw-you">あなた</div>':''}</div>`;
+}
+function showRoomWait(d){
+  const names=d.players||[],infos=(d.infos&&d.infos.length===names.length)?d.infos:names.map(n=>({name:n}));
+  const you=Number.isInteger(d.you)?d.you:0,max=d.max||4,isHost=you===0;
+  let el=document.getElementById('room-wait');
+  const created=!el;
+  if(created){
+    hideMatchFx(true);
+    el=document.createElement('div');el.id='room-wait';document.body.appendChild(el);
+    _roomPrevNames=null;_roomFirst=true;
+  }
+  const prev=_roomPrevNames||[];
+  const slots=[];
+  for(let i=0;i<max;i++){
+    if(infos[i])slots.push(roomCardHtml(infos[i],i,i===you,_roomPrevNames!==null?!prev.includes(infos[i].name):(i===you),i===0));
+    else slots.push(`<div class="rw-card rw-empty"><span>待機中<i>.</i><i>.</i><i>.</i></span></div>`);
+  }
+  const canStart=isHost&&names.length>=2;
+  const status=isHost?(names.length<2?'友達の参加を待っています…（コードを伝えてください）':`${names.length}人が揃いました。ゲームを開始できます`):'ホストが開始するのを待っています…';
+  el.innerHTML=`<div class="rw-box">
+    <div class="rw-check">✓</div>
+    <div class="rw-head">${isHost?'ルームを作成しました！':'ルームに参加しました！'}</div>
+    <div class="rw-codebox"><div class="rw-codelabel">ルームコード</div><div class="rw-code">${esc(d.code||'')}</div><button class="rw-copy" onclick="copyRoomCode('${esc(d.code||'')}')">📋 コードをコピー</button></div>
+    <div class="rw-status">参加者 ${names.length} / ${max}人</div>
+    <div class="rw-slots">${slots.join('')}</div>
+    <div class="rw-status" id="rw-status">${status}</div>
+    <div class="rw-btns">${canStart?'<button class="main" onclick="hostStartGame()">▶ ゲーム開始！</button>':''}<button class="ghost" onclick="leaveRoomWait()">ルームから出る</button></div></div>`;
+  // 新しく参加した人を知らせる（本人以外に向けて：バナー＋効果音）
+  if(d.joined&&d.joined!==(infos[you]&&infos[you].name)){roomJoinBanner(`🎉 ${d.joined} が参加しました！`);}
+  else if(d.left){roomJoinBanner(`👋 ${d.left} が退出しました`,true);}
+  else if(created&&!isHost){_gfxAudio(ctx=>{const now=ctx.currentTime,m=ctx.createGain();m.gain.value=soundVolume*.5;m.connect(ctx.destination);
+    [[523.25,0],[659.25,.1],[783.99,.2],[1046.5,.32]].forEach(([f,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,now+t);g.gain.linearRampToValueAtTime(.6,now+t+.02);g.gain.exponentialRampToValueAtTime(.001,now+t+.5);o.connect(g);g.connect(m);o.start(now+t);o.stop(now+t+.55);});});}
+  _roomPrevNames=names.slice();
+}
+function roomJoinBanner(text,quiet){
+  const old=document.querySelector('.rw-join-banner');if(old)old.remove();
+  const b=document.createElement('div');b.className='rw-join-banner';b.textContent=text;document.body.appendChild(b);setTimeout(()=>b.remove(),2500);
+  if(!quiet)_gfxAudio(ctx=>{const now=ctx.currentTime,m=ctx.createGain();m.gain.value=soundVolume*.5;m.connect(ctx.destination);
+    [[880,0],[1318.5,.12]].forEach(([f,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,now+t);g.gain.linearRampToValueAtTime(.6,now+t+.015);g.gain.exponentialRampToValueAtTime(.001,now+t+.4);o.connect(g);g.connect(m);o.start(now+t);o.stop(now+t+.45);});});
+}
+function hideRoomWait(){const el=document.getElementById('room-wait');if(el)el.remove();_roomPrevNames=null;}
+function leaveRoomWait(){
+  socket?.emit('leave_room',{code:currentCode});hideRoomWait();currentCode='';
+  const hb=document.getElementById('room-host-box');if(hb)hb.style.display='none';
+  const cb=document.getElementById('btn-create-room');if(cb)cb.disabled=false;
+  const js=document.getElementById('join-status');if(js)js.textContent='';
+}
+function copyRoomCode(code){
+  try{navigator.clipboard.writeText(code).then(()=>toast('コードをコピーしました'));}catch(e){toast('コード：'+code);}
+}
 function cancelRoom(){document.getElementById('room-host-box').style.display='none';document.getElementById('btn-create-room').disabled=false;}
 
 function hostStartGame(){socket?.emit('start_game',{code:currentCode});}
