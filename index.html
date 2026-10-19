@@ -1665,7 +1665,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="ltd-top-icons" id="ltd-top-icons"></div>
     <button class="gacha-draw-btn" onclick="drawGacha('limited')">限定ガチャを引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'limited')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'limited')">100連<small>🌸 1000</small></button></div>
-    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号</div>
+    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号・アイコン</div>
   </div>
   </div>
   </div>
@@ -4652,6 +4652,34 @@ GACHA_ITEMS.push(
   {id:'gi_galaxy', rarity:'rare',     category:'gicon', icon:'🌌', title:'渦巻く銀河',   desc:'アイコン：回る銀河（動く）', value:'gi_galaxy'},
   {id:'gi_crown',  rarity:'superrare',category:'gicon', icon:'👑', title:'輝く王冠',     desc:'アイコン：きらめく王冠（動く）', value:'gi_crown'},
 );
+
+// 期間限定ガチャのアイコン
+GICON_SVG.gi_coin=function(){return _giSvg(_giRG('#3a2a10','#0e0a04'),`<style>@keyframes coin{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.08)}}@keyframes glint{0%,60%{opacity:0}80%{opacity:.9}100%{opacity:0}}</style>
+  <g class="o" style="animation:coin 2.2s ease-in-out infinite"><circle cx="50" cy="50" r="30" fill="#f5c030" stroke="#a06a08" stroke-width="3"/><circle cx="50" cy="50" r="23" fill="none" stroke="#c88a10" stroke-width="2.5"/>
+  <path d="M50 33l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#fff0a0" stroke="#c88a10" stroke-width="1.5"/></g>
+  <circle cx="38" cy="38" r="3" fill="#fff" style="animation:glint 2.2s ease-in-out infinite"/>`);};
+GICON_SVG.gi_lantern=function(){let s='',k='';[[14,16],[84,12],[76,70],[20,64],[50,8]].forEach(([x,y],i)=>s+=`<circle cx="${x}" cy="${y}" r="1.5" fill="#fff" style="animation:tw ${1.6+i*.3}s ease-in-out ${i*.3}s infinite"/>`);
+  [[44,80,0],[56,82,.8],[50,78,1.5]].forEach(([x,y,d])=>k+=`<circle cx="${x}" cy="${y}" r="1.6" fill="#ffc060" style="animation:rise 2.4s ease-out ${d}s infinite"/>`);
+  return _giSvg(_giLG('#0a0a24','#3a1c40'),`${s}<g style="transform-box:fill-box;transform-origin:50% 0;animation:sway 3.2s ease-in-out infinite"><path d="M50 0V22" stroke="#caa060" stroke-width="2"/><circle cx="50" cy="52" r="34" fill="#ff9a30" opacity=".35" class="o" style="animation:pulse 2s ease-in-out infinite"/>
+  <rect x="38" y="20" width="24" height="5" rx="2" fill="#7a3a10"/><rect x="34" y="25" width="32" height="46" rx="12" fill="#ff8a28" stroke="#c85a10" stroke-width="2.5"/><rect x="41" y="31" width="18" height="34" rx="8" fill="#ffe2a0" opacity=".9" class="o" style="animation:pulse 1.4s ease-in-out infinite"/>
+  <path d="M34 48H66M34 56H66" stroke="#c85a10" stroke-width="1.2" opacity=".6"/><rect x="40" y="71" width="20" height="5" rx="2" fill="#7a3a10"/><path d="M46 76v8M50 76v10M54 76v8" stroke="#ff9a30" stroke-width="2" stroke-linecap="round"/></g>${k}`);};
+GICON_SVG.gi_redmoon=function(){let e='';[[24,86,0],[40,90,.6],[62,88,1.1],[78,84,1.7],[52,92,.3]].forEach(([x,y,d])=>e+=`<circle cx="${x}" cy="${y}" r="1.5" fill="#ff7050" style="animation:rise 3s ease-out ${d}s infinite"/>`);
+  return _giSvg(_giLG('#0a0208','#5a1418'),`<style>@keyframes drift{from{transform:translateX(-60px)}to{transform:translateX(160px)}}</style>
+  <circle cx="50" cy="42" r="40" fill="#c01820" opacity=".4" class="o" style="animation:pulse 2.6s ease-in-out infinite"/><circle cx="50" cy="42" r="23" fill="#ff5a48"/><circle cx="50" cy="42" r="23" fill="#ffd0b8" opacity=".2"/>
+  <ellipse cx="20" cy="44" rx="30" ry="4" fill="#12040a" opacity=".8" style="animation:drift 9s linear infinite"/>
+  <path d="M0 100V80l8-22 8 22 7-30 9 34 8-26 8 26 9-36 8 32 8-22 9 22V100Z" fill="#050104"/>${e}`);};
+GICON_SVG.gi_skull=function(){const rows=['..######..','.########.','##########','##..##..##','##..##..##','##########','.###..###.','..#.##.#..','...####...'];let r='',eyes='';
+  rows.forEach((row,y)=>[...row].forEach((c,x)=>{if(c==='#')r+=`<rect x="${10+x*8}" y="${14+y*8}" width="8" height="8" fill="#e8e8f2"/>`;}));
+  [[2,3],[3,3],[2,4],[3,4],[6,3],[7,3],[6,4],[7,4]].forEach(([x,y])=>eyes+=`<rect x="${10+x*8}" y="${14+y*8}" width="8" height="8" fill="#ff2a40"/>`);
+  let sc='';for(let y=0;y<100;y+=4)sc+=`<rect y="${y}" width="100" height="1.4" fill="#000" opacity=".25"/>`;
+  return _giSvg(_giRG('#2a0a20','#06020a'),`<style>@keyframes jit{0%,86%,100%{transform:translate(0,0)}88%{transform:translate(3px,-1px)}91%{transform:translate(-3px,1px)}94%{transform:translate(2px,0)}}@keyframes eye{0%,100%{opacity:.55}50%{opacity:1}}@keyframes scan{from{transform:translateY(-8px)}to{transform:translateY(8px)}}</style>
+  <g style="animation:jit 2.8s steps(1) infinite">${r}<g style="animation:eye 1.2s ease-in-out infinite">${eyes}</g></g><g style="animation:scan .8s linear infinite">${sc}</g>`);};
+GACHA_ITEMS.push(
+  {id:'gi_coin',    rarity:'common',   category:'gicon', limited:1, icon:'🪙', title:'ゲームコイン',     desc:'アイコン：回るコイン（動く・期間限定）', value:'gi_coin'},
+  {id:'gi_lantern', rarity:'uncommon', category:'gicon', limited:1, icon:'🏮', title:'ゆれる灯籠',       desc:'アイコン：揺れる灯籠（動く・期間限定）', value:'gi_lantern'},
+  {id:'gi_redmoon', rarity:'rare',     category:'gicon', limited:1, icon:'🌑', title:'赤い月',           desc:'アイコン：脈打つ赤い月（動く・期間限定）', value:'gi_redmoon'},
+  {id:'gi_skull',   rarity:'rare',     category:'gicon', limited:1, icon:'💀', title:'ゲームオーバー',   desc:'アイコン：ドット絵のドクロ（動く・期間限定）', value:'gi_skull'},
+);
 // ガチャ・図鑑・結果画面に出す景品アイコン（アイコン景品は動く画像）
 function itemIconHtml(it){
   return it.category==='gicon'?`<img src="${giconUri(it.value)}" alt="" style="width:1.2em;height:1.2em;border-radius:50%;vertical-align:middle">`:it.icon;
@@ -4682,6 +4710,8 @@ function ltdIcon(it,has,big){
     else{const sw=GACHA_THEME_SWATCH[it.value]||['#2a1e12','#5a4028'];inner=`<div class="ltd-tile"><div class="ltd-sw" style="--a:${sw[0]};--b:${sw[1]}"></div></div>`;}
   }else if(it.category==='fieldbg'){
     inner=`<div class="ltd-bg ltd-bg-${it.id}" style="background-image:url('${esc(it.value)}')"></div>`;
+  }else if(it.category==='gicon'){
+    inner=`<img src="${giconUri(it.value)}" alt="" style="width:100%;height:100%;border-radius:50%;display:block">`;
   }else inner=`<div class="ltd-ttl">${it.icon}</div>`;
   return `<div class="ltd-ico${big?' big':''}${has?'':' locked'}">${inner}</div>`;
 }
@@ -5220,7 +5250,7 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
-  {id:'info_limited_gacha1', info:true, title:'✨ 期間限定ガチャ開催！', desc:'ガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n開催期間：10/19 〜 11/2\n最高レアは場の背景「Game Over Ⅲ・Ⅳ」。ほかに新しい牌の裏・場の背景、称号「国富平針店のバイト」が出ます。'},
+  {id:'info_limited_gacha1', info:true, title:'✨ 期間限定ガチャ開催！', desc:'ガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n開催期間：10/19 〜 11/2\n最高レアは場の背景「Game Over Ⅲ・Ⅳ」。ほかに新しい牌の裏・場の背景・動くアイコン、称号「国富平針店のバイト」が出ます。'},
   {id:'info_update_login_draw', info:true, title:'🛠 アップデート内容', desc:'・毎日ログインボーナスを追加（花びら50枚／7日ごとに称号「日々の花」、次の7日ごとに★が増えます）\n・全員リーチで誰も上がれなくなった場合、引き分けになって次のラウンドへ進むようにしました（CPU戦・オンライン対戦とも）'},
 ];
 function loadGiftboxClaimed(){
@@ -5897,7 +5927,7 @@ function renderCustomize(){
     const eq=st.equipped.gicon||'';
     let h=`<div class="custom-sub">ガチャで出たアイコンを、プロフィールのアイコンにできます（対戦相手にも動いて見えます）</div><div class="custom-list">`;
     h+=`<button class="custom-row${eq?'':' sel'}" onclick="selectGachaEquip('gicon','')"><div class="ic">👤</div><div class="tx">ふだんのアイコン<div class="ds">プロフィールで設定した画像（なければGoogleのアイコン）</div></div>${eq?'':'<span class="chk">✔</span>'}</button>`;
-    h+=GACHA_ITEMS.filter(it=>it.category==='gicon').map(it=>{
+    h+=GACHA_ITEMS.filter(it=>it.category==='gicon'&&(!it.limited||owned.has(it.id))).map(it=>{
       const has=owned.has(it.id),sel=has&&eq===it.id;
       return `<button class="custom-row${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectGachaEquip('gicon','${it.id}')"`:''}>
         <div class="ic">${has?itemIconHtml(it):'🔒'}</div>
