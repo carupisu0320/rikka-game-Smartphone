@@ -3779,7 +3779,7 @@ function grantItem(id){
   }catch(e){return false;}
 }
 function realOwnedGachaCount(){
-  try{const raw=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');return (raw.owned||[]).filter(id=>{const it=GACHA_ITEMS.find(x=>x.id===id);return it&&!it.achievement;}).length;}catch(e){return 0;}
+  try{const raw=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');return (raw.owned||[]).filter(id=>{const it=GACHA_ITEMS.find(x=>x.id===id);return it&&!it.achievement&&!it.loginStar;}).length;}catch(e){return 0;}
 }
 // すでに解除済みの実績の報酬を受け取れていなければ渡す（この機能の追加前に解除した人向け）
 function backfillAchievementRewards(){
@@ -4481,6 +4481,8 @@ ACHIEVEMENTS.forEach(a=>{
   GACHA_ITEMS.push({id,rarity:'rare',category:'title',icon:a.icon,title:a.rt,desc:'実績「'+a.title+'」の報酬',value:a.rt,achievement:a.id});
   a.reward=id;
 });
+// ログインボーナスの称号（7日ログインごとに★が1つ増える。ガチャには出さず、持っている分だけ称号一覧に出す）
+for(let n=1;n<=100;n++)GACHA_ITEMS.push({id:'title_login_'+n,rarity:'rare',category:'title',icon:'🌸',loginStar:n,title:'日々の花 '+(n<=5?'★'.repeat(n):'★×'+n),desc:'ログイン'+(n*7)+'日の記念称号',value:'日々の花 '+(n<=5?'★'.repeat(n):'★×'+n)});
 backfillAchievementRewards();
 const GACHA_RARITY_INFO={
   common:   {label:'コモン',   weight:60, color:'#9098a0'},
@@ -4559,7 +4561,7 @@ function drawGachaMulti(n){
         rarity=Math.random()*(GACHA_RARITY_INFO.rare.weight+GACHA_RARITY_INFO.superrare.weight)<GACHA_RARITY_INFO.superrare.weight?'superrare':'rare';
       }
       if(RARITY_ORDER[rarity]>=2)haveRare=true;
-      const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement);
+      const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar);
       const item=pool[Math.floor(Math.random()*pool.length)];
       const isDup=owned.has(item.id);
       if(!isDup){owned.add(item.id);grantItem(item.id);}else refund+=Math.ceil(GACHA_COST/2);
@@ -4600,7 +4602,7 @@ function drawGacha(){
   if(petals<GACHA_COST){ toast('花びらが足りません'); return; }
   addPetals(-GACHA_COST);
   const rarity=pickGachaRarity();
-  const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement);
+  const pool=GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar);
   const item=pool[Math.floor(Math.random()*pool.length)];
   const st=loadGachaState();
   const isDup=st.owned.includes(item.id);
@@ -4887,7 +4889,7 @@ function renderGachaCollection(){
   const st=loadGachaState();
   const owned=new Set(st.owned);
   const groups={};
-  GACHA_ITEMS.filter(it=>!it.achievement).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
+  GACHA_ITEMS.filter(it=>!it.achievement&&!it.loginStar).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
   let html='';
   for(const [rarity,info] of Object.entries(GACHA_RARITY_INFO)){
     const items=groups[rarity]||[];
@@ -5615,7 +5617,7 @@ function renderCustomize(){
     let h=`<div class="custom-sub">${isC?'上がった時の紙吹雪':'名前の横に表示される称号'}</div><div class="custom-list">`;
     h+=`<button class="custom-row${eq?'':' sel'}" onclick="selectGachaEquip('${cat}','')">
       <div class="ic">${isC?'🎉':'➖'}</div><div class="tx">${isC?'通常':'なし'}</div>${eq?'':'<span class="chk">✔</span>'}</button>`;
-    h+=GACHA_ITEMS.filter(it=>it.category===cat).map(it=>{
+    h+=GACHA_ITEMS.filter(it=>it.category===cat&&(!it.loginStar||owned.has(it.id))).map(it=>{
       const has=owned.has(it.id);
       const sel=has&&eq===it.id;
       const dots=(isC&&has)?`<div class="dots">${it.value.map(c=>`<i style="background:${c}"></i>`).join('')}</div>`:'';
@@ -7119,6 +7121,30 @@ setInterval(applyLobbyEvent,10*60*1000); // 日付をまたいだら自動で切
 
 let _tt=null;
 
+// ===== ログインボーナス（毎日0時で切り替わり：花びら50＋7日ごとに称号、次の7日で★が増える）=====
+const LOGIN_PETALS=50;
+function _loginToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function showLoginBonus(){
+  if(G&&G.phase==='playing')return;
+  let st;try{st=JSON.parse(localStorage.getItem('rikka_login')||'{}');}catch(e){st={};}
+  const today=_loginToday();
+  if(st.last===today)return;
+  st.total=(st.total||0)+1;st.last=today;
+  try{localStorage.setItem('rikka_login',JSON.stringify(st));}catch(e){}
+  addPetals(LOGIN_PETALS);
+  const pos=((st.total-1)%7)+1,star=st.total%7===0?st.total/7:0,tid='title_login_'+Math.min(star,100);
+  if(star)grantItem(tid);
+  const it=star&&GACHA_ITEMS.find(x=>x.id===tid);
+  const stamps=Array.from({length:7},(_,i)=>`<span style="display:inline-block;width:2rem;height:2rem;line-height:2rem;margin:.15rem;border-radius:50%;font-size:.8rem;${i<pos?'background:#e8a0c0;color:#fff':'background:#2a1e14;color:#6a5030'}">${i===6?'🏅':(i<pos?'🌸':i+1)}</span>`).join('');
+  showModal(`<div class="mtitle">🌸 ログインボーナス</div>
+<div style="margin:.5rem 0">${stamps}</div>
+<div style="font-size:.9rem;color:#8a7860">${st.total}日目（${pos}/7）</div>
+<div class="mpts">🌸 花びら +${LOGIN_PETALS}</div>
+${it?`<div style="margin:.6rem 0;color:#f5d040">🎉 称号「${esc(it.title)}」を獲得！<div style="font-size:.78rem;color:#8a7048">カスタマイズの称号から付けられます</div></div>`:''}
+<button class="mbtn" onclick="document.getElementById('modal').classList.remove('open')">閉じる</button>`);
+}
+window.addEventListener('load',()=>setTimeout(()=>{try{showLoginBonus();}catch(e){}},900));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){try{showLoginBonus();}catch(e){}}});
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2400);}
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
