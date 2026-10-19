@@ -5617,14 +5617,17 @@ function openGacha(){
   if(lim)lim.style.display=act?'':'none';
   document.getElementById('gacha-ltd-period').textContent=`開催期間：${LIMITED_GACHA.start.slice(5).replace('-','/')} 〜 ${LIMITED_GACHA.end.slice(5).replace('-','/')}`;
   const ti=document.getElementById('ltd-top-icons');if(ti)ti.innerHTML=['bg_gameovera3','bg_gameovera4'].map(id=>ltdIcon(GACHA_ITEMS.find(x=>x.id===id),true,true)).join('');
-  const bn=document.getElementById('gacha-banners');if(bn)bn.scrollLeft=0;
-  updateGachaDots();
   showScreen('gacha');
+  // 画面を表示してから、恒常ガチャの位置に戻す（非表示のうちは位置を変えられず、前回のスワイプ位置が残ってしまうため）
+  const bn=document.getElementById('gacha-banners');
+  const toStd=()=>{if(bn)bn.scrollLeft=0;updateGachaDots();};
+  toStd();requestAnimationFrame(toStd);
 }
 function updateGachaDots(){
   const el=document.getElementById('gacha-dots'),bn=document.getElementById('gacha-banners');
   if(!el||!bn)return;
   if(!isLimitedActive()){el.style.display='none';if(_gachaView!=='std'){_gachaView='std';renderGachaCollection();}return;}
+  if(!bn.clientWidth)return; // 画面が非表示のあいだは判定しない
   const on=bn.scrollLeft>bn.clientWidth/2?1:0;
   const v=on?'limited':'std';
   if(v!==_gachaView){_gachaView=v;renderGachaCollection();}
