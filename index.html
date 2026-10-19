@@ -536,8 +536,8 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 #giftbox-lobby-btn .giftbox-dot{width:8px;height:8px;border-radius:50%;background:#ff4040;
   box-shadow:0 0 6px rgba(255,64,64,.8);animation:assistPulse 1s infinite}
 @keyframes giftBlink{0%,100%{filter:none;box-shadow:0 2px 10px rgba(0,0,0,.4)}50%{filter:brightness(1.5);box-shadow:0 0 16px 4px rgba(255,208,112,.9)}}
-#event-lobby-btn{position:absolute;top:5.55rem;right:.75rem;z-index:50;display:none;align-items:center;gap:.35rem;padding:.45rem .85rem;border-radius:20px;
-  background:linear-gradient(135deg,#ff9a30,#b04a08);border:none;color:#2a1000;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;
+#event-lobby-btn{display:none;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.8rem;margin-bottom:.6rem;border-radius:10px;
+  background:linear-gradient(135deg,#ff9a30,#b04a08);border:none;color:#2a1000;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;
   box-shadow:0 2px 10px rgba(0,0,0,.4);animation:evGlow 2s ease-in-out infinite}
 @keyframes evGlow{0%,100%{box-shadow:0 2px 10px rgba(0,0,0,.4)}50%{box-shadow:0 0 16px 3px rgba(255,150,40,.85)}}
 #event-badge{display:none;position:fixed;top:.35rem;left:50%;transform:translateX(-50%);z-index:60;padding:.15rem .8rem;border-radius:12px;background:rgba(40,16,2,.85);border:1px solid #ff9a30;color:#ffc070;font-size:.72rem;font-weight:700;pointer-events:none;white-space:nowrap}
@@ -1272,8 +1272,6 @@ font-weight:700;padding:0 2px;align-self:center}
 
 <button id="gacha-lobby-btn" onclick="openGacha()">🌸 ガチャ <span id="gacha-lobby-petals">0</span></button>
 
-<button id="event-lobby-btn" onclick="openEventPanel()"></button>
-
 <button id="giftbox-lobby-btn" onclick="openGiftbox()">📦 お届けBOX<span id="giftbox-dot-wrap"></span></button>
 
 <div id="event-badge"></div>
@@ -1342,6 +1340,8 @@ data-text="signin_with" data-shape="rectangular" data-logo_alignment="left" data
 </div>
 
 <button onclick="openTutorial()" class="lbtn" style="background:#1a1410;border:1.5px solid #5a4028;color:#c9a84c;margin-bottom:.6rem">📖 チュートリアル（役の解説）</button>
+
+<button id="event-lobby-btn" onclick="openEventPanel()"></button>
 
 <div class="tab-bar">
 
@@ -4144,12 +4144,27 @@ LOBBY_SCENES.redmoon=function(){const r=_rng(131);
   return `<defs>${_vgrad('sk',[[0,'#0a0208'],[.5,'#2a0a14'],[.85,'#5a1418']])}${_glow('mg','#ff6a50','#c01820')}<filter id="bl"><feGaussianBlur stdDeviation="6"/></filter></defs>
     <rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,420,70)}<circle cx="260" cy="250" r="190" fill="url(#mg)" opacity=".8"/><circle cx="260" cy="250" r="62" fill="#ff5a48"/><circle cx="260" cy="250" r="62" fill="#ffd0b8" opacity=".22"/>
     <g filter="url(#bl)" opacity=".7">${cl}</g><path d="${_pines(r,770,70,130,34)}" fill="#050104"/>`;};
+// ハロウィンイベントの背景
+const _HAUNT_WIN=[[96,560],[128,560],[160,560],[250,540],[282,540],[190,470],[222,470],[88,640],[300,630]];
+LOBBY_SCENES.pumpkinfield=function(){const r=_rng(141);
+  let pk='';[[60,730,1.3],[330,720,1.2],[190,760,1.6],[110,690,.8],[280,690,.85],[24,770,1.0],[370,775,1.05],[235,720,.7]].forEach(([x,y,s])=>{
+    pk+=`<g transform="translate(${x} ${y}) scale(${s})"><ellipse rx="24" ry="19" fill="#d65a08"/><ellipse rx="12" ry="19" fill="#ff8a20"/><rect x="-3" y="-27" width="6" height="10" rx="2" fill="#3a5a20"/><polygon points="-12,-4 -5,-4 -8.5,3" fill="#ffe070"/><polygon points="5,-4 12,-4 8.5,3" fill="#ffe070"/><path d="M-11 8l4 4 3-4 4 4 3-4 4 4 3-4" stroke="#ffe070" stroke-width="2.4" fill="none"/></g>`;});
+  return `<defs>${_vgrad('sk',[[0,'#12062a'],[.55,'#3a1420'],[1,'#8a3a10']])}${_glow('mg','#ffb050','#ff6a10')}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,380,90)}
+    <circle cx="270" cy="210" r="170" fill="url(#mg)" opacity=".55"/><circle cx="270" cy="210" r="56" fill="#ffb84a"/><circle cx="270" cy="210" r="56" fill="#fff0c0" opacity=".25"/>
+    <path d="${_ridge(r,{base:650,amp:34,rough:.55}).fill}" fill="#14060a"/><path d="${_pines(r,660,60,120,36)}" fill="#0a0306"/><rect y="680" width="400" height="120" fill="#0e0508"/>${pk}`;};
+LOBBY_SCENES.haunted=function(){const r=_rng(151);
+  let win='';_HAUNT_WIN.forEach(([x,y])=>win+=`<rect x="${x}" y="${y}" width="16" height="22" rx="2" fill="#ffd060" opacity=".8"/>`);
+  return `<defs>${_vgrad('sk',[[0,'#0a0620'],[.6,'#2a1450'],[1,'#4a2468']])}${_glow('mg','#e8e0ff','#8a78d0')}</defs><rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,420,100)}
+    <circle cx="90" cy="150" r="110" fill="url(#mg)" opacity=".45"/><circle cx="90" cy="150" r="42" fill="#f4f0ff"/>
+    <g fill="#08040e"><rect x="70" y="500" width="260" height="240"/><polygon points="60,500 200,400 340,500"/><rect x="56" y="440" width="46" height="100"/><polygon points="50,440 79,392 108,440"/><rect x="300" y="450" width="40" height="90"/><polygon points="294,450 320,410 346,450"/><rect x="180" y="440" width="50" height="60"/><polygon points="176,440 205,400 234,440"/></g>${win}
+    <path d="M360 800V620M360 680l-30-30M360 650l24-34M360 720l-34-22" stroke="#06020a" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="${_ridge(r,{base:748,amp:20,rough:.5}).fill}" fill="#06020a"/>`;};
 LOBBY_SCENES.galaxybase=()=>LOBBY_SCENES.galaxy(true);
 const _sceneCache={};
 function sceneUri(name){return _sceneCache[name]||(_sceneCache[name]=_sceneUri(LOBBY_SCENES[name]()));}
 
 // 画面の形（縦長・横長）で見える範囲が変わるので、各風景の「見せたい高さ」を決めておく（%）
-const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50,lanterns:55,redmoon:40};
+const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50,lanterns:55,redmoon:40,pumpkinfield:60,haunted:55};
 
 // ============================================================
 // 場の背景のアニメーション（風景の上に動きを重ねる）。座標は風景画と同じ 400x800 の世界で描く
@@ -4362,6 +4377,32 @@ FIELD_ANIMS.redmoon=function(){
     c.globalCompositeOperation='source-over';c.fillStyle='#12040a';
     for(const k of C){k.x+=k.v*dt;if(k.x-k.w>420)k.x=-k.w-20;c.globalAlpha=.55;c.beginPath();c.ellipse(k.x,k.y,k.w,k.w*.11,0,0,6.283);c.fill();}
     c.globalAlpha=1;
+  };
+};
+FIELD_ANIMS.pumpkinfield=function(){
+  const glow=glowSprite('255,150,40'),B=Array.from({length:6},()=>({x:_R(-40,440),y:_R(80,520),v:_R(.25,.55),ph:_R(0,6.28),s:_R(.8,1.3)})),
+    F=Array.from({length:34},()=>({x:_R(0,400),y:_R(380,820),vy:_R(.08,.3),ph:_R(0,6.28),s:_R(5,12)}));
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';
+    for(const f of F){f.y-=f.vy*dt;if(f.y<S.y0-10){f.y=S.y1+10;f.x=_R(0,400);}
+      c.globalAlpha=.35+.4*Math.sin(f.ph+now*.003);c.drawImage(glow,f.x+Math.sin(f.ph+now*.001)*8-f.s/2,f.y-f.s/2,f.s,f.s);}
+    c.globalCompositeOperation='source-over';c.fillStyle='#050208';c.globalAlpha=.95;
+    for(const b of B){b.x+=b.v*dt;if(b.x>440){b.x=-40;b.y=_R(80,520);}
+      const y=b.y+Math.sin(b.ph+now*.003)*14,f=Math.sin(now*.02+b.ph),w=16*b.s;
+      c.beginPath();c.moveTo(b.x,y);c.quadraticCurveTo(b.x-w*.5,y-9*f*b.s,b.x-w,y+2);c.quadraticCurveTo(b.x-w*.5,y+4,b.x,y+5);
+      c.quadraticCurveTo(b.x+w*.5,y+4,b.x+w,y+2);c.quadraticCurveTo(b.x+w*.5,y-9*f*b.s,b.x,y);c.fill();}
+    c.globalAlpha=1;
+  };
+};
+FIELD_ANIMS.haunted=function(){
+  const glow=glowSprite('220,210,255'),W=Array.from({length:7},()=>({x:_R(0,400),y:_R(380,760),vx:_R(.05,.18)*(Math.random()<.5?-1:1),ph:_R(0,6.28),s:_R(36,70)})),
+    L=_HAUNT_WIN.map(()=>({ph:_R(0,6.28),sp:_R(.002,.007)}));
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';
+    _HAUNT_WIN.forEach(([x,y],i)=>{const k=.55+.45*Math.sin(L[i].ph+now*L[i].sp);if(k<.42)return;c.globalAlpha=.5*k;c.drawImage(glow,x-12,y-8,40,40);});
+    for(const w of W){w.x+=w.vx*dt;if(w.x<-80)w.x=480;if(w.x>480)w.x=-80;
+      const y=w.y+Math.sin(w.ph+now*.0014)*18;c.globalAlpha=.2+.15*Math.sin(w.ph+now*.002);c.drawImage(glow,w.x-w.s/2,y-w.s/2,w.s,w.s*1.3);}
+    c.globalCompositeOperation='source-over';c.globalAlpha=1;
   };
 };
 function startFieldAnim(key,fy,fyL){
@@ -4709,6 +4750,8 @@ GICON_SVG.gi_pumpkin=function(){return _giSvg(_giLG('#1a0a28','#0a0414'),`<style
 GACHA_ITEMS.push(
   {id:'gi_pumpkin', rarity:'rare', category:'gicon', event:'halloween2026', icon:'🎃', title:'ジャックのかぼちゃ', desc:'アイコン：笑うかぼちゃ（動く・ハロウィン限定）', value:'gi_pumpkin'},
   {id:'title_ev_halloween2026', rarity:'rare', category:'title', event:'halloween2026', icon:'🎃', title:'ジャック・オー・ランタン', desc:'名前の横に称号が付きます（ハロウィン限定）', value:'ジャック・オー・ランタン'},
+  {id:'bg_pumpkinfield', rarity:'rare', category:'fieldbg', type:'scene', event:'halloween2026', icon:'🎃', title:'かぼちゃ畑の夜', desc:'場の背景：かぼちゃ畑と夕焼けの月（ハロウィン限定）', get value(){return sceneUri('pumpkinfield');}},
+  {id:'bg_haunted', rarity:'rare', category:'fieldbg', type:'scene', event:'halloween2026', icon:'🏚️', title:'お化け屋敷の夜', desc:'場の背景：月夜の洋館とさまよう霊（ハロウィン限定）', get value(){return sceneUri('haunted');}},
   {id:'theme_pumpkin', rarity:'rare', category:'theme', event:'halloween2026', icon:'🎃', title:'かぼちゃの裏地', desc:'牌の裏デザイン：かぼちゃ（ハロウィン限定）', value:'pumpkin'},
 );
 // ===== 期間限定イベント（期間を過ぎるとロビーのボタンも遊べる場所も自動で消える）=====
@@ -4716,7 +4759,7 @@ const EVENTS=[{
   id:'halloween2026', title:'ハロウィンナイト', icon:'🎃', start:'2026-10-19', end:'2026-11-01',
   rules:{sweetChance:.34, sweetMult:2, ronBonus:2},
   ruleText:['🍬 お菓子ラウンド：ときどき（3回に1回ほど）、その回の得点が2倍になります','👻 ロンの祝福：ロンで上がると、役の得点に＋2点されます'],
-  rewards:[{wins:3,petals:100},{wins:8,item:'gi_pumpkin'},{wins:15,item:'title_ev_halloween2026'},{wins:25,item:'theme_pumpkin'},{wins:40,petals:500}],
+  rewards:[{key:'r0',wins:3,petals:100},{key:'r1',wins:8,item:'gi_pumpkin'},{key:'r5',wins:12,item:'bg_pumpkinfield'},{key:'r2',wins:15,item:'title_ev_halloween2026'},{key:'r3',wins:25,item:'theme_pumpkin'},{key:'r6',wins:32,item:'bg_haunted'},{key:'r4',wins:40,petals:500}],
 }];
 function activeEvent(){const t=_loginToday();return EVENTS.find(e=>t>=e.start&&t<=e.end)||null;}
 function loadEventState(id){try{const s=JSON.parse(localStorage.getItem('rikka_event_'+id)||'{}');return{wins:s.wins||0,claimed:s.claimed||[]};}catch(e){return{wins:0,claimed:[]};}}
@@ -4738,13 +4781,13 @@ function openEventPanel(){
     <div style="font-size:.8rem;color:#ffa040;margin-top:.4rem">イベントだけのルール</div>${ev.ruleText.map(t=>`<div class="ev-rule">${t}</div>`).join('')}
     <div style="font-size:.8rem;color:#ffa040;margin-top:.6rem">イベント報酬（イベント戦で勝った回数）</div>
     <div style="font-size:.78rem;color:#c9a870">いまの勝利数：${st.wins}勝</div><div class="ev-bar"><i style="width:${Math.min(100,st.wins/max*100)}%"></i></div>${rw}
-    <div style="margin:.7rem 0 .4rem;font-size:.82rem;color:#c9a870">相手（CPU）の強さ：<select id="event-diff" class="fselect" style="width:auto;display:inline-block"><option value="easy">弱い</option><option value="normal" selected>普通</option><option value="hard">強い</option></select></div>
+    <div style="margin:.7rem 0 .4rem;font-size:.82rem;color:#c9a870">相手（CPU）：1体・強さは「普通」固定</div>
     <button class="mbtn" onclick="startEventGame()">${ev.icon} イベント戦をはじめる</button>
     <button class="mbtn" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020;margin-top:.4rem" onclick="document.getElementById('modal').classList.remove('open')">閉じる</button></div>`);
 }
 function startEventGame(){
   const ev=activeEvent();if(!ev)return;
-  const diff=document.getElementById('event-diff')?.value||'normal';
+  const diff='normal'; // イベント戦は常に「普通」
   document.getElementById('modal').classList.remove('open');
   const c=document.getElementById('bcnt'),d=document.getElementById('bdiff'),oc=c.value,od=d.value;
   c.value='1';d.value=diff;startGame();c.value=oc;d.value=od;
@@ -4778,7 +4821,7 @@ function eventOnWin(){
   const st=loadEventState(ev.id),out=[];
   st.wins++;
   ev.rewards.forEach((r,i)=>{
-    const key='r'+i;if(st.wins<r.wins||st.claimed.includes(key))return;
+    const key=r.key||('r'+i);if(st.wins<r.wins||st.claimed.includes(key))return;
     st.claimed.push(key);
     if(r.petals)addPetals(r.petals);else grantItem(r.item);
     out.push(eventRewardText(r));
