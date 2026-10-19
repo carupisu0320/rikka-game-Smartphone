@@ -536,6 +536,15 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 #giftbox-lobby-btn .giftbox-dot{width:8px;height:8px;border-radius:50%;background:#ff4040;
   box-shadow:0 0 6px rgba(255,64,64,.8);animation:assistPulse 1s infinite}
 @keyframes giftBlink{0%,100%{filter:none;box-shadow:0 2px 10px rgba(0,0,0,.4)}50%{filter:brightness(1.5);box-shadow:0 0 16px 4px rgba(255,208,112,.9)}}
+#event-lobby-btn{position:absolute;top:5.55rem;right:.75rem;z-index:50;display:none;align-items:center;gap:.35rem;padding:.45rem .85rem;border-radius:20px;
+  background:linear-gradient(135deg,#ff9a30,#b04a08);border:none;color:#2a1000;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.4);animation:evGlow 2s ease-in-out infinite}
+@keyframes evGlow{0%,100%{box-shadow:0 2px 10px rgba(0,0,0,.4)}50%{box-shadow:0 0 16px 3px rgba(255,150,40,.85)}}
+#event-badge{display:none;position:fixed;top:.35rem;left:50%;transform:translateX(-50%);z-index:60;padding:.15rem .8rem;border-radius:12px;background:rgba(40,16,2,.85);border:1px solid #ff9a30;color:#ffc070;font-size:.72rem;font-weight:700;pointer-events:none;white-space:nowrap}
+.ev-box{text-align:left}.ev-rule{font-size:.82rem;color:#e8c9a0;margin:.25rem 0}
+.ev-rw{display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;margin:.25rem 0;border:1px solid #3a2410;border-radius:8px;font-size:.82rem;color:#c9a870}
+.ev-rw.got{border-color:#ff9a30;color:#ffd090;background:rgba(255,150,40,.1)}.ev-rw b{min-width:3.6rem;color:#ffa040}
+.ev-bar{height:8px;border-radius:4px;background:#2a1a0c;overflow:hidden;margin:.3rem 0 .6rem}.ev-bar i{display:block;height:100%;background:linear-gradient(90deg,#ff9a30,#ffd060)}
 #giftbox-lobby-btn.giftbox-blink{animation:giftBlink 1s infinite}
 .gacha-wrap{flex:1;display:flex;flex-direction:column;min-height:0;padding:.9rem 1rem;box-sizing:border-box}
 .gacha-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.75rem;flex-shrink:0;padding-left:2.9rem}
@@ -1133,6 +1142,10 @@ body.back-crimson .fback::after,.pv-crimson .fback::after{color:rgba(255,150,160
 @keyframes backGlitch{0%,88%,100%{transform:translate(-50%,-50%);text-shadow:none}90%{transform:translate(calc(-50% + 2px),-50%);text-shadow:-2px 0 #f0f,2px 0 #0ff}93%{transform:translate(calc(-50% - 2px),-50%)}96%{transform:translate(calc(-50% + 1px),calc(-50% - 1px));text-shadow:2px 0 #f0f,-2px 0 #0ff}}
 @keyframes backGrid{to{background-position:8px 8px}}
 @keyframes backBeat{0%,100%{opacity:.35}18%{opacity:1}36%{opacity:.5}54%{opacity:.9}}
+body.back-pumpkin .fback{background:radial-gradient(circle at 50% 45%,#ff9a30,#b84a08 70%,#4a1a04);border-color:#ffb040}
+body.back-pumpkin .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(70,20,0,.35) 5px 6px)}
+body.back-pumpkin .fback::after{content:'🎃';font-size:.8rem;color:#ffd060;animation:backFlicker 1.6s ease-in-out infinite}
+@keyframes backFlicker{0%,100%{opacity:.85}45%{opacity:1}60%{opacity:.55}}
 @keyframes backTwinkle{0%,100%{opacity:.5}50%{opacity:1}}
 body.back-dragon .fback{background:linear-gradient(165deg,#0a3a24 0%,#031810 100%);border-color:#d8b04a}
 body.back-dragon .fback::before{background:radial-gradient(circle at 50% 100%,transparent 52%,rgba(216,176,74,.26) 54%,transparent 58%);background-size:12px 8px}
@@ -1259,8 +1272,11 @@ font-weight:700;padding:0 2px;align-self:center}
 
 <button id="gacha-lobby-btn" onclick="openGacha()">🌸 ガチャ <span id="gacha-lobby-petals">0</span></button>
 
+<button id="event-lobby-btn" onclick="openEventPanel()"></button>
+
 <button id="giftbox-lobby-btn" onclick="openGiftbox()">📦 お届けBOX<span id="giftbox-dot-wrap"></span></button>
 
+<div id="event-badge"></div>
 <div id="lobby-fx"></div>
 <div class="lobby-inner">
 
@@ -3619,8 +3635,9 @@ function isGameOver(players, goal){
   return players.some(p => p.score >= (goal || WIN_SCORE));
 }
 function processWin(pi,res){
-  G.phase='roundEnd';const bonus=(res.noBonus?0:countZorome(G.players[pi].hand))+(G.players[pi].riichi?1:0);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
+  G.phase='roundEnd';eventModify(pi,res);const bonus=(res.noBonus?0:countZorome(G.players[pi].hand))+(G.players[pi].riichi?1:0);res.bonus=bonus;G.players[pi].score+=res.pts+bonus;
   saveHistory(makeHistoryEntry(pi===myOnlineIdx,res.role,res.pts+bonus,onlineMode,G.players.map(p=>p.name)));
+  if(G.event&&pi===myOnlineIdx)res.evRewards=eventOnWin();
   const _newAch=checkAchievements(pi===myOnlineIdx,{role:res.role,bonus,ron:!!res.ron,riichi:!!G.players[pi].riichi,online:false,diff:(G.players.find(p=>p.isBot)||{}).diff,total:res.pts+bonus});
   if(onlineMode)addPetals(1+(pi===myOnlineIdx?2:0)+_newAch.length*5); else botGamePetals(pi,_newAch.length*5);
   const optR=G?.optRoles??null;
@@ -3659,11 +3676,12 @@ const tiles=p.hand.map(t=>tileHTML(t,'','tile htile')).join(''),bonus=res.bonus|
 
 const bLine=bonus>0?`<div style="font-size:.85rem;color:#f5d040;margin-bottom:.6rem">★ 輝きボーナス ×${bonus} = +${bonus}点</div>`:'';
 const petalLine=(!onlineMode&&_lastPetalGain>0)?`<div style="font-size:.85rem;color:#ff9ec8;margin:.3rem 0">🌸 花びら +${_lastPetalGain}</div>`:'';_lastPetalGain=0;
+const evLine=(res.evNotes||[]).map(n=>`<div style="font-size:.85rem;color:#ffa040;margin:.2rem 0">${n}</div>`).join('')+((res.evRewards||[]).length?`<div style="font-size:.88rem;color:#ffd060;margin:.3rem 0">🎃 イベント報酬：${res.evRewards.map(esc).join('、')}</div>`:'');
 const ronLine=res.ron?`<div style="font-size:.85rem;color:#e0a020;margin:.3rem 0">⚡ ロン！（${esc(res.ronFrom||'')} の捨て牌）</div>`:'';
 const riichiLine=(res.bonus>0&&p.riichi)?`<div style="font-size:.82rem;color:#f5d040">🀄 リーチボーナス +1点含む</div>`:'';
 
 const _wTitle=p.isBot?(BOT_TITLE_BY_DIFF[p.diff]||''):myTitleId();
-document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div>${titleBadgeHtml(_wTitle)}<p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${petalLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
+document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div>${titleBadgeHtml(_wTitle)}<p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${petalLine}${evLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
 
 document.getElementById('modal').classList.add('open');
 
@@ -3675,12 +3693,12 @@ ${tsuideList.length>0?`
 ${tsuideList.map(t=>`<div style="font-size:.82rem;color:#e8c97a;margin:.2rem 0">${esc(t.name)}：${t.role}（${t.pts}点${t.bonus>0?'＋★×'+t.bonus:''}）→ +${t.total}点</div>`).join('')}`:''}
 <button class="mbtn" onclick="doRematchBot()"
 style="background:linear-gradient(135deg,#2a9e8e,#1a6e60);color:#e0fff8;margin-bottom:.5rem">🔄 リマッチ</button><button class="mbtn" onclick="goLobby()" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020">🏠 タイトルへ戻る</button>`;}
-function doNextRound(){document.getElementById('modal').classList.remove('open');clearRonWindow();showRiichiBtn(false);dealRound();G.players.forEach(p=>p.riichi=false);render();if(G.players[G.turn].isBot)scheduleBot();}
+function doNextRound(){document.getElementById('modal').classList.remove('open');clearRonWindow();showRiichiBtn(false);dealRound();eventNewRound();G.players.forEach(p=>p.riichi=false);render();if(G.players[G.turn].isBot)scheduleBot();}
 function doRematchBot(){
   document.getElementById('modal').classList.remove('open');
   clearRonWindow();showRiichiBtn(false);
   G.players.forEach(p=>{p.score=0;p.riichi=false;});
-  dealRound();
+  dealRound();eventNewRound();
   render();
   if(G.players[G.turn].isBot)scheduleBot();
 }
@@ -3862,7 +3880,7 @@ function grantItem(id){
   }catch(e){return false;}
 }
 function realOwnedGachaCount(){
-  try{const raw=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');return (raw.owned||[]).filter(id=>{const it=GACHA_ITEMS.find(x=>x.id===id);return it&&!it.achievement&&!it.loginStar&&!it.limited;}).length;}catch(e){return 0;}
+  try{const raw=JSON.parse(localStorage.getItem('rikka_gacha')||'{}');return (raw.owned||[]).filter(id=>{const it=GACHA_ITEMS.find(x=>x.id===id);return it&&!it.achievement&&!it.loginStar&&!it.limited&&!it.event;}).length;}catch(e){return 0;}
 }
 // すでに解除済みの実績の報酬を受け取れていなければ渡す（この機能の追加前に解除した人向け）
 function backfillAchievementRewards(){
@@ -4680,6 +4698,96 @@ GACHA_ITEMS.push(
   {id:'gi_redmoon', rarity:'rare',     category:'gicon', limited:1, icon:'🌑', title:'赤い月',           desc:'アイコン：脈打つ赤い月（動く・期間限定）', value:'gi_redmoon'},
   {id:'gi_skull',   rarity:'rare',     category:'gicon', limited:1, icon:'💀', title:'ゲームオーバー',   desc:'アイコン：ドット絵のドクロ（動く・期間限定）', value:'gi_skull'},
 );
+// ===== イベント限定の景品（ガチャには出ない。イベントの報酬だけ）=====
+GICON_SVG.gi_pumpkin=function(){return _giSvg(_giLG('#1a0a28','#0a0414'),`<style>@keyframes fly{from{transform:translate(-24px,6px)}to{transform:translate(124px,-6px)}}@keyframes flap{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.25)}}@keyframes cand{0%,100%{opacity:.75}40%{opacity:1}60%{opacity:.55}}</style>
+  <circle cx="50" cy="58" r="40" fill="#ff8a20" opacity=".3" class="o" style="animation:pulse 2s ease-in-out infinite"/>
+  <ellipse cx="34" cy="60" rx="18" ry="24" fill="#e86a10"/><ellipse cx="66" cy="60" rx="18" ry="24" fill="#e86a10"/><ellipse cx="50" cy="60" rx="20" ry="26" fill="#ff9a30"/>
+  <path d="M50 36q-3 8 0 16M38 38q-5 10-2 22M62 38q5 10 2 22" stroke="#b84a08" stroke-width="1.6" fill="none" opacity=".6"/>
+  <g style="transform-box:fill-box;transform-origin:50% 100%;animation:sway 3s ease-in-out infinite"><rect x="47" y="26" width="6" height="12" rx="2" fill="#4a8a2a"/></g>
+  <g style="animation:cand 1.5s ease-in-out infinite"><polygon points="36,52 44,52 40,60" fill="#ffe070"/><polygon points="56,52 64,52 60,60" fill="#ffe070"/><path d="M36 68l5 5 4-5 5 5 4-5 5 5 5-5" stroke="#ffe070" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/></g>
+  <g style="animation:fly 6s linear infinite"><g class="o" style="animation:flap .35s ease-in-out infinite"><path d="M0 14q-8-8-14-2q5 0 7 5q-3 0-6 3q6-2 9 2q3-5 4-8z M0 14q8-8 14-2q-5 0-7 5q3 0 6 3q-6-2-9 2q-3-5-4-8z" fill="#050208" transform="translate(0 0)"/></g></g>`);};
+GACHA_ITEMS.push(
+  {id:'gi_pumpkin', rarity:'rare', category:'gicon', event:'halloween2026', icon:'🎃', title:'ジャックのかぼちゃ', desc:'アイコン：笑うかぼちゃ（動く・ハロウィン限定）', value:'gi_pumpkin'},
+  {id:'title_ev_halloween2026', rarity:'rare', category:'title', event:'halloween2026', icon:'🎃', title:'ジャック・オー・ランタン', desc:'名前の横に称号が付きます（ハロウィン限定）', value:'ジャック・オー・ランタン'},
+  {id:'theme_pumpkin', rarity:'rare', category:'theme', event:'halloween2026', icon:'🎃', title:'かぼちゃの裏地', desc:'牌の裏デザイン：かぼちゃ（ハロウィン限定）', value:'pumpkin'},
+);
+// ===== 期間限定イベント（期間を過ぎるとロビーのボタンも遊べる場所も自動で消える）=====
+const EVENTS=[{
+  id:'halloween2026', title:'ハロウィンナイト', icon:'🎃', start:'2026-10-19', end:'2026-11-01',
+  rules:{sweetChance:.34, sweetMult:2, ronBonus:2},
+  ruleText:['🍬 お菓子ラウンド：ときどき（3回に1回ほど）、その回の得点が2倍になります','👻 ロンの祝福：ロンで上がると、役の得点に＋2点されます'],
+  rewards:[{wins:3,petals:100},{wins:8,item:'gi_pumpkin'},{wins:15,item:'title_ev_halloween2026'},{wins:25,item:'theme_pumpkin'},{wins:40,petals:500}],
+}];
+function activeEvent(){const t=_loginToday();return EVENTS.find(e=>t>=e.start&&t<=e.end)||null;}
+function loadEventState(id){try{const s=JSON.parse(localStorage.getItem('rikka_event_'+id)||'{}');return{wins:s.wins||0,claimed:s.claimed||[]};}catch(e){return{wins:0,claimed:[]};}}
+function saveEventState(id,s){try{localStorage.setItem('rikka_event_'+id,JSON.stringify(s));}catch(e){}}
+function eventRewardText(r){return r.petals?`🌸 花びら ${r.petals}枚`:(()=>{const it=GACHA_ITEMS.find(x=>x.id===r.item);return it?`${it.icon} ${it.title}`:'';})();}
+function updateEventBtn(){
+  const b=document.getElementById('event-lobby-btn');if(!b)return;
+  const ev=activeEvent();
+  if(!ev){b.style.display='none';return;}
+  const left=Math.max(0,Math.round((new Date(ev.end+'T23:59:59')-new Date())/86400000));
+  b.style.display='flex';b.innerHTML=`${ev.icon} ${esc(ev.title)}<small style="font-weight:600;opacity:.8">あと${left+1}日</small>`;
+}
+function openEventPanel(){
+  const ev=activeEvent();if(!ev){updateEventBtn();return;}
+  const st=loadEventState(ev.id),max=ev.rewards[ev.rewards.length-1].wins;
+  const rw=ev.rewards.map(r=>{const got=st.wins>=r.wins;return `<div class="ev-rw${got?' got':''}"><b>${r.wins}勝</b><span style="flex:1">${eventRewardText(r)}</span>${got?'✔':''}</div>`;}).join('');
+  showModal(`<div class="ev-box"><div class="mtitle">${ev.icon} ${esc(ev.title)}</div>
+    <div style="font-size:.78rem;color:#c9a870;margin-bottom:.5rem">開催期間：${ev.start.slice(5).replace('-','/')} 〜 ${ev.end.slice(5).replace('-','/')}（この期間だけ遊べます）</div>
+    <div style="font-size:.8rem;color:#ffa040;margin-top:.4rem">イベントだけのルール</div>${ev.ruleText.map(t=>`<div class="ev-rule">${t}</div>`).join('')}
+    <div style="font-size:.8rem;color:#ffa040;margin-top:.6rem">イベント報酬（イベント戦で勝った回数）</div>
+    <div style="font-size:.78rem;color:#c9a870">いまの勝利数：${st.wins}勝</div><div class="ev-bar"><i style="width:${Math.min(100,st.wins/max*100)}%"></i></div>${rw}
+    <div style="margin:.7rem 0 .4rem;font-size:.82rem;color:#c9a870">相手（CPU）の強さ：<select id="event-diff" class="fselect" style="width:auto;display:inline-block"><option value="easy">弱い</option><option value="normal" selected>普通</option><option value="hard">強い</option></select></div>
+    <button class="mbtn" onclick="startEventGame()">${ev.icon} イベント戦をはじめる</button>
+    <button class="mbtn" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020;margin-top:.4rem" onclick="document.getElementById('modal').classList.remove('open')">閉じる</button></div>`);
+}
+function startEventGame(){
+  const ev=activeEvent();if(!ev)return;
+  const diff=document.getElementById('event-diff')?.value||'normal';
+  document.getElementById('modal').classList.remove('open');
+  const c=document.getElementById('bcnt'),d=document.getElementById('bdiff'),oc=c.value,od=d.value;
+  c.value='1';d.value=diff;startGame();c.value=oc;d.value=od;
+  G.event={id:ev.id,sweet:false};eventNewRound();
+}
+function eventNewRound(){
+  if(!G||!G.event)return;
+  const ev=EVENTS.find(e=>e.id===G.event.id);if(!ev)return;
+  G.event.sweet=Math.random()<ev.rules.sweetChance;
+  updateEventBadge();
+  if(G.event.sweet)setTimeout(()=>toast('🍬 お菓子ラウンド！この回の得点は2倍'),2200);
+}
+function updateEventBadge(){
+  const el=document.getElementById('event-badge');if(!el)return;
+  const g=document.getElementById('game');
+  if(G&&G.event&&g&&g.classList.contains('active')){const ev=EVENTS.find(e=>e.id===G.event.id);el.style.display='block';el.textContent=`${ev?ev.icon:''} ${ev?ev.title:''}${G.event.sweet?'　🍬 得点×'+ev.rules.sweetMult:''}`;}
+  else el.style.display='none';
+}
+// 上がったときの、イベント独自ルール（得点の補正）
+function eventModify(pi,res){
+  if(!G||!G.event)return;
+  const ev=EVENTS.find(e=>e.id===G.event.id);if(!ev)return;
+  const notes=[];
+  if(res.ron&&ev.rules.ronBonus){res.pts+=ev.rules.ronBonus;notes.push(`👻 ロンの祝福 +${ev.rules.ronBonus}点`);}
+  if(G.event.sweet){res.pts*=ev.rules.sweetMult;notes.push(`🍬 お菓子ラウンド 得点×${ev.rules.sweetMult}`);}
+  res.evNotes=notes;
+}
+// 自分が上がったときの、イベントの勝利数と報酬
+function eventOnWin(){
+  const ev=activeEvent();if(!ev||!G||!G.event||G.event.id!==ev.id)return [];
+  const st=loadEventState(ev.id),out=[];
+  st.wins++;
+  ev.rewards.forEach((r,i)=>{
+    const key='r'+i;if(st.wins<r.wins||st.claimed.includes(key))return;
+    st.claimed.push(key);
+    if(r.petals)addPetals(r.petals);else grantItem(r.item);
+    out.push(eventRewardText(r));
+  });
+  saveEventState(ev.id,st);
+  return out;
+}
+window.addEventListener('load',()=>{updateEventBtn();setInterval(()=>{updateEventBtn();updateEventBadge();},1500);});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateEventBtn();});
 // ガチャ・図鑑・結果画面に出す景品アイコン（アイコン景品は動く画像）
 function itemIconHtml(it){
   return it.category==='gicon'?`<img src="${giconUri(it.value)}" alt="" style="width:1.2em;height:1.2em;border-radius:50%;vertical-align:middle">`:it.icon;
@@ -4722,7 +4830,7 @@ function gachaPool(rarity,banner){
     const p=GACHA_ITEMS.filter(it=>it.rarity===rarity&&(it.limited||LIMITED_GACHA.existing.includes(it.id)));
     if(p.length)return p;
   }
-  return GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar&&!it.limited&&!it.limited);
+  return GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar&&!it.limited&&!it.event&&!it.limited);
 }
 backfillAchievementRewards();
 const GACHA_RARITY_INFO={
@@ -5133,7 +5241,7 @@ function renderGachaCollection(){
   const owned=new Set(st.owned);
   const groups={};
   const _lim=_gachaView==='limited';
-  GACHA_ITEMS.filter(it=>_lim?(it.limited||LIMITED_GACHA.existing.includes(it.id)):(!it.achievement&&!it.loginStar&&!it.limited)).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
+  GACHA_ITEMS.filter(it=>_lim?(it.limited||LIMITED_GACHA.existing.includes(it.id)):(!it.achievement&&!it.loginStar&&!it.limited&&!it.event)).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
   let html='';
   for(const [rarity,info] of Object.entries(GACHA_RARITY_INFO)){
     const items=groups[rarity]||[];
@@ -5250,6 +5358,7 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
+  {id:'info_event_halloween2026', info:true, title:'🎃 ハロウィンナイト開催！', desc:'ロビーの「🎃 ハロウィンナイト」から遊べるイベント戦です（10/19 〜 11/1）。\nイベントだけのルール（お菓子ラウンド・ロンの祝福）と、勝利数に応じた限定報酬があります。期間が終わるとイベントは消えます。'},
   {id:'info_limited_gacha1', info:true, title:'✨ 期間限定ガチャ開催！', desc:'ガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n開催期間：10/19 〜 11/2\n最高レアは場の背景「Game Over Ⅲ・Ⅳ」。ほかに新しい牌の裏・場の背景・動くアイコン、称号「国富平針店のバイト」が出ます。'},
   {id:'info_update_login_draw', info:true, title:'🛠 アップデート内容', desc:'・毎日ログインボーナスを追加（花びら50枚／7日ごとに称号「日々の花」、次の7日ごとに★が増えます）\n・全員リーチで誰も上がれなくなった場合、引き分けになって次のラウンドへ進むようにしました（CPU戦・オンライン対戦とも）'},
 ];
@@ -5884,7 +5993,7 @@ const BASE_BACK_THEMES=[
   {v:'green', label:'翠',   c1:'#0a2010', bd:'#2a6a3a'},
   {v:'purple',label:'紫',   c1:'#1a0a2e', bd:'#5a2a8a'},
 ];
-const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a'],jade:['#0a2e26','#2aa88a'],ice:['#0e2a3e','#7ac8e8'],ember:['#4a1408','#e0682a'],obsidian:['#1a1a22','#6a6a7a'],galaxy:['#1a1048','#6a5ad8'],rainbow:['#3a2a6a','#d8a8ff'],dragon:['#0a3a24','#d8b04a'],warning:['#3a1010','#e04040'],glitch:['#10141c','#40d8c8'],neongrid:['#1a0a30','#d040ff'],crimson:['#3a0610','#ff5060']};
+const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a'],jade:['#0a2e26','#2aa88a'],ice:['#0e2a3e','#7ac8e8'],ember:['#4a1408','#e0682a'],obsidian:['#1a1a22','#6a6a7a'],galaxy:['#1a1048','#6a5ad8'],rainbow:['#3a2a6a','#d8a8ff'],dragon:['#0a3a24','#d8b04a'],warning:['#3a1010','#e04040'],glitch:['#10141c','#40d8c8'],neongrid:['#1a0a30','#d040ff'],crimson:['#3a0610','#ff5060'],pumpkin:['#4a2008','#ff8a20']};
 let customizeTab='theme';
 function openCustomize(tab){
   closeSidebar();
@@ -5911,7 +6020,7 @@ function renderCustomize(){
     let h=`<div class="custom-sub">${isC?'上がった時の紙吹雪':'名前の横に表示される称号'}</div><div class="custom-list">`;
     h+=`<button class="custom-row${eq?'':' sel'}" onclick="selectGachaEquip('${cat}','')">
       <div class="ic">${isC?'🎉':'➖'}</div><div class="tx">${isC?'通常':'なし'}</div>${eq?'':'<span class="chk">✔</span>'}</button>`;
-    h+=GACHA_ITEMS.filter(it=>it.category===cat&&((!it.loginStar&&!it.limited)||owned.has(it.id))).map(it=>{
+    h+=GACHA_ITEMS.filter(it=>it.category===cat&&((!it.loginStar&&!it.limited&&!it.event)||owned.has(it.id))).map(it=>{
       const has=owned.has(it.id);
       const sel=has&&eq===it.id;
       const dots=(isC&&has)?`<div class="dots">${it.value.map(c=>`<i style="background:${c}"></i>`).join('')}</div>`:'';
@@ -5927,7 +6036,7 @@ function renderCustomize(){
     const eq=st.equipped.gicon||'';
     let h=`<div class="custom-sub">ガチャで出たアイコンを、プロフィールのアイコンにできます（対戦相手にも動いて見えます）</div><div class="custom-list">`;
     h+=`<button class="custom-row${eq?'':' sel'}" onclick="selectGachaEquip('gicon','')"><div class="ic">👤</div><div class="tx">ふだんのアイコン<div class="ds">プロフィールで設定した画像（なければGoogleのアイコン）</div></div>${eq?'':'<span class="chk">✔</span>'}</button>`;
-    h+=GACHA_ITEMS.filter(it=>it.category==='gicon'&&(!it.limited||owned.has(it.id))).map(it=>{
+    h+=GACHA_ITEMS.filter(it=>it.category==='gicon'&&((!it.limited&&!it.event)||owned.has(it.id))).map(it=>{
       const has=owned.has(it.id),sel=has&&eq===it.id;
       return `<button class="custom-row${sel?' sel':''}${has?'':' locked'}" ${has?`onclick="selectGachaEquip('gicon','${it.id}')"`:''}>
         <div class="ic">${has?itemIconHtml(it):'🔒'}</div>
@@ -5952,7 +6061,7 @@ function renderCustomize(){
     h+=BASE_BACK_THEMES.map(t=>`<button class="custom-card${cur===t.v?' sel':''}" onclick="selectBackTheme('${t.v}','')">
       ${cur===t.v?'<span class="chk">✔</span>':''}<div class="sw" style="background:${t.c1};border-color:${t.bd}"></div><div class="nm">${t.label}</div></button>`).join('');
     h+='</div><div class="custom-sub">ガチャで手に入れた裏柄</div><div class="custom-grid">';
-    h+=GACHA_ITEMS.filter(it=>it.category==='theme').map(it=>{
+    h+=GACHA_ITEMS.filter(it=>it.category==='theme'&&((!it.limited&&!it.event)||owned.has(it.id))).map(it=>{
       const has=owned.has(it.id);
       const sw=GACHA_THEME_SWATCH[it.value]||['#2a1e12','#5a4028'];
       const sel=has&&cur===it.value;
@@ -5969,7 +6078,7 @@ function renderCustomize(){
     let h='<div class="custom-sub">場の背景（自分の番のとき）</div><div class="custom-grid">';
     h+=`<button class="custom-card${noneSel?' sel':''}" onclick="selectFieldBgPreset('')">
       ${noneSel?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:#1a1410">🟫</div><div class="nm">デフォルト</div></button>`;
-    h+=GACHA_ITEMS.filter(it=>it.category==='fieldbg').map(it=>{
+    h+=GACHA_ITEMS.filter(it=>it.category==='fieldbg'&&((!it.limited&&!it.event)||owned.has(it.id))).map(it=>{
       const has=owned.has(it.id);
       const sel=has&&!hasCustom&&eq===it.id;
       const bg=!has?'#1a1410':fieldBgPreviewCss(it);
