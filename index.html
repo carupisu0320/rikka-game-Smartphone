@@ -2440,7 +2440,7 @@ function roomCardHtml(p,i,isMe,isNew,isHost){
 }
 function showRoomWait(d){
   const names=d.players||[],infos=(d.infos&&d.infos.length===names.length)?d.infos:names.map(n=>({name:n}));
-  const you=Number.isInteger(d.you)?d.you:0,max=d.max||4,isHost=you===0;
+  const you=Number.isInteger(d.you)?d.you:0,max=d.max||5,isHost=you===0;
   let el=document.getElementById('room-wait');
   const created=!el;
   if(created){
@@ -5730,6 +5730,7 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
+  {id:'info_fix_security', info:true, title:'🛠 不具合の修正と安全対策', desc:'【修正】\n・ガチャ画面を開き直したとき、引く場所と中身の一覧が食い違うことがあった不具合を直しました\n・5人で遊ぶ部屋の待機画面が、4人分しか表示されていなかった不具合を直しました\n・動く牌の裏を設定していると、期間限定ガチャの一覧の牌の裏が別の柄に見えていた不具合を直しました\n【安全対策】\n・対戦相手にも見えるアイコン・場の背景の画像は、Google・GitHub・Imgur・Discord・ibb.co のものだけ表示されます（それ以外のサイトの画像は、相手には表示されません。自分の画面には出ます）\n・プレイヤー名は20文字までになりました\n・連打や、形のおかしい通信を受けても、サーバーが止まらないようにしました\n【確認】\n・六華はPHPを使っていないため、PHPの脆弱性の影響は受けません（確認済み）'},
   {id:'info_room5', info:true, title:'👥 プライベートマッチが最大5人に', desc:'プライベートマッチ（部屋コードで遊ぶ対戦）に、最大5人まで参加できるようになりました。2人以上そろえば、ホストが開始できます。'},
   {id:'info_assist_pause', info:true, title:'🛠 アシスト機能について', desc:'アシスト機能は、全容が完成するまで、いったんお休みします（サイドバーの「アシスト」を非表示にしました）。完成して公開するときに、あらためてお知らせします。'},
   {id:'info_fix_ltd_preview', info:true, title:'🛠 不具合の修正', desc:'動く牌の裏の柄をカスタマイズで設定していると、期間限定ガチャの景品一覧に並ぶ牌の裏の柄が、設定中の柄に置き換わって表示されてしまう不具合を修正しました。一覧では、それぞれの景品本来の柄が表示されます。'},
