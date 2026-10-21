@@ -15,6 +15,7 @@ const rooms = new Map();  // roomCode → room
 const queue = [];         // クイックマッチ待機列
 
 // ── 牌 42枚 ──
+const MAX_ROOM_PLAYERS = 5; // プライベートルームの最大人数
 function makeDeck() {
   const d = []; let id = 0;
   for (let t = 1; t <= 6; t++)
@@ -237,6 +238,20 @@ function sanitizeAvatar(url) {
 // 称号（ガチャの景品ID）。許可リストにあるIDだけ通す
 const TITLE_IDS = new Set(['title_first', 'title_zoro', 'title_apprentice', 'title_fate', 'title_sight', 'title_mountain', 'title_rikka', 'title_legend', 'title_king']);
 // 実績の報酬の称号は 'title_a_<実績ID>' の形
+// 演出（リーチ・ロン・上がり）の選択。許可した名前だけを通す
+const FX_STYLE_IDS = {
+  riichi: new Set(['default', 'flame', 'sakura', 'ice', 'thunder', 'forest']),
+  ron:    new Set(['default', 'crimson', 'void', 'gold', 'ocean', 'jade']),
+  win:    new Set(['default', 'fireworks', 'confetti', 'star', 'royal', 'rainbow']),
+};
+function sanitizeFx(fx) {
+  const o = {};
+  for (const k of Object.keys(FX_STYLE_IDS)) {
+    const v = fx && typeof fx[k] === 'string' ? fx[k] : '';
+    o[k] = FX_STYLE_IDS[k].has(v) ? v : 'default';
+  }
+  return o;
+}
 function sanitizeTitle(id) { return (typeof id === 'string' && (TITLE_IDS.has(id) || /^title_a_[a-z0-9_]{1,30}$/.test(id) || /^title_login_[0-9]{1,3}$/.test(id) || /^title_ev_[a-z0-9_]{1,30}$/.test(id) || id === 'title_gameovera')) ? id : ''; }
 function genCode() {
   let c;
@@ -262,7 +277,7 @@ function sendState(room) {
       turn:      room.turn,
       tphase:    room.tphase,
       phase:     room.phase,
-      scores:    room.players.map(p => ({ name: p.name, score: p.score, fieldBg: p.fieldBg || '', avatar: p.avatar || '', title: p.title || '', riichi: p.riichi || false })),
+      scores:    room.players.map(p => ({ name: p.name, score: p.score, fieldBg: p.fieldBg || '', avatar: p.avatar || '', title: p.title || '', fx: p.fx || null, riichi: p.riichi || false })),
       oppCounts: room.players.map((p, i) => i === myIdx ? -1 : p.hand.length),
       code:      room.code,
       optRoles:  room.roles !== undefined ? room.roles : null,
@@ -281,9 +296,9 @@ function findRoom(sid) {
 io.on('connection', socket => {
 
   // クイックマッチ
-  socket.on('quickmatch', ({ name, fieldBg, avatar, title }) => {
+  socket.on('quickmatch', ({ name, fieldBg, avatar, title, fx }) => {
     if (queue.find(q => q.id === socket.id)) return;
-    queue.push({ id: socket.id, name, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title) });
+    queue.push({ id: socket.id, name, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx) });
     socket.emit('queued', { pos: queue.length });
 
 if (queue.length >= 2) {
@@ -293,8 +308,8 @@ if (queue.length >= 2) {
     code, host: p1.id,
     roles: [], // クイックマッチ: 基本役のみ
     players: [
-      { id: p1.id, name: p1.name, hand: [], score: 0, fieldBg: p1.fieldBg || '', avatar: p1.avatar || '', title: p1.title || '' },
-      { id: p2.id, name: p2.name, hand: [], score: 0, fieldBg: p2.fieldBg || '', avatar: p2.avatar || '', title: p2.title || '' },
+      { id: p1.id, name: p1.name, hand: [], score: 0, fieldBg: p1.fieldBg || '', avatar: p1.avatar || '', title: p1.title || '', fx: p1.fx },
+      { id: p2.id, name: p2.name, hand: [], score: 0, fieldBg: p2.fieldBg || '', avatar: p2.avatar || '', title: p2.title || '', fx: p2.fx },
     ],
     field: [], turn: 0, tphase: 'pick', phase: 'playing',
   };
@@ -330,7 +345,7 @@ if (queue.length >= 2) {
   }
 
   // ルーム作成
-socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avatar, title }) => {
+socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avatar, title, fx }) => {
     const code = genCode();
     rooms.set(code, {
       code, host: socket.id,
@@ -338,7 +353,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
       goal: [5,10,15,20,30].includes(goal) ? goal : 10,
       useRiichi: useRiichi || false,
       useRon: useRon || false,
-      players: [{ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title) }],
+      players: [{ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx) }],
       field: [], turn: 0, tphase: 'pick', phase: 'waiting',
     });
     socket.join(code);
@@ -347,15 +362,15 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
   });
 
   // ルーム参加
-  socket.on('join_room', ({ name, code, fieldBg, avatar, title }) => {
+  socket.on('join_room', ({ name, code, fieldBg, avatar, title, fx }) => {
     const c = (code || '').toUpperCase().trim();
     const room = rooms.get(c);
     if (!room)                    { socket.emit('err', '部屋が見つかりません'); return; }
     if (room.phase !== 'waiting') { socket.emit('err', 'ゲームはすでに始まっています'); return; }
-    if (room.players.length >= 4) { socket.emit('err', '部屋が満員です'); return; }
+    if (room.players.length >= MAX_ROOM_PLAYERS) { socket.emit('err', `部屋が満員です（最大${MAX_ROOM_PLAYERS}人）`); return; }
     if (room.players.some(p => p.id === socket.id)) { socket.emit('err', 'すでに参加しています'); return; }
     if (room.players.some(p => p.name === name)) { socket.emit('err', 'この名前はすでに使われています'); return; }
-    room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title) });
+    room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx) });
     socket.join(c);
     emitRoomUpdate(room, name, '');
   });
@@ -375,6 +390,16 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     const pi = room.players.findIndex(p => p.id === socket.id);
     if (pi === -1) return;
     room.players[pi].title = sanitizeTitle(id);
+    if (room.phase !== 'waiting') sendState(room);
+  });
+
+  // 演出を変更（対局中でも変更可能）
+  socket.on('set_fx', ({ code, fx }) => {
+    const room = rooms.get(code);
+    if (!room) return;
+    const pi = room.players.findIndex(p => p.id === socket.id);
+    if (pi === -1) return;
+    room.players[pi].fx = sanitizeFx(fx);
     if (room.phase !== 'waiting') sendState(room);
   });
 
@@ -639,6 +664,46 @@ player.score += res.pts + bonus;
       }
     }
   });
+});
+
+// ── 制作者へのメッセージ（不具合の報告・ご要望）──
+// 届いたメッセージは、①サーバーのログ ②REPORT_WEBHOOK_URL（DiscordやSlackのWebhook）③GET /reports?key=ADMIN_KEY で確認できる。
+// ※無料プランのサーバーは再起動で記憶が消えるので、Webhookを設定しておくのがおすすめ。
+const REPORT_WEBHOOK_URL = process.env.REPORT_WEBHOOK_URL || '';
+const ADMIN_KEY = process.env.ADMIN_KEY || '';
+const reports = [];            // 直近のメッセージ（メモリ上）
+const reportLast = new Map();  // IP → 最後に送った時刻（連投を防ぐ）
+app.use(express.json({ limit: '20kb' }));
+app.use('/report', (req, res, next) => {
+  res.set({ 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' });
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+const KIND_LABEL = { bug: '🐞 不具合', idea: '💡 ご要望', other: '💬 その他' };
+app.post('/report', async (req, res) => {
+  const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  const now = Date.now();
+  if (now - (reportLast.get(ip) || 0) < 20000) return res.status(429).json({ ok: false, error: '少し待ってから、もう一度送ってください' });
+  const b = req.body || {};
+  const clean = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').slice(0, n);
+  const message = clean(b.message, 1000).trim();
+  if (message.length < 3) return res.status(400).json({ ok: false, error: 'メッセージを入力してください' });
+  const kind = KIND_LABEL[b.kind] ? b.kind : 'other';
+  const r = { at: new Date().toISOString(), kind, message, name: clean(b.name, 30), contact: clean(b.contact, 100), ctx: clean(b.ctx, 300) };
+  reportLast.set(ip, now);
+  if (reportLast.size > 500) reportLast.delete(reportLast.keys().next().value);
+  reports.push(r); if (reports.length > 200) reports.shift();
+  console.log('📨 report', JSON.stringify(r));
+  if (REPORT_WEBHOOK_URL && typeof fetch === 'function') {
+    const text = `${KIND_LABEL[kind]}｜${r.name || '名無し'}${r.contact ? `｜連絡先: ${r.contact}` : ''}\n${message}\n\`${r.ctx}\``.replace(/@/g, '@\u200b').slice(0, 1900);
+    try { await fetch(REPORT_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(/discord(app)?\.com\//.test(REPORT_WEBHOOK_URL) ? { content: text, allowed_mentions: { parse: [] } } : { text }) }); }
+    catch (e) { console.log('webhook failed', e.message); }
+  }
+  res.json({ ok: true });
+});
+app.get('/reports', (req, res) => {
+  if (!ADMIN_KEY || req.query.key !== ADMIN_KEY) return res.status(403).send('forbidden');
+  res.json(reports.slice().reverse());
 });
 
 srv.listen(PORT, () => console.log(`🀄 六華サーバー http://localhost:${PORT}`));
