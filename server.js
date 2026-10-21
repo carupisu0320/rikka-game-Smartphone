@@ -3,9 +3,16 @@ const http    = require('http');
 const { Server } = require('socket.io');
 
 const app  = express();
+app.disable('x-powered-by');
+app.set('trust proxy', 1); // Renderなどの中継サーバー越しに、本当のIPを見る
+app.use((req, res, next) => {
+  res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY' });
+  next();
+});
 const srv  = http.createServer(app);
 const io   = new Server(srv, {
-  cors: { origin: '*', methods: ['GET','POST'] }
+  cors: { origin: '*', methods: ['GET','POST'] },
+  maxHttpBufferSize: 1e5, // 1回に受け取る大きさの上限（約100KB）
 });
 
 const PORT = process.env.PORT || 3000;
@@ -223,7 +230,17 @@ function sanitizeFieldBg(url) {
   if (url.length === 0 || url.length > 500) return '';
   if (!/^https:\/\//i.test(url)) return '';
   if (/["'\\()<>]/.test(url)) return '';
+  if (!imageHostAllowed(url)) return '';
   return url;
+}
+// 他の人の画面に読み込ませる画像のURLは、このサイトのものだけ許可する。
+// （知らないサイトの画像を読み込ませると、見た人のIPアドレスがそのサイトに伝わってしまうため）
+// 追加したいときは、環境変数 EXTRA_IMG_HOSTS に、ドメインをカンマ区切りで書く（例: example.com,cdn.example.net）
+const IMG_HOSTS = ['googleusercontent.com', 'github.io', 'githubusercontent.com', 'imgur.com', 'discordapp.com', 'discordapp.net', 'ibb.co']
+  .concat((process.env.EXTRA_IMG_HOSTS || '').split(',').map(x => x.trim().toLowerCase()).filter(Boolean));
+function imageHostAllowed(u) {
+  try { const h = new URL(u).hostname.toLowerCase(); return IMG_HOSTS.some(d => h === d || h.endsWith('.' + d)); }
+  catch (e) { return false; }
 }
 // アイコン画像URLの簡易サニタイズ（httpsのみ。HTML属性やCSSから抜け出せる文字は拒否）
 function sanitizeAvatar(url) {
@@ -233,7 +250,14 @@ function sanitizeAvatar(url) {
   if (url.length === 0 || url.length > 1000) return '';
   if (!/^https:\/\//i.test(url)) return '';
   if (/["'\\()<>\s]/.test(url)) return '';
+  if (!imageHostAllowed(url)) return '';
   return url;
+}
+// プレイヤー名：文字列だけ・制御文字と<>を除く・20文字まで
+function sanitizeName(n) {
+  if (typeof n !== 'string') return 'プレイヤー';
+  n = n.replace(/[\u0000-\u001F\u007F<>]/g, '').trim().slice(0, 20);
+  return n || 'プレイヤー';
 }
 // 称号（ガチャの景品ID）。許可リストにあるIDだけ通す
 const TITLE_IDS = new Set(['title_first', 'title_zoro', 'title_apprentice', 'title_fate', 'title_sight', 'title_mountain', 'title_rikka', 'title_legend', 'title_king']);
@@ -293,10 +317,29 @@ function findRoom(sid) {
 }
 
 // ── Socket.IO ──
+const ipSockets = new Map(); // IP → 接続数
+const MIN_GAP = { quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
 io.on('connection', socket => {
+  const ip = String(socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || '').split(',')[0].trim();
+  const n = (ipSockets.get(ip) || 0) + 1;
+  if (n > 30) { socket.disconnect(true); return; } // 同じIPから30接続を超えたら切る
+  ipSockets.set(ip, n);
+  socket.on('disconnect', () => { const m = (ipSockets.get(ip) || 1) - 1; if (m <= 0) ipSockets.delete(ip); else ipSockets.set(ip, m); });
+  // すべての受信に共通の守り：データが無い・形がおかしい送信でサーバーが落ちないようにし、連打を止める
+  const _on = socket.on.bind(socket), lastAt = {};
+  socket.on = (ev, fn) => _on(ev, (...args) => {
+    try {
+      if (ev === 'disconnect' || ev === 'disconnecting') return fn(...args);
+      const gap = MIN_GAP[ev];
+      if (gap) { const t = Date.now(); if (t - (lastAt[ev] || 0) < gap) return; lastAt[ev] = t; }
+      const d = args[0];
+      fn((d && typeof d === 'object' && !Array.isArray(d)) ? d : {}, ...args.slice(1));
+    } catch (e) { console.log('handler error', ev, e && e.message); }
+  });
 
   // クイックマッチ
   socket.on('quickmatch', ({ name, fieldBg, avatar, title, fx }) => {
+    name = sanitizeName(name);
     if (queue.find(q => q.id === socket.id)) return;
     queue.push({ id: socket.id, name, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx) });
     socket.emit('queued', { pos: queue.length });
@@ -334,7 +377,7 @@ if (queue.length >= 2) {
   function emitRoomUpdate(room, joinedName, leftName) {
     const names = room.players.map(p => p.name);
     const infos = room.players.map(p => ({ name: p.name, avatar: p.avatar || '', title: p.title || '' }));
-    room.players.forEach((p, i) => io.to(p.id).emit('room_update', { players: names, infos, code: room.code, host: 0, you: i, max: 4, joined: joinedName || '', left: leftName || '' }));
+    room.players.forEach((p, i) => io.to(p.id).emit('room_update', { players: names, infos, code: room.code, host: 0, you: i, max: MAX_ROOM_PLAYERS, joined: joinedName || '', left: leftName || '' }));
   }
   // 待機中のルームから抜ける。ホストが抜けたらルームを閉じる
   function leaveWaitingRoom(room, socketId) {
@@ -346,13 +389,16 @@ if (queue.length >= 2) {
 
   // ルーム作成
 socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avatar, title, fx }) => {
+    if (rooms.size >= 2000) { socket.emit('err', 'いま部屋がいっぱいです。あとでもう一度お試しください'); return; }
+    name = sanitizeName(name);
+    roles = Array.isArray(roles) ? roles.filter(r => typeof r === 'string').slice(0, 40).map(r => r.slice(0, 20)) : [];
     const code = genCode();
     rooms.set(code, {
       code, host: socket.id,
-      roles: roles || [],
+      roles,
       goal: [5,10,15,20,30].includes(goal) ? goal : 10,
-      useRiichi: useRiichi || false,
-      useRon: useRon || false,
+      useRiichi: useRiichi === true,
+      useRon: useRon === true,
       players: [{ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx) }],
       field: [], turn: 0, tphase: 'pick', phase: 'waiting',
     });
@@ -363,7 +409,8 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
 
   // ルーム参加
   socket.on('join_room', ({ name, code, fieldBg, avatar, title, fx }) => {
-    const c = (code || '').toUpperCase().trim();
+    name = sanitizeName(name);
+    const c = String(code || '').toUpperCase().trim().slice(0, 12);
     const room = rooms.get(c);
     if (!room)                    { socket.emit('err', '部屋が見つかりません'); return; }
     if (room.phase !== 'waiting') { socket.emit('err', 'ゲームはすでに始まっています'); return; }
@@ -510,6 +557,7 @@ socket.on('pick', ({ code, fieldIdx }) => {
   });
 // 開発者ツール: 六華強制セット
   socket.on('dev_rikka', ({ code, hand }) => {
+    if (process.env.ENABLE_DEV !== '1') return; // 手牌を好きに書き換えられる開発用。本番では無効
     const room = rooms.get(code);
     if (!room || room.phase !== 'playing') return;
     const pi = room.players.findIndex(p => p.id === socket.id);
@@ -673,6 +721,7 @@ const REPORT_WEBHOOK_URL = process.env.REPORT_WEBHOOK_URL || '';
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
 const reports = [];            // 直近のメッセージ（メモリ上）
 const reportLast = new Map();  // IP → 最後に送った時刻（連投を防ぐ）
+const reportTimes = [];        // 全体の送信時刻（1時間に60件まで。Discordを埋め尽くされないため）
 app.use(express.json({ limit: '20kb' }));
 app.use('/report', (req, res, next) => {
   res.set({ 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' });
@@ -681,8 +730,10 @@ app.use('/report', (req, res, next) => {
 });
 const KIND_LABEL = { bug: '🐞 不具合', idea: '💡 ご要望', other: '💬 その他' };
 app.post('/report', async (req, res) => {
-  const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  const ip = req.ip || '';
   const now = Date.now();
+  while (reportTimes.length && now - reportTimes[0] > 3600000) reportTimes.shift();
+  if (reportTimes.length >= 60) return res.status(429).json({ ok: false, error: 'いま混み合っています。しばらくしてからお試しください' });
   if (now - (reportLast.get(ip) || 0) < 20000) return res.status(429).json({ ok: false, error: '少し待ってから、もう一度送ってください' });
   const b = req.body || {};
   const clean = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').slice(0, n);
@@ -690,7 +741,7 @@ app.post('/report', async (req, res) => {
   if (message.length < 3) return res.status(400).json({ ok: false, error: 'メッセージを入力してください' });
   const kind = KIND_LABEL[b.kind] ? b.kind : 'other';
   const r = { at: new Date().toISOString(), kind, message, name: clean(b.name, 30), contact: clean(b.contact, 100), ctx: clean(b.ctx, 300) };
-  reportLast.set(ip, now);
+  reportLast.set(ip, now); reportTimes.push(now);
   if (reportLast.size > 500) reportLast.delete(reportLast.keys().next().value);
   reports.push(r); if (reports.length > 200) reports.shift();
   console.log('📨 report', JSON.stringify(r));
@@ -702,7 +753,9 @@ app.post('/report', async (req, res) => {
   res.json({ ok: true });
 });
 app.get('/reports', (req, res) => {
-  if (!ADMIN_KEY || req.query.key !== ADMIN_KEY) return res.status(403).send('forbidden');
+  const k = String(req.query.key || '');
+  const ok = ADMIN_KEY && k.length === ADMIN_KEY.length && require('crypto').timingSafeEqual(Buffer.from(k), Buffer.from(ADMIN_KEY));
+  if (!ok) return res.status(403).send('forbidden');
   res.json(reports.slice().reverse());
 });
 
