@@ -884,6 +884,16 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 #call-fx.cf-ron .cf-text{background:linear-gradient(180deg,#fff 5%,#ffe28a 40%,#ff5a20 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #ff4a1a) drop-shadow(0 4px 0 rgba(60,0,0,.7))}
 #call-fx.cf-ron .cf-band{background:linear-gradient(180deg,transparent,rgba(40,0,0,.88) 18%,rgba(40,0,0,.88) 82%,transparent)}
 #call-fx.cf-ron .cf-dim{background:radial-gradient(circle at 50% 46%,rgba(60,0,0,.4),rgba(0,0,0,.82))}
+/* 選んだ演出（色・飾りを差し替える） */
+#call-fx.fxc .cf-text{background:linear-gradient(180deg,#fff 10%,var(--c2) 45%,var(--c1) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px var(--c1)) drop-shadow(0 4px 0 rgba(0,0,0,.6))}
+#call-fx.fxc .cf-band{background:linear-gradient(180deg,transparent,var(--bg) 18%,var(--bg) 82%,transparent)}
+#call-fx.fxc .cf-dim{background:radial-gradient(circle at 50% 46%,var(--dm),rgba(0,0,0,.82))}
+.cf-glyph{position:absolute;left:50%;top:46%;font-size:var(--s,22px);line-height:1;opacity:0;margin:-.5em 0 0 -.5em}
+.cf-glyph.burst{animation:cfGlyphB .95s .3s ease-out both}
+@keyframes cfGlyphB{0%{opacity:1;transform:translate(0,0) scale(.5) rotate(0)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1.3) rotate(var(--r))}}
+.cf-glyph.fall{left:var(--lx);top:-6%;margin:0;animation:cfGlyphF var(--t) var(--dl) ease-in both}
+@keyframes cfGlyphF{0%{opacity:0;transform:translate(0,0) rotate(0)}12%{opacity:1}100%{opacity:.9;transform:translate(var(--dx),112vh) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.cf-glyph{display:none}}
 @media (prefers-reduced-motion:reduce){#call-fx.shake{animation:cfLife var(--dur) linear forwards}.cf-rays,.cf-spark,.cf-ring{display:none}}
 
 /* ── クイックマッチの待機演出 ── */
@@ -1755,6 +1765,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       <button id="custom-tab-confetti" class="custom-tab" onclick="switchCustomizeTab('confetti')">紙吹雪</button>
       <button id="custom-tab-title" class="custom-tab" onclick="switchCustomizeTab('title')">称号</button>
       <button id="custom-tab-gicon" class="custom-tab" onclick="switchCustomizeTab('gicon')">アイコン</button>
+      <button id="custom-tab-fx" class="custom-tab" onclick="switchCustomizeTab('fx')">演出</button>
       <button id="custom-tab-icon" class="custom-tab" onclick="switchCustomizeTab('icon')">プロフィール</button>
     </div>
     <div id="custom-body" class="custom-body"></div>
@@ -2099,6 +2110,9 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   <span id="history-toggle-icon" style="font-size:.9rem;color:#6a5830">▼</span>
 </div>
 <div id="history-list-sb"></div>
+    <div class="sb-section-title" style="margin-top:.8rem;border-top:1px solid #2a1e10;padding-top:.5rem">― 制作者へのメッセージ ―</div>
+    <div style="font-size:.7rem;color:#8a7048;line-height:1.55;margin:.2rem 0 .5rem">不具合の報告やご要望を、制作者に直接送れます。</div>
+    <button onclick="openReportModal()" style="width:100%;padding:.55rem;border-radius:8px;border:1px solid #5a4020;background:#1a1410;color:#c9a84c;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer">✉️ メッセージを送る</button>
   </div>
 </div>
 
@@ -2268,7 +2282,7 @@ document.getElementById('room-players-list').innerHTML=players.map(n=>`<div styl
 
 const sb=document.getElementById('btn-host-start');if(sb)sb.style.display=players.length>=2?'':'none';
 
-const st=document.getElementById('room-status-text');if(st)st.textContent=`${players.length}人参加中${players.length<2?' — 待機中':' — 開始できます'}`;
+const st=document.getElementById('room-status-text');if(st)st.textContent=`${players.length}/5人参加中${players.length<2?' — 待機中':(players.length>=5?' — 満員です。開始できます':' — 開始できます')}`;
 
 const js=document.getElementById('join-status');if(js&&!js.textContent.includes('⟳'))js.textContent='✓ 参加しました！ホストの開始を待っています...';
 
@@ -2288,8 +2302,8 @@ socket.on('game_start',(d)=>{
 socket.on('state',st=>{onlineMode=true;applyOnlineState(st);});
 
 socket.on('round_win',wd=>{
-  if(wd&&wd.ron){const ms=showCallFx('ron',wd.winnerName);setTimeout(()=>showOnlineWinMsg(wd),ms-150);}
-  else if(wd){const ms=showCallFx('win',wd.winnerName,wd.role);setTimeout(()=>showOnlineWinMsg(wd),ms-200);}
+  if(wd&&wd.ron){const ms=showCallFx('ron',wd.winnerName,undefined,fxOfName(wd.winnerName));setTimeout(()=>showOnlineWinMsg(wd),ms-150);}
+  else if(wd){const ms=showCallFx('win',wd.winnerName,wd.role,fxOfName(wd.winnerName));setTimeout(()=>showOnlineWinMsg(wd),ms-200);}
 });
 socket.on('round_draw',({scores})=>{
   clearRonWindow();
@@ -2304,7 +2318,7 @@ socket.on('round_draw',({scores})=>{
 });
 socket.on('player_riichi',({name,idx})=>{
   if(G&&G.players[idx]) G.players[idx].riichi=true;
-  if(Number(idx)!==Number(myOnlineIdx)){ playSound('riichi'); showCallFx('riichi',name); }
+  if(Number(idx)!==Number(myOnlineIdx)){ playSound('riichi'); showCallFx('riichi',name,undefined,(G&&G.players[idx])?G.players[idx].fx:null); }
   toast(`🀄 ${esc(name)} がリーチ！`);
   render();
 });
@@ -2400,7 +2414,7 @@ function hideMatchFx(immediate){
   if(immediate){el.remove();return;}
   el.onclick=null;el.classList.add('out');setTimeout(()=>el.remove(),420);
 }
-function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});showMatchFx();}
+function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload()});showMatchFx();}
 
 function cancelQueue(){hideMatchFx(true);socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
 
@@ -2411,7 +2425,7 @@ const goalEl=document.querySelector('input[name="room-goal"]:checked');
   const goal=goalEl?parseInt(goalEl.value):10;
   const useRiichi2=document.getElementById('room-opt-リーチ')?.checked||false;
   const useRon2=document.getElementById('room-opt-ロン')?.checked||false;
-  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});}
+  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload()});}
 function copyRoomCode(){const code=document.getElementById('room-code-display').textContent;navigator.clipboard?.writeText(code).then(()=>toast('コードをコピーしました！'));}
 
 
@@ -2477,7 +2491,7 @@ function cancelRoom(){document.getElementById('room-host-box').style.display='no
 
 function hostStartGame(){socket?.emit('start_game',{code:currentCode});}
 
-function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId()});}
+function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload()});}
 
 function setOnlineStatus(msg,color){const el=document.getElementById('online-status');if(el){el.textContent=msg;el.style.color=color||'#6a5030';}const cb=document.getElementById('btn-cancel-quick');if(cb)cb.style.display=msg?'':'none';}
 
@@ -2523,7 +2537,7 @@ G.useRiichi = st.useRiichi || false;
 G.useRon    = st.useRon    || false;
 G.goal = st.goal || 10;
 
-st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;G.players[i].fieldBg=s.fieldBg||'';G.players[i].avatar=s.avatar||'';G.players[i].title=s.title||'';G.players[i].riichi=s.riichi||false;});
+st.scores.forEach((s,i)=>{G.players[i].score=s.score;G.players[i].name=s.name;G.players[i].isBot=false;G.players[i].fieldBg=s.fieldBg||'';G.players[i].avatar=s.avatar||'';G.players[i].title=s.title||'';G.players[i].fx=s.fx||null;G.players[i].riichi=s.riichi||false;});
 
 st.oppCounts.forEach((cnt,i)=>{if(i===st.myIdx)return;G.players[i].hand=Array.from({length:Math.max(0,cnt)},(_,j)=>({id:`ph${i}_${j}`,top:1,bot:1,flip:false,discarded:false,hidden:true}));});
 
@@ -2745,22 +2759,74 @@ function showRiichiBtn(show){
 // ============================================================
 // リーチ・ロンの演出（画面中央に大きく宣言を出す。操作はじゃましない）
 // ============================================================
+// ===== 演出（リーチ・ロン・上がり）を人ごとに選べる =====
+const FX_STYLES={
+  riichi:[
+    {id:'default',name:'標準（青い閃光）',icon:'🀄'},
+    {id:'flame',name:'炎',icon:'🔥',c1:'#ff6a20',c2:'#ffe0a0',bg:'rgba(50,10,0,.88)',dm:'rgba(60,10,0,.4)',g:['🔥'],mode:'burst'},
+    {id:'sakura',name:'桜',icon:'🌸',c1:'#ff7aa8',c2:'#ffe4ee',bg:'rgba(50,10,28,.88)',dm:'rgba(60,10,34,.4)',g:['🌸'],mode:'fall'},
+    {id:'ice',name:'氷',icon:'❄️',c1:'#5ad0ff',c2:'#e8f8ff',bg:'rgba(4,24,44,.88)',dm:'rgba(4,30,56,.4)',g:['❄️'],mode:'fall'},
+    {id:'thunder',name:'雷',icon:'⚡',c1:'#b080ff',c2:'#fff0a0',bg:'rgba(24,8,50,.88)',dm:'rgba(30,8,60,.4)',g:['⚡'],mode:'burst'},
+    {id:'forest',name:'翠',icon:'🍃',c1:'#40d890',c2:'#e0ffe8',bg:'rgba(4,36,22,.88)',dm:'rgba(4,44,26,.4)',g:['🍃'],mode:'fall'},
+  ],
+  ron:[
+    {id:'default',name:'標準（赤い斬撃）',icon:'⚔️'},
+    {id:'crimson',name:'紅蓮',icon:'💥',c1:'#ff2040',c2:'#ffd0d8',bg:'rgba(50,0,8,.9)',dm:'rgba(60,0,10,.45)',g:['💥'],mode:'burst'},
+    {id:'void',name:'闇',icon:'🌙',c1:'#8a40ff',c2:'#e0d0ff',bg:'rgba(20,6,46,.9)',dm:'rgba(24,6,56,.45)',g:['🌙','✦'],mode:'burst'},
+    {id:'gold',name:'黄金',icon:'🪙',c1:'#ffc830',c2:'#fff4c0',bg:'rgba(44,28,0,.9)',dm:'rgba(50,32,0,.45)',g:['🪙'],mode:'burst'},
+    {id:'ocean',name:'大波',icon:'🌊',c1:'#2090ff',c2:'#d0ecff',bg:'rgba(0,18,48,.9)',dm:'rgba(0,22,56,.45)',g:['🌊','💧'],mode:'burst'},
+    {id:'jade',name:'翡翠',icon:'💎',c1:'#20c0a0',c2:'#d8fff4',bg:'rgba(0,36,30,.9)',dm:'rgba(0,44,36,.45)',g:['💎'],mode:'burst'},
+  ],
+  win:[
+    {id:'default',name:'標準（金の花）',icon:'🌼'},
+    {id:'fireworks',name:'花火',icon:'🎆',c1:'#ff7ac8',c2:'#fff0ff',bg:'rgba(26,6,40,.88)',dm:'rgba(30,6,48,.4)',g:['🎆','🎇'],mode:'burst'},
+    {id:'confetti',name:'紙吹雪',icon:'🎉',c1:'#ffd040',c2:'#fff8d8',bg:'rgba(40,24,8,.86)',dm:'rgba(46,28,8,.35)',g:['🎉','🎊'],mode:'fall'},
+    {id:'star',name:'流れ星',icon:'⭐',c1:'#ffe060',c2:'#fffbe0',bg:'rgba(8,10,44,.88)',dm:'rgba(8,12,54,.4)',g:['⭐','✨'],mode:'fall'},
+    {id:'royal',name:'王冠',icon:'👑',c1:'#c890ff',c2:'#fff0c0',bg:'rgba(28,10,50,.88)',dm:'rgba(32,10,60,.4)',g:['👑','💜'],mode:'burst'},
+    {id:'rainbow',name:'虹',icon:'🌈',c1:'#ff9a60',c2:'#f4f0ff',bg:'rgba(10,20,40,.86)',dm:'rgba(12,24,50,.35)',g:['🌈','✨'],mode:'fall'},
+  ],
+};
+function loadMyFx(){try{return JSON.parse(localStorage.getItem('rikka_fx')||'{}')||{};}catch(e){return {};}}
+function myFxId(kind){const v=loadMyFx()[kind];return FX_STYLES[kind].some(s=>s.id===v)?v:'default';}
+function myFxPayload(){return {riichi:myFxId('riichi'),ron:myFxId('ron'),win:myFxId('win')};}
+function fxStyleOf(kind,fx){const id=fx&&fx[kind];return FX_STYLES[kind].find(s=>s.id===id)||FX_STYLES[kind][0];}
+// その人の演出（自分は自分の設定、相手は届いた設定、CPUは標準）
+function fxOfPlayer(p){if(!G||!p)return null;const i=G.players.indexOf(p);if(i===myOnlineIdx)return myFxPayload();return p.isBot?null:(p.fx||null);}
+function fxOfName(name){if(!G)return null;const p=G.players.find(q=>q.name===name);return p?fxOfPlayer(p):null;}
+function syncMyFx(){if(typeof currentCode!=='undefined'&&currentCode)socket?.emit('set_fx',{code:currentCode,fx:myFxPayload()});}
+function selectFx(kind,id){
+  if(!FX_STYLES[kind]||!FX_STYLES[kind].some(s=>s.id===id))return;
+  const o=loadMyFx();o[kind]=id;try{localStorage.setItem('rikka_fx',JSON.stringify(o));}catch(e){}
+  syncMyFx();renderCustomize();
+  showCallFx(kind,myName(),'プレビュー',myFxPayload());
+}
 let _callFxTimer=null,_skipSnd='';
 const CF_FLOWER='<div class="cf-flower"><svg viewBox="-100 -100 200 200"><defs><radialGradient id="cfp" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#fff8d0" stop-opacity=".95"/><stop offset="1" stop-color="#ffc830" stop-opacity=".25"/></radialGradient></defs>'+
   [0,1,2,3,4,5].map(k=>`<ellipse cx="0" cy="-52" rx="19" ry="48" transform="rotate(${k*60})" fill="url(#cfp)" stroke="#fff4c0" stroke-width="1.2"/>`).join('')+'<circle r="10" fill="#fff8d0"/></svg></div>';
-function showCallFx(kind,name,sub){
+function showCallFx(kind,name,sub,fx){
   const old=document.getElementById('call-fx');if(old)old.remove();clearTimeout(_callFxTimer);
   const ron=kind==='ron',win=kind==='win',dur=ron?1.8:(win?1.9:1.55);
+  const sty=fxStyleOf(kind,fx),custom=sty.id!=='default';
   const el=document.createElement('div');
-  el.id='call-fx';el.className=ron?'cf-ron shake':(win?'cf-win':'cf-riichi');el.style.setProperty('--dur',dur+'s');
+  el.id='call-fx';el.className=(ron?'cf-ron shake':(win?'cf-win':'cf-riichi'))+(custom?' fxc':'');el.style.setProperty('--dur',dur+'s');
+  if(custom){el.style.setProperty('--c1',sty.c1);el.style.setProperty('--c2',sty.c2);el.style.setProperty('--bg',sty.bg);el.style.setProperty('--dm',sty.dm);}
   let sparks='';
   for(let i=0;i<(ron?30:22);i++){const a=Math.random()*360,d=(ron?160:130)+Math.random()*(ron?260:200),s=(ron?4:3)+Math.random()*5;sparks+=`<i class="cf-spark" style="--a:${a.toFixed(0)}deg;--d:${d.toFixed(0)}px;--s:${s.toFixed(1)}px"></i>`;}
   el.innerHTML=`<div class="cf-dim"></div><div class="cf-rays"></div><div class="cf-band"></div><div class="cf-line"></div><div class="cf-line b"></div>
-    ${ron?'<div class="cf-slash s1"></div><div class="cf-slash s2"></div>':''}${win?CF_FLOWER:''}
+    ${ron?'<div class="cf-slash s1"></div><div class="cf-slash s2"></div>':''}${win&&!custom?CF_FLOWER:''}
     <div class="cf-text">${ron?'ロン！':(win?'上がり！':'リーチ！')}</div>
     <div class="cf-sub">${esc(name||'')}${sub?'　'+esc(sub):''}</div>
     <div class="cf-ring"></div><div class="cf-ring r2"></div>${sparks}<div class="cf-flash"></div>`;
-  if(win){ // 金の花びらが降る
+  if(custom&&sty.g){ // 選んだ演出の飾り（炎・桜・雷など）
+    let gl='';const n=ron?24:20;
+    for(let i=0;i<n;i++){
+      const g=sty.g[i%sty.g.length],s=(18+Math.random()*20).toFixed(0),r=(Math.random()*540-270).toFixed(0);
+      if(sty.mode==='fall')gl+=`<i class="cf-glyph fall" style="--lx:${(Math.random()*100).toFixed(0)}%;--s:${s}px;--t:${(1.1+Math.random()*.9).toFixed(2)}s;--dl:${(.15+Math.random()*.8).toFixed(2)}s;--dx:${(Math.random()*160-80).toFixed(0)}px;--r:${r}deg">${g}</i>`;
+      else{const a=Math.random()*Math.PI*2,d=130+Math.random()*(ron?280:220);gl+=`<i class="cf-glyph burst" style="--s:${s}px;--x:${(Math.cos(a)*d).toFixed(0)}px;--y:${(Math.sin(a)*d).toFixed(0)}px;--r:${r}deg">${g}</i>`;}
+    }
+    el.insertAdjacentHTML('beforeend',gl);
+  }
+  if(win&&!custom){ // 金の花びらが降る
     let f='';for(let i=0;i<26;i++){f+=`<i class="cf-petal-fall" style="--s:${(7+Math.random()*9).toFixed(0)}px;--x:${(Math.random()*100).toFixed(0)}%;--t:${(1.2+Math.random()*1).toFixed(2)}s;--dl:${(.25+Math.random()*.7).toFixed(2)}s;--dx:${(Math.random()*120-60).toFixed(0)}px;--r:${(Math.random()*540).toFixed(0)}deg"></i>`;}
     el.insertAdjacentHTML('beforeend',f);
   }
@@ -2780,7 +2846,7 @@ function declareRiichi(){
   if(!ok){toast('テンパイしていません');return;}
   p.riichi=true;
   playSound('riichi');
-  showCallFx('riichi',p.name);
+  showCallFx('riichi',p.name,undefined,myFxPayload());
   if(onlineMode) socket?.emit('riichi',{code:currentCode});
   showRiichiBtn(false);
   const chatLog=document.getElementById(onlineMode?'chat-log':'bot-chat-log');
@@ -2850,7 +2916,7 @@ function declareRon(){
     const tr=checkTsuide(pl.hand,G.field,optR,pl.riichi);
     if(tr){pl.score+=tr.total;tsuideList.push({name:pl.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
   });
-  const _fxMs=showCallFx('ron',p.name,discarder.name+' の牌');
+  const _fxMs=showCallFx('ron',p.name,discarder.name+' の牌',fxOfPlayer(p));
   setTimeout(()=>showWinModal(p,res,tsuideList),_fxMs-150);
 }
 function checkBotRon(discardedByIdx){
@@ -2888,7 +2954,7 @@ function checkBotRon(discardedByIdx){
       const tr=checkTsuide(p2.hand,G.field,optR,p2.riichi);
       if(tr){p2.score+=tr.total;tsuideList.push({name:p2.name,role:tr.role,pts:tr.pts,bonus:tr.bonus,total:tr.total});}
     });
-    const _fxMsB=showCallFx('ron',pl.name,discarder.name+' の牌');
+    const _fxMsB=showCallFx('ron',pl.name,discarder.name+' の牌',fxOfPlayer(pl));
     setTimeout(()=>showWinModal(pl,res,tsuideList),_fxMsB-150);
   },800);
   return true;
@@ -3706,7 +3772,7 @@ const _isMyWin=pi===myOnlineIdx;
     if(!G.players.find(p=>p.name===t.name&&!p.isBot))
       setTimeout(()=>addBotChatMsg(t.name,rndComment('tsuide'),false),700);
   });
-  const _fxMsW=showCallFx('win',G.players[pi].name,res.role);
+  const _fxMsW=showCallFx('win',G.players[pi].name,res.role,fxOfPlayer(G.players[pi]));
   setTimeout(()=>showWinModal(G.players[pi],res,tsuideList),_fxMsW-200);
   if(_newAch.length)setTimeout(()=>showAchievementPopup(_newAch),900);
 }
@@ -5664,6 +5730,7 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
+  {id:'info_room5', info:true, title:'👥 プライベートマッチが最大5人に', desc:'プライベートマッチ（部屋コードで遊ぶ対戦）に、最大5人まで参加できるようになりました。2人以上そろえば、ホストが開始できます。'},
   {id:'info_assist_pause', info:true, title:'🛠 アシスト機能について', desc:'アシスト機能は、全容が完成するまで、いったんお休みします（サイドバーの「アシスト」を非表示にしました）。完成して公開するときに、あらためてお知らせします。'},
   {id:'info_fix_ltd_preview', info:true, title:'🛠 不具合の修正', desc:'動く牌の裏の柄をカスタマイズで設定していると、期間限定ガチャの景品一覧に並ぶ牌の裏の柄が、設定中の柄に置き換わって表示されてしまう不具合を修正しました。一覧では、それぞれの景品本来の柄が表示されます。'},
   {id:'info_event_halloween2026', info:true, title:'🎃 ハロウィンナイト開催！', desc:'ロビーの「🎃 ハロウィンナイト」から遊べるイベント戦です（10/19 〜 11/1）。\nイベントだけのルール（お菓子ラウンド・ロンの祝福）と、勝利数に応じた限定報酬があります。期間が終わるとイベントは消えます。'},
@@ -6318,7 +6385,7 @@ function refreshCustomize(){
 function renderCustomize(){
   document.getElementById('custom-tab-theme').classList.toggle('active',customizeTab==='theme');
   document.getElementById('custom-tab-bg').classList.toggle('active',customizeTab==='bg');
-  ['confetti','title','gicon','icon'].forEach(t=>document.getElementById('custom-tab-'+t).classList.toggle('active',customizeTab===t));
+  ['confetti','title','gicon','fx','icon'].forEach(t=>document.getElementById('custom-tab-'+t).classList.toggle('active',customizeTab===t));
   const st=loadGachaState();
   const owned=new Set(st.owned);
   const body=document.getElementById('custom-body');
@@ -6340,6 +6407,14 @@ function renderCustomize(){
     }).join('');
     h+='</div>';
     h+='<div class="custom-sub">龍・炎・氷・桜・翡翠・金・藍・黒曜・銀河の裏地は、牌の中で動きます。ON/OFFは、メニューの「動き」で切り替えられます。</div>';
+    body.innerHTML=h;
+  } else if(customizeTab==='fx'){
+    let h=`<div class="custom-sub">リーチ・ロン・上がりの演出を選べます。選ぶとプレビューが流れます（対戦相手の画面にも、あなたが選んだ演出で出ます）</div>`;
+    [['riichi','リーチ'],['ron','ロン'],['win','上がり']].forEach(([k,lab])=>{
+      h+=`<div class="custom-sub" style="margin-top:.8rem;color:#c9a84c;font-weight:700">${lab}の演出</div><div class="custom-list">`;
+      h+=FX_STYLES[k].map(s=>{const sel=myFxId(k)===s.id;return `<button class="custom-row${sel?' sel':''}" onclick="selectFx('${k}','${s.id}')"><div class="ic">${s.icon}</div><div class="tx">${esc(s.name)}</div>${sel?'<span class="chk">✔</span>':''}</button>`;}).join('');
+      h+='</div>';
+    });
     body.innerHTML=h;
   } else if(customizeTab==='gicon'){
     const eq=st.equipped.gicon||'';
@@ -8005,6 +8080,44 @@ ${it?`<div style="margin:.6rem 0;color:#f5d040">🎉 称号「${esc(it.title)}�
 }
 window.addEventListener('load',()=>setTimeout(()=>{try{showLoginBonus();}catch(e){}},900));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){try{showLoginBonus();}catch(e){}}});
+// ===== 制作者へのメッセージ（不具合の報告・ご要望）=====
+let _reportBusy=false;
+function openReportModal(){
+  const d=(()=>{try{return JSON.parse(localStorage.getItem('rikka_report_draft')||'{}');}catch(e){return {};}})();
+  showModal(`<div class="mtitle">✉️ 制作者へのメッセージ</div>
+    <div style="text-align:left">
+      <div style="font-size:.78rem;color:#c9a870;margin-bottom:.3rem">種類</div>
+      <select id="rp-kind" class="fselect" style="width:100%;margin-bottom:.6rem"><option value="bug">🐞 不具合の報告</option><option value="idea">💡 ご要望・アイデア</option><option value="other">💬 その他</option></select>
+      <div style="font-size:.78rem;color:#c9a870;margin-bottom:.3rem">内容（できれば、いつ・何をしたときか、も書いてください）</div>
+      <textarea id="rp-msg" maxlength="1000" rows="6" placeholder="例：ガチャ画面を開き直すと、一覧が切り替わらない" style="width:100%;box-sizing:border-box;padding:.5rem;border-radius:8px;border:1px solid #4a3418;background:#120c06;color:#e8dcc4;font-family:inherit;font-size:.9rem;resize:vertical">${esc(d.msg||'')}</textarea>
+      <div style="font-size:.78rem;color:#c9a870;margin:.5rem 0 .3rem">連絡先（返信がほしいときだけ。任意）</div>
+      <input id="rp-contact" maxlength="100" class="finput" style="width:100%;box-sizing:border-box" placeholder="メールアドレスやSNSのIDなど" value="${esc(d.contact||'')}">
+      <div style="font-size:.7rem;color:#8a7048;line-height:1.5;margin:.5rem 0 .7rem">送られる情報：上の内容、いまのプレイヤー名、ブラウザの種類・画面の状態。Googleのメールアドレスなどは、送られません。</div>
+    </div>
+    <button id="rp-send" class="mbtn" onclick="sendReport()">送信する</button>
+    <button class="mbtn" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020;margin-top:.4rem" onclick="saveReportDraft();document.getElementById('modal').classList.remove('open')">閉じる</button>`);
+}
+function saveReportDraft(){
+  const m=document.getElementById('rp-msg'),c=document.getElementById('rp-contact');
+  try{localStorage.setItem('rikka_report_draft',JSON.stringify({msg:m?m.value:'',contact:c?c.value:''}));}catch(e){}
+}
+async function sendReport(){
+  if(_reportBusy)return;
+  const msg=document.getElementById('rp-msg').value.trim(),kind=document.getElementById('rp-kind').value,contact=document.getElementById('rp-contact').value.trim();
+  if(msg.length<3){toast('内容を入力してください');return;}
+  const btn=document.getElementById('rp-send');
+  _reportBusy=true;btn.disabled=true;btn.textContent='送信中…（サーバーが眠っていると少し時間がかかります）';
+  const screen=(document.querySelector('.screen.active,.scr.active')||{}).id||'';
+  const ctx=`${navigator.userAgent.slice(0,120)} | screen:${screen} | online:${typeof onlineMode!=='undefined'&&onlineMode?1:0} | ${innerWidth}x${innerHeight}`;
+  const ac=new AbortController(),to=setTimeout(()=>ac.abort(),30000);
+  try{
+    const r=await fetch(SERVER_URL+'/report',{method:'POST',headers:{'Content-Type':'application/json'},signal:ac.signal,body:JSON.stringify({kind,message:msg,contact,name:myName(),ctx})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok){try{localStorage.removeItem('rikka_report_draft');}catch(e){}document.getElementById('modal').classList.remove('open');toast('✉️ 送信しました。ありがとうございます！');}
+    else{toast(j.error||'送信できませんでした');btn.disabled=false;btn.textContent='送信する';}
+  }catch(e){toast('送信できませんでした。通信状況を確認してください');btn.disabled=false;btn.textContent='送信する';}
+  finally{clearTimeout(to);_reportBusy=false;}
+}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2400);}
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
