@@ -3007,7 +3007,7 @@ const bcnt=quick?1:parseInt(document.getElementById('bcnt').value),bdiff=quick?'
 
 const players=[{name,hand:[],score:0,isBot:false,riichi:false}];
 
-for(let i=0;i<bcnt;i++)players.push({name:(opts&&opts.botName)||BNAMES[i],hand:[],score:0,isBot:true,diff:bdiff,riichi:false});
+for(let i=0;i<bcnt;i++)players.push({name:(opts&&opts.botName)||BNAMES[i],hand:[],score:0,isBot:true,diff:bdiff,riichi:false,fieldBg:(opts&&opts.botBg)||'',avatar:(opts&&opts.botAvatar)||''});
 
 const useRiichi=quick?false:(document.getElementById('bot-opt-リーチ')?.checked||false);
 const useRon=quick?false:(document.getElementById('bot-opt-ロン')?.checked||false);
@@ -3016,7 +3016,7 @@ if(quick)G.quickBot=true; // クイックマッチと同じルール（基本役
 
 myOnlineIdx=0;onlineMode=false;currentCode='';
 
-matchFoundFx(G.players.map((p,i)=>({name:p.name,avatar:i===0?myAvatarUrl():'',title:i===0?myTitleId():(quick?'':(BOT_TITLE_BY_DIFF[p.diff]||''))})),0,quick?'対戦相手が見つかりました！':'対戦開始！'); // 場が見える前に紹介画面で覆う
+matchFoundFx(G.players.map((p,i)=>({name:p.name,avatar:i===0?myAvatarUrl():(p.avatar||''),title:i===0?myTitleId():(quick?'':(BOT_TITLE_BY_DIFF[p.diff]||''))})),0,quick?'対戦相手が見つかりました！':'対戦開始！'); // 場が見える前に紹介画面で覆う
 warmFieldBgs(); // 紹介画面のあいだに、場の背景を読み込んでおく
 dealRound();showScreen('game');render();
 document.getElementById('bot-chat-toggle').style.display='flex';
@@ -5746,7 +5746,7 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
-  {id:'info_quick_cpu', info:true, title:'🤖 クイックマッチについて', desc:'クイックマッチで10秒ほど待っても対戦相手が見つからないときは、CPUが相手になります。マッチング画面に注意書きを出し、CPU戦のときは、各ラウンドの結果画面で「今回の対戦相手は、CPUでした」とお知らせします。ルールは、基本役のみ・リーチなし・ロンなしで、通常のクイックマッチと同じです。'},
+  {id:'info_quick_cpu', info:true, title:'🤖 クイックマッチについて', desc:'クイックマッチで5秒ほど待っても対戦相手が見つからないときは、CPUが相手になります。マッチング画面に注意書きを出し、CPU戦のときは、各ラウンドの結果画面で「今回の対戦相手は、CPUでした」とお知らせします。ルールは、基本役のみ・リーチなし・ロンなしで、通常のクイックマッチと同じです。'},
   {id:'info_friend', info:true, title:'👥 フレンド機能を追加', desc:'メニュー（≡）のカスタマイズの下に「フレンド」が加わりました。\n・自分のフレンドコード（8文字）を友だちに教えると、友だちが申請できます。承認するとフレンドになります\n・フレンドが、オンライン／部屋にいる／対戦中のどれかを見られます\n・部屋にいる友だちの部屋へ、ワンタッチで参加できます。自分の部屋には、友だちを招待できます\n※お互いが承認するまで、相手の名前や状態は見えません。フレンドコードは、友だちにだけ教えてください'},
   {id:'info_fix_security', info:true, title:'🛠 不具合の修正と安全対策', desc:'【修正】\n・ガチャ画面を開き直したとき、引く場所と中身の一覧が食い違うことがあった不具合を直しました\n・5人で遊ぶ部屋の待機画面が、4人分しか表示されていなかった不具合を直しました\n・動く牌の裏を設定していると、期間限定ガチャの一覧の牌の裏が別の柄に見えていた不具合を直しました\n【安全対策】\n・対戦相手にも見えるアイコン・場の背景の画像は、Google・GitHub・Imgur・Discord・ibb.co のものだけ表示されます（それ以外のサイトの画像は、相手には表示されません。自分の画面には出ます）\n・プレイヤー名は20文字までになりました\n・連打や、形のおかしい通信を受けても、サーバーが止まらないようにしました\n【確認】\n・六華はPHPを使っていないため、PHPの脆弱性の影響は受けません（確認済み）'},
   {id:'info_room5', info:true, title:'👥 プライベートマッチが最大5人に', desc:'プライベートマッチ（部屋コードで遊ぶ対戦）に、最大5人まで参加できるようになりました。2人以上そろえば、ホストが開始できます。'},
@@ -8271,8 +8271,25 @@ function botNickname(){
   else s=r(_NK.b)+d();
   return s.slice(0,14);
 }
+// CPUの背景・アイコンは、ランダムに選ぶ（出やすさは、ガチャのレア度が低いほど高い）
+function _wpick(items){
+  const W={common:5,uncommon:3,rare:2,superrare:1},ws=items.map(it=>W[it.rarity]||1);
+  let r=Math.random()*ws.reduce((a,b)=>a+b,0);
+  for(let i=0;i<items.length;i++){r-=ws[i];if(r<=0)return items[i];}
+  return items[0];
+}
+function botRandomBg(){
+  if(Math.random()<.2)return ''; // 5人に1人くらいは、初期の背景
+  const pool=GACHA_ITEMS.filter(it=>it.category==='fieldbg'&&!it.event&&!it.loginStar&&!it.achievement);
+  return pool.length?'preset:'+_wpick(pool).id:'';
+}
+function botRandomIcon(){
+  if(Math.random()<.3)return ''; // 3人に1人くらいは、アイコンなし（名前の頭文字）
+  const pool=GACHA_ITEMS.filter(it=>it.category==='gicon'&&!it.event);
+  return pool.length?'gicon:'+_wpick(pool).id:'';
+}
 let _qbTimer=null;
-function quickBotStartTimer(){if(_qbTimer)return;_qbTimer=setTimeout(quickBotFallback,9000+Math.random()*6000);}
+function quickBotStartTimer(){if(_qbTimer)return;_qbTimer=setTimeout(quickBotFallback,4000+Math.random()*3000);}
 function quickBotClearTimer(){if(_qbTimer){clearTimeout(_qbTimer);_qbTimer=null;}}
 function quickBotFallback(){
   _qbTimer=null;
@@ -8281,7 +8298,7 @@ function quickBotFallback(){
     if(onlineMode||currentCode)return;
     hideMatchFx(true);document.getElementById('btn-quick').disabled=false;
     const cb=document.getElementById('btn-cancel-quick');if(cb)cb.style.display='none';
-    setOnlineStatus('','');startGame({quick:true,botName:botNickname()});
+    setOnlineStatus('','');startGame({quick:true,botName:botNickname(),botBg:botRandomBg(),botAvatar:botRandomIcon()});
   };
   if(socket&&socket.connected){
     let done=false;
