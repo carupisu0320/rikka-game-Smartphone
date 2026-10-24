@@ -3367,7 +3367,9 @@ function checkRiichiDeadlock(){
   showModal(`<div class="mtitle">🤝 引き分け</div><p style="color:#8a7860;font-size:.9rem">全員リーチで、誰も上がれる牌がありません</p><table class="mscores">${G.players.map(pl=>`<tr><td>${esc(pl.name)}</td><td>${pl.score}点</td></tr>`).join('')}</table><button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`);
   return true;
 }
-function nextTurn(){if(checkRiichiDeadlock())return;G.turn=(G.turn+1)%G.players.length;G.tphase='pick';G.selIdx=-1;updateFieldBgForTurn();render();if(G.players[G.turn].isBot)scheduleBot();}
+function nextTurn(){if(checkRiichiDeadlock())return;G.turn=(G.turn+1)%G.players.length;G.tphase='pick';G.selIdx=-1;
+if(G.quickBot&&G.players[G.turn].isBot){const b=G.players[G.turn];b.fieldBg=botRandomBg(b.fieldBg);warmFieldBgs();} // クイックマッチのCPUは、手番ごとに背景が変わる
+updateFieldBgForTurn();render();if(G.players[G.turn].isBot)scheduleBot();}
 
 function scheduleBot(){if(G.phase!=='playing')return;const bot=G.players[G.turn];if(!bot?.isBot)return;const d={easy:1500,normal:1000,hard:600}[bot.diff]||1000;setTimeout(runBot,d);}
 
@@ -8278,10 +8280,12 @@ function _wpick(items){
   for(let i=0;i<items.length;i++){r-=ws[i];if(r<=0)return items[i];}
   return items[0];
 }
-function botRandomBg(){
-  if(Math.random()<.2)return ''; // 5人に1人くらいは、初期の背景
+function botRandomBg(prev){ // prev：直前の背景（同じものが続けて出ないようにする）
+  if(Math.random()<.1&&prev)return ''; // ときどき、初期の背景
   const pool=GACHA_ITEMS.filter(it=>it.category==='fieldbg'&&!it.event&&!it.loginStar&&!it.achievement);
-  return pool.length?'preset:'+_wpick(pool).id:'';
+  if(!pool.length)return '';
+  for(let k=0;k<6;k++){const v='preset:'+_wpick(pool).id;if(v!==prev)return v;}
+  return '';
 }
 function botRandomIcon(){
   if(Math.random()<.3)return ''; // 3人に1人くらいは、アイコンなし（名前の頭文字）
