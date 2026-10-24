@@ -798,7 +798,7 @@ const ADMIN_KEY = process.env.ADMIN_KEY || '';
 const reports = [];            // 直近のメッセージ（メモリ上）
 const reportLast = new Map();  // IP → 最後に送った時刻（連投を防ぐ）
 const reportTimes = [];        // 全体の送信時刻（1時間に60件まで。Discordを埋め尽くされないため）
-app.use(express.json({ limit: '20kb' }));
+app.use(express.json({ limit: '20kb', inflate: false })); // 圧縮された送信は受けない（body-parser の既知の弱点を避ける。ライブラリの更新も合わせて行うこと）
 app.use('/report', (req, res, next) => {
   res.set({ 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' });
   if (req.method === 'OPTIONS') return res.sendStatus(204);
