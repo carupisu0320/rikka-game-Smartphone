@@ -1160,6 +1160,17 @@ body.back-pumpkin .fback::after{content:'🎃';font-size:.8rem;color:#ffd060;ani
 #assist-style-box .as-btn{padding:.22rem .6rem;border:1px solid #3e2e1e;background:#2a1e14;color:#8a7048;font-family:inherit;font-size:.78rem;cursor:pointer}
 #assist-style-box .as-btn:first-child{border-radius:6px 0 0 6px}#assist-style-box .as-btn:last-child{border-radius:0 6px 6px 0;border-left:none}
 #assist-style-box .as-btn.on{background:linear-gradient(135deg,#c9a84c,#8a6a20);color:#1a1004;border-color:#c9a84c;font-weight:700}
+#fr-box{text-align:left;max-height:72vh;overflow-y:auto;padding-right:.2rem}
+.fr-h{font-size:.82rem;color:#c9a84c;font-weight:700;margin:.8rem 0 .35rem}
+.fr-code{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;border:1px solid #5a4020;border-radius:8px;background:#120c06}
+.fr-code b{font-size:1.25rem;letter-spacing:.18em;color:#f5d040;flex:1;font-family:monospace}
+.fr-row{display:flex;align-items:center;gap:.55rem;padding:.4rem .5rem;margin:.25rem 0;border:1px solid #3a2a18;border-radius:8px;background:#161008}
+.fr-av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#2a1e12;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+img.fr-av{display:block}
+.fr-info{flex:1;min-width:0}.fr-name{font-size:.9rem;color:#e8dcc4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-st{font-size:.7rem;color:#6a5830}.fr-st.on{color:#70d890}.fr-st.play{color:#f0b050}
+.fr-b{padding:.25rem .55rem;border-radius:6px;border:1px solid #5a4020;background:#2a1e14;color:#c9a84c;font-family:inherit;font-size:.74rem;cursor:pointer;flex-shrink:0}
+.fr-b.go{background:linear-gradient(135deg,#c9a84c,#8a6a20);color:#1a1004;border-color:#c9a84c;font-weight:700}.fr-b.del{color:#8a6a60}
 @keyframes bs85{to{background-position:8.485px 0}}
 @keyframes bs6{to{background-position:6px 0}}
 @keyframes bcSway{0%,100%{transform:translate(-50%,-50%) rotate(-9deg)}50%{transform:translate(-50%,-50%) rotate(9deg)}}
@@ -2011,6 +2022,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
         <div id="sb-name" onclick="openCustomize('icon')" style="font-size:1rem;color:#e8c97a;font-weight:700;display:inline-block;cursor:pointer" title="名前を変更">プレイヤー</div><span id="sb-title" style="font-size:.68rem;color:#f5d040;font-weight:700;margin-left:.4rem"></span>
         <div id="sb-email" style="font-size:.7rem;color:#6a5830"></div>
 <button class="sb-custom-btn" onclick="openCustomize()">🎨 カスタマイズ</button>
+<button class="sb-custom-btn" style="margin-top:.35rem" onclick="openFriends()">👥 フレンド<span id="fr-badge" style="color:#ff6a6a;margin-left:.3rem"></span></button>
       </div>
     </div>
   </div>
@@ -2266,7 +2278,7 @@ socket.on('connect_error',()=>{hideRoomWait();hideMatchFx(true);setOnlineStatus(
 
 socket.on('queued',({pos})=>{if(!document.getElementById('match-fx'))showMatchFx();setOnlineStatus(`⟳ マッチング中... (待機${pos}人)`,'#6fc4ae');document.getElementById('btn-cancel-quick').style.display='';});
 
-socket.on('matched',({code,names,players,you})=>{currentCode=code;matchFoundFx(players||(names||[]).map(n=>({name:n})),you,'対戦相手が見つかりました！');setOnlineStatus(`✓ マッチング成立！(${names.join(' vs ')})`,'#60e888');document.getElementById('btn-cancel-quick').style.display='none';});
+socket.on('matched',({code,names,players,you})=>{quickBotClearTimer();currentCode=code;matchFoundFx(players||(names||[]).map(n=>({name:n})),you,'対戦相手が見つかりました！');setOnlineStatus(`✓ マッチング成立！(${names.join(' vs ')})`,'#60e888');document.getElementById('btn-cancel-quick').style.display='none';});
 
 socket.on('queue_cancelled',()=>{hideMatchFx(true);setOnlineStatus('','');document.getElementById('btn-quick').disabled=false;document.getElementById('btn-cancel-quick').style.display='none';});
 
@@ -2369,6 +2381,7 @@ function showMatchFx(instant){
     <div class="mf-vs" id="mf-vs"></div>
     <div class="mf-meta" id="mf-meta">経過 0:00</div>
     <div class="mf-tip" id="mf-tip"></div>
+    <div style="position:absolute;left:0;right:0;bottom:4.6rem;text-align:center;font-size:.72rem;color:rgba(200,180,140,.75);padding:0 1rem">人が集まらないときは、CPUが相手になります</div>
     <button class="mf-cancel" onclick="cancelQueue()">キャンセル</button>`;
   document.body.appendChild(el);
   _matchStart=Date.now();_matchFoundAt=0;
@@ -2414,9 +2427,9 @@ function hideMatchFx(immediate){
   if(immediate){el.remove();return;}
   el.onclick=null;el.classList.add('out');setTimeout(()=>el.remove(),420);
 }
-function doQuickMatch(){if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload()});showMatchFx();}
+function doQuickMatch(){quickBotStartTimer();if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload()});showMatchFx();}
 
-function cancelQueue(){hideMatchFx(true);socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
+function cancelQueue(){quickBotClearTimer();hideMatchFx(true);socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
 
 function createRoom(){
   if(!socket||!socket.connected){initSocket();setTimeout(createRoom,1000);return;}
@@ -2985,23 +2998,25 @@ function getOptRoles(prefix){
 
 // ============================================================
 
-function startGame(){
+function startGame(opts){
 
+const quick=!!(opts&&opts.quick); // クイックマッチで人が見つからなかったときのCPU戦
 const name=document.getElementById('pname').value.trim()||'プレイヤー';
 
-const bcnt=parseInt(document.getElementById('bcnt').value),bdiff=document.getElementById('bdiff').value;
+const bcnt=quick?1:parseInt(document.getElementById('bcnt').value),bdiff=quick?'normal':document.getElementById('bdiff').value;
 
 const players=[{name,hand:[],score:0,isBot:false,riichi:false}];
 
-for(let i=0;i<bcnt;i++)players.push({name:BNAMES[i],hand:[],score:0,isBot:true,diff:bdiff,riichi:false});
+for(let i=0;i<bcnt;i++)players.push({name:(opts&&opts.botName)||BNAMES[i],hand:[],score:0,isBot:true,diff:bdiff,riichi:false});
 
-const useRiichi=document.getElementById('bot-opt-リーチ')?.checked||false;
-const useRon=document.getElementById('bot-opt-ロン')?.checked||false;
-G = {players, field:[], turn:0, tphase:'pick', selIdx:-1, phase:'playing', optRoles: getOptRoles('bot-opt-'), useRiichi, useRon};
+const useRiichi=quick?false:(document.getElementById('bot-opt-リーチ')?.checked||false);
+const useRon=quick?false:(document.getElementById('bot-opt-ロン')?.checked||false);
+G = {players, field:[], turn:0, tphase:'pick', selIdx:-1, phase:'playing', optRoles: quick?[]:getOptRoles('bot-opt-'), useRiichi, useRon};
+if(quick)G.quickBot=true; // クイックマッチと同じルール（基本役のみ・リーチなし・ロンなし）
 
 myOnlineIdx=0;onlineMode=false;currentCode='';
 
-matchFoundFx(G.players.map((p,i)=>({name:p.name,avatar:i===0?myAvatarUrl():'',title:i===0?myTitleId():(BOT_TITLE_BY_DIFF[p.diff]||'')})),0,'対戦開始！'); // 場が見える前に紹介画面で覆う
+matchFoundFx(G.players.map((p,i)=>({name:p.name,avatar:i===0?myAvatarUrl():'',title:i===0?myTitleId():(quick?'':(BOT_TITLE_BY_DIFF[p.diff]||''))})),0,quick?'対戦相手が見つかりました！':'対戦開始！'); // 場が見える前に紹介画面で覆う
 warmFieldBgs(); // 紹介画面のあいだに、場の背景を読み込んでおく
 dealRound();showScreen('game');render();
 document.getElementById('bot-chat-toggle').style.display='flex';
@@ -3788,12 +3803,13 @@ const tiles=p.hand.map(t=>tileHTML(t,'','tile htile')).join(''),bonus=res.bonus|
 
 const bLine=bonus>0?`<div style="font-size:.85rem;color:#f5d040;margin-bottom:.6rem">★ 輝きボーナス ×${bonus} = +${bonus}点</div>`:'';
 const petalLine=(!onlineMode&&_lastPetalGain>0)?`<div style="font-size:.85rem;color:#ff9ec8;margin:.3rem 0">🌸 花びら +${_lastPetalGain}</div>`:'';_lastPetalGain=0;
+const quickLine=G.quickBot?'<div style="font-size:.78rem;color:#8a7048;margin:.4rem 0">🤖 今回の対戦相手は、CPUでした</div>':'';
 const evLine=(res.evNotes||[]).map(n=>`<div style="font-size:.85rem;color:#ffa040;margin:.2rem 0">${n}</div>`).join('')+((res.evRewards||[]).length?`<div style="font-size:.88rem;color:#ffd060;margin:.3rem 0">${(EVENTS.find(e=>G.event&&e.id===G.event.id)||{}).icon||'🎁'} イベント報酬：${res.evRewards.map(esc).join('、')}</div>`:'');
 const ronLine=res.ron?`<div style="font-size:.85rem;color:#e0a020;margin:.3rem 0">⚡ ロン！（${esc(res.ronFrom||'')} の捨て牌）</div>`:'';
 const riichiLine=(res.bonus>0&&p.riichi)?`<div style="font-size:.82rem;color:#f5d040">🀄 リーチボーナス +1点含む</div>`:'';
 
 const _wTitle=p.isBot?(BOT_TITLE_BY_DIFF[p.diff]||''):myTitleId();
-document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div>${titleBadgeHtml(_wTitle)}<p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${petalLine}${evLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
+document.getElementById('mbox').innerHTML=`<div class="mtitle">${p.isBot?'🤖':'🎆'} 上がり！</div>${titleBadgeHtml(_wTitle)}<p style="color:#8a7860;font-size:.92rem;margin-bottom:.2rem">${esc(p.name)} が役を完成</p><div class="mrole">${res.role}</div><div class="mpts">役: +${res.pts}点</div>${bLine}${ronLine}${petalLine}${evLine}${quickLine}${riichiLine}<div class="mhand">${tiles}</div><table class="mscores">${rows}</table>${over?`<button class="mbtn" onclick="showGameOver()">ゲーム終了を確認 →</button>`:`<button class="mbtn" onclick="doNextRound()">次のラウンドへ →</button>`}`;
 
 document.getElementById('modal').classList.add('open');
 
@@ -5730,6 +5746,8 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
+  {id:'info_quick_cpu', info:true, title:'🤖 クイックマッチについて', desc:'クイックマッチで10秒ほど待っても対戦相手が見つからないときは、CPUが相手になります。マッチング画面に注意書きを出し、CPU戦のときは、各ラウンドの結果画面で「今回の対戦相手は、CPUでした」とお知らせします。ルールは、基本役のみ・リーチなし・ロンなしで、通常のクイックマッチと同じです。'},
+  {id:'info_friend', info:true, title:'👥 フレンド機能を追加', desc:'メニュー（≡）のカスタマイズの下に「フレンド」が加わりました。\n・自分のフレンドコード（8文字）を友だちに教えると、友だちが申請できます。承認するとフレンドになります\n・フレンドが、オンライン／部屋にいる／対戦中のどれかを見られます\n・部屋にいる友だちの部屋へ、ワンタッチで参加できます。自分の部屋には、友だちを招待できます\n※お互いが承認するまで、相手の名前や状態は見えません。フレンドコードは、友だちにだけ教えてください'},
   {id:'info_fix_security', info:true, title:'🛠 不具合の修正と安全対策', desc:'【修正】\n・ガチャ画面を開き直したとき、引く場所と中身の一覧が食い違うことがあった不具合を直しました\n・5人で遊ぶ部屋の待機画面が、4人分しか表示されていなかった不具合を直しました\n・動く牌の裏を設定していると、期間限定ガチャの一覧の牌の裏が別の柄に見えていた不具合を直しました\n【安全対策】\n・対戦相手にも見えるアイコン・場の背景の画像は、Google・GitHub・Imgur・Discord・ibb.co のものだけ表示されます（それ以外のサイトの画像は、相手には表示されません。自分の画面には出ます）\n・プレイヤー名は20文字までになりました\n・連打や、形のおかしい通信を受けても、サーバーが止まらないようにしました\n【確認】\n・六華はPHPを使っていないため、PHPの脆弱性の影響は受けません（確認済み）'},
   {id:'info_room5', info:true, title:'👥 プライベートマッチが最大5人に', desc:'プライベートマッチ（部屋コードで遊ぶ対戦）に、最大5人まで参加できるようになりました。2人以上そろえば、ホストが開始できます。'},
   {id:'info_assist_pause', info:true, title:'🛠 アシスト機能について', desc:'アシスト機能は、全容が完成するまで、いったんお休みします（サイドバーの「アシスト」を非表示にしました）。完成して公開するときに、あらためてお知らせします。'},
@@ -8118,6 +8136,159 @@ async function sendReport(){
     else{toast(j.error||'送信できませんでした');btn.disabled=false;btn.textContent='送信する';}
   }catch(e){toast('送信できませんでした。通信状況を確認してください');btn.disabled=false;btn.textContent='送信する';}
   finally{clearTimeout(to);_reportBusy=false;}
+}
+// ===== フレンド =====
+// 友だち関係は、お互いの端末の「フレンド一覧」にお互いのコードがあるときに成立する（申請→承認）。
+// コードは公開してよい。合言葉(tok)は端末の中だけに持ち、他人のなりすましを防ぐ。
+const FR_ALPHA='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function _frRand(n){const a=new Uint32Array(n);(window.crypto||crypto).getRandomValues(a);return Array.from(a,x=>FR_ALPHA[x%FR_ALPHA.length]).join('');}
+let FR=null;
+function frState(){
+  if(FR)return FR;
+  try{FR=JSON.parse(localStorage.getItem('rikka_friends')||'null');}catch(e){FR=null;}
+  if(!FR||typeof FR!=='object'||!/^[A-HJ-NP-Z2-9]{8}$/.test(FR.code||'')||!FR.tok){FR={code:_frRand(8),tok:_frRand(24),list:[],declined:[]};}
+  FR.list=Array.isArray(FR.list)?FR.list:[];FR.declined=Array.isArray(FR.declined)?FR.declined:[];
+  saveFriendState();return FR;
+}
+function saveFriendState(){try{localStorage.setItem('rikka_friends',JSON.stringify(FR));}catch(e){}}
+let fsocket=null,frRequests=[],_frStatus='';
+function friendConnect(){
+  if(fsocket)return;
+  try{fsocket=io(SERVER_URL,{transports:['websocket','polling']});}catch(e){return;}
+  fsocket.on('connect',frRegister);
+  fsocket.on('friend_view',frApplyView);
+  fsocket.on('friend_invite',frShowInvite);
+  fsocket.on('friend_error',m=>toast(m));
+  fsocket.on('disconnect',()=>{frRequests=[];frUpdateBadge();if(document.getElementById('fr-box'))frRender();});
+}
+function frRegister(){
+  const s=frState();_frStatus='';
+  fsocket.emit('friend_register',{code:s.code,tok:s.tok,name:myName(),avatar:myAvatarUrl(),title:myTitleId(),friends:s.list.map(f=>f.code)});
+  frReportStatus();
+}
+function frSync(){
+  if(!fsocket||!fsocket.connected)return;
+  fsocket.emit('friend_sync',{friends:frState().list.map(f=>f.code),name:myName(),avatar:myAvatarUrl(),title:myTitleId()});
+}
+function frReportStatus(){
+  if(!fsocket||!fsocket.connected)return;
+  const st=currentCode?((onlineMode&&G&&G.phase==='playing')?'playing':'room'):'lobby',key=st+'|'+(st==='room'?currentCode:'');
+  if(key===_frStatus)return;_frStatus=key;
+  fsocket.emit('friend_status',{st,room:st==='room'?currentCode:''});
+}
+function frApplyView(v){
+  if(!v||!Array.isArray(v.friends))return;
+  const s=frState();
+  v.friends.forEach(f=>{
+    const e=s.list.find(x=>x.code===f.code);if(!e)return;
+    if(f.state==='friend'){Object.assign(e,{name:f.name,avatar:f.avatar,title:f.title,confirmed:true,online:true,status:f.status,room:f.room,pending:false});}
+    else{e.online=false;e.status='';e.room='';e.pending=f.state==='pending';}
+  });
+  const prev=frRequests.length;
+  frRequests=(v.requests||[]).filter(r=>!s.declined.includes(r.code)&&!s.list.some(x=>x.code===r.code));
+  if(frRequests.length>prev)toast('👥 フレンド申請が届いています');
+  saveFriendState();frUpdateBadge();
+  if(document.getElementById('fr-box'))frRender();
+}
+function frUpdateBadge(){const b=document.getElementById('fr-badge');if(b)b.textContent=frRequests.length?'●':'';}
+function frShowInvite(d){
+  if(!d||!d.from||!/^[A-Z0-9]{3,12}$/.test(d.room||''))return;
+  if(onlineMode&&G&&G.phase==='playing')return;
+  showModal(`<div class="mtitle">👥 招待が届きました</div><p style="color:#c9a870;margin:.8rem 0">${esc(d.from.name)} さんから、部屋への招待です</p>
+    <button class="mbtn" onclick="frJoinRoom('${d.room}')">参加する</button>
+    <button class="mbtn" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020;margin-top:.4rem" onclick="document.getElementById('modal').classList.remove('open')">あとで</button>`);
+}
+function frJoinRoom(room){
+  if(!/^[A-Z0-9]{3,12}$/.test(room||''))return;
+  if(currentCode){toast('いまの部屋を出てから参加してください');return;}
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('join-code-input').value=room;joinRoom();
+}
+function frInvite(code){
+  if(!currentCode){toast('先に部屋を作ってください');return;}
+  fsocket?.emit('friend_invite',{to:code,room:currentCode});toast('📨 招待を送りました');
+}
+function frAdd(){
+  const el=document.getElementById('fr-add-input'),code=(el.value||'').toUpperCase().replace(/[\s-]/g,''),s=frState();
+  if(!/^[A-HJ-NP-Z2-9]{8}$/.test(code)){toast('コードは8文字です（例：K7M2QX9P）');return;}
+  if(code===s.code){toast('それはあなた自身のコードです');return;}
+  if(s.list.some(f=>f.code===code)){toast('すでに登録しています');return;}
+  if(s.list.length>=100){toast('フレンドは100人までです');return;}
+  s.declined=s.declined.filter(c=>c!==code);
+  s.list.push({code,name:'',confirmed:false});saveFriendState();frSync();el.value='';frRender();
+  toast('📨 申請しました。相手が承認するとフレンドになります');
+}
+function frAccept(code){const s=frState();if(!s.list.some(f=>f.code===code))s.list.push({code,name:'',confirmed:false});frRequests=frRequests.filter(r=>r.code!==code);saveFriendState();frSync();frUpdateBadge();frRender();}
+function frDecline(code){const s=frState();if(!s.declined.includes(code))s.declined.push(code);frRequests=frRequests.filter(r=>r.code!==code);saveFriendState();frUpdateBadge();frRender();}
+function frRemove(code){if(!confirm('このフレンドを削除しますか？'))return;const s=frState();s.list=s.list.filter(f=>f.code!==code);saveFriendState();frSync();frRender();}
+function frCopy(){const c=frState().code;(navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>toast('📋 コードをコピーしました')).catch(()=>toast('コード：'+c));}
+function openFriends(){
+  friendConnect();frSync();
+  showModal(`<div class="mtitle">👥 フレンド</div><div id="fr-box"></div><button class="mbtn" style="background:#2a1e14;color:#c9a84c;border:1px solid #5a4020;margin-top:.6rem" onclick="document.getElementById('modal').classList.remove('open')">閉じる</button>`);
+  frRender();
+}
+function frRender(){
+  const box=document.getElementById('fr-box');if(!box)return;
+  const s=frState(),conn=fsocket&&fsocket.connected,av=u=>{const src=avatarSrc(u||'');return src?`<img class="fr-av" src="${esc(src)}" alt="" onerror="this.style.display='none'">`:`<div class="fr-av">👤</div>`;};
+  const stLabel={lobby:['オンライン','on'],room:['部屋にいます','on'],playing:['対戦中','play']};
+  let h=`<div class="fr-h" style="margin-top:.2rem">あなたのフレンドコード</div>
+    <div class="fr-code"><b>${esc(s.code)}</b><button class="fr-b" onclick="frCopy()">コピー</button></div>
+    <div style="font-size:.7rem;color:#8a7048;margin:.3rem 0">このコードを友だちに教えて、友だちのコードを下に入力すると、フレンドになれます。${conn?'':'<br>⏳ サーバーに接続中です（初回は少し時間がかかります）'}</div>
+    <div class="fr-h">フレンドを追加</div>
+    <div style="display:flex;gap:.4rem"><input id="fr-add-input" class="finput" maxlength="12" placeholder="友だちのコード（8文字）" style="flex:1;text-transform:uppercase" onkeydown="if(event.key==='Enter')frAdd()"><button class="fr-b go" onclick="frAdd()">申請</button></div>`;
+  if(frRequests.length){
+    h+=`<div class="fr-h">申請が届いています</div>`+frRequests.map(r=>`<div class="fr-row">${av(r.avatar)}<div class="fr-info"><div class="fr-name">${esc(r.name||'名無し')}</div><div class="fr-st">フレンドになりたいそうです</div></div><button class="fr-b go" onclick="frAccept('${r.code}')">承認</button><button class="fr-b del" onclick="frDecline('${r.code}')">拒否</button></div>`).join('');
+  }
+  h+=`<div class="fr-h">フレンド（${s.list.filter(f=>f.confirmed).length}人）</div>`;
+  if(!s.list.length)h+=`<div style="font-size:.78rem;color:#6a5830">まだフレンドがいません</div>`;
+  h+=s.list.map(f=>{
+    if(!f.confirmed)return `<div class="fr-row">${av('')}<div class="fr-info"><div class="fr-name">${esc(f.code)}</div><div class="fr-st">承認待ち（相手がオンラインのときに届きます）</div></div><button class="fr-b del" onclick="frRemove('${f.code}')">取消</button></div>`;
+    const on=f.online&&!f.pending,l=on?(stLabel[f.status]||stLabel.lobby):[f.pending?'承認待ち':'オフライン',''];
+    const btns=(on&&f.status==='room'&&f.room?`<button class="fr-b go" onclick="frJoinRoom('${f.room}')">参加</button>`:'')+(on&&currentCode?`<button class="fr-b" onclick="frInvite('${f.code}')">招待</button>`:'')+`<button class="fr-b del" onclick="frRemove('${f.code}')">削除</button>`;
+    return `<div class="fr-row" style="${on?'':'opacity:.65'}">${av(f.avatar)}<div class="fr-info"><div class="fr-name">${esc(f.name||'名無し')}${f.title?` <span style="font-size:.68rem;color:#f5d040">${esc((GACHA_ITEMS.find(x=>x.id===f.title)||{}).title||'')}</span>`:''}</div><div class="fr-st ${l[1]}">${l[0]}</div></div>${btns}</div>`;
+  }).join('');
+  const keep=document.getElementById('fr-add-input'),v=keep?keep.value:'';
+  box.innerHTML=h;const ni=document.getElementById('fr-add-input');if(ni&&v)ni.value=v;
+}
+window.addEventListener('load',()=>{setTimeout(friendConnect,2500);setInterval(frReportStatus,3000);setInterval(frSync,45000);});
+// ===== クイックマッチで人が見つからないとき：CPUが相手になる =====
+// ニックネームは、よくある呼び名の部品を組み合わせて作った架空のもの（実在のアカウントは使っていません）。
+const _NK={
+  a:['はる','そら','ゆう','れん','りく','みお','あおい','ひなた','かい','ゆい','めい','さく','こう','だい','しょう','まひろ','りん','なな','たく','けん','みく','あや','ゆず','もも','れお','いつき','はな','しん','ともや','かな','あきら','まこと','ひろ','なつ','ゆき','りょう','たけ','こた','えみ','みなと'],
+  b:['ねこ','いぬ','うさぎ','もち','だいふく','たぬき','くま','ぱんだ','ぽん','ふわ','まる','ころ','きなこ','みかん','れもん','ぷりん','おにぎり','らーめん','たこ焼き','抹茶','コーヒー','ココア','麻雀','ガチャ','ゲーム','夜更かし','猫','月','星','雪','桜','海','空'],
+  s:['','','','ちゃん','くん','さん','ぴ','🌙','☆','♪','_'],
+  e:['sora','haru','yuki','ren','kai','mio','hina','riku','aoi','nana','mochi','neko','coco','luna','leo','yu','miyu','tak','shun','rin','kou','mai','sho','ken'],
+  t:['好き','党','の民','大好き','マン','です','日和','中毒','ぱんち','研究所'],
+  w:['ガチャ中','低浮上','ゲーム垢','のんびり','ひま','趣味垢','修行中','マイペース']
+};
+function botNickname(){
+  const r=a=>a[Math.floor(Math.random()*a.length)],n=m=>Math.floor(Math.random()*m),d=()=>String(n(10000)).padStart(2+n(3),'0').slice(-4);
+  const k=n(10);let s;
+  if(k<3)s=r(_NK.a)+r(_NK.s);
+  else if(k<5)s=r(_NK.b)+r(_NK.t);
+  else if(k<7)s=r(_NK.e)+r(['','_','__'])+d();
+  else if(k<9)s=r(_NK.a)+'@'+r(_NK.w);
+  else s=r(_NK.b)+d();
+  return s.slice(0,14);
+}
+let _qbTimer=null;
+function quickBotStartTimer(){if(_qbTimer)return;_qbTimer=setTimeout(quickBotFallback,9000+Math.random()*6000);}
+function quickBotClearTimer(){if(_qbTimer){clearTimeout(_qbTimer);_qbTimer=null;}}
+function quickBotFallback(){
+  _qbTimer=null;
+  if(onlineMode||currentCode)return; // すでに対戦に入っている
+  const go=()=>{
+    if(onlineMode||currentCode)return;
+    hideMatchFx(true);document.getElementById('btn-quick').disabled=false;
+    const cb=document.getElementById('btn-cancel-quick');if(cb)cb.style.display='none';
+    setOnlineStatus('','');startGame({quick:true,botName:botNickname()});
+  };
+  if(socket&&socket.connected){
+    let done=false;
+    socket.once('queue_cancelled',d=>{if(done)return;done=true;if(!d||d.removed!==false)go();}); // removed:false は、すでにマッチしている（そのまま対戦に入る）
+    socket.emit('cancel_queue');
+    setTimeout(()=>{if(!done){done=true;go();}},2500);
+  }else go(); // サーバーにつながらないときも、CPUが相手になる
 }
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2400);}
 
