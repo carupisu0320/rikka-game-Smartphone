@@ -317,14 +317,54 @@ function findRoom(sid) {
 }
 
 // ── Socket.IO ──
+// ── フレンド ──
+// 友だち関係は、各自の端末が持つ「フレンド一覧」から決まる。お互いの一覧に相手のコードがあるときだけ、フレンドとして表示される。
+// サーバーは、いまオンラインの人の情報（名前・状態）をメモリ上に持つだけ。再起動しても、端末が一覧を送り直すので元に戻る。
+const crypto = require('crypto');
+const FRIEND_CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/;
+const presence = new Map();     // フレンドコード → { sid, name, avatar, title, friends:Set, status, room }
+const sidToCode = new Map();    // socket.id → フレンドコード
+const friendTokens = new Map(); // フレンドコード → 合言葉のハッシュ（他人がなりすまして登録するのを防ぐ）
+function cleanFriends(arr, self) {
+  const set = new Set();
+  if (Array.isArray(arr)) for (const c of arr) { if (set.size >= 100) break; if (typeof c === 'string' && FRIEND_CODE_RE.test(c) && c !== self) set.add(c); }
+  return set;
+}
+function friendViewFor(code) {
+  const me = presence.get(code);
+  if (!me) return null;
+  const friends = [...me.friends].map(fc => {
+    const f = presence.get(fc);
+    if (f && f.friends.has(code)) return { code: fc, state: 'friend', name: f.name, avatar: f.avatar, title: f.title, status: f.status, room: f.room };
+    return { code: fc, state: f ? 'pending' : 'unknown' }; // 相手の情報は、お互いがフレンドになるまで見せない
+  });
+  const requests = [];
+  presence.forEach((x, xc) => { if (xc !== code && x.friends.has(code) && !me.friends.has(xc)) requests.push({ code: xc, name: x.name, avatar: x.avatar }); });
+  return { friends, requests };
+}
+function pushFriendView(code) {
+  const me = presence.get(code), v = me && friendViewFor(code);
+  if (v) io.to(me.sid).emit('friend_view', v);
+}
+function pushFriendViewsAround(code) { // 本人と、本人をフレンドに入れている人に最新の状態を送る
+  pushFriendView(code);
+  presence.forEach((x, xc) => { if (xc !== code && x.friends.has(code)) pushFriendView(xc); });
+}
 const ipSockets = new Map(); // IP → 接続数
-const MIN_GAP = { quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
+const MIN_GAP = { friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
 io.on('connection', socket => {
   const ip = String(socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || '').split(',')[0].trim();
   const n = (ipSockets.get(ip) || 0) + 1;
-  if (n > 30) { socket.disconnect(true); return; } // 同じIPから30接続を超えたら切る
+  if (n > 60) { socket.disconnect(true); return; } // 同じIPから60接続を超えたら切る（学校などの共用回線も考えて、ゆるめ）
   ipSockets.set(ip, n);
   socket.on('disconnect', () => { const m = (ipSockets.get(ip) || 1) - 1; if (m <= 0) ipSockets.delete(ip); else ipSockets.set(ip, m); });
+  socket.on('disconnect', () => {
+    const c = sidToCode.get(socket.id);
+    if (!c) return;
+    sidToCode.delete(socket.id);
+    const p = presence.get(c);
+    if (p && p.sid === socket.id) { presence.delete(c); pushFriendViewsAround(c); }
+  });
   // すべての受信に共通の守り：データが無い・形がおかしい送信でサーバーが落ちないようにし、連打を止める
   const _on = socket.on.bind(socket), lastAt = {};
   socket.on = (ev, fn) => _on(ev, (...args) => {
@@ -370,7 +410,7 @@ if (queue.length >= 2) {
   socket.on('cancel_queue', () => {
     const i = queue.findIndex(q => q.id === socket.id);
     if (i !== -1) queue.splice(i, 1);
-    socket.emit('queue_cancelled');
+    socket.emit('queue_cancelled', { removed: i !== -1 }); // removed:false は、すでにマッチした後
   });
 
   // 待機中のルームの全員に、参加者の名前・アイコン・称号を送る（you は受け取った本人の位置）
@@ -448,6 +488,42 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     if (pi === -1) return;
     room.players[pi].fx = sanitizeFx(fx);
     if (room.phase !== 'waiting') sendState(room);
+  });
+
+  // フレンド機能
+  socket.on('friend_register', ({ code, tok, name, avatar, title, friends }) => {
+    if (typeof code !== 'string' || !FRIEND_CODE_RE.test(code)) return;
+    if (typeof tok !== 'string' || tok.length < 16 || tok.length > 64) return;
+    const hash = crypto.createHash('sha256').update(tok).digest('hex');
+    if (friendTokens.has(code) && friendTokens.get(code) !== hash) { socket.emit('friend_error', 'このフレンドコードは使えません'); return; }
+    if (!friendTokens.has(code)) { friendTokens.set(code, hash); if (friendTokens.size > 20000) friendTokens.delete(friendTokens.keys().next().value); }
+    presence.set(code, { sid: socket.id, name: sanitizeName(name), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), friends: cleanFriends(friends, code), status: 'lobby', room: '' });
+    sidToCode.set(socket.id, code);
+    pushFriendViewsAround(code);
+  });
+  socket.on('friend_sync', ({ friends, name, avatar, title }) => {
+    const code = sidToCode.get(socket.id), p = code && presence.get(code);
+    if (!p) return;
+    p.friends = cleanFriends(friends, code);
+    if (name !== undefined) p.name = sanitizeName(name);
+    if (avatar !== undefined) p.avatar = sanitizeAvatar(avatar);
+    if (title !== undefined) p.title = sanitizeTitle(title);
+    pushFriendViewsAround(code);
+  });
+  socket.on('friend_status', ({ st, room }) => {
+    const code = sidToCode.get(socket.id), p = code && presence.get(code);
+    if (!p || !['lobby', 'room', 'playing'].includes(st)) return;
+    p.status = st;
+    p.room = (st === 'room' && typeof room === 'string' && /^[A-Z0-9]{3,12}$/.test(room)) ? room : '';
+    pushFriendViewsAround(code);
+  });
+  socket.on('friend_invite', ({ to, room }) => {
+    const from = sidToCode.get(socket.id), me = from && presence.get(from);
+    if (!me || typeof to !== 'string' || !FRIEND_CODE_RE.test(to)) return;
+    const t = presence.get(to);
+    if (!t || !t.friends.has(from) || !me.friends.has(to)) return; // お互いがフレンドで、相手がオンラインのときだけ
+    if (typeof room !== 'string' || !/^[A-Z0-9]{3,12}$/.test(room)) return;
+    io.to(t.sid).emit('friend_invite', { from: { code: from, name: me.name }, room });
   });
 
   // アイコン画像を変更（対局中でも変更可能）
