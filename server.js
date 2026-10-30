@@ -804,6 +804,19 @@ app.use('/report', (req, res, next) => {
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
+// 端末情報（ブラウザの長い名札など）を、読みやすい短い形にする。Discordでは、クリックすると見える「スポイラー」に入れる。
+const SCREEN_LABEL = { lobby: 'ロビー', game: '対局画面', gacha: 'ガチャ' };
+function describeCtx(ctx) {
+  const parts = String(ctx || '').split(' | ');
+  const ua = parts[0] || '';
+  const os = /CrOS/.test(ua) ? 'ChromeOS' : /Windows/.test(ua) ? 'Windows' : /Android/.test(ua) ? 'Android' : /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Mac OS X/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : '不明のOS';
+  const m = (re) => { const r = ua.match(re); return r ? r[1] : ''; };
+  const br = /Edg\//.test(ua) ? 'Edge ' + m(/Edg\/(\d+)/) : /OPR\//.test(ua) ? 'Opera ' + m(/OPR\/(\d+)/) : /Firefox\//.test(ua) ? 'Firefox ' + m(/Firefox\/(\d+)/) : /Chrome\//.test(ua) ? 'Chrome ' + m(/Chrome\/(\d+)/) : /Safari\//.test(ua) ? 'Safari ' + m(/Version\/(\d+)/) : '不明のブラウザ';
+  const get = (k) => { const p = parts.find(x => x.startsWith(k + ':')); return p ? p.slice(k.length + 1) : ''; };
+  const scr = get('screen'), on = get('online'), size = parts[parts.length - 1] || '';
+  const short = [os + '・' + br.trim(), scr ? (SCREEN_LABEL[scr] || scr) : '', on === '1' ? 'オンライン対戦中' : (on === '0' ? 'CPU戦・オフライン' : ''), /^\d+x\d+$/.test(size) ? size.replace('x', '×') : ''].filter(Boolean).join('｜');
+  return short + '\n' + String(ctx || '').replace(/\|/g, '｜');
+}
 const KIND_LABEL = { bug: '🐞 不具合', idea: '💡 ご要望', other: '💬 その他' };
 app.post('/report', async (req, res) => {
   const ip = req.ip || '';
@@ -822,7 +835,7 @@ app.post('/report', async (req, res) => {
   reports.push(r); if (reports.length > 200) reports.shift();
   console.log('📨 report', JSON.stringify(r));
   if (REPORT_WEBHOOK_URL && typeof fetch === 'function') {
-    const text = `${KIND_LABEL[kind]}｜${r.name || '名無し'}${r.contact ? `｜連絡先: ${r.contact}` : ''}\n${message}\n\`${r.ctx}\``.replace(/@/g, '@\u200b').slice(0, 1900);
+    const text = `${KIND_LABEL[kind]}｜${r.name || '名無し'}${r.contact ? `｜連絡先: ${r.contact}` : ''}\n${message}\n🔎 端末情報（クリックで表示）：||${describeCtx(r.ctx).replace(/\|\|/g, '')}||`.replace(/@/g, '@\u200b').slice(0, 1900);
     try { await fetch(REPORT_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(/discord(app)?\.com\//.test(REPORT_WEBHOOK_URL) ? { content: text, allowed_mentions: { parse: [] } } : { text }) }); }
     catch (e) { console.log('webhook failed', e.message); }
   }
