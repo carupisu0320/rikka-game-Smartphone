@@ -2234,6 +2234,17 @@ function go(){fix(document.body);mo.observe(document.body,{childList:true,subtre
 document.body?go():document.addEventListener('DOMContentLoaded',go);
 })();
 </script>
+<style>body.no-menu #menu-btn{display:none!important}</style>
+<script>
+/* フレンド・メッセージなどの画面が開いている間は、メニュー（☰）を隠す（カスタマイズ画面と同じ） */
+(function(){
+  const ids=['modal','chat-wrap','bot-chat-wrap'];
+  const isOpen=el=>!!el&&(el.id==='modal'?el.classList.contains('open'):el.style.display==='flex');
+  const sync=()=>document.body.classList.toggle('no-menu',ids.some(i=>isOpen(document.getElementById(i))));
+  ids.forEach(i=>{const el=document.getElementById(i);if(el)new MutationObserver(sync).observe(el,{attributes:true,attributeFilter:['class','style']});});
+  sync();
+})();
+</script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <script>
