@@ -2234,7 +2234,27 @@ function go(){fix(document.body);mo.observe(document.body,{childList:true,subtre
 document.body?go():document.addEventListener('DOMContentLoaded',go);
 })();
 </script>
-<style>body.no-menu #menu-btn{display:none!important}</style>
+<style>body.no-menu #menu-btn{display:none!important}
+/* 通常時（イベントなし）のタイトル：静かな冬の夜（月明かり・薄い霧・ゆっくり舞う雪の結晶） */
+.ld-moon{position:absolute;top:9%;right:11%;width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 36% 34%,#fffcf0 0,#efe7cf 52%,#cdc2a4 100%);
+  box-shadow:0 0 28px rgba(225,230,255,.35),0 0 90px rgba(170,185,255,.22),0 0 180px rgba(150,165,240,.12)}
+.ld-moon::after{content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 62% 60%,rgba(150,140,115,.28) 0 7px,transparent 8px),radial-gradient(circle at 30% 64%,rgba(150,140,115,.2) 0 5px,transparent 6px),radial-gradient(circle at 54% 26%,rgba(150,140,115,.18) 0 4px,transparent 5px)}
+.ld-mist{position:absolute;left:-30%;width:160%;height:26%;filter:blur(16px);opacity:.9;
+  background:linear-gradient(90deg,transparent 0%,rgba(185,196,228,.11) 30%,rgba(185,196,228,.16) 55%,transparent 100%);animation:ldMist 60s ease-in-out infinite alternate}
+.ld-vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,transparent 52%,rgba(0,0,0,.5) 100%)}
+@keyframes ldMist{from{transform:translateX(-6%)}to{transform:translateX(8%)}}
+#lobby.lobby-default .logo-sub{color:#8d89ad}
+#lobby.lobby-default .logo-kanji{transition:color 8s,text-shadow 8s}
+.ld-scene{position:absolute;inset:0;transition:opacity 8s ease-in-out}
+.ld-sky{position:absolute;inset:0}
+.ld-glow{position:absolute;border-radius:50%}
+.ld-moon.sm{width:40px;height:40px;right:auto;left:14%;top:8%;opacity:.85}
+.ld-cloud{position:absolute;left:-10%;height:70px;border-radius:50%;filter:blur(22px);animation:ldMist 90s ease-in-out infinite alternate}
+.ld-mote{position:absolute;border-radius:50%;animation:ldMote linear infinite}
+@keyframes ldMote{0%{transform:translate3d(0,0,0);opacity:0}15%{opacity:.8}85%{opacity:.8}100%{transform:translate3d(var(--sx,20px),-70px,0);opacity:0}}
+@media(prefers-reduced-motion:reduce){.ld-mist{animation:none}}</style>
 <script>
 /* フレンド・メッセージなどの画面が開いたら、メニューを閉じて隠す（カスタマイズ画面と同じ） */
 (function(){
@@ -8239,6 +8259,55 @@ async function installNewIcon(){
   try{_deferredInstall.prompt();await _deferredInstall.userChoice;}catch(e){}
   _deferredInstall=null;closeIconUpdate();
 }
+// 通常時のタイトルは、時間帯（明け方・昼・夕方・夜・深夜）に合わせて、ゆっくり景色が移り変わる
+const LD_SLOTS={
+  dawn:{sky:'linear-gradient(180deg,#0f1430 0%,#2a2a52 35%,#6a4a6e 62%,#c0707a 84%,#e6a37e 100%)',logo:'#f0dcc0',glow:'rgba(255,190,170,.4)',stars:6,mist:'rgba(230,190,200,.14)',cloud:'rgba(240,190,190,.2)',sun:'left:14%;bottom:16%;width:300px;height:300px;background:radial-gradient(circle,rgba(255,190,140,.55) 0%,transparent 68%)',flake:0,mote:12,motec:'255,226,214'},
+  day:{sky:'linear-gradient(180deg,#14304a 0%,#1f4a6a 40%,#2f6684 72%,#4f8294 100%)',logo:'#f4e6bf',glow:'rgba(255,240,200,.35)',stars:0,mist:'rgba(210,230,240,.12)',cloud:'rgba(235,245,250,.16)',sun:'left:2%;top:2%;width:340px;height:340px;background:radial-gradient(circle,rgba(255,238,190,.5) 0%,transparent 66%)',flake:0,mote:10,motec:'255,244,214'},
+  dusk:{sky:'linear-gradient(180deg,#15142c 0%,#3a2550 38%,#7a3d5a 66%,#c0635a 88%,#dc8a5a 100%)',logo:'#f6d8a8',glow:'rgba(255,170,120,.4)',stars:5,mist:'rgba(230,170,150,.12)',cloud:'rgba(220,140,130,.18)',sun:'right:6%;bottom:18%;width:300px;height:300px;background:radial-gradient(circle,rgba(255,140,90,.55) 0%,transparent 68%)',flake:0,mote:10,motec:'255,214,170'},
+  night:{sky:'radial-gradient(ellipse at 82% 6%,rgba(120,135,210,.26) 0%,transparent 50%),radial-gradient(ellipse at 50% 108%,rgba(110,90,130,.28) 0%,transparent 58%),linear-gradient(180deg,#05070f 0%,#0b1226 48%,#141a2e 80%,#1c1d33 100%)',logo:'#e8d8b0',glow:'rgba(190,200,245,.35)',stars:14,mist:'rgba(185,196,228,.14)',moon:1,flake:16,mote:0},
+  deep:{sky:'radial-gradient(ellipse at 20% 6%,rgba(80,95,170,.18) 0%,transparent 50%),linear-gradient(180deg,#020308 0%,#060a18 55%,#0b1022 85%,#12142a 100%)',logo:'#dccfae',glow:'rgba(150,165,230,.3)',stars:30,mist:'rgba(150,160,200,.1)',moon:2,flake:8,mote:0}
+};
+const ldSlot=()=>{const d=new Date(),h=d.getHours()+d.getMinutes()/60;return h>=5&&h<7?'dawn':h>=7&&h<16?'day':h>=16&&h<18.5?'dusk':h>=18.5&&h<23?'night':'deep';};
+let _ldSlot='';
+function ldBuild(slot){
+  const L=LD_SLOTS[slot],rnd=(a,b)=>a+Math.random()*(b-a),sc=document.createElement('div');sc.className='ld-scene';
+  const mg=`background:linear-gradient(90deg,transparent 0%,${L.mist} 40%,${L.mist} 60%,transparent 100%)`;
+  let h=`<div class="ld-sky" style="background:${L.sky}"></div>`;
+  if(L.sun)h+=`<div class="ld-glow" style="${L.sun}"></div>`;
+  if(L.moon)h+=`<div class="ld-moon${L.moon===2?' sm':''}"></div>`;
+  if(L.cloud)[[8,60],[34,92],[62,70]].forEach(([t,w],i)=>h+=`<div class="ld-cloud" style="top:${t}%;width:${w}%;background:${L.cloud};animation-duration:${90+i*40}s;animation-direction:${i%2?'alternate-reverse':'alternate'}"></div>`);
+  h+=`<div class="ld-mist" style="top:58%;${mg}"></div><div class="ld-mist" style="top:74%;animation-duration:80s;animation-direction:alternate-reverse;${mg}"></div>`;
+  sc.innerHTML=h;
+  for(let i=0;i<L.stars;i++){const e=document.createElement('i'),z=1+Math.random()*1.3;e.className='lf-star';
+    e.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*60}%;width:${z}px;height:${z}px;opacity:.6;animation-duration:${3+Math.random()*5}s;animation-delay:-${Math.random()*6}s`;sc.appendChild(e);}
+  const flake=()=>{let a='';for(let i=0;i<6;i++)a+=`<g transform="rotate(${i*60} 50 50)"><path d="M50 50V8M50 30l-9-9M50 30l9-9M50 19l-6-6M50 19l6-6"/></g>`;
+    return `<svg viewBox="0 0 100 100" width="100%" height="100%" fill="none" stroke="#dfe8ff" stroke-width="2.4" stroke-linecap="round">${a}<circle cx="50" cy="50" r="3" fill="#eef3ff" stroke="none"/></svg>`;};
+  for(let i=0;i<(L.flake||0);i++){const e=document.createElement('span'),z=rnd(9,26),d=rnd(24,42);e.className='lf lf-fall';e.innerHTML=flake();
+    e.style.cssText=`left:${rnd(0,96)}%;top:0;width:${z}px;height:${z}px;opacity:${z<14?rnd(.25,.45):rnd(.45,.75)};${z<14?'filter:blur(.7px);':''}animation-duration:${d}s;animation-delay:-${rnd(0,d)}s;--sx:${rnd(-30,40)}px`;sc.appendChild(e);}
+  for(let i=0;i<(L.mote||0);i++){const e=document.createElement('i'),z=rnd(3,9),d=rnd(10,18);e.className='ld-mote';
+    e.style.cssText=`left:${rnd(2,96)}%;top:${rnd(20,90)}%;width:${z}px;height:${z}px;background:radial-gradient(circle,rgba(${L.motec},.9),rgba(${L.motec},0) 70%);animation-duration:${d}s;animation-delay:-${rnd(0,d)}s;--sx:${rnd(-20,30)}px`;sc.appendChild(e);}
+  sc.insertAdjacentHTML('beforeend','<div class="ld-vig"></div>');
+  return sc;
+}
+function _ldShow(lobby,fx,fade){
+  const slot=window._ldForce||ldSlot(),L=LD_SLOTS[slot];_ldSlot=slot;
+  lobby.style.setProperty('--logo-c',L.logo);lobby.style.setProperty('--logo-glow',L.glow);
+  const sc=ldBuild(slot);
+  if(!fade){fx.appendChild(sc);return;}
+  const olds=[...fx.querySelectorAll('.ld-scene')];
+  sc.style.opacity=0;fx.appendChild(sc);sc.getBoundingClientRect();sc.style.opacity=1;       // 新しい景色をゆっくり重ねる
+  olds.forEach(o=>{o.style.opacity=0;setTimeout(()=>o.remove(),9000);});
+}
+function applyLobbyDefault(lobby,fx,st){
+  lobby.classList.add('lobby-default');
+  st.setProperty('--lobby-bg','#05070f');
+  fx.innerHTML='';_ldShow(lobby,fx,false);
+}
+setInterval(()=>{const l=document.getElementById('lobby'),f=document.getElementById('lobby-fx');
+  if(!l||!f||!l.classList.contains('lobby-default'))return;
+  if((window._ldForce||ldSlot())!==_ldSlot)_ldShow(l,f,true);},30000);
+window.setLobbySlot=n=>{window._ldForce=n||null;const l=document.getElementById('lobby'),f=document.getElementById('lobby-fx');
+  if(l&&f&&l.classList.contains('lobby-default'))_ldShow(l,f,true);}; // 確認用：setLobbySlot('dusk') など
 function applyLobbyEvent(){
   const ev=currentLobbyEvent(),id=ev?ev.id:'';
   if(id===_lobbyEventId){setTimeout(updateIconUpdateBtn,0);return;} // 変わっていなければ、背景はそのまま（お知らせの出し分けだけ更新）
@@ -8249,8 +8318,8 @@ function applyLobbyEvent(){
   const lobby=document.getElementById('lobby'),fx=document.getElementById('lobby-fx'),bn=document.getElementById('lobby-event-banner');
   const st=lobby.style;
   ['--lobby-bg','--logo-c','--logo-glow','--moon-glow','--moon-glow2'].forEach(k=>st.removeProperty(k));
-  fx.innerHTML=''; bn.style.display='none'; lobby.removeAttribute('data-event');
-  if(!ev)return;
+  fx.innerHTML=''; bn.style.display='none'; lobby.removeAttribute('data-event'); lobby.classList.remove('lobby-default');
+  if(!ev){applyLobbyDefault(lobby,fx,st);return;}
   lobby.setAttribute('data-event',ev.id);
   st.setProperty('--lobby-bg',ev.bg); st.setProperty('--logo-c',ev.logo); st.setProperty('--logo-glow',ev.glow);
   if(ev.moon){st.setProperty('--moon-glow',ev.moon[0]);st.setProperty('--moon-glow2',ev.moon[1]);}
