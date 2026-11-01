@@ -5295,13 +5295,51 @@ LOBBY_SCENES.ginkgo=function(){const r=_rng(311),cs=['#f5c430','#ffd95a','#e8a81
   for(let i=0;i<70;i++)lv+=`<path d="M0 0L-7-10Q0-14 7-10z" transform="translate(${(r()*400).toFixed(0)} ${(r()*760).toFixed(0)}) rotate(${(r()*360).toFixed(0)}) scale(${(.6+r()*1.3).toFixed(2)})" fill="${cs[(r()*4)|0]}"/>`;
   for(let i=0;i<22;i++)cn+=`<ellipse cx="${(r()*400).toFixed(0)}" cy="${(r()*260).toFixed(0)}" rx="${(40+r()*50).toFixed(0)}" ry="${(24+r()*26).toFixed(0)}" fill="${cs[(r()*3)|0]}" opacity=".85"/>`;
   return `<defs>${_vgrad('sk',[[0,'#fff6c8'],[1,'#f2c64a']])}</defs><rect width="400" height="800" fill="url(#sk)"/>${cn}<path d="M170 800L190 440H210L230 800z" fill="#f0c040" opacity=".55"/><rect x="28" y="190" width="26" height="580" fill="#6a4a1c"/><rect x="346" y="190" width="26" height="580" fill="#6a4a1c"/><path d="M0 800V700Q200 640 400 700V800z" fill="#e8b020"/>${lv}`;};
-LOBBY_SCENES.utsuroi=function(){const r=_rng(321);let lv='',cn='',sn='';
-  const col=(a,b)=>`<animate attributeName="fill" values="${a};${b};#ffffff;#ffffff;${a}" keyTimes="0;.35;.55;.85;1" dur="26s" repeatCount="indefinite"/>`;
-  const fade='<animate attributeName="opacity" values="0;0;.9;.9;0" keyTimes="0;.45;.6;.85;1" dur="26s" repeatCount="indefinite"/>';
-  for(let i=0;i<16;i++)cn+=`<ellipse cx="${(r()*400).toFixed(0)}" cy="${(350+r()*200).toFixed(0)}" rx="${(34+r()*40).toFixed(0)}" ry="${(24+r()*20).toFixed(0)}" fill="#e8452a" opacity=".92">${col('#d8382a','#f0a028')}</ellipse>`;
-  for(let i=0;i<34;i++)lv+=`<g transform="translate(${(r()*400).toFixed(0)} -30)"><g class="fl" style="animation-duration:${(6+r()*7).toFixed(1)}s;animation-delay:${(-r()*12).toFixed(1)}s"><path d="${_MP}" transform="scale(${(.8+r()*1.3).toFixed(2)})" fill="#e8452a">${col('#e8452a','#f5a030')}</path></g></g>`;
-  for(let i=0;i<46;i++)sn+=`<circle class="sn" cx="${(r()*400).toFixed(0)}" cy="-10" r="${(1.5+r()*2.2).toFixed(1)}" fill="#fff" opacity="0" style="animation-duration:${(5+r()*6).toFixed(1)}s;animation-delay:${(-r()*10).toFixed(1)}s">${fade}</circle>`;
-  return `<defs>${_vgrad('sk',[[0,'#3a2a4a'],[.45,'#d86a4a'],[.8,'#ffc47a']])}${_vgrad('wk',[[0,'#1a2a48'],[1,'#8aa8c8']])}</defs><style>.fl{animation:fl linear infinite}.sn{animation:sn linear infinite}@keyframes fl{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(26px,420px) rotate(180deg)}100%{transform:translate(-8px,860px) rotate(360deg)}}@keyframes sn{from{transform:translateY(0)}to{transform:translateY(840px)}}</style><rect width="400" height="800" fill="url(#sk)"/><rect width="400" height="800" fill="url(#wk)" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.4;.6;.85;1" dur="26s" repeatCount="indefinite"/></rect><rect x="40" y="420" width="16" height="340" fill="#2a1410"/><rect x="190" y="400" width="20" height="360" fill="#2a1410"/><rect x="330" y="440" width="16" height="320" fill="#2a1410"/>${cn}<rect y="740" width="400" height="60" fill="#5a1a14">${col('#5a1a14','#8a3a18')}</rect>${lv}${sn}`;};
+const _utsCan=()=>{const r=_rng(321);return Array.from({length:16},()=>[r()*400,350+r()*200,34+r()*40,24+r()*20]);};
+const _lc=(a,b,t)=>{const q=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),x=q(a),y=q(b);return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join('');};
+LOBBY_SCENES.utsuroi=function(){let cn='';
+  _utsCan().forEach(([x,y,rx,ry])=>cn+=`<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" fill="#e8452a" opacity=".92"/>`);
+  return `<defs>${_vgrad('sk',[[0,'#3a2a4a'],[.45,'#d86a4a'],[.8,'#ffc47a']])}</defs><rect width="400" height="800" fill="url(#sk)"/><rect x="40" y="420" width="16" height="340" fill="#2a1410"/><rect x="190" y="400" width="20" height="360" fill="#2a1410"/><rect x="330" y="440" width="16" height="320" fill="#2a1410"/>${cn}<rect y="740" width="400" height="60" fill="#5a1a14"/>`;};
+// ---- 場の動き（ゲーム中の背景。既存の背景と同じ仕組み） ----
+FIELD_ANIMS.momijiyama=function(){
+  const mp=new Path2D(_MP),gl=glowSprite('255,200,120'),cs=['#e8452a','#f08a2a','#c8301c','#f5b030','#a82418'];
+  const P=Array.from({length:56},()=>({x:_R(-60,420),y:_R(0,820),vx:_R(.3,1.1),vy:_R(.5,1.3),r:_R(0,6.28),vr:_R(-.05,.05),s:_R(.5,1.3),ph:_R(0,6.28),c:cs[Math.floor(_R(0,5))]}));
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';c.globalAlpha=.14+.07*Math.sin(now*.0008);c.drawImage(gl,70,160,400,400);c.globalCompositeOperation='source-over';
+    for(const p of P){p.x+=(p.vx+Math.sin(now*.0015+p.ph)*.5)*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;
+      if(p.y>S.y1+20||p.x>S.x1+30){p.y=_R(S.y0-40,S.y0);p.x=_R(S.x0-60,S.x1);}
+      c.save();c.translate(p.x,p.y);c.rotate(p.r);c.scale(p.s,p.s*Math.cos(now*.002+p.ph));c.globalAlpha=.92;c.fillStyle=p.c;c.fill(mp);c.restore();}
+    c.globalAlpha=1;};
+};
+FIELD_ANIMS.ginkgo=function(){
+  const fan=new Path2D('M0 0L-7-10Q0-14 7-10z'),cs=['#f5c430','#ffd95a','#e8a818','#fff0a0'];
+  const P=Array.from({length:64},()=>({x:_R(-20,420),y:_R(0,820),vy:_R(.35,.9),ph:_R(0,6.28),sw:_R(.001,.002),s:_R(1,2),c:cs[Math.floor(_R(0,4))],r:_R(0,6.28)}));
+  return (c,dt,now,S)=>{
+    c.globalCompositeOperation='lighter';
+    for(const bx of [120,250]){c.globalAlpha=.05+.03*Math.sin(now*.0007+bx);c.fillStyle='#fff3b0';c.beginPath();c.moveTo(bx,S.y0);c.lineTo(bx+60,S.y0);c.lineTo(bx+170,S.y1);c.lineTo(bx+40,S.y1);c.closePath();c.fill();}
+    c.globalCompositeOperation='source-over';
+    for(const p of P){p.y+=p.vy*dt;const sw=Math.sin(p.ph+now*p.sw);
+      if(p.y>S.y1+20){p.y=_R(S.y0-40,S.y0);p.x=_R(S.x0,S.x1);}
+      c.save();c.translate(p.x+sw*22,p.y);c.rotate(p.r+sw*.8);c.scale(p.s,p.s*(.55+.45*Math.abs(Math.cos(p.ph+now*.003))));c.globalAlpha=.95;c.fillStyle=p.c;c.fill(fan);c.restore();}
+    c.globalAlpha=1;};
+};
+FIELD_ANIMS.utsuroi=function(){
+  const mp=new Path2D(_MP),can=_utsCan(),cs=['#e8452a','#f08a2a','#c8301c','#f5b030'];
+  const P=Array.from({length:50},()=>({x:_R(-20,420),y:_R(0,820),vy:_R(.5,1.2),ph:_R(0,6.28),s:_R(.6,1.4),r:_R(0,6.28),vr:_R(-.04,.04),c:cs[Math.floor(_R(0,4))]}));
+  return (c,dt,now,S)=>{
+    // 26秒で「紅葉 → 初雪 → 紅葉」をくり返す
+    const t=(now%26000)/26000,w=t<.35?0:t<.55?(t-.35)/.2:t<.85?1:1-(t-.85)/.15,k=t>.85?1-(t-.85)/.15:Math.min(1,t/.35);
+    if(w>0){const g=c.createLinearGradient(0,S.y0,0,S.y1);g.addColorStop(0,'#1a2a48');g.addColorStop(1,'#8aa8c8');c.globalAlpha=.5*w;c.fillStyle=g;c.fillRect(S.x0,S.y0,S.x1-S.x0,S.y1-S.y0);}
+    c.globalAlpha=.95;c.fillStyle=_lc(_lc('#e8452a','#f0a028',k),'#ffffff',w);
+    for(const [x,y,rx,ry] of can){c.beginPath();c.ellipse(x,y,rx,ry,0,0,6.283);c.fill();}
+    c.fillStyle=_lc(_lc('#5a1a14','#8a3a18',k),'#ffffff',w);c.fillRect(S.x0,740,S.x1-S.x0,S.y1-736);
+    for(const p of P){p.y+=p.vy*dt;p.r+=p.vr*dt;
+      if(p.y>S.y1+20){p.y=_R(S.y0-40,S.y0);p.x=_R(S.x0,S.x1);}
+      const x=p.x+Math.sin(p.ph+now*.0015)*20;
+      if(w<.95){c.save();c.translate(x,p.y);c.rotate(p.r);c.scale(p.s,p.s);c.globalAlpha=.92*(1-w);c.fillStyle=p.c;c.fill(mp);c.restore();}
+      if(w>.05){c.globalAlpha=.9*w;c.fillStyle='#fff';c.beginPath();c.arc(x,p.y,1.4+p.s*1.2,0,6.283);c.fill();}}
+    c.globalAlpha=1;};
+};
 GICON_SVG.gi_leaves=function(){let f='';
   [[16,1.1,3.4,0,'#e8452a'],[38,1.5,4.2,1.2,'#f5a030'],[60,1.2,3.8,2.1,'#c8301c'],[82,1.4,4.6,.6,'#f5c430'],[28,.9,5,2.8,'#f08a2a'],[70,1,3.6,1.7,'#e8452a']].forEach(([x,sc,d,dl,c])=>f+=`<g transform="translate(${x} 0) scale(${sc})"><path class="o" d="${_MP}" fill="${c}" style="animation:lf ${d}s linear ${dl}s infinite"/></g>`);
   return _giSvg(_giLG('#ffe0b0','#d8683a'),`<style>@keyframes lf{0%{transform:translate(0,-10px) rotate(0)}100%{transform:translate(-14px,120px) rotate(300deg)}}</style><path d="M0 86Q50 74 100 86V100H0z" fill="#a8402a"/>${f}`);};
