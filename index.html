@@ -1157,6 +1157,17 @@ body.back-crimson .fback::after,.pv-crimson .ltd-fb::after{color:rgba(255,150,16
 body.back-pumpkin .fback{background:radial-gradient(circle at 50% 45%,#ff9a30,#b84a08 70%,#4a1a04);border-color:#ffb040}
 body.back-pumpkin .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(70,20,0,.35) 5px 6px)}
 body.back-pumpkin .fback::after{content:'🎃';font-size:.8rem;color:#ffd060;animation:backFlicker 1.6s ease-in-out infinite}
+body.back-momiji .fback{background:linear-gradient(165deg,#a8301c,#4a0e0a);border-color:#f08a2a}
+body.back-momiji .fback::before{background:radial-gradient(circle,rgba(255,170,60,.5) 0 2px,transparent 3px) 0 0/8px 8px,radial-gradient(circle,rgba(255,90,40,.45) 0 2px,transparent 3px) 4px 4px/8px 8px;animation:backGrid 3s linear infinite}
+body.back-momiji .fback::after{content:'✿';font-size:.8rem;color:rgba(255,200,120,.55)}
+body.back-ginkgo .fback{background:linear-gradient(165deg,#f2c030,#9a6a0a);border-color:#ffe070}
+body.back-ginkgo .fback::before{background:repeating-linear-gradient(60deg,transparent 0 5px,rgba(255,240,150,.3) 5px 6px)}
+body.back-ginkgo .fback::after{content:'❦';font-size:.8rem;color:rgba(90,50,0,.5)}
+body.back-shigure .fback{background:linear-gradient(165deg,#3a4a5e,#10161f);border-color:#7a90a8}
+body.back-shigure .fback::before{background:linear-gradient(100deg,transparent 40%,rgba(170,200,230,.35) 50%,transparent 60%) 0 0/8px 8px;animation:backGrid .9s linear infinite}
+body.back-hatsuyuki .fback{background:linear-gradient(165deg,#e8f4ff,#8aa8c8);border-color:#fff}
+body.back-hatsuyuki .fback::before{background:radial-gradient(circle,#fff 0 1.5px,transparent 2.5px) 0 0/8px 8px,radial-gradient(circle,rgba(255,255,255,.8) 0 1px,transparent 2px) 4px 4px/8px 8px;animation:backGrid 2.4s linear infinite}
+body.back-hatsuyuki .fback::after{content:'❅';font-size:.85rem;color:rgba(70,110,160,.6)}
 #assist-style-box .as-btn{padding:.22rem .6rem;border:1px solid #3e2e1e;background:#2a1e14;color:#8a7048;font-family:inherit;font-size:.78rem;cursor:pointer}
 #assist-style-box .as-btn:first-child{border-radius:6px 0 0 6px}#assist-style-box .as-btn:last-child{border-radius:0 6px 6px 0;border-left:none}
 #assist-style-box .as-btn.on{background:linear-gradient(135deg,#c9a84c,#8a6a20);color:#1a1004;border-color:#c9a84c;font-weight:700}
@@ -1733,11 +1744,11 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   <div class="gacha-main gacha-limited">
     <div class="gacha-ltd-badge">✨ 期間限定</div>
     <div class="gacha-ltd-period" id="gacha-ltd-period"></div>
-    <div class="gacha-ltd-top">最高レア：Game Over Ⅲ・Ⅳ（場の背景）</div>
+    <div class="gacha-ltd-top" id="gacha-ltd-top"></div>
     <div class="ltd-top-icons" id="ltd-top-icons"></div>
     <button class="gacha-draw-btn" onclick="drawGacha('limited')">限定ガチャを引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'limited')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'limited')">100連<small>🌸 1000</small></button></div>
-    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号・アイコン</div>
+    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号・アイコン・紙吹雪</div>
   </div>
   </div>
   </div>
@@ -2129,6 +2140,100 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 </div>
 
 
+<style>
+.ico{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;line-height:1}
+.ico svg{width:100%;height:100%;display:block;overflow:visible}
+.ico svg{animation:2.6s ease-in-out infinite}
+@keyframes ik-spin{to{transform:rotate(360deg)}}
+@keyframes ik-twk{0%,100%{transform:scale(.85) rotate(0);opacity:.7}50%{transform:scale(1.15) rotate(14deg);opacity:1}}
+@keyframes ik-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}
+@keyframes ik-beat{0%,50%,100%{transform:scale(1)}12%{transform:scale(1.25)}25%{transform:scale(.96)}37%{transform:scale(1.15)}}
+@keyframes ik-bob{0%,100%{transform:translateY(8%)}50%{transform:translateY(-8%)}}
+@keyframes ik-sway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+@keyframes ik-flick{0%,100%{transform:scale(1,1)}33%{transform:scale(.92,1.1)}66%{transform:scale(1.06,.94)}}
+@keyframes ik-zap{0%,40%,60%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.5}}
+@keyframes ik-hop{0%,65%,100%{transform:translateY(0) rotate(0)}78%{transform:translateY(-24%) rotate(-6deg)}90%{transform:translateY(0) rotate(4deg)}}
+@keyframes ik-wig{0%,55%,100%{transform:rotate(0)}65%{transform:rotate(-13deg)}78%{transform:rotate(13deg)}90%{transform:rotate(-7deg)}}
+@keyframes ik-burst{0%{transform:scale(.55);opacity:.35}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1.22);opacity:.45}}
+@keyframes ik-flip{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.68)}}
+.ik-spin svg{animation-name:ik-spin;animation-duration:14s;animation-timing-function:linear}
+.ik-spin2 svg{animation-name:ik-spin;animation-duration:9s;animation-timing-function:linear}
+.ik-twk svg{animation-name:ik-twk;animation-duration:2.2s}
+.ik-pulse svg{animation-name:ik-pulse}
+.ik-beat svg{animation-name:ik-beat;animation-duration:1.5s}
+.ik-bob svg{animation-name:ik-bob}
+.ik-sway svg{animation-name:ik-sway;animation-duration:3.2s;transform-origin:50% 8%}
+.ik-swb svg{animation-name:ik-sway;animation-duration:3.6s;transform-origin:50% 100%}
+.ik-flick svg{animation-name:ik-flick;animation-duration:.9s;transform-origin:50% 100%}
+.ik-zap svg{animation-name:ik-zap;animation-duration:1.4s}
+.ik-hop svg{animation-name:ik-hop;animation-duration:2.4s;transform-origin:50% 100%}
+.ik-wig svg{animation-name:ik-wig;animation-duration:3s}
+.ik-burst svg{animation-name:ik-burst;animation-duration:1.8s;animation-timing-function:ease-out}
+.ik-flip svg{animation-name:ik-flip;animation-duration:2.8s}
+@media(prefers-reduced-motion:reduce){.ico svg{animation:none!important}}
+</style>
+<script>
+/* 絵文字 → イラスト（SVG）自動置き換え。画面に出る文字だけを差し替え、元のロジックには触れません */
+(function(){
+const R=(n,f)=>Array.from({length:n},(_,i)=>f(i*360/n)).join('');
+const ICONS={
+'🌸':R(5,a=>`<ellipse cx="16" cy="8.5" rx="4.6" ry="6.5" fill="#ffb7cf" stroke="#e8749e" stroke-width="1" transform="rotate(${a} 16 16)"/>`)+'<circle cx="16" cy="16" r="3" fill="#ffd45a" stroke="#e0a020" stroke-width=".8"/>',
+'✨':'<path d="M14 3l3 10 10 3-10 3-3 10-3-10-10-3 10-3z" fill="#ffd84a" stroke="#e0a020" stroke-width="1.2" stroke-linejoin="round"/><path d="M26 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#fff3a0"/><path d="M25 21l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" fill="#fff3a0"/>',
+'🀄':'<rect x="6" y="3" width="20" height="26" rx="3" fill="#fffdf4" stroke="#6b5a3a" stroke-width="1.5"/><rect x="10" y="8" width="12" height="9" fill="none" stroke="#d6322c" stroke-width="2.4"/><path d="M16 5v16" stroke="#d6322c" stroke-width="2.4"/><rect x="6" y="24" width="20" height="5" rx="2" fill="#2f9e5c"/>',
+'🎆':R(10,a=>`<path d="M16 13v-9" stroke="${(a/36)%2?'#ffd93d':'#ff6b9a'}" stroke-width="2" stroke-linecap="round" transform="rotate(${a} 16 13)"/>`)+'<circle cx="16" cy="13" r="2.6" fill="#fff6c0"/><path d="M16 22v8" stroke="#ffb347" stroke-width="2" stroke-dasharray="1 3" stroke-linecap="round"/>',
+'🔒':'<path d="M9 14v-4a7 7 0 0 1 14 0v4" fill="none" stroke="#9aa3ad" stroke-width="3.2" stroke-linecap="round"/><rect x="5" y="14" width="22" height="15" rx="3" fill="#f2b632" stroke="#b97d10" stroke-width="1.5"/><circle cx="16" cy="21" r="2.4" fill="#6b4a08"/><path d="M16 22v4" stroke="#6b4a08" stroke-width="2" stroke-linecap="round"/>',
+'🎃':'<path d="M16 8c1-3 2-4 4-4" stroke="#3c8d2f" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse cx="9.5" cy="18" rx="7" ry="9.5" fill="#f08a1c" stroke="#b85a08"/><ellipse cx="22.5" cy="18" rx="7" ry="9.5" fill="#f08a1c" stroke="#b85a08"/><ellipse cx="16" cy="18" rx="6.5" ry="10.5" fill="#ff9d2e" stroke="#b85a08"/><path d="M10 16l3.5 0-1.75-3.5zM18.5 16l3.5 0-1.75-3.5z" fill="#4a2406"/><path d="M10 22l2 2 2-1.5 2 1.5 2-1.5 2 1.5 2-2" stroke="#4a2406" stroke-width="1.8" fill="none" stroke-linejoin="round"/>',
+'🌕':'<circle cx="16" cy="16" r="12.5" fill="#ffe9a0" stroke="#d9b24a" stroke-width="1.4"/><circle cx="11" cy="12" r="2.6" fill="#f1d27a"/><circle cx="20" cy="19" r="3.4" fill="#f1d27a"/><circle cx="21" cy="10" r="1.6" fill="#f1d27a"/>',
+'👤':'<circle cx="16" cy="10.5" r="5.5" fill="#8fb4e8" stroke="#4f78b8" stroke-width="1.3"/><path d="M5 28c0-7 5-11 11-11s11 4 11 11z" fill="#8fb4e8" stroke="#4f78b8" stroke-width="1.3" stroke-linejoin="round"/>',
+'🎄':'<rect x="14" y="23" width="4" height="6" fill="#8a5a2b"/><path d="M16 8l7 8h-3.5l6 7H6.5l6-7H9z" fill="#2e9a4d" stroke="#1f6b34" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 1.5l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4z" fill="#ffd84a"/><circle cx="12" cy="20" r="1.4" fill="#e8493f"/><circle cx="20" cy="20" r="1.4" fill="#ffd93d"/><circle cx="16" cy="14" r="1.4" fill="#4d96ff"/>',
+'🎍':'<g fill="#7ccf5c" stroke="#3f8a2c" stroke-width="1.2"><rect x="6" y="9" width="6" height="19" rx="1"/><rect x="13" y="4" width="6" height="24" rx="1"/><rect x="20" y="12" width="6" height="16" rx="1"/></g><path d="M6 16h6M13 12h6M13 21h6M20 20h6" stroke="#3f8a2c" stroke-width="1.2"/><path d="M16 4l-4-2M16 4l4-2" stroke="#2b7a3a" stroke-width="1.6" stroke-linecap="round"/><rect x="4" y="25" width="24" height="4" rx="1.5" fill="#d9a441" stroke="#9a6d1a"/>',
+'🎉':'<path d="M4 28l5-16 11 11z" fill="#ffb347" stroke="#c97a10" stroke-width="1.2" stroke-linejoin="round"/><path d="M7 20l7 7M9.5 14l8.5 8.5" stroke="#e8493f" stroke-width="1.6"/><circle cx="19" cy="8" r="1.7" fill="#ff6b9a"/><rect x="24" y="12" width="3.4" height="3.4" fill="#4d96ff" transform="rotate(20 25 13)"/><circle cx="14" cy="5" r="1.4" fill="#6bcb77"/><path d="M22 20q3-2 6 0" stroke="#c77dff" stroke-width="1.8" fill="none"/><path d="M12 10q2-5 6-6" stroke="#ffd93d" stroke-width="1.8" fill="none"/>',
+'💝':'<path d="M16 28S4 20 4 12.5A6.3 6.3 0 0 1 16 9a6.3 6.3 0 0 1 12 3.5C28 20 16 28 16 28z" fill="#ff5c8a" stroke="#c42f5e" stroke-width="1.4" stroke-linejoin="round"/><path d="M9 13a3 3 0 0 1 3-3" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".7"/><path d="M25 3l.9 2.1L28 6l-2.1.9L25 9l-.9-2.1L22 6l2.1-.9z" fill="#ffd45a"/>',
+'⭐':'<path d="M16 3l3.9 8.2 9 1.2-6.6 6.2 1.7 8.9L16 23l-8 4.5 1.7-8.9L3.1 12.4l9-1.2z" fill="#ffd23f" stroke="#d99a0b" stroke-width="1.4" stroke-linejoin="round"/><path d="M13 12l3-5" stroke="#fff6c0" stroke-width="1.6" stroke-linecap="round"/>',
+'🏮':'<path d="M16 1v3" stroke="#6b4a08" stroke-width="1.6"/><rect x="10" y="4" width="12" height="3" rx="1" fill="#2d2a2a"/><ellipse cx="16" cy="16" rx="11" ry="9.5" fill="#e0372f" stroke="#a21f1a" stroke-width="1.3"/><path d="M16 6.5v19M10 8q-3 8 0 15M22 8q3 8 0 15" stroke="#ff8a70" stroke-width="1" fill="none"/><rect x="10" y="25" width="12" height="3" rx="1" fill="#2d2a2a"/><path d="M16 28v3.5" stroke="#f2b632" stroke-width="1.8"/>',
+'🤖':'<path d="M16 3v4" stroke="#6b7a8a" stroke-width="1.8"/><circle cx="16" cy="3" r="2" fill="#ff5c5c"/><rect x="5" y="7" width="22" height="19" rx="5" fill="#b9c7d6" stroke="#5f7388" stroke-width="1.5"/><circle cx="11.5" cy="15" r="3.2" fill="#38d4ff" stroke="#1d7fa0"/><circle cx="20.5" cy="15" r="3.2" fill="#38d4ff" stroke="#1d7fa0"/><path d="M11 21.5h10" stroke="#5f7388" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 2"/><rect x="2" y="13" width="3" height="7" rx="1.5" fill="#8a9bb0"/><rect x="27" y="13" width="3" height="7" rx="1.5" fill="#8a9bb0"/>',
+'🎨':'<path d="M16 3C8 3 2.5 8.5 2.5 15.5S8 28 14 28c3 0 3-2.5 1.8-4-1.4-1.8-.2-4 2.4-4H24c3.4 0 5.5-2 5.5-5C29.5 8 23.5 3 16 3z" fill="#f2cf94" stroke="#a9742e" stroke-width="1.4"/><circle cx="9" cy="14" r="2.3" fill="#e8493f"/><circle cx="14" cy="8.5" r="2.3" fill="#ffd93d"/><circle cx="21.5" cy="9.5" r="2.3" fill="#4d96ff"/><circle cx="24.5" cy="15.5" r="2.3" fill="#3fbf6b"/>',
+'👥':'<circle cx="21" cy="10" r="4.4" fill="#b7c9ea" stroke="#6f8bbd" stroke-width="1.2"/><path d="M13 24c0-5.5 3.5-8 8-8s8 2.5 8 8z" fill="#b7c9ea" stroke="#6f8bbd" stroke-width="1.2"/><circle cx="11" cy="11" r="5" fill="#8fb4e8" stroke="#4f78b8" stroke-width="1.3"/><path d="M2 28c0-6.5 4-10 9-10s9 3.5 9 10z" fill="#8fb4e8" stroke="#4f78b8" stroke-width="1.3" stroke-linejoin="round"/>',
+'👑':'<path d="M3 24L5.5 9l7 7L16 5l3.5 11 7-7L29 24z" fill="#ffd23f" stroke="#b97d10" stroke-width="1.5" stroke-linejoin="round"/><rect x="3" y="24" width="26" height="4" rx="1.5" fill="#f2b632" stroke="#b97d10" stroke-width="1.3"/><circle cx="16" cy="19" r="2" fill="#e8493f"/><circle cx="9" cy="20" r="1.4" fill="#4d96ff"/><circle cx="23" cy="20" r="1.4" fill="#3fbf6b"/>',
+'🔥':'<path d="M16 2c1 6 8 9 8 18a8 8 0 0 1-16 0c0-4 2-6 3.5-8 .5 3 2 4 3 4 0-5-.5-9 1.5-14z" fill="#ff7a1a" stroke="#d6410f" stroke-width="1.2" stroke-linejoin="round"/><path d="M16 14c.5 4 4.5 5 4.5 9a4.5 4.5 0 0 1-9 0c0-2.5 1.5-3.5 2.5-5 .5 1.5 1 2 2 2z" fill="#ffd54a"/>',
+'🌌':'<rect x="2" y="2" width="28" height="28" rx="7" fill="#1b1450"/><ellipse cx="16" cy="16" rx="11" ry="4.5" fill="none" stroke="#a78bfa" stroke-width="2.2" transform="rotate(-30 16 16)"/><ellipse cx="16" cy="16" rx="7" ry="2.5" fill="none" stroke="#7dd3fc" stroke-width="1.6" transform="rotate(-30 16 16)"/><circle cx="16" cy="16" r="2.6" fill="#fff4d0"/><circle cx="7" cy="8" r="1" fill="#fff"/><circle cx="25" cy="24" r="1" fill="#fff"/><circle cx="24" cy="7" r=".8" fill="#fff"/>',
+'🎋':'<path d="M10 30V3" stroke="#4fae45" stroke-width="2.6" stroke-linecap="round"/><path d="M10 9c5-1 9-4 12-3M10 14c5 0 10-2 14-1M10 20c-4-1-7-3-8-5" stroke="#3f9a38" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="21" y="10" width="4.5" height="9" fill="#ffd93d" stroke="#c9a010" stroke-width=".8"/><rect x="15" y="20" width="4.5" height="9" fill="#ff7aa8" stroke="#c9446f" stroke-width=".8"/><rect x="23" y="21" width="4.5" height="8" fill="#6ec6ff" stroke="#3a8fc4" stroke-width=".8"/>',
+'📖':'<path d="M16 8C12 5.5 7 5 3 6v19c4-1 9-.5 13 2 4-2.5 9-3 13-2V6c-4-1-9-.5-13 2z" fill="#fff8e6" stroke="#8a5a2b" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 8v19" stroke="#8a5a2b" stroke-width="1.5"/><path d="M6 11c3-.5 6 0 8 1M6 15c3-.5 6 0 8 1M18 12c2-1 5-1.5 8-1M18 16c2-1 5-1.5 8-1" stroke="#c9b58a" stroke-width="1.2" fill="none"/>',
+'⚡':'<path d="M18.5 2L6 18h8l-2 12L26 12h-8.5z" fill="#ffd93d" stroke="#d99a0b" stroke-width="1.5" stroke-linejoin="round"/>',
+'📋':'<rect x="5" y="5" width="22" height="25" rx="3" fill="#c98f4d" stroke="#8a5a2b" stroke-width="1.4"/><rect x="8" y="9" width="16" height="18" rx="1.5" fill="#fffdf4"/><rect x="11" y="2.5" width="10" height="6" rx="2" fill="#9aa3ad" stroke="#5f7388" stroke-width="1.2"/><path d="M11 14h10M11 18h10M11 22h6" stroke="#9aa3ad" stroke-width="1.6" stroke-linecap="round"/>',
+'🌙':'<path d="M21 3a13 13 0 1 0 8 18A10.5 10.5 0 0 1 21 3z" fill="#ffe08a" stroke="#d9a62a" stroke-width="1.4" stroke-linejoin="round"/><circle cx="26" cy="8" r="1.3" fill="#fff3b0"/>',
+'🎯':'<circle cx="15" cy="17" r="12" fill="#fff" stroke="#c93c3c" stroke-width="1.4"/><circle cx="15" cy="17" r="8.5" fill="#e8493f"/><circle cx="15" cy="17" r="5" fill="#fff"/><circle cx="15" cy="17" r="2.2" fill="#e8493f"/><path d="M15 17L27 5" stroke="#6b4a08" stroke-width="1.8" stroke-linecap="round"/><path d="M24 3.5l.5 4 4 .5-1.5-3.5z" fill="#4d96ff"/>',
+'🎁':'<rect x="4" y="13" width="24" height="16" rx="2" fill="#ff6b6b" stroke="#b83030" stroke-width="1.4"/><rect x="3" y="8.5" width="26" height="6" rx="2" fill="#ff8a8a" stroke="#b83030" stroke-width="1.4"/><path d="M16 8.5V29" stroke="#ffd93d" stroke-width="4"/><path d="M16 8c-1-4-7-5-7-2s5 2 7 2zM16 8c1-4 7-5 7-2s-5 2-7 2z" fill="#ffd93d" stroke="#c9a010" stroke-width="1.2" stroke-linejoin="round"/>',
+'💀':'<path d="M16 3C9.4 3 5 7.4 5 13.5c0 3.8 1.8 6.2 4 7.6V26h14v-4.9c2.2-1.4 4-3.8 4-7.6C27 7.4 22.6 3 16 3z" fill="#f4efe6" stroke="#7a7468" stroke-width="1.4" stroke-linejoin="round"/><circle cx="11.5" cy="14" r="3" fill="#3a3630"/><circle cx="20.5" cy="14" r="3" fill="#3a3630"/><path d="M16 18l-1.6 3h3.2z" fill="#3a3630"/><path d="M12.5 22.5v3.5M16 22.5v3.5M19.5 22.5v3.5" stroke="#7a7468" stroke-width="1.2"/>'
+};
+ICONS['🍁']='<path d="M16 3l3 7 7-2-3 7 6 2-7 3 2 6-7-3-1 7-1-7-7 3 2-6-7-3 6-2-3-7 7 2z" fill="#e8452a" stroke="#a52a14" stroke-width="1.200" stroke-linejoin="round"/><path d="M16 22v8" stroke="#7a2a14" stroke-width="1.600" stroke-linecap="round"/>';
+ICONS['🍂']='<path d="M16 28L5 11Q16 2 27 11z" fill="#f5c430" stroke="#c28a10" stroke-width="1.300" stroke-linejoin="round"/><path d="M16 28V12M16 22L10 13M16 22l6-9" stroke="#c28a10" stroke-width="1" fill="none"/>';
+const RE=new RegExp('('+Object.keys(ICONS).join('|')+')\\uFE0F?','u');
+const AN={spin:'🌸',spin2:'🌌',twk:'✨⭐🎄',pulse:'🌕🎯',beat:'💝',bob:'👑👤👥🤖🎨📋🎃🀄',sway:'🌙🏮🍁🍂',swb:'🎍🎋',flick:'🔥',zap:'⚡',hop:'🎁🎉',wig:'🔒💀',burst:'🎆',flip:'📖'};
+const SKIP='script,style,textarea,option,title,svg,.noico';
+function fix(n){
+  if(n.nodeType===3){
+    const d=n.data;if(!RE.test(d))return;
+    const p=n.parentElement;if(!p||p.closest(SKIP))return;
+    const f=document.createDocumentFragment();
+    d.split(RE).forEach((s,i)=>{
+      if(i%2){const e=document.createElement('span');e.className='ico ik-'+(Object.keys(AN).find(k=>AN[k].includes(s))||'');e.dataset.e=s;
+        e.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true">'+ICONS[s]+'</svg>';e.firstChild.style.animationDelay=-(Math.random()*3).toFixed(2)+'s';f.appendChild(e);}
+      else if(s)f.appendChild(document.createTextNode(s));
+    });
+    n.replaceWith(f);
+  }else if(n.nodeType===1){
+    if(n.closest(SKIP))return;
+    const w=document.createTreeWalker(n,4),a=[];
+    while(w.nextNode())a.push(w.currentNode);
+    a.forEach(fix);
+  }
+}
+const mo=new MutationObserver(ms=>{for(const m of ms){if(m.type==='characterData')fix(m.target);else m.addedNodes.forEach(fix);}});
+function go(){fix(document.body);mo.observe(document.body,{childList:true,subtree:true,characterData:true});}
+document.body?go():document.addEventListener('DOMContentLoaded',go);
+})();
+</script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <script>
@@ -5179,10 +5284,67 @@ function itemIconHtml(it){
 }
 
 // ===== 期間限定ガチャ（開催期間は start〜end の日付で変更できます）=====
-const LIMITED_GACHA={
-  title:'期間限定ガチャ', start:'2026-10-19', end:'2026-11-02',
-  existing:['theme_ice','theme_ember','theme_obsidian','theme_galaxy','bg_aurora','bg_nebula'], // 元からある景品
-};
+
+/* ===== 期間限定ガチャ「紅葉から初雪へ」(2026/11/03〜11/16) ===== */
+const _MP='M0-9L2.4-3.5 8-6.5 5.5-1 10 .5 4.5 3 6 9 0 5.5-6 9-4.5 3-10 .5-5.5-1-8-6.5-2.4-3.5z';
+const _mpl=(x,y,sc,a,c)=>`<path d="${_MP}" transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${a.toFixed(0)}) scale(${sc.toFixed(2)})" fill="${c}"/>`;
+LOBBY_SCENES.momijiyama=function(){const r=_rng(301),cs=['#e8452a','#f08a2a','#c8301c','#f5b030','#a82418'];let lv='';
+  for(let i=0;i<46;i++)lv+=_mpl(r()*400,40+r()*700,.7+r()*1.5,r()*360,cs[(r()*5)|0]);
+  return `<defs>${_vgrad('sk',[[0,'#3a2a4a'],[.4,'#d86a4a'],[.7,'#ffc47a']])}${_glow('sg','#fff0c0','#ffb060')}</defs><rect width="400" height="800" fill="url(#sk)"/><circle cx="270" cy="360" r="200" fill="url(#sg)"/><path d="${_ridge(r,{base:470,amp:60,rough:.6}).fill}" fill="#c8502e"/><path d="${_ridge(r,{base:560,amp:50,rough:.6}).fill}" fill="#9a2a22"/><path d="${_ridge(r,{base:660,amp:36,rough:.6}).fill}" fill="#5a1618"/><rect y="740" width="400" height="60" fill="#3a0e12"/>${lv}`;};
+LOBBY_SCENES.ginkgo=function(){const r=_rng(311),cs=['#f5c430','#ffd95a','#e8a818','#fff0a0'];let lv='',cn='';
+  for(let i=0;i<70;i++)lv+=`<path d="M0 0L-7-10Q0-14 7-10z" transform="translate(${(r()*400).toFixed(0)} ${(r()*760).toFixed(0)}) rotate(${(r()*360).toFixed(0)}) scale(${(.6+r()*1.3).toFixed(2)})" fill="${cs[(r()*4)|0]}"/>`;
+  for(let i=0;i<22;i++)cn+=`<ellipse cx="${(r()*400).toFixed(0)}" cy="${(r()*260).toFixed(0)}" rx="${(40+r()*50).toFixed(0)}" ry="${(24+r()*26).toFixed(0)}" fill="${cs[(r()*3)|0]}" opacity=".85"/>`;
+  return `<defs>${_vgrad('sk',[[0,'#fff6c8'],[1,'#f2c64a']])}</defs><rect width="400" height="800" fill="url(#sk)"/>${cn}<path d="M170 800L190 440H210L230 800z" fill="#f0c040" opacity=".55"/><rect x="28" y="190" width="26" height="580" fill="#6a4a1c"/><rect x="346" y="190" width="26" height="580" fill="#6a4a1c"/><path d="M0 800V700Q200 640 400 700V800z" fill="#e8b020"/>${lv}`;};
+LOBBY_SCENES.utsuroi=function(){const r=_rng(321);let lv='',cn='',sn='';
+  const col=(a,b)=>`<animate attributeName="fill" values="${a};${b};#ffffff;#ffffff;${a}" keyTimes="0;.35;.55;.85;1" dur="26s" repeatCount="indefinite"/>`;
+  const fade='<animate attributeName="opacity" values="0;0;.9;.9;0" keyTimes="0;.45;.6;.85;1" dur="26s" repeatCount="indefinite"/>';
+  for(let i=0;i<16;i++)cn+=`<ellipse cx="${(r()*400).toFixed(0)}" cy="${(350+r()*200).toFixed(0)}" rx="${(34+r()*40).toFixed(0)}" ry="${(24+r()*20).toFixed(0)}" fill="#e8452a" opacity=".92">${col('#d8382a','#f0a028')}</ellipse>`;
+  for(let i=0;i<34;i++)lv+=`<g transform="translate(${(r()*400).toFixed(0)} -30)"><g class="fl" style="animation-duration:${(6+r()*7).toFixed(1)}s;animation-delay:${(-r()*12).toFixed(1)}s"><path d="${_MP}" transform="scale(${(.8+r()*1.3).toFixed(2)})" fill="#e8452a">${col('#e8452a','#f5a030')}</path></g></g>`;
+  for(let i=0;i<46;i++)sn+=`<circle class="sn" cx="${(r()*400).toFixed(0)}" cy="-10" r="${(1.5+r()*2.2).toFixed(1)}" fill="#fff" opacity="0" style="animation-duration:${(5+r()*6).toFixed(1)}s;animation-delay:${(-r()*10).toFixed(1)}s">${fade}</circle>`;
+  return `<defs>${_vgrad('sk',[[0,'#3a2a4a'],[.45,'#d86a4a'],[.8,'#ffc47a']])}${_vgrad('wk',[[0,'#1a2a48'],[1,'#8aa8c8']])}</defs><style>.fl{animation:fl linear infinite}.sn{animation:sn linear infinite}@keyframes fl{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(26px,420px) rotate(180deg)}100%{transform:translate(-8px,860px) rotate(360deg)}}@keyframes sn{from{transform:translateY(0)}to{transform:translateY(840px)}}</style><rect width="400" height="800" fill="url(#sk)"/><rect width="400" height="800" fill="url(#wk)" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.4;.6;.85;1" dur="26s" repeatCount="indefinite"/></rect><rect x="40" y="420" width="16" height="340" fill="#2a1410"/><rect x="190" y="400" width="20" height="360" fill="#2a1410"/><rect x="330" y="440" width="16" height="320" fill="#2a1410"/>${cn}<rect y="740" width="400" height="60" fill="#5a1a14">${col('#5a1a14','#8a3a18')}</rect>${lv}${sn}`;};
+GICON_SVG.gi_leaves=function(){let f='';
+  [[16,1.1,3.4,0,'#e8452a'],[38,1.5,4.2,1.2,'#f5a030'],[60,1.2,3.8,2.1,'#c8301c'],[82,1.4,4.6,.6,'#f5c430'],[28,.9,5,2.8,'#f08a2a'],[70,1,3.6,1.7,'#e8452a']].forEach(([x,sc,d,dl,c])=>f+=`<g transform="translate(${x} 0) scale(${sc})"><path class="o" d="${_MP}" fill="${c}" style="animation:lf ${d}s linear ${dl}s infinite"/></g>`);
+  return _giSvg(_giLG('#ffe0b0','#d8683a'),`<style>@keyframes lf{0%{transform:translate(0,-10px) rotate(0)}100%{transform:translate(-14px,120px) rotate(300deg)}}</style><path d="M0 86Q50 74 100 86V100H0z" fill="#a8402a"/>${f}`);};
+GICON_SVG.gi_bonfire=function(){let sp='';
+  [[40,62,0],[58,64,.6],[50,58,1.2],[46,66,1.7]].forEach(([x,y,d])=>sp+=`<circle cx="${x}" cy="${y}" r="1.6" fill="#ffd060" style="animation:rise 2s ease-out ${d}s infinite"/>`);
+  return _giSvg(_giRG('#3a1a10','#0a0402'),`<g class="b" style="animation:flick .9s ease-in-out infinite"><path d="M50 26C58 40 68 46 66 62C65 72 56 78 50 78C44 78 35 72 34 62C33 52 42 48 45 38C47 33 49 30 50 26Z" fill="#ff7a1a"/><path d="M50 48C55 56 59 60 58 67C57 72 53 75 50 75C47 75 43 72 42 67C41 61 47 57 50 48Z" fill="#ffe070"/></g>${sp}<rect x="24" y="76" width="52" height="8" rx="4" fill="#5a3418" transform="rotate(-12 50 80)"/><rect x="24" y="76" width="52" height="8" rx="4" fill="#7a4a20" transform="rotate(12 50 80)"/><path d="M0 92h100V100H0z" fill="#1a0a06"/><path d="M20 90l8-4 6 3z" fill="#e8452a"/>`);};
+GICON_SVG.gi_firstsnow=function(){let a='',s='';
+  for(let i=0;i<6;i++)a+=`<path d="M50 50V18M50 32l-7-7M50 32l7-7M50 41l-5-5M50 41l5-5" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" transform="rotate(${i*60} 50 50)"/>`;
+  [[14,3,0],[32,4.4,1],[70,3.6,.5],[88,4,1.8],[52,5,2.4]].forEach(([x,d,dl])=>s+=`<circle cx="${x}" cy="0" r="2" fill="#fff" style="animation:sn ${d}s linear ${dl}s infinite"/>`);
+  return _giSvg(_giLG('#3a5a88','#12203a'),`<style>@keyframes sn{from{transform:translateY(-4px)}to{transform:translateY(106px)}}</style><g class="o" style="animation:spin 24s linear infinite">${a}</g><circle cx="50" cy="50" r="5" fill="#cfe8ff"/>${s}<path d="M0 90Q50 80 100 90V100H0z" fill="#e8f2fa"/><path d="M62 88l8-3 3 5z" fill="#e8452a"/>`);};
+GICON_SVG.gi_nishiki=function(){let a='';
+  ['#e8452a','#f5a030','#f5c430','#c8301c','#f08a2a','#ff6a3a'].forEach((c,i)=>a+=`<path d="${_MP}" fill="${c}" transform="rotate(${i*60} 50 50) translate(50 26) scale(1.35)"/>`);
+  return _giSvg(_giRG('#5a1410','#120406'),`<circle cx="50" cy="50" r="30" fill="#ff8a40" opacity=".22" class="o" style="animation:pulse 2.4s ease-in-out infinite"/><g class="o" style="animation:spin 22s linear infinite">${a}</g><circle cx="50" cy="50" r="6" fill="#fff4e0"/><circle cx="18" cy="20" r="1.2" fill="#fff"/><circle cx="84" cy="78" r="1.2" fill="#fff"/>`);};
+GACHA_ITEMS.push(
+ {id:'theme_momiji',rarity:'common',category:'theme',limited:'autumn2026',icon:'🍁',title:'紅葉の裏地',desc:'牌の裏デザイン：赤く染まったもみじ',value:'momiji'},
+ {id:'theme_ginkgo',rarity:'common',category:'theme',limited:'autumn2026',icon:'🍂',title:'銀杏の裏地',desc:'牌の裏デザイン：黄金色の銀杏',value:'ginkgo'},
+ {id:'confetti_momiji',rarity:'common',category:'confetti',limited:'autumn2026',icon:'🍁',title:'紅葉の紙吹雪',desc:'紙吹雪が落ち葉の色に',value:['#e8452a','#f08a2a','#f5c430','#a82418','#8a5a2b']},
+ {id:'gi_leaves',rarity:'common',category:'gicon',limited:'autumn2026',icon:'🍁',title:'舞い散る落ち葉',desc:'アイコン：舞い落ちるもみじ（動く・期間限定）',value:'gi_leaves'},
+ {id:'theme_shigure',rarity:'uncommon',category:'theme',limited:'autumn2026',icon:'💧',title:'時雨の裏地',desc:'牌の裏デザイン：降りしきる時雨',value:'shigure'},
+ {id:'gi_bonfire',rarity:'uncommon',category:'gicon',limited:'autumn2026',icon:'🔥',title:'落ち葉焚き',desc:'アイコン：揺れる焚き火（動く・期間限定）',value:'gi_bonfire'},
+ {id:'title_momijigari',rarity:'uncommon',category:'title',limited:'autumn2026',icon:'🍁',title:'紅葉狩り',desc:'名前の横に称号が付きます',value:'紅葉狩り'},
+ {id:'title_haregi',rarity:'uncommon',category:'title',limited:'autumn2026',icon:'🎉',title:'晴れ着の打ち手',desc:'名前の横に称号が付きます',value:'晴れ着の打ち手'},
+ {id:'bg_momijiyama',rarity:'rare',category:'fieldbg',type:'scene',limited:'autumn2026',icon:'🍁',title:'紅葉の山路',desc:'場の背景：赤く染まる山と舞う落ち葉',get value(){return sceneUri('momijiyama');}},
+ {id:'bg_ginkgo',rarity:'rare',category:'fieldbg',type:'scene',limited:'autumn2026',icon:'🍂',title:'銀杏並木',desc:'場の背景：黄金の並木道',get value(){return sceneUri('ginkgo');}},
+ {id:'theme_hatsuyuki',rarity:'rare',category:'theme',limited:'autumn2026',icon:'❄️',title:'初雪の裏地',desc:'牌の裏デザイン：降り始めの雪',value:'hatsuyuki'},
+ {id:'gi_firstsnow',rarity:'rare',category:'gicon',limited:'autumn2026',icon:'❄️',title:'初雪の結晶',desc:'アイコン：回る結晶と最初の雪（動く・期間限定）',value:'gi_firstsnow'},
+ {id:'bg_utsuroi',rarity:'superrare',category:'fieldbg',type:'scene',limited:'autumn2026',icon:'🍂',title:'移ろう季節',desc:'場の背景：紅葉が散り、雪に変わっていく（動く）',get value(){return sceneUri('utsuroi');}},
+ {id:'gi_nishiki',rarity:'superrare',category:'gicon',limited:'autumn2026',icon:'🍁',title:'錦の六華',desc:'アイコン：もみじの腕を持つ雪の結晶（動く・期間限定）',value:'gi_nishiki'},
+ {id:'title_kinshu',rarity:'superrare',category:'title',limited:'autumn2026',icon:'👑',title:'錦秋の覇者',desc:'名前の横に称号が付きます',value:'錦秋の覇者'}
+);
+
+// 期間限定ガチャの一覧。日付に合わせて、開催中のものに自動で切り替わります
+const LIMITED_LIST=[
+  {id:1, title:'期間限定ガチャ', start:'2026-10-19', end:'2026-11-02', // ハロウィン（景品の limited:1 が対象）
+   existing:['theme_ice','theme_ember','theme_obsidian','theme_galaxy','bg_aurora','bg_nebula'],
+   top:['bg_gameovera3','bg_gameovera4'], topText:'最高レア：Game Over Ⅲ・Ⅳ（場の背景）'},
+  {id:'autumn2026', title:'期間限定ガチャ', start:'2026-11-03', end:'2026-11-16', // 紅葉から初雪へ
+   existing:['theme_ice','bg_aurora'],
+   top:['bg_utsuroi','gi_nishiki'], topText:'最高レア：移ろう季節（場の背景）・錦の六華（アイコン）'}
+];
+// 開催中 → なければ次に始まるもの → なければ最後のもの、の順で選ぶ
+const LIMITED_GACHA=new Proxy({},{get(_,k){const t=_loginToday();
+  const g=LIMITED_LIST.find(x=>t>=x.start&&t<=x.end)||LIMITED_LIST.find(x=>t<x.start)||LIMITED_LIST[LIMITED_LIST.length-1];return g[k];}});
 const _GO_BASE='https://carupisu0320.github.io/rikka-game-Smartphone/';
 GACHA_ITEMS.push(
   {id:'theme_warning', rarity:'common',   category:'theme', limited:1, icon:'⚠️', title:'警告の裏地',     desc:'牌の裏デザイン：警告', value:'warning'},
@@ -5212,7 +5374,7 @@ function isLimitedActive(){const t=_loginToday();return t>=LIMITED_GACHA.start&&
 // ガチャの景品プール（banner='limited'なら期間限定、それ以外は恒常）
 function gachaPool(rarity,banner){
   if(banner==='limited'){
-    const p=GACHA_ITEMS.filter(it=>it.rarity===rarity&&(it.limited||LIMITED_GACHA.existing.includes(it.id)));
+    const p=GACHA_ITEMS.filter(it=>it.rarity===rarity&&(it.limited===LIMITED_GACHA.id||LIMITED_GACHA.existing.includes(it.id)));
     if(p.length)return p;
   }
   return GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar&&!it.limited&&!it.event&&!it.limited);
@@ -5626,7 +5788,7 @@ function renderGachaCollection(){
   const owned=new Set(st.owned);
   const groups={};
   const _lim=_gachaView==='limited';
-  GACHA_ITEMS.filter(it=>_lim?(it.limited||LIMITED_GACHA.existing.includes(it.id)):(!it.achievement&&!it.loginStar&&!it.limited&&!it.event)).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
+  GACHA_ITEMS.filter(it=>_lim?(it.limited===LIMITED_GACHA.id||LIMITED_GACHA.existing.includes(it.id)):(!it.achievement&&!it.loginStar&&!it.limited&&!it.event)).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
   let html='';
   for(const [rarity,info] of Object.entries(GACHA_RARITY_INFO)){
     const items=groups[rarity]||[];
@@ -5720,7 +5882,8 @@ function openGacha(){
   const lim=document.getElementById('gacha-banner-limited'),act=isLimitedActive();
   if(lim)lim.style.display=act?'':'none';
   document.getElementById('gacha-ltd-period').textContent=`開催期間：${LIMITED_GACHA.start.slice(5).replace('-','/')} 〜 ${LIMITED_GACHA.end.slice(5).replace('-','/')}`;
-  const ti=document.getElementById('ltd-top-icons');if(ti)ti.innerHTML=['bg_gameovera3','bg_gameovera4'].map(id=>ltdIcon(GACHA_ITEMS.find(x=>x.id===id),true,true)).join('');
+  const tt=document.getElementById('gacha-ltd-top');if(tt)tt.textContent=LIMITED_GACHA.topText;
+  const ti=document.getElementById('ltd-top-icons');if(ti)ti.innerHTML=LIMITED_GACHA.top.map(id=>ltdIcon(GACHA_ITEMS.find(x=>x.id===id),true,true)).join('');
   showScreen('gacha');
   // 画面を表示してから、恒常ガチャの位置に戻す（非表示のうちは位置を変えられず、前回のスワイプ位置が残ってしまうため）
   const bn=document.getElementById('gacha-banners');
@@ -6389,6 +6552,7 @@ const BASE_BACK_THEMES=[
 ];
 const GACHA_THEME_SWATCH={gold:['#3a2a08','#a07a2a'],sakura:['#3a1424','#a04a70'],indigo:['#0a1030','#3a3a8a'],jade:['#0a2e26','#2aa88a'],ice:['#0e2a3e','#7ac8e8'],ember:['#4a1408','#e0682a'],obsidian:['#1a1a22','#6a6a7a'],galaxy:['#1a1048','#6a5ad8'],rainbow:['#3a2a6a','#d8a8ff'],dragon:['#0a3a24','#d8b04a'],warning:['#3a1010','#e04040'],glitch:['#10141c','#40d8c8'],neongrid:['#1a0a30','#d040ff'],crimson:['#3a0610','#ff5060'],pumpkin:['#4a2008','#ff8a20']};
 Object.assign(GACHA_THEME_SWATCH,{xmas:['#0e3a1e','#c03030'],newyear:['#5a0a10','#e8c060'],valentine:['#4a0a2a','#ff7aa8'],hanafubuki:['#3a1a30','#ffc0d8'],tanabata:['#0a1040','#8ab0ff'],matsuri:['#2a0a0a','#ff6a40'],tsukimi:['#1a1a3a','#ffe080']});
+Object.assign(GACHA_THEME_SWATCH,{momiji:['#4a0e0a','#e0602a'],ginkgo:['#4a3408','#f0c430'],shigure:['#141c28','#7a90a8'],hatsuyuki:['#1a2c3e','#f0f8ff']});
 let customizeTab='theme';
 function openCustomize(tab){
   closeSidebar();
