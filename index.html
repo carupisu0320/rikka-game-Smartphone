@@ -8267,7 +8267,7 @@ const LD_SLOTS={
   night:{sky:'radial-gradient(ellipse at 82% 6%,rgba(120,135,210,.26) 0%,transparent 50%),radial-gradient(ellipse at 50% 108%,rgba(110,90,130,.28) 0%,transparent 58%),linear-gradient(180deg,#05070f 0%,#0b1226 48%,#141a2e 80%,#1c1d33 100%)',logo:'#e8d8b0',glow:'rgba(190,200,245,.35)',stars:14,mist:'rgba(185,196,228,.14)',moon:1,flake:16,mote:0},
   deep:{sky:'radial-gradient(ellipse at 20% 6%,rgba(80,95,170,.18) 0%,transparent 50%),linear-gradient(180deg,#020308 0%,#060a18 55%,#0b1022 85%,#12142a 100%)',logo:'#dccfae',glow:'rgba(150,165,230,.3)',stars:30,mist:'rgba(150,160,200,.1)',moon:2,flake:8,mote:0}
 };
-const ldSlot=()=>{const d=new Date(),h=d.getHours()+d.getMinutes()/60;return h>=5&&h<7?'dawn':h>=7&&h<16?'day':h>=16&&h<18.5?'dusk':h>=18.5&&h<23?'night':'deep';};
+const ldSlot=()=>{if(typeof isDevUser==='function'&&isDevUser()){const o=localStorage.getItem('rikka_dev_slot');if(o&&LD_SLOTS[o])return o;}const d=new Date(),h=d.getHours()+d.getMinutes()/60;return h>=5&&h<7?'dawn':h>=7&&h<16?'day':h>=16&&h<18.5?'dusk':h>=18.5&&h<23?'night':'deep';};
 let _ldSlot='';
 function ldBuild(slot){
   const L=LD_SLOTS[slot],rnd=(a,b)=>a+Math.random()*(b-a),sc=document.createElement('div');sc.className='ld-scene';
@@ -8370,7 +8370,25 @@ function renderDevSection(){
     ${cur===val?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:${bg}">${icon}</div><div class="nm">${label}</div></button>`;
   let h=cell('auto','linear-gradient(135deg,#3a2a14,#141008)','🗓️','自動（日付）')+cell('none','#1a1410','➖','なし');
   h+=LOBBY_EVENTS.map(e=>cell(e.id,e.bg,Array.from(e.banner)[0],esc(e.name))).join('');
+  // 時間帯（イベントなしのときのタイトル）
+  const cs=localStorage.getItem('rikka_dev_slot')||'auto';
+  const cell2=(val,bg,icon,label)=>`<button class="custom-card${cs===val?' sel':''}" onclick="setDevLobbySlot('${val}')">
+    ${cs===val?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:${bg}">${icon}</div><div class="nm">${label}</div></button>`;
+  h+='<div style="grid-column:1/-1;font-size:.72rem;color:#8a7a50;margin:.5rem 0 .1rem">時間帯（イベントなしのとき）</div>';
+  h+=cell2('auto','linear-gradient(135deg,#3a2a14,#141008)','🕒','自動（時刻）');
+  [['dawn','🌅','明け方'],['day','☀️','昼'],['dusk','🌇','夕方'],['night','🌙','夜'],['deep','🌌','深夜']].forEach(([k,ic,nm])=>h+=cell2(k,LD_SLOTS[k].sky,ic,nm));
   document.getElementById('sb-dev-grid').innerHTML=h;
+}
+function setDevLobbySlot(v){
+  if(!isDevUser())return;
+  if(v==='auto')localStorage.removeItem('rikka_dev_slot'); else{localStorage.setItem('rikka_dev_slot',v);localStorage.setItem('rikka_dev_event','none');} // 時間帯を選んだら、イベントなしの画面で見せる
+  applyLobbyEvent();
+  const l=document.getElementById('lobby'),f=document.getElementById('lobby-fx');
+  if(l&&f&&l.classList.contains('lobby-default')&&ldSlot()!==_ldSlot)_ldShow(l,f,true);
+  renderDevSection();
+  closeSidebar();
+  const nm={dawn:'明け方',day:'昼',dusk:'夕方',night:'夜',deep:'深夜'};
+  toast(v==='auto'?'タイトルの時間帯：自動（時刻）':'タイトルの時間帯：'+nm[v]);
 }
 function setDevLobbyEvent(v){
   if(!isDevUser())return;
