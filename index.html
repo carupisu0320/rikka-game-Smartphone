@@ -5436,16 +5436,17 @@ GACHA_ITEMS.push(
 
 // 期間限定ガチャの一覧。日付に合わせて、開催中のものに自動で切り替わります
 const LIMITED_LIST=[
-  {id:1, title:'期間限定ガチャ', start:'2026-10-19', end:'2026-11-02', // ハロウィン（景品の limited:1 が対象）
+  {id:1, name:'ハロウィン', title:'期間限定ガチャ', start:'2026-10-19', end:'2026-11-02', // ハロウィン（景品の limited:1 が対象）
    existing:['theme_ice','theme_ember','theme_obsidian','theme_galaxy','bg_aurora','bg_nebula'],
    top:['bg_gameovera3','bg_gameovera4'], topText:'最高レア：Game Over Ⅲ・Ⅳ（場の背景）'},
-  {id:'autumn2026', title:'期間限定ガチャ', start:'2026-11-03', end:'2026-11-16', // 紅葉から初雪へ
+  {id:'autumn2026', name:'紅葉から初雪へ', title:'期間限定ガチャ', start:'2026-11-03', end:'2026-11-16', // 紅葉から初雪へ
    existing:['theme_ice','bg_aurora'],
    top:['bg_utsuroi','gi_nishiki'], topText:'最高レア：移ろう季節（場の背景）・錦の六華（アイコン）'}
 ];
 // 開催中 → なければ次に始まるもの → なければ最後のもの、の順で選ぶ
+const _ldDevPick=()=>{try{if(typeof isDevUser==='function'&&isDevUser()){const o=localStorage.getItem('rikka_dev_gacha');return LIMITED_LIST.find(x=>String(x.id)===o)||null;}}catch(e){}return null;};
 const LIMITED_GACHA=new Proxy({},{get(_,k){const t=_loginToday();
-  const g=LIMITED_LIST.find(x=>t>=x.start&&t<=x.end)||LIMITED_LIST.find(x=>t<x.start)||LIMITED_LIST[LIMITED_LIST.length-1];return g[k];}});
+  const g=_ldDevPick()||LIMITED_LIST.find(x=>t>=x.start&&t<=x.end)||LIMITED_LIST.find(x=>t<x.start)||LIMITED_LIST[LIMITED_LIST.length-1];return g[k];}});
 const _GO_BASE='https://carupisu0320.github.io/rikka-game-Smartphone/';
 GACHA_ITEMS.push(
   {id:'theme_warning', rarity:'common',   category:'theme', limited:1, icon:'⚠️', title:'警告の裏地',     desc:'牌の裏デザイン：警告', value:'warning'},
@@ -5471,7 +5472,7 @@ function ltdIcon(it,has,big){
   }else inner=`<div class="ltd-ttl">${it.icon}</div>`;
   return `<div class="ltd-ico${big?' big':''}${has?'':' locked'}">${inner}</div>`;
 }
-function isLimitedActive(){const t=_loginToday();return t>=LIMITED_GACHA.start&&t<=LIMITED_GACHA.end;}
+function isLimitedActive(){if(_ldDevPick())return true;const t=_loginToday();return t>=LIMITED_GACHA.start&&t<=LIMITED_GACHA.end;}
 // ガチャの景品プール（banner='limited'なら期間限定、それ以外は恒常）
 function gachaPool(rarity,banner){
   if(banner==='limited'){
@@ -5982,7 +5983,7 @@ function openGacha(){
   renderGachaCollection();
   const lim=document.getElementById('gacha-banner-limited'),act=isLimitedActive();
   if(lim)lim.style.display=act?'':'none';
-  document.getElementById('gacha-ltd-period').textContent=`開催期間：${LIMITED_GACHA.start.slice(5).replace('-','/')} 〜 ${LIMITED_GACHA.end.slice(5).replace('-','/')}`;
+  document.getElementById('gacha-ltd-period').textContent=`開催期間：${LIMITED_GACHA.start.slice(5).replace('-','/')} 〜 ${LIMITED_GACHA.end.slice(5).replace('-','/')}${_ldDevPick()?'（開発者プレビュー）':''}`;
   const tt=document.getElementById('gacha-ltd-top');if(tt)tt.textContent=LIMITED_GACHA.topText;
   const ti=document.getElementById('ltd-top-icons');if(ti)ti.innerHTML=LIMITED_GACHA.top.map(id=>ltdIcon(GACHA_ITEMS.find(x=>x.id===id),true,true)).join('');
   showScreen('gacha');
@@ -8377,7 +8378,22 @@ function renderDevSection(){
   h+='<div style="grid-column:1/-1;font-size:.72rem;color:#8a7a50;margin:.5rem 0 .1rem">時間帯（イベントなしのとき）</div>';
   h+=cell2('auto','linear-gradient(135deg,#3a2a14,#141008)','🕒','自動（時刻）');
   [['dawn','🌅','明け方'],['day','☀️','昼'],['dusk','🌇','夕方'],['night','🌙','夜'],['deep','🌌','深夜']].forEach(([k,ic,nm])=>h+=cell2(k,LD_SLOTS[k].sky,ic,nm));
+  // 限定ガチャ（開催期間に関係なく、選んだものを表示）
+  const cg=localStorage.getItem('rikka_dev_gacha')||'auto';
+  const cell3=(val,bg,icon,label)=>`<button class="custom-card${cg===val?' sel':''}" onclick="setDevGacha('${val}')">
+    ${cg===val?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:${bg}">${icon}</div><div class="nm">${label}</div></button>`;
+  h+='<div style="grid-column:1/-1;font-size:.72rem;color:#8a7a50;margin:.5rem 0 .1rem">限定ガチャ（開催期間に関係なく表示）</div>';
+  h+=cell3('auto','linear-gradient(135deg,#3a2a14,#141008)','🗓️','自動（日付）');
+  LIMITED_LIST.forEach(g=>h+=cell3(String(g.id),'linear-gradient(135deg,#3a1c40,#141008)','🌸',esc(g.name||String(g.id))+'<br><span style="font-size:.62rem;opacity:.7">'+g.start.slice(5).replace('-','/')+'〜'+g.end.slice(5).replace('-','/')+'</span>'));
   document.getElementById('sb-dev-grid').innerHTML=h;
+}
+function setDevGacha(v){
+  if(!isDevUser())return;
+  if(v==='auto')localStorage.removeItem('rikka_dev_gacha'); else localStorage.setItem('rikka_dev_gacha',v);
+  renderDevSection();
+  closeSidebar();
+  const g=LIMITED_LIST.find(x=>String(x.id)===v);
+  toast(v==='auto'?'限定ガチャ：自動（日付）':'限定ガチャ：'+(g?g.name:v)+'を表示（開発者プレビュー）');
 }
 function setDevLobbySlot(v){
   if(!isDevUser())return;
