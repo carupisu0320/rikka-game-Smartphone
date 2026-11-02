@@ -2123,6 +2123,10 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
       </button>
     </div>
     <div id="stats-content"></div>
+    <div class="sb-section-title" style="margin-top:.6rem;border-top:1px solid #2a1e10;padding-top:.5rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="closeSidebar();openMissions()">
+  <span>― ミッション <span id="mission-badge" style="color:#f5d040"></span> ―</span>
+  <span style="font-size:.9rem;color:#6a5830">▶</span>
+</div>
     <div class="sb-section-title" style="margin-top:.6rem;border-top:1px solid #2a1e10;padding-top:.5rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleAchievements()">
   <span>― 実績 <span id="achievements-count" style="color:#8a7048;font-weight:400">0/0</span> ―</span>
   <span id="achievements-toggle-icon" style="font-size:.9rem;color:#6a5830">▶</span>
@@ -2246,6 +2250,19 @@ document.body?go():document.addEventListener('DOMContentLoaded',go);
 .frc-chips button{background:#2a1e14;color:#c9a84c;border:1px solid #5a4020;border-radius:999px;padding:.2rem .6rem;font-size:.78rem}
 #frc-text{width:100%;box-sizing:border-box;background:#0d0905;color:#f0e0b8;border:1px solid #5a4020;border-radius:8px;padding:.5rem;font-size:16px;resize:none}
 .frc-b{display:flex;justify-content:flex-end;gap:.4rem;margin-top:.6rem}
+#spec-view{position:fixed;inset:0;z-index:650;background:rgba(10,6,2,.97);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + .8rem) .9rem 1rem;color:#f0e0b8;display:none}#spec-view.open{display:block}
+.sp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}.sp-head b{color:#e8c870}
+.sp-ps{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.4rem;margin-bottom:.7rem}
+.sp-p{background:#161008;border:1px solid #3a2a18;border-radius:10px;padding:.45rem .55rem}.sp-p.turn{border-color:#f5d040;box-shadow:0 0 10px rgba(245,208,64,.3)}
+.sp-n{font-size:.88rem;color:#e8c870}.sp-r{margin-left:.3rem;font-size:.62rem;background:#c0392b;color:#fff;border-radius:6px;padding:0 .3rem}
+.sp-s{font-size:.78rem;color:#c9a870;margin:.1rem 0}.sp-h{display:flex;gap:2px;margin:.2rem 0;min-height:22px}.sp-h .fback{width:14px!important;height:22px!important;flex:none}
+.sp-t{font-size:.68rem;color:#8a7048;min-height:.9rem}.sp-sec{font-size:.78rem;color:#c9a84c;margin:.5rem 0 .25rem}
+.sp-f{display:flex;flex-wrap:wrap;gap:4px}.sp-f .fback{width:26px!important;height:40px!important;flex:none}
+.sp-note{margin-top:.7rem;background:#2a1e12;border:1px solid #c9a84c;border-radius:10px;padding:.5rem .7rem;font-size:.88rem}
+.ms-h{font-size:.76rem;color:#c9a84c;margin:.7rem 0 .3rem;text-align:left}
+.ms-row{display:grid;grid-template-columns:1fr auto;gap:.15rem .5rem;align-items:center;background:#161008;border:1px solid #3a2a18;border-radius:8px;padding:.4rem .55rem;margin:.25rem 0;text-align:left}
+.ms-t{font-size:.84rem}.ms-bar{grid-column:1;height:6px;background:#2a1e14;border-radius:3px;overflow:hidden}.ms-bar i{display:block;height:100%;background:linear-gradient(90deg,#c9a84c,#f5d040)}
+.ms-n{font-size:.7rem;color:#8a7048}.ms-go{grid-row:1/3;grid-column:2}.ms-done{font-size:.7rem;color:#6a8a50}
 
 /* 通常時（イベントなし）のタイトル：静かな冬の夜（月明かり・薄い霧・ゆっくり舞う雪の結晶） */
 .ld-moon{position:absolute;top:9%;right:11%;width:64px;height:64px;border-radius:50%;
@@ -4044,6 +4061,7 @@ function makeHistoryEntry(won,role,pts,online,players){
   return{date:new Date().toLocaleDateString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}),won,role:won?role:null,pts:won?pts:null,online,players};
 }
 function saveHistory(entry){
+  try{missionRound(entry);}catch(e){}
   const h=JSON.parse(localStorage.getItem('rikka_history')||'[]');
   h.unshift(entry);if(h.length>30)h.length=30;
   localStorage.setItem('rikka_history',JSON.stringify(h));
@@ -5561,7 +5579,7 @@ function drawGachaMulti(n,banner='std'){
   if(banner==='limited'&&!isLimitedActive()){toast('期間限定ガチャは終了しました');return;}
   const cost=GACHA_COST*n;
   if(loadPetals()<cost){toast('花びらが足りません');return;}
-  addPetals(-cost);
+  addPetals(-cost);try{missionAdd('gacha',n);}catch(e){}
   const owned=new Set(loadGachaState().owned);
   const results=[];let refund=0;
   for(let g=0;g<n/10;g++){
@@ -5612,7 +5630,7 @@ function drawGacha(banner='std'){
   if(banner==='limited'&&!isLimitedActive()){toast('期間限定ガチャは終了しました');return;}
   const petals=loadPetals();
   if(petals<GACHA_COST){ toast('花びらが足りません'); return; }
-  addPetals(-GACHA_COST);
+  addPetals(-GACHA_COST);try{missionAdd('gacha');}catch(e){}
   const rarity=pickGachaRarity();
   const pool=gachaPool(rarity,banner);
   const item=pool[Math.floor(Math.random()*pool.length)];
@@ -6032,6 +6050,8 @@ const GIFTBOX_ITEMS=[
   {id:'info_event_halloween2026', info:true, title:'🎃 ハロウィンナイト開催！', desc:'ロビーの「🎃 ハロウィンナイト」から遊べるイベント戦です（10/19 〜 11/1）。\nイベントだけのルール（お菓子ラウンド・ロンの祝福）と、勝利数に応じた限定報酬があります。期間が終わるとイベントは消えます。'},
   {id:'info_limited_gacha1', info:true, title:'✨ 期間限定ガチャ開催！', desc:'ガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n開催期間：10/19 〜 11/2\n最高レアは場の背景「Game Over Ⅲ・Ⅳ」。ほかに新しい牌の裏・場の背景・動くアイコン、称号「国富平針店のバイト」が出ます。'},
   {id:'info_update_login_draw', info:true, title:'🛠 アップデート内容', desc:'・毎日ログインボーナスを追加（花びら50枚／7日ごとに称号「日々の花」、次の7日ごとに★が増えます）\n・全員リーチで誰も上がれなくなった場合、引き分けになって次のラウンドへ進むようにしました（CPU戦・オンライン対戦とも）'},
+  {id:'info_missions', info:true, title:'📋 ミッションを追加', desc:'メニュー（≡）の「ミッション」から開けます。達成すると、花びらがもらえます。\n【今日のミッション】毎日0時に3つが選ばれます（対戦する・勝つ・オンライン対戦をする・ガチャを引く など）。1つあたり花びら3〜8枚です。3つとも受け取ると、ボーナスで花びら5枚がもらえます\n【今週の目標】毎週月曜に更新されます。「10局勝つ」「オンライン対戦を10局する」「5日ログインする」「ガチャを10回引く」の4つで、1つあたり花びら20〜30枚です\n※達成したら「受け取る」を押すと、花びらが入ります。進み具合は、この端末に保存されます'},
+  {id:'info_spectate', info:true, title:'👁 フレンドの対戦を観戦できるように', desc:'フレンドが対戦中のとき、フレンド画面に「観戦」ボタンが出ます。\n・見られるのは、場の牌の数、捨て牌、各プレイヤーの点数・リーチ・手番・手牌の枚数です。誰の手牌も見えません\n・上がり、ロン、流局、対戦終了も、画面の下に表示されます\n・観戦は、見るだけです。いつでも「退出」できます\n※お互いがフレンドで、相手が対戦中のときだけ観戦できます（1つの対戦につき、観戦は8人までです）'},
 ];
 function loadGiftboxClaimed(){
   try{ return JSON.parse(localStorage.getItem('rikka_giftbox_claimed')||'[]'); }catch(e){ return []; }
@@ -8447,7 +8467,7 @@ function showLoginBonus(){
   if(st.last===today)return;
   st.total=(st.total||0)+1;st.last=today;
   try{localStorage.setItem('rikka_login',JSON.stringify(st));}catch(e){}
-  addPetals(LOGIN_PETALS);
+  addPetals(LOGIN_PETALS);try{missionAdd('login');}catch(e){}
   const pos=((st.total-1)%7)+1,star=st.total%7===0?st.total/7:0,tid='title_login_'+Math.min(star,100);
   if(star)grantItem(tid);
   const it=star&&GACHA_ITEMS.find(x=>x.id===tid);
@@ -8523,6 +8543,10 @@ function friendConnect(){
   fsocket.on('friend_message',frShowMsg);
   fsocket.on('friend_message_ok',()=>toast('💬 メッセージを送りました'));
   fsocket.on('friend_message_ng',()=>toast('相手がオンラインではありません'));
+  fsocket.on('spec_state',specRender);
+  fsocket.on('spec_note',d=>specNote(d&&d.text));
+  fsocket.on('spec_end',d=>specNote((d&&d.text)||'対戦が終わりました',true));
+  fsocket.on('spec_ng',m=>toast(String(m||'観戦できません')));
   fsocket.on('friend_error',m=>toast(m));
   fsocket.on('disconnect',()=>{frRequests=[];frUpdateBadge();if(document.getElementById('fr-box'))frRender();});
 }
@@ -8591,7 +8615,7 @@ function frMsgSend(){
   const tx=document.getElementById('frc-text'),m=(tx.value||'').trim();if(!m)return;
   if(!fsocket||!fsocket.connected){toast('接続できていません');return;}
   if(Date.now()-_frMsgLast<1500){toast('少し待ってから送ってください');return;}
-  _frMsgLast=Date.now();fsocket.emit('friend_message',{to:_frMsgTo,msg:m});
+  _frMsgLast=Date.now();fsocket.emit('friend_message',{to:_frMsgTo,msg:m});try{missionAdd('msg');}catch(e){}
   document.getElementById('fr-compose').classList.remove('open');
 }
 function frShowMsg(d){
@@ -8609,6 +8633,88 @@ function frShowMsg(d){
   while(box.children.length>3)box.firstChild.remove();
   setTimeout(gone,7000);try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}
 }
+// ===== 観戦（フレンドの対戦を見る。見られるのは、場・捨て牌・点数・手番だけ。誰の手牌も見えない）=====
+function frSpectate(code){if(!fsocket||!fsocket.connected){toast('接続できていません');return;}fsocket.emit('spectate',{to:code});toast('観戦を始めています…');}
+function specView(){
+  let el=document.getElementById('spec-view');
+  if(!el){el=document.createElement('div');el.id='spec-view';document.body.appendChild(el);}
+  return el;
+}
+function specClose(){const el=document.getElementById('spec-view');if(el){el.classList.remove('open');el.innerHTML='';}fsocket?.emit('stop_spectate');}
+function specRender(d){
+  if(!d||!Array.isArray(d.scores))return;
+  const el=specView(),was=el.querySelector('.sp-note'),note=was?was.textContent:'';
+  const turnTxt=(i)=>i===d.turn&&d.phase==='playing'?(d.tphase==='pick'?'場から牌を選んでいます':'捨てる牌を選んでいます'):'';
+  el.innerHTML=`<div class="sp-head"><b>👁 観戦中</b><button class="fr-b del" onclick="specClose()">退出</button></div>
+    <div class="sp-ps">${d.scores.map((p,i)=>`<div class="sp-p${i===d.turn&&d.phase==='playing'?' turn':''}"><div class="sp-n">${esc(p.name)}${p.riichi?'<span class="sp-r">リーチ</span>':''}</div><div class="sp-s">${p.score} / ${d.goal}点</div><div class="sp-h">${'<i class="fback"></i>'.repeat(Math.min(8,p.hand||0))}</div><div class="sp-t">${turnTxt(i)}</div></div>`).join('')}</div>
+    <div class="sp-sec">🀄 場の牌（${d.fieldCount}枚）</div><div class="sp-f">${'<div class="fback"></div>'.repeat(Math.min(60,d.fieldCount||0))}</div>
+    <div class="sp-sec">捨て牌（${(d.discards||[]).length}枚）</div><div class="sp-f">${(d.discards||[]).map(t=>tileHTML(t)).join('')||'<span style="color:#6a5030;font-size:.78rem">まだありません</span>'}</div>
+    ${d.phase==='playing'?'':'<div class="sp-note">ラウンドが終わりました。次の局を待っています…</div>'}`;
+  el.classList.add('open');
+}
+function specNote(text,end){
+  const el=specView();if(!el.classList.contains('open'))return;
+  el.querySelectorAll('.sp-note').forEach(n=>n.remove());
+  const n=document.createElement('div');n.className='sp-note';n.textContent=String(text||'').slice(0,80);el.appendChild(n);
+  if(end){fsocket?.emit('stop_spectate');}
+}
+// ===== デイリーミッション・ウィークリー目標（達成すると花びらがもらえる）=====
+const MS_DAILY=[
+  {id:'play3',t:'対戦を3局する',ev:'play',n:3,p:3},{id:'win1',t:'1局勝つ',ev:'win',n:1,p:5},
+  {id:'online1',t:'オンライン対戦を1局する',ev:'online',n:1,p:5},{id:'win3',t:'3局勝つ',ev:'win',n:3,p:8},
+  {id:'big',t:'5点以上の役で上がる',ev:'big',n:1,p:6},{id:'gacha1',t:'ガチャを1回引く',ev:'gacha',n:1,p:3},
+  {id:'msg1',t:'フレンドにメッセージを送る',ev:'msg',n:1,p:3}];
+const MS_WEEKLY=[
+  {id:'w_win10',t:'10局勝つ',ev:'win',n:10,p:30},{id:'w_online10',t:'オンライン対戦を10局する',ev:'online',n:10,p:30},
+  {id:'w_login5',t:'5日ログインする',ev:'login',n:5,p:20},{id:'w_gacha10',t:'ガチャを10回引く',ev:'gacha',n:10,p:20}];
+const MS_BONUS=5;
+function _msWeek(){const d=new Date(),k=(d.getDay()+6)%7,m=new Date(d.getFullYear(),d.getMonth(),d.getDate()-k);
+  return m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0')+'-'+String(m.getDate()).padStart(2,'0');}
+function msLoad(){
+  let st;try{st=JSON.parse(localStorage.getItem('rikka_missions')||'{}');}catch(e){st={};}
+  const day=_loginToday(),wk=_msWeek();
+  if(st.day!==day){ // 毎日0時に、今日の3つを選び直す（日付から決めるので、同じ日は同じ内容）
+    let h=0;for(const ch of day)h=(h*31+ch.charCodeAt(0))>>>0;const r=_rng(h),pool=MS_DAILY.slice(),ids=[];
+    while(ids.length<3&&pool.length){const m=pool.splice(Math.floor(r()*pool.length),1)[0];
+      if((m.id==='win1'&&ids.includes('win3'))||(m.id==='win3'&&ids.includes('win1')))continue;ids.push(m.id);}
+    st.day=day;st.d={ids,prog:{},claimed:{},bonus:false};}
+  if(st.week!==wk){st.week=wk;st.w={prog:{},claimed:{}};}
+  return st;
+}
+function msSave(st){try{localStorage.setItem('rikka_missions',JSON.stringify(st));}catch(e){}msBadge();}
+function missionAdd(ev,n=1){
+  try{const st=msLoad();
+    const bump=(def,box)=>{const was=box.prog[def.id]||0;if(was>=def.n)return;box.prog[def.id]=Math.min(def.n,was+n);if(box.prog[def.id]>=def.n)toast('✅ ミッション達成：'+def.t);};
+    st.d.ids.map(i=>MS_DAILY.find(m=>m.id===i)).filter(m=>m&&m.ev===ev).forEach(m=>bump(m,st.d));
+    MS_WEEKLY.filter(m=>m.ev===ev).forEach(m=>bump(m,st.w));
+    msSave(st);}catch(e){}
+}
+function missionRound(en){if(!en)return;missionAdd('play');if(en.online)missionAdd('online');if(en.won){missionAdd('win');if((en.pts||0)>=5)missionAdd('big');}}
+function msClaimable(st){
+  const dl=st.d.ids.map(i=>MS_DAILY.find(m=>m.id===i)).filter(Boolean);
+  let c=dl.filter(m=>(st.d.prog[m.id]||0)>=m.n&&!st.d.claimed[m.id]).length+MS_WEEKLY.filter(m=>(st.w.prog[m.id]||0)>=m.n&&!st.w.claimed[m.id]).length;
+  if(!st.d.bonus&&dl.length&&dl.every(m=>st.d.claimed[m.id]))c++;return c;
+}
+function msBadge(){try{const b=document.getElementById('mission-badge');if(b)b.textContent=msClaimable(msLoad())?'●':'';}catch(e){}}
+function msClaim(scope,id){
+  const st=msLoad();
+  if(scope==='b'){const dl=st.d.ids;if(st.d.bonus||!dl.every(i=>st.d.claimed[i]))return;st.d.bonus=true;addPetals(MS_BONUS);toast('🌸 ボーナス +'+MS_BONUS);}
+  else{const box=scope==='d'?st.d:st.w,def=(scope==='d'?MS_DAILY:MS_WEEKLY).find(m=>m.id===id);
+    if(!def||box.claimed[id]||(box.prog[id]||0)<def.n)return;box.claimed[id]=1;addPetals(def.p);toast('🌸 +'+def.p+' 花びらを受け取りました');}
+  msSave(st);openMissions();
+}
+function openMissions(){
+  const st=msLoad(),row=(def,box,sc)=>{const v=box.prog[def.id]||0,done=v>=def.n,cl=!!box.claimed[def.id];
+    return `<div class="ms-row"><div class="ms-t">${esc(def.t)}（🌸${def.p}）</div>${cl?'<span class="ms-done ms-go">受取済み</span>':done?`<button class="fr-b go ms-go" onclick="msClaim('${sc}','${def.id}')">受け取る</button>`:`<span class="ms-n ms-go">${v}/${def.n}</span>`}<div class="ms-bar"><i style="width:${Math.round(100*v/def.n)}%"></i></div></div>`;};
+  const dl=st.d.ids.map(i=>MS_DAILY.find(m=>m.id===i)).filter(Boolean),all=dl.every(m=>st.d.claimed[m.id]);
+  showModal(`<div class="mtitle">📋 ミッション</div>
+    <div class="ms-h">今日のミッション（毎日0時に更新）</div>${dl.map(m=>row(m,st.d,'d')).join('')}
+    <div class="ms-row"><div class="ms-t">3つとも受け取ると ボーナス（🌸${MS_BONUS}）</div>${st.d.bonus?'<span class="ms-done ms-go">受取済み</span>':all?`<button class="fr-b go ms-go" onclick="msClaim('b')">受け取る</button>`:'<span class="ms-n ms-go">—</span>'}</div>
+    <div class="ms-h">今週の目標（毎週月曜に更新）</div>${MS_WEEKLY.map(m=>row(m,st.w,'w')).join('')}
+    <button class="mbtn" style="margin-top:.8rem" onclick="document.getElementById('modal').classList.remove('open')">閉じる</button>`);
+  msBadge();
+}
+window.addEventListener('load',()=>setTimeout(msBadge,1500));
 function frInvite(code){
   if(!currentCode){toast('先に部屋を作ってください');return;}
   fsocket?.emit('friend_invite',{to:code,room:currentCode});toast('📨 招待を送りました');
@@ -8649,7 +8755,7 @@ function frRender(){
   h+=s.list.map(f=>{
     if(!f.confirmed)return `<div class="fr-row">${av('')}<div class="fr-info"><div class="fr-name">${esc(f.code)}</div><div class="fr-st">承認待ち（相手がオンラインのときに届きます）</div></div><button class="fr-b del" onclick="frRemove('${f.code}')">取消</button></div>`;
     const on=f.online&&!f.pending,l=on?(stLabel[f.status]||stLabel.lobby):[f.pending?'承認待ち':'オフライン',''];
-    const btns=(on?`<button class="fr-b" onclick="frMsgOpen('${f.code}')">メッセージ</button>`:'')+(on&&f.status==='room'&&f.room?`<button class="fr-b go" onclick="frJoinRoom('${f.room}')">参加</button>`:'')+(on&&currentCode?`<button class="fr-b" onclick="frInvite('${f.code}')">招待</button>`:'')+`<button class="fr-b del" onclick="frRemove('${f.code}')">削除</button>`;
+    const btns=(on&&f.status==='playing'?`<button class="fr-b go" onclick="frSpectate('${f.code}')">観戦</button>`:'')+(on?`<button class="fr-b" onclick="frMsgOpen('${f.code}')">メッセージ</button>`:'')+(on&&f.status==='room'&&f.room?`<button class="fr-b go" onclick="frJoinRoom('${f.room}')">参加</button>`:'')+(on&&currentCode?`<button class="fr-b" onclick="frInvite('${f.code}')">招待</button>`:'')+`<button class="fr-b del" onclick="frRemove('${f.code}')">削除</button>`;
     return `<div class="fr-row" style="${on?'':'opacity:.65'}">${av(f.avatar)}<div class="fr-info"><div class="fr-name">${esc(f.name||'名無し')}${f.title?` <span style="font-size:.68rem;color:#f5d040">${esc((GACHA_ITEMS.find(x=>x.id===f.title)||{}).title||'')}</span>`:''}</div><div class="fr-st ${l[1]}">${l[0]}</div></div>${btns}</div>`;
   }).join('');
   const keep=document.getElementById('fr-add-input'),v=keep?keep.value:'';
