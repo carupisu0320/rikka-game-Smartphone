@@ -351,7 +351,7 @@ function pushFriendViewsAround(code) { // 本人と、本人をフレンドに�
   presence.forEach((x, xc) => { if (xc !== code && x.friends.has(code)) pushFriendView(xc); });
 }
 const ipSockets = new Map(); // IP → 接続数
-const MIN_GAP = { friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
+const MIN_GAP = { friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
 io.on('connection', socket => {
   const ip = String(socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || '').split(',')[0].trim();
   const n = (ipSockets.get(ip) || 0) + 1;
@@ -524,6 +524,18 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     if (!t || !t.friends.has(from) || !me.friends.has(to)) return; // お互いがフレンドで、相手がオンラインのときだけ
     if (typeof room !== 'string' || !/^[A-Z0-9]{3,12}$/.test(room)) return;
     io.to(t.sid).emit('friend_invite', { from: { code: from, name: me.name }, room });
+  });
+
+  // フレンドへのメッセージ（お互いがフレンドで、相手がオンラインのときだけ届ける。保存はしない）
+  socket.on('friend_message', ({ to, msg }) => {
+    const from = sidToCode.get(socket.id), me = from && presence.get(from);
+    if (!me || typeof to !== 'string' || !FRIEND_CODE_RE.test(to) || typeof msg !== 'string') return;
+    const safe = msg.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 60);
+    if (!safe) return;
+    const t = presence.get(to);
+    if (!t || !t.friends.has(from) || !me.friends.has(to)) { socket.emit('friend_message_ng', { to }); return; }
+    io.to(t.sid).emit('friend_message', { from: { code: from, name: me.name }, msg: safe });
+    socket.emit('friend_message_ok', { to });
   });
 
   // アイコン画像を変更（対局中でも変更可能）
