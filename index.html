@@ -2235,6 +2235,18 @@ document.body?go():document.addEventListener('DOMContentLoaded',go);
 })();
 </script>
 <style>body.no-menu #menu-btn{display:none!important}
+#fr-msgs{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);width:min(92vw,420px);z-index:1200;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.fr-msg{pointer-events:auto;background:linear-gradient(180deg,#2a1e12,#1a120a);border:1px solid #c9a84c;border-radius:12px;padding:.55rem .75rem;box-shadow:0 6px 20px rgba(0,0,0,.6);color:#f0e0b8;animation:frMsgIn .35s ease-out;transition:opacity .3s,transform .3s}
+.fr-msg .nm{font-size:.72rem;color:#c9a84c;margin-bottom:.15rem}.fr-msg .tx{font-size:.92rem;line-height:1.4;word-break:break-word}
+.fr-msg .ac{display:flex;justify-content:flex-end;margin-top:.3rem}.fr-msg.out{opacity:0;transform:translateY(-12px)}
+@keyframes frMsgIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+#fr-compose{position:fixed;inset:0;z-index:700;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6)}#fr-compose.open{display:flex}
+.frc-box{width:min(90vw,380px);background:#161008;border:1px solid #5a4020;border-radius:14px;padding:.9rem}
+.frc-t{color:#e8c870;font-size:.95rem;margin-bottom:.5rem}.frc-chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem}
+.frc-chips button{background:#2a1e14;color:#c9a84c;border:1px solid #5a4020;border-radius:999px;padding:.2rem .6rem;font-size:.78rem}
+#frc-text{width:100%;box-sizing:border-box;background:#0d0905;color:#f0e0b8;border:1px solid #5a4020;border-radius:8px;padding:.5rem;font-size:16px;resize:none}
+.frc-b{display:flex;justify-content:flex-end;gap:.4rem;margin-top:.6rem}
+
 /* 通常時（イベントなし）のタイトル：静かな冬の夜（月明かり・薄い霧・ゆっくり舞う雪の結晶） */
 .ld-moon{position:absolute;top:9%;right:11%;width:64px;height:64px;border-radius:50%;
   background:radial-gradient(circle at 36% 34%,#fffcf0 0,#efe7cf 52%,#cdc2a4 100%);
@@ -8508,6 +8520,9 @@ function friendConnect(){
   fsocket.on('connect',frRegister);
   fsocket.on('friend_view',frApplyView);
   fsocket.on('friend_invite',frShowInvite);
+  fsocket.on('friend_message',frShowMsg);
+  fsocket.on('friend_message_ok',()=>toast('💬 メッセージを送りました'));
+  fsocket.on('friend_message_ng',()=>toast('相手がオンラインではありません'));
   fsocket.on('friend_error',m=>toast(m));
   fsocket.on('disconnect',()=>{frRequests=[];frUpdateBadge();if(document.getElementById('fr-box'))frRender();});
 }
@@ -8554,6 +8569,46 @@ function frJoinRoom(room){
   document.getElementById('modal').classList.remove('open');
   document.getElementById('join-code-input').value=room;joinRoom();
 }
+// ===== フレンドへのメッセージ（オンラインのフレンドだけ）。届いたら、タイトルでも対戦中でも画面の上に表示する =====
+let _frMsgTo='',_frMsgLast=0;
+function frMsgOpen(code){
+  const f=frState().list.find(x=>x.code===code);if(!f)return;_frMsgTo=code;
+  let el=document.getElementById('fr-compose');
+  if(!el){el=document.createElement('div');el.id='fr-compose';
+    el.innerHTML=`<div class="frc-box"><div class="frc-t" id="frc-t"></div>
+      <div class="frc-chips">${['よろしく！','一緒に遊ぼう','ありがとう','またあとで'].map(x=>`<button type="button">${x}</button>`).join('')}</div>
+      <textarea id="frc-text" rows="3" maxlength="60" placeholder="メッセージ（60文字まで）"></textarea>
+      <div class="frc-b"><button type="button" class="fr-b" id="frc-close">閉じる</button><button type="button" class="fr-b go" id="frc-send">送信</button></div></div>`;
+    document.body.appendChild(el);
+    el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+    el.querySelectorAll('.frc-chips button').forEach(b=>b.onclick=()=>{document.getElementById('frc-text').value=b.textContent;});
+    document.getElementById('frc-close').onclick=()=>el.classList.remove('open');
+    document.getElementById('frc-send').onclick=frMsgSend;}
+  document.getElementById('frc-t').textContent=(f.name||'フレンド')+' さんへメッセージ';
+  const tx=document.getElementById('frc-text');tx.value='';el.classList.add('open');setTimeout(()=>tx.focus(),50);
+}
+function frMsgSend(){
+  const tx=document.getElementById('frc-text'),m=(tx.value||'').trim();if(!m)return;
+  if(!fsocket||!fsocket.connected){toast('接続できていません');return;}
+  if(Date.now()-_frMsgLast<1500){toast('少し待ってから送ってください');return;}
+  _frMsgLast=Date.now();fsocket.emit('friend_message',{to:_frMsgTo,msg:m});
+  document.getElementById('fr-compose').classList.remove('open');
+}
+function frShowMsg(d){
+  if(!d||!d.from||typeof d.msg!=='string'||!d.msg)return;
+  let box=document.getElementById('fr-msgs');
+  if(!box){box=document.createElement('div');box.id='fr-msgs';document.body.appendChild(box);}
+  const el=document.createElement('div');el.className='fr-msg';
+  const nm=document.createElement('div');nm.className='nm';nm.textContent='💬 '+String(d.from.name||'フレンド').slice(0,20)+' さんから';
+  const tx=document.createElement('div');tx.className='tx';tx.textContent=d.msg.slice(0,60);
+  const ac=document.createElement('div');ac.className='ac';
+  const rp=document.createElement('button');rp.type='button';rp.className='fr-b';rp.textContent='返信';
+  const gone=()=>{el.classList.add('out');setTimeout(()=>el.remove(),320);};
+  rp.onclick=e=>{e.stopPropagation();gone();if(/^[A-HJ-NP-Z2-9]{8}$/.test(d.from.code||''))frMsgOpen(d.from.code);};
+  ac.appendChild(rp);el.append(nm,tx,ac);el.onclick=gone;box.appendChild(el);
+  while(box.children.length>3)box.firstChild.remove();
+  setTimeout(gone,7000);try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}
+}
 function frInvite(code){
   if(!currentCode){toast('先に部屋を作ってください');return;}
   fsocket?.emit('friend_invite',{to:code,room:currentCode});toast('📨 招待を送りました');
@@ -8594,7 +8649,7 @@ function frRender(){
   h+=s.list.map(f=>{
     if(!f.confirmed)return `<div class="fr-row">${av('')}<div class="fr-info"><div class="fr-name">${esc(f.code)}</div><div class="fr-st">承認待ち（相手がオンラインのときに届きます）</div></div><button class="fr-b del" onclick="frRemove('${f.code}')">取消</button></div>`;
     const on=f.online&&!f.pending,l=on?(stLabel[f.status]||stLabel.lobby):[f.pending?'承認待ち':'オフライン',''];
-    const btns=(on&&f.status==='room'&&f.room?`<button class="fr-b go" onclick="frJoinRoom('${f.room}')">参加</button>`:'')+(on&&currentCode?`<button class="fr-b" onclick="frInvite('${f.code}')">招待</button>`:'')+`<button class="fr-b del" onclick="frRemove('${f.code}')">削除</button>`;
+    const btns=(on?`<button class="fr-b" onclick="frMsgOpen('${f.code}')">メッセージ</button>`:'')+(on&&f.status==='room'&&f.room?`<button class="fr-b go" onclick="frJoinRoom('${f.room}')">参加</button>`:'')+(on&&currentCode?`<button class="fr-b" onclick="frInvite('${f.code}')">招待</button>`:'')+`<button class="fr-b del" onclick="frRemove('${f.code}')">削除</button>`;
     return `<div class="fr-row" style="${on?'':'opacity:.65'}">${av(f.avatar)}<div class="fr-info"><div class="fr-name">${esc(f.name||'名無し')}${f.title?` <span style="font-size:.68rem;color:#f5d040">${esc((GACHA_ITEMS.find(x=>x.id===f.title)||{}).title||'')}</span>`:''}</div><div class="fr-st ${l[1]}">${l[0]}</div></div>${btns}</div>`;
   }).join('');
   const keep=document.getElementById('fr-add-input'),v=keep?keep.value:'';
