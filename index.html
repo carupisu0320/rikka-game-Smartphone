@@ -6399,6 +6399,32 @@ function stopTileBackAnim(){
   if(!_tileAnim)return;_tileAnim.alive=false;cancelAnimationFrame(_tileAnim.raf);_tileAnim.ro&&_tileAnim.ro.disconnect();
   const cv=document.getElementById('tile-fx');if(cv)cv.remove();_tileAnim=null;
 }
+/* ===== 開発者専用の牌の裏：二次元の女の子（静止画）と、牌の上を歩いて移動する女の子 ===== */
+const _girlSvg=bg=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 108"><defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe6ff"/><stop offset="1" stop-color="#ffd6e8"/></linearGradient><linearGradient id="h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a6ae0"/><stop offset="1" stop-color="#3a2f86"/></linearGradient><radialGradient id="i" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#ffe9fb"/><stop offset=".45" stop-color="#e86ab8"/><stop offset="1" stop-color="#6a2a8a"/></radialGradient></defs>`
++(bg?`<rect width="68" height="108" fill="url(#b)"/><path d="M10 14l1.2 3 3 1.2-3 1.2L10 22.4l-1.2-3-3-1.2 3-1.2zM58 38l1 2.400 2.400 1-2.400 1L58 45l-1-2.600-2.400-1 2.400-1z" fill="#fff"/>`:'')
++`<path d="M34 14C14 14 8 32 9 56c1 18-5 30-5 52h60c0-22-6-34-5-52 1-24-5-42-25-42z" fill="url(#h)"/><path d="M10 108c1-12 9-19 24-19s23 7 24 19z" fill="#fff"/><path d="M22 90l12 12 12-12z" fill="#2a3a78"/><path d="M34 101l-6-4v8zM34 101l6-4v8z" fill="#ff4a6a"/><path d="M30 80v10h8V80z" fill="#ffdac8"/><path d="M17 52C17 36 24 26 34 26s17 10 17 26c0 15-8 30-17 30S17 67 17 52z" fill="#ffe8da"/><path d="M34 20C20 20 14 32 15 52c3-8 6-14 10-18 4 5 9 7 14 7 6-1 9-5 12-12 3 4 5 10 6 21C58 32 50 20 34 20z" fill="url(#h)"/><path d="M22 28q6-6 14-5" stroke="#b8acff" stroke-width="1.600" fill="none" stroke-linecap="round" opacity=".8"/><path d="M46 20l9-5-2 10zM46 20l-2-9 9 4z" fill="#ff5a7a"/><circle cx="48" cy="20" r="2.200" fill="#ffd1dc"/>`
++[26,42].map(x=>`<ellipse cx="${x}" cy="58" rx="6" ry="7.500" fill="#fff"/><ellipse cx="${x+.5}" cy="59" rx="4.800" ry="6.400" fill="url(#i)"/><ellipse cx="${x+.5}" cy="59.500" rx="2.200" ry="3.400" fill="#2a1240"/><circle cx="${x-1.500}" cy="56.500" r="1.800" fill="#fff"/><circle cx="${x+2.400}" cy="62" r=".9" fill="#fff"/><path d="M${x-6.500} 56c2-4 9-5 13 0" stroke="#2a1a3a" stroke-width="1.600" fill="none" stroke-linecap="round"/>`).join('')
++`<path d="M21 49q5-3 9-1M38 48q4-2 9 1" stroke="#4a3a8a" stroke-width="1" fill="none" stroke-linecap="round"/><ellipse cx="21" cy="68" rx="3.400" ry="2" fill="#ff9eb8" opacity=".6"/><ellipse cx="47" cy="68" rx="3.400" ry="2" fill="#ff9eb8" opacity=".6"/><path d="M30.500 72q3.500 3.200 7 0" stroke="#d0506a" stroke-width="1.200" fill="none" stroke-linecap="round"/></svg>`;
+const _GIRL_URI='data:image/svg+xml,'+encodeURIComponent(_girlSvg(true));
+(function(){const e=document.createElement('style');e.textContent=`
+body.back-girl .fback{background:#cfe6ff;border-color:#ffb0cc}
+body.back-girl .fback::before{content:'';position:absolute;inset:0;border-radius:inherit;background:url("${_GIRL_URI}") center/cover no-repeat}
+body.back-girl .fback::after{content:none}
+body.back-girlwalk .fback{background:linear-gradient(165deg,#241a58,#4a3088 60%,#a8609c);border-color:#f0b0d0}
+body.back-girlwalk .fback::before{background:radial-gradient(circle,rgba(255,230,245,.7) 0 1px,transparent 1.6px) 0 0/9px 9px;opacity:.6}
+body.back-girlwalk .fback::after{color:rgba(255,200,225,.45)}`;document.head.appendChild(e);})();
+let _girlImg=null;
+// 牌の上を、女の子がゆっくり歩いて（ふわふわ漂って）渡っていく。きらめきの尾を引く（龍と同じ仕組み）
+TILE_BACK_GLOBAL.girlwalk=function(c,box,ts,t,st,dt){
+  if(!_girlImg){_girlImg=new Image();_girlImg.src='data:image/svg+xml,'+encodeURIComponent(_girlSvg(false));}
+  const H=ts*3.6,W=H*68/108,cyc=_fr(t/32),leg=cyc<.5?0:1,u=(cyc*2)%1;
+  const pos=q=>[(leg?1.15-1.3*q:-.15+1.3*q)*box.w,box.h*(.5+.22*Math.sin(q*Math.PI*4+leg*2))];
+  const [x,y]=pos(u);
+  c.globalCompositeOperation='lighter';c.fillStyle='#ffd6ee';
+  for(let k=1;k<=10;k++){const [px,py]=pos(Math.max(0,u-k*.011));c.globalAlpha=(1-k/11)*.8;_star4t(c,px+Math.sin(t*3+k)*ts*.25,py+H*.18+Math.cos(t*2.4+k)*ts*.2,ts*(.16-k*.012));}
+  c.globalAlpha=1;c.globalCompositeOperation='source-over';
+  if(_girlImg.complete&&_girlImg.naturalWidth){c.save();c.translate(x,y+Math.sin(t*4)*ts*.12);c.rotate(Math.sin(t*2.2)*.07);c.shadowColor='rgba(255,170,220,.7)';c.shadowBlur=ts*.4;c.drawImage(_girlImg,-W/2,-H/2,W,H);c.restore();}
+};
 function refreshTileBackAnim(){
   stopTileBackAnim();
   const theme=localStorage.getItem('rikka_back_theme')||'';
@@ -6739,6 +6765,9 @@ function renderCustomize(){
         <div class="nm">${has?esc(it.title):(it.achievement?'🔒 実績で入手':'🔒 ガチャで入手')}</div></button>`;
     }).join('');
     h+='</div>';
+    if(typeof isDevUser==='function'&&isDevUser()){
+      h+='<div class="custom-sub">開発者専用の裏柄</div><div class="custom-grid">'+[['girl','二次元の女の子'],['girlwalk','歩く女の子（動く）']].map(([v,nm])=>`<button class="custom-card${cur===v?' sel':''}" onclick="selectBackTheme('${v}','')">${cur===v?'<span class="chk">✔</span>':''}<div class="sw" style="background:${v==='girl'?`url('${_GIRL_URI}') center/cover`:'linear-gradient(165deg,#241a58,#a8609c)'};border-color:#f0b0d0"></div><div class="nm">${nm}</div></button>`).join('')+'</div>';
+    }
     body.innerHTML=h;
   } else {
     const hasCustom=!!customFieldBgUrl;
