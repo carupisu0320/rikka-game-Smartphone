@@ -2245,7 +2245,7 @@ document.body?go():document.addEventListener('DOMContentLoaded',go);
   background:linear-gradient(90deg,transparent 0%,rgba(185,196,228,.11) 30%,rgba(185,196,228,.16) 55%,transparent 100%);animation:ldMist 60s ease-in-out infinite alternate}
 .ld-vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,transparent 52%,rgba(0,0,0,.5) 100%)}
 @keyframes ldMist{from{transform:translateX(-6%)}to{transform:translateX(8%)}}
-#lobby.lobby-default .logo-sub{color:#8d89ad}
+#lobby.lobby-default .logo-sub{color:var(--ld-sub,#8d89ad);transition:color 8s}
 #lobby.lobby-default .logo-kanji{transition:color 8s,text-shadow 8s}
 .ld-scene{position:absolute;inset:0;transition:opacity 8s ease-in-out}
 .ld-sky{position:absolute;inset:0}
@@ -8263,7 +8263,7 @@ async function installNewIcon(){
 // 通常時のタイトルは、時間帯（明け方・昼・夕方・夜・深夜）に合わせて、ゆっくり景色が移り変わる
 const LD_SLOTS={
   dawn:{sky:'linear-gradient(180deg,#0f1430 0%,#2a2a52 35%,#6a4a6e 62%,#c0707a 84%,#e6a37e 100%)',logo:'#f0dcc0',glow:'rgba(255,190,170,.4)',stars:6,mist:'rgba(230,190,200,.14)',cloud:'rgba(240,190,190,.2)',sun:'left:14%;bottom:16%;width:300px;height:300px;background:radial-gradient(circle,rgba(255,190,140,.55) 0%,transparent 68%)',flake:0,mote:12,motec:'255,226,214'},
-  day:{sky:'linear-gradient(180deg,#14304a 0%,#1f4a6a 40%,#2f6684 72%,#4f8294 100%)',logo:'#f4e6bf',glow:'rgba(255,240,200,.35)',stars:0,mist:'rgba(210,230,240,.12)',cloud:'rgba(235,245,250,.16)',sun:'left:2%;top:2%;width:340px;height:340px;background:radial-gradient(circle,rgba(255,238,190,.5) 0%,transparent 66%)',flake:0,mote:10,motec:'255,244,214'},
+  day:{sky:'linear-gradient(180deg,#1f4f78 0%,#3b78a2 38%,#5f98b8 72%,#86b4c8 100%)',logo:'#fbf0cc',glow:'rgba(255,244,210,.45)',sub:'#e3edf5',stars:0,mist:'rgba(220,236,244,.16)',cloud:'rgba(240,248,252,.26)',sun:'left:2%;top:2%;width:380px;height:380px;background:radial-gradient(circle,rgba(255,244,205,.62) 0%,transparent 66%)',flake:0,mote:10,motec:'255,246,222'},
   dusk:{sky:'linear-gradient(180deg,#15142c 0%,#3a2550 38%,#7a3d5a 66%,#c0635a 88%,#dc8a5a 100%)',logo:'#f6d8a8',glow:'rgba(255,170,120,.4)',stars:5,mist:'rgba(230,170,150,.12)',cloud:'rgba(220,140,130,.18)',sun:'right:6%;bottom:18%;width:300px;height:300px;background:radial-gradient(circle,rgba(255,140,90,.55) 0%,transparent 68%)',flake:0,mote:10,motec:'255,214,170'},
   night:{sky:'radial-gradient(ellipse at 82% 6%,rgba(120,135,210,.26) 0%,transparent 50%),radial-gradient(ellipse at 50% 108%,rgba(110,90,130,.28) 0%,transparent 58%),linear-gradient(180deg,#05070f 0%,#0b1226 48%,#141a2e 80%,#1c1d33 100%)',logo:'#e8d8b0',glow:'rgba(190,200,245,.35)',stars:14,mist:'rgba(185,196,228,.14)',moon:1,flake:16,mote:0},
   deep:{sky:'radial-gradient(ellipse at 20% 6%,rgba(80,95,170,.18) 0%,transparent 50%),linear-gradient(180deg,#020308 0%,#060a18 55%,#0b1022 85%,#12142a 100%)',logo:'#dccfae',glow:'rgba(150,165,230,.3)',stars:30,mist:'rgba(150,160,200,.1)',moon:2,flake:8,mote:0}
@@ -8292,7 +8292,7 @@ function ldBuild(slot){
 }
 function _ldShow(lobby,fx,fade){
   const slot=window._ldForce||ldSlot(),L=LD_SLOTS[slot];_ldSlot=slot;
-  lobby.style.setProperty('--logo-c',L.logo);lobby.style.setProperty('--logo-glow',L.glow);
+  lobby.style.setProperty('--ld-sub',L.sub||'#8d89ad');lobby.style.setProperty('--logo-c',L.logo);lobby.style.setProperty('--logo-glow',L.glow);
   const sc=ldBuild(slot);
   if(!fade){fx.appendChild(sc);return;}
   const olds=[...fx.querySelectorAll('.ld-scene')];
@@ -8311,7 +8311,9 @@ window.setLobbySlot=n=>{window._ldForce=n||null;const l=document.getElementById(
   if(l&&f&&l.classList.contains('lobby-default'))_ldShow(l,f,true);}; // 確認用：setLobbySlot('dusk') など
 function applyLobbyEvent(){
   const ev=currentLobbyEvent(),id=ev?ev.id:'';
-  if(id===_lobbyEventId){setTimeout(updateIconUpdateBtn,0);return;} // 変わっていなければ、背景はそのまま（お知らせの出し分けだけ更新）
+  if(id===_lobbyEventId){setTimeout(updateIconUpdateBtn,0);
+    if(!id){const l=document.getElementById('lobby'),f=document.getElementById('lobby-fx');if(l&&f&&l.classList.contains('lobby-default')&&(window._ldForce||ldSlot())!==_ldSlot)_ldShow(l,f,true);} // 時間帯が変わっていれば、すぐに切り替える
+    return;} // 変わっていなければ、背景はそのまま（お知らせの出し分けだけ更新）
   _lobbyEventId=id;
   updateAppIcons();
   setTimeout(updateIconUpdateBtn,0);
