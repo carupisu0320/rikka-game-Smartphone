@@ -169,6 +169,7 @@ function resolveDiscard(room, code, pi, tile) {
     room.ronPending = null;
     room.phase = 'roundEnd';
     io.to(code).emit('round_draw', { reason: 'riichi_deadlock', scores: room.players.map(p => ({ name: p.name, score: p.score })) });
+    specNote(room, 'リーチ同士で決着がつかず、流局です');
     return;
   }
   const discardedTile = room.field.filter(t => t.discarded).slice(-1)[0];
@@ -292,7 +293,19 @@ function dealRound(room) {
   if (room.forcedDiscardTimer) { clearTimeout(room.forcedDiscardTimer); room.forcedDiscardTimer = null; }
   room.forcedDiscardTileId = null;
 }
+// 観戦：見られるのは「場にある牌の数・捨て牌・点数・手番・手牌の枚数」だけ（誰の手牌も見えない）
+function specPublic(room) {
+  return {
+    code: room.code, phase: room.phase, turn: room.turn, tphase: room.tphase, goal: room.goal || 10,
+    scores: room.players.map(p => ({ name: p.name, score: p.score, riichi: p.riichi || false, hand: p.hand.length })),
+    fieldCount: room.field.filter(t => !t.discarded).length,
+    discards: room.field.filter(t => t.discarded).map(t => ({ id: t.id, top: t.top, bot: t.bot, flip: !!t.flip })),
+  };
+}
+function sendSpec(room, sock) { const d = specPublic(room); if (sock) sock.emit('spec_state', d); else io.to('spec:' + room.code).emit('spec_state', d); }
+function specNote(room, text) { io.to('spec:' + room.code).emit('spec_note', { text, scores: room.players.map(p => ({ name: p.name, score: p.score })) }); }
 function sendState(room) {
+  sendSpec(room);
   room.players.forEach((player, myIdx) => {
     io.to(player.id).emit('state', {
       myIdx,
@@ -335,7 +348,7 @@ function friendViewFor(code) {
   if (!me) return null;
   const friends = [...me.friends].map(fc => {
     const f = presence.get(fc);
-    if (f && f.friends.has(code)) return { code: fc, state: 'friend', name: f.name, avatar: f.avatar, title: f.title, status: f.status, room: f.room };
+    if (f && f.friends.has(code)) return { code: fc, state: 'friend', name: f.name, avatar: f.avatar, title: f.title, status: f.status, room: f.status === 'room' ? f.room : '' };
     return { code: fc, state: f ? 'pending' : 'unknown' }; // 相手の情報は、お互いがフレンドになるまで見せない
   });
   const requests = [];
@@ -351,7 +364,7 @@ function pushFriendViewsAround(code) { // 本人と、本人をフレンドに�
   presence.forEach((x, xc) => { if (xc !== code && x.friends.has(code)) pushFriendView(xc); });
 }
 const ipSockets = new Map(); // IP → 接続数
-const MIN_GAP = { friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
+const MIN_GAP = { friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, spectate: 1500, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
 io.on('connection', socket => {
   const ip = String(socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || '').split(',')[0].trim();
   const n = (ipSockets.get(ip) || 0) + 1;
@@ -514,7 +527,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     const code = sidToCode.get(socket.id), p = code && presence.get(code);
     if (!p || !['lobby', 'room', 'playing'].includes(st)) return;
     p.status = st;
-    p.room = (st === 'room' && typeof room === 'string' && /^[A-Z0-9]{3,12}$/.test(room)) ? room : '';
+    p.room = ((st === 'room' || st === 'playing') && typeof room === 'string' && /^[A-Z0-9]{3,12}$/.test(room)) ? room : '';
     pushFriendViewsAround(code);
   });
   socket.on('friend_invite', ({ to, room }) => {
@@ -537,6 +550,22 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     io.to(t.sid).emit('friend_message', { from: { code: from, name: me.name }, msg: safe });
     socket.emit('friend_message_ok', { to });
   });
+
+  // 観戦（お互いがフレンドで、相手が対戦中のときだけ。見るだけで、操作はできない）
+  socket.on('spectate', ({ to }) => {
+    const me = sidToCode.get(socket.id), mp = me && presence.get(me);
+    if (!mp || typeof to !== 'string' || !FRIEND_CODE_RE.test(to)) return;
+    const t = presence.get(to);
+    if (!t || !t.friends.has(me) || !mp.friends.has(to)) { socket.emit('spec_ng', '観戦できません'); return; }
+    const room = t.status === 'playing' ? rooms.get(t.room) : null;
+    if (!room || room.phase === 'waiting' || !room.players.some(p => p.name === t.name)) { socket.emit('spec_ng', 'いま対戦していません'); return; }
+    const n = (io.sockets.adapter.rooms.get('spec:' + room.code) || { size: 0 }).size;
+    if (n >= 8) { socket.emit('spec_ng', '観戦の人数がいっぱいです'); return; }
+    if (socket.data.spec) socket.leave('spec:' + socket.data.spec);
+    socket.join('spec:' + room.code); socket.data.spec = room.code;
+    sendSpec(room, socket);
+  });
+  socket.on('stop_spectate', () => { if (socket.data.spec) { socket.leave('spec:' + socket.data.spec); socket.data.spec = ''; } });
 
   // アイコン画像を変更（対局中でも変更可能）
   socket.on('set_avatar', ({ code, url }) => {
@@ -733,6 +762,7 @@ socket.on('pick', ({ code, fieldIdx }) => {
       scores: room.players.map(p => ({ name: p.name, score: p.score })),
       isGameOver, tsuideList, ron: true, ronFrom: discarder.name, riichi: room.players[pi].riichi
     });
+    specNote(room, `${room.players[pi].name} が ${discarder.name} からロン！（${res.role}）${isGameOver ? ' 対戦終了' : ''}`);
   });
   socket.on('chat', ({ code, msg }) => {
     const room = rooms.get(code);
@@ -777,6 +807,7 @@ player.score += res.pts + bonus;
       tsuideList,
       riichi:     player.riichi,
     });
+    specNote(room, `${player.name} が上がり！（${res.role}）${room.players.some(p => p.score >= (room.goal || 10)) ? ' 対戦終了' : ''}`);
   });
 
   // 次のラウンド
@@ -796,7 +827,7 @@ player.score += res.pts + bonus;
       const pi = room.players.findIndex(p => p.id === socket.id);
       if (pi !== -1) {
         if (room.phase === 'waiting') leaveWaitingRoom(room, socket.id); // 待機中なら、ほかの人はそのまま待てる
-        else { io.to(room.code).emit('player_left', { name: room.players[pi].name }); rooms.delete(room.code); }
+        else { io.to(room.code).emit('player_left', { name: room.players[pi].name }); io.to('spec:' + room.code).emit('spec_end', { text: room.players[pi].name + ' が退出しました' }); rooms.delete(room.code); }
       }
     }
   });
