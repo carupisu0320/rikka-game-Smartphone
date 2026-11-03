@@ -303,6 +303,9 @@ function specPublic(room) {
   };
 }
 function sendSpec(room, sock) { const d = specPublic(room); if (sock) sock.emit('spec_state', d); else io.to('spec:' + room.code).emit('spec_state', d); }
+// CPU戦の観戦：対戦している本人の端末が、公開してよい情報だけを送り、サーバーが観戦者に中継する
+function botSpecCount(code) { const t = presence.get(code); if (!t) return; const n = (io.sockets.adapter.rooms.get('spec:bot:' + code) || { size: 0 }).size; io.to(t.sid).emit('spec_count', { n }); }
+function endBotSpec(code, name) { const r = 'spec:bot:' + code; io.to(r).emit('spec_end', { text: name + ' がCPU戦を終えました' }); io.in(r).socketsLeave(r); }
 function specNote(room, text) { io.to('spec:' + room.code).emit('spec_note', { text, scores: room.players.map(p => ({ name: p.name, score: p.score })) }); }
 function sendState(room) {
   sendSpec(room);
@@ -364,7 +367,7 @@ function pushFriendViewsAround(code) { // 本人と、本人をフレンドに�
   presence.forEach((x, xc) => { if (xc !== code && x.friends.has(code)) pushFriendView(xc); });
 }
 const ipSockets = new Map(); // IP → 接続数
-const MIN_GAP = { friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, spectate: 1500, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
+const MIN_GAP = { friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, spectate: 1500, bot_spec: 250, bot_spec_note: 400, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
 io.on('connection', socket => {
   const ip = String(socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || '').split(',')[0].trim();
   const n = (ipSockets.get(ip) || 0) + 1;
@@ -374,9 +377,10 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     const c = sidToCode.get(socket.id);
     if (!c) return;
+    if (socket.data.spec && socket.data.spec.startsWith('bot:')) { const tc = socket.data.spec.slice(4); setImmediate(() => botSpecCount(tc)); }
     sidToCode.delete(socket.id);
     const p = presence.get(c);
-    if (p && p.sid === socket.id) { presence.delete(c); pushFriendViewsAround(c); }
+    if (p && p.sid === socket.id) { endBotSpec(c, p.name); presence.delete(c); pushFriendViewsAround(c); }
   });
   // すべての受信に共通の守り：データが無い・形がおかしい送信でサーバーが落ちないようにし、連打を止める
   const _on = socket.on.bind(socket), lastAt = {};
@@ -525,7 +529,9 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
   });
   socket.on('friend_status', ({ st, room }) => {
     const code = sidToCode.get(socket.id), p = code && presence.get(code);
-    if (!p || !['lobby', 'room', 'playing'].includes(st)) return;
+    if (!p || !['lobby', 'room', 'playing', 'bot'].includes(st)) return;
+    const prevSt = p.status;
+    if (prevSt === 'bot' && st !== 'bot') endBotSpec(code, p.name);
     p.status = st;
     p.room = ((st === 'room' || st === 'playing') && typeof room === 'string' && /^[A-Z0-9]{3,12}$/.test(room)) ? room : '';
     pushFriendViewsAround(code);
@@ -551,12 +557,40 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     socket.emit('friend_message_ok', { to });
   });
 
+  socket.on('bot_spec', ({ state }) => {
+    const me = sidToCode.get(socket.id), mp = me && presence.get(me);
+    if (!mp || mp.status !== 'bot' || !state || typeof state !== 'object') return;
+    const n = (v, d, lo, hi) => Math.min(hi, Math.max(lo, Number.isFinite(+v) ? Math.trunc(+v) : d));
+    const clean = {
+      code: 'bot', phase: state.phase === 'playing' ? 'playing' : 'roundEnd', turn: n(state.turn, 0, 0, 8),
+      tphase: state.tphase === 'pick' ? 'pick' : 'discard', goal: n(state.goal, 10, 1, 99),
+      scores: (Array.isArray(state.scores) ? state.scores : []).slice(0, 6).map(p => ({ name: String((p && p.name) || '').slice(0, 20), score: n(p && p.score, 0, -99, 999), riichi: !!(p && p.riichi), hand: n(p && p.hand, 0, 0, 20) })),
+      fieldCount: n(state.fieldCount, 0, 0, 200),
+      discards: (Array.isArray(state.discards) ? state.discards : []).slice(0, 120).map(t => ({ id: n(t && t.id, 0, 0, 999), top: n(t && t.top, 1, 1, 6), bot: n(t && t.bot, 1, 1, 6), flip: !!(t && t.flip) })),
+    };
+    mp.botState = clean;
+    io.to('spec:bot:' + me).emit('spec_state', clean);
+  });
+  socket.on('bot_spec_note', ({ text }) => {
+    const me = sidToCode.get(socket.id), mp = me && presence.get(me);
+    if (!mp || mp.status !== 'bot' || typeof text !== 'string') return;
+    io.to('spec:bot:' + me).emit('spec_note', { text: text.replace(/[\u0000-\u001f\u007f]/g, ' ').slice(0, 80) });
+  });
   // 観戦（お互いがフレンドで、相手が対戦中のときだけ。見るだけで、操作はできない）
   socket.on('spectate', ({ to }) => {
     const me = sidToCode.get(socket.id), mp = me && presence.get(me);
     if (!mp || typeof to !== 'string' || !FRIEND_CODE_RE.test(to)) return;
     const t = presence.get(to);
     if (!t || !t.friends.has(me) || !mp.friends.has(to)) { socket.emit('spec_ng', '観戦できません'); return; }
+    if (t.status === 'bot') { // CPU戦の観戦
+      const rn = 'spec:bot:' + to, cnt = (io.sockets.adapter.rooms.get(rn) || { size: 0 }).size;
+      if (cnt >= 8) { socket.emit('spec_ng', '観戦の人数がいっぱいです'); return; }
+      if (socket.data.spec) socket.leave('spec:' + socket.data.spec);
+      socket.join(rn); socket.data.spec = 'bot:' + to;
+      if (t.botState) socket.emit('spec_state', t.botState);
+      botSpecCount(to);
+      return;
+    }
     const room = t.status === 'playing' ? rooms.get(t.room) : null;
     if (!room || room.phase === 'waiting' || !room.players.some(p => p.name === t.name)) { socket.emit('spec_ng', 'いま対戦していません'); return; }
     const n = (io.sockets.adapter.rooms.get('spec:' + room.code) || { size: 0 }).size;
@@ -565,7 +599,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     socket.join('spec:' + room.code); socket.data.spec = room.code;
     sendSpec(room, socket);
   });
-  socket.on('stop_spectate', () => { if (socket.data.spec) { socket.leave('spec:' + socket.data.spec); socket.data.spec = ''; } });
+  socket.on('stop_spectate', () => { const s = socket.data.spec; if (s) { socket.leave('spec:' + s); socket.data.spec = ''; if (s.startsWith('bot:')) botSpecCount(s.slice(4)); } });
 
   // アイコン画像を変更（対局中でも変更可能）
   socket.on('set_avatar', ({ code, url }) => {
