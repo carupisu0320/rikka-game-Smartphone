@@ -8651,6 +8651,7 @@ function specRender(d){
     <div class="sp-ps">${d.scores.map((p,i)=>`<div class="sp-p${i===d.turn&&d.phase==='playing'?' turn':''}"><div class="sp-n">${esc(p.name)}${p.riichi?'<span class="sp-r">リーチ</span>':''}</div><div class="sp-s">${p.score} / ${d.goal}点</div><div class="sp-h">${p.tiles&&p.tiles.length?p.tiles.map(t=>tileHTML(t)).join(''):'<i class="fback"></i>'.repeat(Math.min(8,p.hand||0))}</div><div class="sp-t">${turnTxt(i)}</div></div>`).join('')}</div>
     <div class="sp-sec">🀄 場の牌（${d.fieldCount}枚）</div><div class="sp-f">${'<div class="fback"></div>'.repeat(Math.min(60,d.fieldCount||0))}</div>
     <div class="sp-sec">捨て牌（${(d.discards||[]).length}枚）</div><div class="sp-f">${(d.discards||[]).map(t=>tileHTML(t)).join('')||'<span style="color:#6a5030;font-size:.78rem">まだありません</span>'}</div>
+    ${d.scores.some(p=>(p.hand||0)>0&&!(p.tiles&&p.tiles.length))?'<div class="sp-note" style="margin-top:.4rem">手牌の情報が届いていません。サーバー、または対戦している人の端末が古いままかもしれません（更新して開き直してください）</div>':''}
     ${d.phase==='playing'?'':'<div class="sp-note">ラウンドが終わりました。次の局を待っています…</div>'}`;
   el.classList.add('open');
 }
