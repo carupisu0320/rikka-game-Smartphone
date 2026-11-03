@@ -3232,7 +3232,7 @@ function tryTurnCue(){
     [[784,0],[1174.7,.1]].forEach(([f,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,now+t);g.gain.linearRampToValueAtTime(.7,now+t+.015);g.gain.exponentialRampToValueAtTime(.001,now+t+.45);o.connect(g);g.connect(m);o.start(now+t);o.stop(now+t+.5);});});
 }
 setInterval(()=>{if(_turnCuePending)checkTurnCue();},350); // 紹介画面などが終わるのを待って出す
-function render(){renderHeader();renderOpponents();renderField();renderHand();renderStatus();requestAnimationFrame(updateFlipPopup);updateTurnGlow();checkTurnCue();}
+function render(){renderHeader();renderOpponents();renderField();renderHand();renderStatus();requestAnimationFrame(updateFlipPopup);updateTurnGlow();checkTurnCue();if(window.__bs>0&&!onlineMode)botSpecPush();}
 function renderHeader(){
   const gl=document.getElementById('goal-label');
   if(gl)gl.textContent=`${G?.goal||WIN_SCORE}点先取`;
@@ -5526,6 +5526,7 @@ function addPetals(n){ savePetals(loadPetals()+n); }
 const BOT_WIN_PETALS={easy:3,normal:5,hard:10};
 let _lastPetalGain=0;
 function botGamePetals(winnerIdx,extra){
+  try{botSpecNote(winnerIdx);}catch(e){}
   const bot=G&&G.players.find(p=>p.isBot);
   const n=(winnerIdx===myOnlineIdx)?(BOT_WIN_PETALS[bot&&bot.diff]||5):1;
   const total=n+(extra||0);
@@ -6041,6 +6042,8 @@ function closeGacha(){ showScreen('lobby'); }
 const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
+  {id:'info_missions', info:true, title:'📋 ミッションを追加', desc:'メニュー（≡）の「ミッション」から開けます。達成すると、花びらがもらえます。\n【今日のミッション】毎日0時に3つが選ばれます（対戦する・勝つ・オンライン対戦をする・ガチャを引く など）。1つあたり花びら3〜8枚です。3つとも受け取ると、ボーナスで花びら5枚がもらえます\n【今週の目標】毎週月曜に更新されます。「10局勝つ」「オンライン対戦を10局する」「5日ログインする」「ガチャを10回引く」の4つで、1つあたり花びら20〜30枚です\n※達成したら「受け取る」を押すと、花びらが入ります。進み具合は、この端末に保存されます'},
+  {id:'info_spectate', info:true, title:'👁 フレンドの対戦を観戦できるように', desc:'フレンドが対戦中のとき、フレンド画面に「観戦」ボタンが出ます。\n・見られるのは、場の牌の数、捨て牌、各プレイヤーの点数・リーチ・手番・手牌の枚数です。誰の手牌も見えません\n・上がり、ロン、流局、対戦終了も、画面の下に表示されます\n・観戦は、見るだけです。いつでも「退出」できます\n※お互いがフレンドで、相手が対戦中のときだけ観戦できます（1つの対戦につき、観戦は8人までです）'},
   {id:'info_quick_cpu', info:true, title:'🤖 クイックマッチについて', desc:'クイックマッチで5秒ほど待っても対戦相手が見つからないときは、CPUが相手になります。マッチング画面に注意書きを出し、CPU戦のときは、各ラウンドの結果画面で「今回の対戦相手は、CPUでした」とお知らせします。ルールは、基本役のみ・リーチなし・ロンなしで、通常のクイックマッチと同じです。'},
   {id:'info_friend', info:true, title:'👥 フレンド機能を追加', desc:'メニュー（≡）のカスタマイズの下に「フレンド」が加わりました。\n・自分のフレンドコード（8文字）を友だちに教えると、友だちが申請できます。承認するとフレンドになります\n・フレンドが、オンライン／部屋にいる／対戦中のどれかを見られます\n・部屋にいる友だちの部屋へ、ワンタッチで参加できます。自分の部屋には、友だちを招待できます\n※お互いが承認するまで、相手の名前や状態は見えません。フレンドコードは、友だちにだけ教えてください'},
   {id:'info_fix_security', info:true, title:'🛠 不具合の修正と安全対策', desc:'【修正】\n・ガチャ画面を開き直したとき、引く場所と中身の一覧が食い違うことがあった不具合を直しました\n・5人で遊ぶ部屋の待機画面が、4人分しか表示されていなかった不具合を直しました\n・動く牌の裏を設定していると、期間限定ガチャの一覧の牌の裏が別の柄に見えていた不具合を直しました\n【安全対策】\n・対戦相手にも見えるアイコン・場の背景の画像は、Google・GitHub・Imgur・Discord・ibb.co のものだけ表示されます（それ以外のサイトの画像は、相手には表示されません。自分の画面には出ます）\n・プレイヤー名は20文字までになりました\n・連打や、形のおかしい通信を受けても、サーバーが止まらないようにしました\n【確認】\n・六華はPHPを使っていないため、PHPの脆弱性の影響は受けません（確認済み）'},
@@ -6050,8 +6053,6 @@ const GIFTBOX_ITEMS=[
   {id:'info_event_halloween2026', info:true, title:'🎃 ハロウィンナイト開催！', desc:'ロビーの「🎃 ハロウィンナイト」から遊べるイベント戦です（10/19 〜 11/1）。\nイベントだけのルール（お菓子ラウンド・ロンの祝福）と、勝利数に応じた限定報酬があります。期間が終わるとイベントは消えます。'},
   {id:'info_limited_gacha1', info:true, title:'✨ 期間限定ガチャ開催！', desc:'ガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n開催期間：10/19 〜 11/2\n最高レアは場の背景「Game Over Ⅲ・Ⅳ」。ほかに新しい牌の裏・場の背景・動くアイコン、称号「国富平針店のバイト」が出ます。'},
   {id:'info_update_login_draw', info:true, title:'🛠 アップデート内容', desc:'・毎日ログインボーナスを追加（花びら50枚／7日ごとに称号「日々の花」、次の7日ごとに★が増えます）\n・全員リーチで誰も上がれなくなった場合、引き分けになって次のラウンドへ進むようにしました（CPU戦・オンライン対戦とも）'},
-  {id:'info_missions', info:true, title:'📋 ミッションを追加', desc:'メニュー（≡）の「ミッション」から開けます。達成すると、花びらがもらえます。\n【今日のミッション】毎日0時に3つが選ばれます（対戦する・勝つ・オンライン対戦をする・ガチャを引く など）。1つあたり花びら3〜8枚です。3つとも受け取ると、ボーナスで花びら5枚がもらえます\n【今週の目標】毎週月曜に更新されます。「10局勝つ」「オンライン対戦を10局する」「5日ログインする」「ガチャを10回引く」の4つで、1つあたり花びら20〜30枚です\n※達成したら「受け取る」を押すと、花びらが入ります。進み具合は、この端末に保存されます'},
-  {id:'info_spectate', info:true, title:'👁 フレンドの対戦を観戦できるように', desc:'フレンドが対戦中のとき、フレンド画面に「観戦」ボタンが出ます。\n・見られるのは、場の牌の数、捨て牌、各プレイヤーの点数・リーチ・手番・手牌の枚数です。誰の手牌も見えません\n・上がり、ロン、流局、対戦終了も、画面の下に表示されます\n・観戦は、見るだけです。いつでも「退出」できます\n※お互いがフレンドで、相手が対戦中のときだけ観戦できます（1つの対戦につき、観戦は8人までです）'},
 ];
 function loadGiftboxClaimed(){
   try{ return JSON.parse(localStorage.getItem('rikka_giftbox_claimed')||'[]'); }catch(e){ return []; }
@@ -7672,7 +7673,7 @@ function tutPracticeTap(i){
 
 function showModal(html){document.getElementById('mbox').innerHTML=html;document.getElementById('modal').classList.add('open');}
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='lobby')applyLobbyEvent();}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='lobby')applyLobbyEvent();try{frReportStatus();}catch(e){}}
 
 // ============================================================
 // タイトル画面のイベント背景（日付で自動的に切り替わる）
@@ -8547,6 +8548,7 @@ function friendConnect(){
   fsocket.on('spec_note',d=>specNote(d&&d.text));
   fsocket.on('spec_end',d=>specNote((d&&d.text)||'対戦が終わりました',true));
   fsocket.on('spec_ng',m=>toast(String(m||'観戦できません')));
+  fsocket.on('spec_count',d=>{window.__bs=(d&&d.n|0)||0;if(window.__bs>0)botSpecPush(true);}); // CPU戦を見ている人がいるあいだだけ、公開情報を送る
   fsocket.on('friend_error',m=>toast(m));
   fsocket.on('disconnect',()=>{frRequests=[];frUpdateBadge();if(document.getElementById('fr-box'))frRender();});
 }
@@ -8561,7 +8563,7 @@ function frSync(){
 }
 function frReportStatus(){
   if(!fsocket||!fsocket.connected)return;
-  const st=currentCode?((onlineMode&&G&&G.phase==='playing')?'playing':'room'):'lobby',key=st+'|'+(st==='room'?currentCode:'');
+  const st=currentCode?((onlineMode&&G&&G.phase==='playing')?'playing':'room'):((!onlineMode&&G&&G.players&&document.getElementById('game')&&document.getElementById('game').classList.contains('active'))?'bot':'lobby'),key=st+'|'+(st==='room'?currentCode:'');
   if(key===_frStatus)return;_frStatus=key;
   fsocket.emit('friend_status',{st,room:st==='room'?currentCode:''});
 }
@@ -8715,6 +8717,23 @@ function openMissions(){
   msBadge();
 }
 window.addEventListener('load',()=>setTimeout(msBadge,1500));
+// ===== CPU戦を観戦してもらう（見ている人がいるあいだだけ、公開してよい情報を送る）=====
+window.__bs=0;let _botSpecT=0,_botSpecTimer=null;
+function botSpecState(){
+  return {phase:G.phase,turn:G.turn,tphase:G.tphase,goal:G.goal||WIN_SCORE,
+    scores:G.players.map(p=>({name:p.name,score:p.score,riichi:!!p.riichi,hand:p.hand.length})),
+    fieldCount:G.field.filter(t=>!t.discarded).length,
+    discards:G.field.filter(t=>t.discarded).map(t=>({id:t.id,top:t.top,bot:t.bot,flip:!!t.flip}))};
+}
+function botSpecPush(force){
+  if(!(window.__bs>0)||onlineMode||!G||!G.players||!fsocket||!fsocket.connected)return;
+  clearTimeout(_botSpecTimer);
+  _botSpecTimer=setTimeout(()=>{if(!(window.__bs>0)||onlineMode||!G||!G.players)return;_botSpecT=Date.now();fsocket.emit('bot_spec',{state:botSpecState()});},force?0:Math.max(0,300-(Date.now()-_botSpecT)));
+}
+function botSpecNote(w){
+  if(!(window.__bs>0)||onlineMode||!G||!G.players||!G.players[w]||!fsocket||!fsocket.connected)return;
+  fsocket.emit('bot_spec_note',{text:G.players[w].name+' が上がりました！'});
+}
 function frInvite(code){
   if(!currentCode){toast('先に部屋を作ってください');return;}
   fsocket?.emit('friend_invite',{to:code,room:currentCode});toast('📨 招待を送りました');
@@ -8741,7 +8760,7 @@ function openFriends(){
 function frRender(){
   const box=document.getElementById('fr-box');if(!box)return;
   const s=frState(),conn=fsocket&&fsocket.connected,av=u=>{const src=avatarSrc(u||'');return src?`<img class="fr-av" src="${esc(src)}" alt="" onerror="this.style.display='none'">`:`<div class="fr-av">👤</div>`;};
-  const stLabel={lobby:['オンライン','on'],room:['部屋にいます','on'],playing:['対戦中','play']};
+  const stLabel={lobby:['オンライン','on'],room:['部屋にいます','on'],playing:['対戦中','play'],bot:['CPU戦中','play']};
   let h=`<div class="fr-h" style="margin-top:.2rem">あなたのフレンドコード</div>
     <div class="fr-code"><b>${esc(s.code)}</b><button class="fr-b" onclick="frCopy()">コピー</button></div>
     <div style="font-size:.7rem;color:#8a7048;margin:.3rem 0">このコードを友だちに教えて、友だちのコードを下に入力すると、フレンドになれます。${conn?'':'<br>⏳ サーバーに接続中です（初回は少し時間がかかります）'}</div>
@@ -8755,7 +8774,7 @@ function frRender(){
   h+=s.list.map(f=>{
     if(!f.confirmed)return `<div class="fr-row">${av('')}<div class="fr-info"><div class="fr-name">${esc(f.code)}</div><div class="fr-st">承認待ち（相手がオンラインのときに届きます）</div></div><button class="fr-b del" onclick="frRemove('${f.code}')">取消</button></div>`;
     const on=f.online&&!f.pending,l=on?(stLabel[f.status]||stLabel.lobby):[f.pending?'承認待ち':'オフライン',''];
-    const btns=(on&&f.status==='playing'?`<button class="fr-b go" onclick="frSpectate('${f.code}')">観戦</button>`:'')+(on?`<button class="fr-b" onclick="frMsgOpen('${f.code}')">メッセージ</button>`:'')+(on&&f.status==='room'&&f.room?`<button class="fr-b go" onclick="frJoinRoom('${f.room}')">参加</button>`:'')+(on&&currentCode?`<button class="fr-b" onclick="frInvite('${f.code}')">招待</button>`:'')+`<button class="fr-b del" onclick="frRemove('${f.code}')">削除</button>`;
+    const btns=(on&&(f.status==='playing'||f.status==='bot')?`<button class="fr-b go" onclick="frSpectate('${f.code}')">観戦</button>`:'')+(on?`<button class="fr-b" onclick="frMsgOpen('${f.code}')">メッセージ</button>`:'')+(on&&f.status==='room'&&f.room?`<button class="fr-b go" onclick="frJoinRoom('${f.room}')">参加</button>`:'')+(on&&currentCode?`<button class="fr-b" onclick="frInvite('${f.code}')">招待</button>`:'')+`<button class="fr-b del" onclick="frRemove('${f.code}')">削除</button>`;
     return `<div class="fr-row" style="${on?'':'opacity:.65'}">${av(f.avatar)}<div class="fr-info"><div class="fr-name">${esc(f.name||'名無し')}${f.title?` <span style="font-size:.68rem;color:#f5d040">${esc((GACHA_ITEMS.find(x=>x.id===f.title)||{}).title||'')}</span>`:''}</div><div class="fr-st ${l[1]}">${l[0]}</div></div>${btns}</div>`;
   }).join('');
   const keep=document.getElementById('fr-add-input'),v=keep?keep.value:'';
