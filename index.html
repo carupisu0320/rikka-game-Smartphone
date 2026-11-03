@@ -2252,10 +2252,10 @@ document.body?go():document.addEventListener('DOMContentLoaded',go);
 .frc-b{display:flex;justify-content:flex-end;gap:.4rem;margin-top:.6rem}
 #spec-view{position:fixed;inset:0;z-index:650;background:rgba(10,6,2,.97);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + .8rem) .9rem 1rem;color:#f0e0b8;display:none}#spec-view.open{display:block}
 .sp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}.sp-head b{color:#e8c870}
-.sp-ps{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.4rem;margin-bottom:.7rem}
+.sp-ps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.4rem;margin-bottom:.7rem}
 .sp-p{background:#161008;border:1px solid #3a2a18;border-radius:10px;padding:.45rem .55rem}.sp-p.turn{border-color:#f5d040;box-shadow:0 0 10px rgba(245,208,64,.3)}
 .sp-n{font-size:.88rem;color:#e8c870}.sp-r{margin-left:.3rem;font-size:.62rem;background:#c0392b;color:#fff;border-radius:6px;padding:0 .3rem}
-.sp-s{font-size:.78rem;color:#c9a870;margin:.1rem 0}.sp-h{display:flex;gap:2px;margin:.2rem 0;min-height:22px}.sp-h .fback{width:14px!important;height:22px!important;flex:none}
+.sp-s{font-size:.78rem;color:#c9a870;margin:.1rem 0}.sp-h{display:flex;flex-wrap:wrap;gap:3px;margin:.2rem 0;min-height:22px}.sp-h>:not(.fback){zoom:.7}.sp-h .fback{width:14px!important;height:22px!important;flex:none}
 .sp-t{font-size:.68rem;color:#8a7048;min-height:.9rem}.sp-sec{font-size:.78rem;color:#c9a84c;margin:.5rem 0 .25rem}
 .sp-f{display:flex;flex-wrap:wrap;gap:4px}.sp-f .fback{width:26px!important;height:40px!important;flex:none}
 .sp-note{margin-top:.7rem;background:#2a1e12;border:1px solid #c9a84c;border-radius:10px;padding:.5rem .7rem;font-size:.88rem}
@@ -6043,7 +6043,7 @@ const GIFTBOX_ITEMS=[
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
   {id:'info_missions', info:true, title:'📋 ミッションを追加', desc:'メニュー（≡）の「ミッション」から開けます。達成すると、花びらがもらえます。\n【今日のミッション】毎日0時に3つが選ばれます（対戦する・勝つ・オンライン対戦をする・ガチャを引く など）。1つあたり花びら3〜8枚です。3つとも受け取ると、ボーナスで花びら5枚がもらえます\n【今週の目標】毎週月曜に更新されます。「10局勝つ」「オンライン対戦を10局する」「5日ログインする」「ガチャを10回引く」の4つで、1つあたり花びら20〜30枚です\n※達成したら「受け取る」を押すと、花びらが入ります。進み具合は、この端末に保存されます'},
-  {id:'info_spectate', info:true, title:'👁 フレンドの対戦を観戦できるように', desc:'フレンドが対戦中のとき、フレンド画面に「観戦」ボタンが出ます。\n・見られるのは、場の牌の数、捨て牌、各プレイヤーの点数・リーチ・手番・手牌の枚数です。誰の手牌も見えません\n・上がり、ロン、流局、対戦終了も、画面の下に表示されます\n・観戦は、見るだけです。いつでも「退出」できます\n※お互いがフレンドで、相手が対戦中のときだけ観戦できます（1つの対戦につき、観戦は8人までです）'},
+  {id:'info_spectate', info:true, title:'👁 フレンドの対戦を観戦できるように', desc:'フレンドが対戦中のとき、フレンド画面に「観戦」ボタンが出ます。\n・見られるのは、場の牌の数、捨て牌、各プレイヤーの点数・リーチ・手番と、両方のプレイヤーの手牌です。場に伏せられている牌は見えません\n・上がり、ロン、流局、対戦終了も、画面の下に表示されます\n・観戦は、見るだけです。いつでも「退出」できます\n※お互いがフレンドで、相手が対戦中のときだけ観戦できます（1つの対戦につき、観戦は8人までです）'},
   {id:'info_quick_cpu', info:true, title:'🤖 クイックマッチについて', desc:'クイックマッチで5秒ほど待っても対戦相手が見つからないときは、CPUが相手になります。マッチング画面に注意書きを出し、CPU戦のときは、各ラウンドの結果画面で「今回の対戦相手は、CPUでした」とお知らせします。ルールは、基本役のみ・リーチなし・ロンなしで、通常のクイックマッチと同じです。'},
   {id:'info_friend', info:true, title:'👥 フレンド機能を追加', desc:'メニュー（≡）のカスタマイズの下に「フレンド」が加わりました。\n・自分のフレンドコード（8文字）を友だちに教えると、友だちが申請できます。承認するとフレンドになります\n・フレンドが、オンライン／部屋にいる／対戦中のどれかを見られます\n・部屋にいる友だちの部屋へ、ワンタッチで参加できます。自分の部屋には、友だちを招待できます\n※お互いが承認するまで、相手の名前や状態は見えません。フレンドコードは、友だちにだけ教えてください'},
   {id:'info_fix_security', info:true, title:'🛠 不具合の修正と安全対策', desc:'【修正】\n・ガチャ画面を開き直したとき、引く場所と中身の一覧が食い違うことがあった不具合を直しました\n・5人で遊ぶ部屋の待機画面が、4人分しか表示されていなかった不具合を直しました\n・動く牌の裏を設定していると、期間限定ガチャの一覧の牌の裏が別の柄に見えていた不具合を直しました\n【安全対策】\n・対戦相手にも見えるアイコン・場の背景の画像は、Google・GitHub・Imgur・Discord・ibb.co のものだけ表示されます（それ以外のサイトの画像は、相手には表示されません。自分の画面には出ます）\n・プレイヤー名は20文字までになりました\n・連打や、形のおかしい通信を受けても、サーバーが止まらないようにしました\n【確認】\n・六華はPHPを使っていないため、PHPの脆弱性の影響は受けません（確認済み）'},
@@ -8648,7 +8648,7 @@ function specRender(d){
   const el=specView(),was=el.querySelector('.sp-note'),note=was?was.textContent:'';
   const turnTxt=(i)=>i===d.turn&&d.phase==='playing'?(d.tphase==='pick'?'場から牌を選んでいます':'捨てる牌を選んでいます'):'';
   el.innerHTML=`<div class="sp-head"><b>👁 観戦中</b><button class="fr-b del" onclick="specClose()">退出</button></div>
-    <div class="sp-ps">${d.scores.map((p,i)=>`<div class="sp-p${i===d.turn&&d.phase==='playing'?' turn':''}"><div class="sp-n">${esc(p.name)}${p.riichi?'<span class="sp-r">リーチ</span>':''}</div><div class="sp-s">${p.score} / ${d.goal}点</div><div class="sp-h">${'<i class="fback"></i>'.repeat(Math.min(8,p.hand||0))}</div><div class="sp-t">${turnTxt(i)}</div></div>`).join('')}</div>
+    <div class="sp-ps">${d.scores.map((p,i)=>`<div class="sp-p${i===d.turn&&d.phase==='playing'?' turn':''}"><div class="sp-n">${esc(p.name)}${p.riichi?'<span class="sp-r">リーチ</span>':''}</div><div class="sp-s">${p.score} / ${d.goal}点</div><div class="sp-h">${p.tiles&&p.tiles.length?p.tiles.map(t=>tileHTML(t)).join(''):'<i class="fback"></i>'.repeat(Math.min(8,p.hand||0))}</div><div class="sp-t">${turnTxt(i)}</div></div>`).join('')}</div>
     <div class="sp-sec">🀄 場の牌（${d.fieldCount}枚）</div><div class="sp-f">${'<div class="fback"></div>'.repeat(Math.min(60,d.fieldCount||0))}</div>
     <div class="sp-sec">捨て牌（${(d.discards||[]).length}枚）</div><div class="sp-f">${(d.discards||[]).map(t=>tileHTML(t)).join('')||'<span style="color:#6a5030;font-size:.78rem">まだありません</span>'}</div>
     ${d.phase==='playing'?'':'<div class="sp-note">ラウンドが終わりました。次の局を待っています…</div>'}`;
@@ -8721,7 +8721,7 @@ window.addEventListener('load',()=>setTimeout(msBadge,1500));
 window.__bs=0;let _botSpecT=0,_botSpecTimer=null;
 function botSpecState(){
   return {phase:G.phase,turn:G.turn,tphase:G.tphase,goal:G.goal||WIN_SCORE,
-    scores:G.players.map(p=>({name:p.name,score:p.score,riichi:!!p.riichi,hand:p.hand.length})),
+    scores:G.players.map(p=>({name:p.name,score:p.score,riichi:!!p.riichi,hand:p.hand.length,tiles:p.hand.map(t=>({id:t.id,top:t.top,bot:t.bot,flip:!!t.flip}))})),
     fieldCount:G.field.filter(t=>!t.discarded).length,
     discards:G.field.filter(t=>t.discarded).map(t=>({id:t.id,top:t.top,bot:t.bot,flip:!!t.flip}))};
 }
