@@ -293,11 +293,11 @@ function dealRound(room) {
   if (room.forcedDiscardTimer) { clearTimeout(room.forcedDiscardTimer); room.forcedDiscardTimer = null; }
   room.forcedDiscardTileId = null;
 }
-// 観戦：見られるのは「場にある牌の数・捨て牌・点数・手番・手牌の枚数」だけ（誰の手牌も見えない）
+// 観戦：見られるのは、場にある牌の数・捨て牌・点数・手番と、両方のプレイヤーの手牌（場に伏せられた牌は見えない）
 function specPublic(room) {
   return {
     code: room.code, phase: room.phase, turn: room.turn, tphase: room.tphase, goal: room.goal || 10,
-    scores: room.players.map(p => ({ name: p.name, score: p.score, riichi: p.riichi || false, hand: p.hand.length })),
+    scores: room.players.map(p => ({ name: p.name, score: p.score, riichi: p.riichi || false, hand: p.hand.length, tiles: p.hand.map(t => ({ id: t.id, top: t.top, bot: t.bot, flip: !!t.flip })) })),
     fieldCount: room.field.filter(t => !t.discarded).length,
     discards: room.field.filter(t => t.discarded).map(t => ({ id: t.id, top: t.top, bot: t.bot, flip: !!t.flip })),
   };
@@ -564,7 +564,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     const clean = {
       code: 'bot', phase: state.phase === 'playing' ? 'playing' : 'roundEnd', turn: n(state.turn, 0, 0, 8),
       tphase: state.tphase === 'pick' ? 'pick' : 'discard', goal: n(state.goal, 10, 1, 99),
-      scores: (Array.isArray(state.scores) ? state.scores : []).slice(0, 6).map(p => ({ name: String((p && p.name) || '').slice(0, 20), score: n(p && p.score, 0, -99, 999), riichi: !!(p && p.riichi), hand: n(p && p.hand, 0, 0, 20) })),
+      scores: (Array.isArray(state.scores) ? state.scores : []).slice(0, 6).map(p => ({ name: String((p && p.name) || '').slice(0, 20), score: n(p && p.score, 0, -99, 999), riichi: !!(p && p.riichi), hand: n(p && p.hand, 0, 0, 20), tiles: (Array.isArray(p && p.tiles) ? p.tiles : []).slice(0, 20).map(t => ({ id: n(t && t.id, 0, 0, 999), top: n(t && t.top, 1, 1, 6), bot: n(t && t.bot, 1, 1, 6), flip: !!(t && t.flip) })) })),
       fieldCount: n(state.fieldCount, 0, 0, 200),
       discards: (Array.isArray(state.discards) ? state.discards : []).slice(0, 120).map(t => ({ id: n(t && t.id, 0, 0, 999), top: n(t && t.top, 1, 1, 6), bot: n(t && t.bot, 1, 1, 6), flip: !!(t && t.flip) })),
     };
