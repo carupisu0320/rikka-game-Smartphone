@@ -6055,6 +6055,7 @@ function closeGacha(){ showScreen('lobby'); }
 // お届けBOX
 // ============================================================
 const GIFTBOX_ITEMS=[
+  {id:'apology_ltd_items_1000', title:'🙇 お詫びと補填：花びら1000枚', desc:'期間限定ガチャで入手したアイテムが、期間終了後に表示されず、消えたように見える不具合がありました。ご迷惑とご心配をおかけし、誠に申し訳ございません。\n入手済みの景品は消えておらず、ガチャ画面の「期間限定景品（入手済み）」からいつでも装備できるように修正しました。\nお詫びとして、花びら1000枚をお届けします（お一人様1回限り）。', petals:1000},
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
   {id:'info_missions', info:true, title:'📋 ミッションを追加', desc:'メニュー（≡）の「ミッション」から開けます。達成すると、花びらがもらえます。\n【今日のミッション】毎日0時に3つが選ばれます（対戦する・勝つ・オンライン対戦をする・ガチャを引く など）。1つあたり花びら3〜8枚です。3つとも受け取ると、ボーナスで花びら5枚がもらえます\n【今週の目標】毎週月曜に更新されます。「10局勝つ」「オンライン対戦を10局する」「5日ログインする」「ガチャを10回引く」の4つで、1つあたり花びら20〜30枚です\n※達成したら「受け取る」を押すと、花びらが入ります。進み具合は、この端末に保存されます'},
@@ -8862,6 +8863,13 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 // スペースキー
 
 document.addEventListener('keydown',e=>{if(e.code==='Space'||e.key===' '){e.preventDefault();if(G?.phase==='playing'&&G.turn===myOnlineIdx&&G.tphase==='discard'&&G.selIdx!==-1)doDiscard();}});
+
+// 牌の選択中に他の場所を押したら選択解除
+document.addEventListener('pointerdown',e=>{
+  if(!G||G.selIdx===-1||G.phase!=='playing')return;
+  if(e.target.closest('#hand-tiles,#flip-popup,button,.abtn,select,input,textarea,a,.modal,.overlay'))return;
+  G.selIdx=-1;render();
+});
 
 // スクロール時にポップアップ再計算
 
