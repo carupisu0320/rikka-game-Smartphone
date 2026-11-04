@@ -5956,6 +5956,21 @@ function renderGachaCollection(){
         </div>${btn}</div>`;
     }).join('');
   }
+  // 過去の期間限定景品（入手済みのものは期間終了後も残る）
+  const _past=_lim?[]:GACHA_ITEMS.filter(it=>it.limited&&owned.has(it.id));
+  if(_past.length){
+    html+=`<div class="gacha-rarity-title" style="color:#ffd978">✨ 期間限定景品（入手済み）</div>`;
+    html+=_past.map(it=>{
+      const isEquipped=st.equipped[it.category]===it.id;
+      const btn=`<button class="gacha-equip-btn${isEquipped?' gacha-equipped':''}" onclick="equipGachaItem('${it.category}','${it.id}')">${isEquipped?'使用中':'使う'}</button>`;
+      return `<div class="gacha-item gacha-owned">
+        <div class="gacha-item-icon ltd">${ltdIcon(it,true)}</div>
+        <div class="gacha-item-body">
+          <div class="gacha-item-title">${esc(it.title)}</div>
+          <div class="gacha-item-desc">${esc(it.desc)}</div>
+        </div>${btn}</div>`;
+    }).join('');
+  }
   el.innerHTML=html;
 }
 function refreshMyIcon(){updateAvatarDisplay();updateLobbyAvatar();syncMyAvatar();}
