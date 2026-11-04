@@ -222,7 +222,7 @@ const FIELD_BG_PRESETS = new Set([
   'bg_forest', 'bg_dunes', 'bg_snowfield', 'bg_fireflies', 'bg_mountain', 'bg_waves', 'bg_sakuranight', 'bg_nebula', 'bg_galaxy',
   'bg_koi', 'bg_cityrain', 'bg_fuji', 'bg_fireworks',
   'bg_lanterns', 'bg_redmoon', 'bg_pumpkinfield', 'bg_haunted', // 期間限定ガチャ・ハロウィンイベントの背景
-  'bg_xmasnight', 'bg_newyearsun', 'bg_heartnight', 'bg_sakurastorm', 'bg_milkyway', 'bg_festival', 'bg_moonviewing', // 季節イベントの背景
+  'bg_xmasnight', 'bg_newyearsun', 'bg_heartnight', 'bg_sakurastorm', 'bg_milkyway', 'bg_festival', 'bg_moonviewing', 'bg_gameovera3', 'bg_gameovera4', 'bg_momijiyama', 'bg_ginkgo', 'bg_utsuroi', // 季節イベントの背景
 ]);
 function sanitizeFieldBg(url) {
   if (typeof url !== 'string') return '';
@@ -261,7 +261,7 @@ function sanitizeName(n) {
   return n || 'プレイヤー';
 }
 // 称号（ガチャの景品ID）。許可リストにあるIDだけ通す
-const TITLE_IDS = new Set(['title_first', 'title_zoro', 'title_apprentice', 'title_fate', 'title_sight', 'title_mountain', 'title_rikka', 'title_legend', 'title_king']);
+const TITLE_IDS = new Set(['title_first', 'title_zoro', 'title_apprentice', 'title_fate', 'title_sight', 'title_mountain', 'title_rikka', 'title_legend', 'title_king', 'title_momijigari', 'title_haregi', 'title_kinshu']);
 // 実績の報酬の称号は 'title_a_<実績ID>' の形
 // 演出（リーチ・ロン・上がり）の選択。許可した名前だけを通す
 const FX_STYLE_IDS = {
