@@ -6727,7 +6727,7 @@ function renderCustomize(){
     const isC=customizeTab==='confetti';
     const cat=customizeTab;
     const eq=st.equipped[cat]||'';
-    let h=`<div class="custom-sub">${isC?'上がった時の紙吹雪':'名前の横に表示される称号'}</div><div class="custom-list">`;
+    let h=`<div class="custom-sub">${isC?'上がった時の紙吹雪（選ぶとプレビューが流れます）':'名前の横に表示される称号'}</div><div class="custom-list">`;
     h+=`<button class="custom-row${eq?'':' sel'}" onclick="selectGachaEquip('${cat}','')">
       <div class="ic">${isC?'🎉':'➖'}</div><div class="tx">${isC?'通常':'なし'}</div>${eq?'':'<span class="chk">✔</span>'}</button>`;
     h+=GACHA_ITEMS.filter(it=>it.category===cat&&((!it.loginStar&&!it.limited&&!it.event)||owned.has(it.id))).map(it=>{
@@ -6841,6 +6841,7 @@ function selectGachaEquip(category,id){
   updateSbTitle();
   renderCustomize();
   renderGachaCollection();
+  if(category==='confetti'){try{launchConfetti();}catch(e){}}  // 選ぶとプレビューが流れる
 }
 window.addEventListener('load',()=>{try{refreshTileBackAnim();}catch(e){}});
 function updateAnimUI(){
@@ -7226,9 +7227,11 @@ function receiveChat(name, msg, isMine){
 // ============================================================
 
 // 花火・紙吹雪
+let _confettiRun=0;
 function launchConfetti(){
   const canvas = document.getElementById('confetti-canvas');
   if(!canvas) return;
+  const _run=++_confettiRun;  // 連続で呼ばれたら前のアニメは止める
   const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -7264,6 +7267,7 @@ function launchConfetti(){
       p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += 0.12;
     });
     frame++;
+    if(_run!==_confettiRun) return;
     if(frame < 150) requestAnimationFrame(draw);
     else ctx.clearRect(0,0,canvas.width,canvas.height);
   }
