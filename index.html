@@ -1801,7 +1801,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div id="jo-banner-icons" style="font-size:2.6rem;letter-spacing:.35rem;margin:.3rem 0;filter:drop-shadow(3px 3px 0 #000)"></div>
     <button class="gacha-draw-btn" onclick="drawGacha('gold')">黄金の精神を引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'gold')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'gold')">100連<small>🌸 1000</small></button></div>
-    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：演出18種（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き・赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡）と、場の背景9種</div>
+    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：演出26種（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き・赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡・削り取る・ジッパー・絶対零度・殺人ウイルス・磁力の刃・天候・命令の本・癒しの料理）と、場の背景9種</div>
   </div>
   </div>
   </div>
@@ -3007,6 +3007,9 @@ const FX_STYLES={
     {id:'erase',name:'過程消去',icon:'🎞️',c1:'#ffe03a',c2:'#ffffff',bg:'rgba(10,10,16,.9)',dm:'rgba(14,10,20,.45)',mode:'burst'},
     {id:'disc',name:'ディスク',icon:'💿',c1:'#7ae0ff',c2:'#f0fbff',bg:'rgba(6,16,58,.88)',dm:'rgba(8,20,70,.4)',mode:'burst'},
     {id:'gravflip',name:'重力反転',icon:'🔃',c1:'#ff7ac8',c2:'#ffe8f6',bg:'rgba(30,10,60,.88)',dm:'rgba(36,12,70,.4)',mode:'burst'},
+    {id:'scoop',name:'削り取る',icon:'🕳️',c1:'#c8a8ff',c2:'#f0e8ff',bg:'rgba(10,4,24,.9)',dm:'rgba(14,6,32,.45)',mode:'burst'},
+    {id:'zipper',name:'ジッパー',icon:'🤐',c1:'#ffd23a',c2:'#fff6c0',bg:'rgba(14,10,40,.9)',dm:'rgba(18,12,50,.45)',mode:'burst'},
+    {id:'frostsuit',name:'絶対零度',icon:'🥶',c1:'#9adfff',c2:'#f0fcff',bg:'rgba(4,22,44,.9)',dm:'rgba(4,28,56,.45)',mode:'burst'},
     {id:'forest',name:'翠',icon:'🍃',c1:'#40d890',c2:'#e0ffe8',bg:'rgba(4,36,22,.88)',dm:'rgba(4,44,26,.4)',g:['🍃'],mode:'fall'},
   ],
   ron:[
@@ -3021,6 +3024,8 @@ const FX_STYLES={
     {id:'redray',name:'赤光線',icon:'👁️',c1:'#ff3a40',c2:'#ffe0e0',bg:'rgba(40,4,12,.9)',dm:'rgba(50,4,14,.45)',mode:'burst'},
     {id:'lightblade',name:'光刃',icon:'🗡️',c1:'#7ae0ff',c2:'#f0fcff',bg:'rgba(4,22,46,.9)',dm:'rgba(4,28,56,.45)',mode:'burst'},
     {id:'tankbomb',name:'戦車爆弾',icon:'💣',c1:'#ff8a30',c2:'#fff0c8',bg:'rgba(30,10,2,.9)',dm:'rgba(40,12,2,.45)',mode:'burst'},
+    {id:'virus',name:'殺人ウイルス',icon:'🦠',c1:'#9aff40',c2:'#f0ffd0',bg:'rgba(16,6,30,.92)',dm:'rgba(20,8,40,.5)',mode:'burst'},
+    {id:'magnet',name:'磁力の刃',icon:'🧲',c1:'#ff6a7a',c2:'#ffe0e4',bg:'rgba(26,6,14,.92)',dm:'rgba(34,8,18,.5)',mode:'burst'},
     {id:'jade',name:'翡翠',icon:'💎',c1:'#20c0a0',c2:'#d8fff4',bg:'rgba(0,36,30,.9)',dm:'rgba(0,44,36,.45)',g:['💎'],mode:'burst'},
   ],
   win:[
@@ -3035,6 +3040,9 @@ const FX_STYLES={
     {id:'chronolock',name:'止まった世界',icon:'🧊',c1:'#cfeaff',c2:'#ffffff',bg:'rgba(14,24,38,.9)',dm:'rgba(18,30,48,.45)',mode:'burst'},
     {id:'rewind',name:'巻き戻し',icon:'⏪',c1:'#ff7ad8',c2:'#f4e0ff',bg:'rgba(26,6,48,.9)',dm:'rgba(32,8,58,.45)',mode:'burst'},
     {id:'cosmos',name:'宇宙一巡',icon:'🌌',c1:'#b090ff',c2:'#fff2c8',bg:'rgba(10,4,30,.9)',dm:'rgba(14,6,40,.45)',mode:'burst'},
+    {id:'weather',name:'天候',icon:'⛈️',c1:'#b8d0ff',c2:'#ffffff',bg:'rgba(14,18,40,.9)',dm:'rgba(18,24,50,.45)',mode:'burst'},
+    {id:'book',name:'命令の本',icon:'📖',c1:'#ffd878',c2:'#fff4d0',bg:'rgba(30,18,6,.9)',dm:'rgba(38,22,6,.45)',mode:'burst'},
+    {id:'cure',name:'癒しの料理',icon:'🍲',c1:'#8affb0',c2:'#f0ffe8',bg:'rgba(4,30,18,.9)',dm:'rgba(6,38,22,.45)',mode:'burst'},
     {id:'rainbow',name:'虹',icon:'🌈',c1:'#ff9a60',c2:'#f4f0ff',bg:'rgba(10,20,40,.86)',dm:'rgba(12,24,50,.35)',g:['✨','💫'],mode:'fall'},
   ],
 };
@@ -3345,6 +3353,97 @@ FXS.cosmos=(W,H,D)=>{const cx=W/2,cy=H*.46,R=Math.max(W,H)*.75,k=Math.min(W,H)/6
    for(let j=0;j<3;j++){const q=(t-1.25-j*.12)/.7;if(q>0&&q<1){c.globalAlpha=(1-q)*fade;c.strokeStyle=['#ffe070','#ff8ad0','#7ae0ff'][j];c.lineWidth=7*(1-q)+1;c.beginPath();c.arc(cx,cy,q*R,0,6.3);c.stroke();}}}
   if(t>1.5){const d=_fSm(1.5,2.1,t);const g=c.createLinearGradient(0,H,0,H*.25);g.addColorStop(0,`rgba(255,200,110,${.7*d*fade})`);g.addColorStop(.5,`rgba(255,110,170,${.4*d*fade})`);g.addColorStop(1,'rgba(90,60,200,0)');c.globalAlpha=1;c.fillStyle=g;c.fillRect(0,H*.25,W,H*.75);fxGlow(c,cx,H*.9-d*H*.12,(120+d*90)*k,'#fff2c0',.9*d*fade);
    for(const s of N2){c.globalAlpha=d*fade*(.3+.7*Math.abs(Math.sin(t*3+s.tw)));c.fillStyle='#fff';c.beginPath();c.arc(s.x,s.y,s.s*.6,0,6.3);c.fill();}}
+  c.globalAlpha=1;};};
+// ---- 黄金の精神 第3弾：削り取る／ジッパー／氷のスーツ／ウイルス／磁力／天候／本／料理の治療 ----
+function _flake(c,s){c.beginPath();for(let a=0;a<6;a++){c.save();c.rotate(a*Math.PI/3);c.moveTo(0,0);c.lineTo(0,-s);c.moveTo(0,-s*.55);c.lineTo(s*.3,-s*.8);c.moveTo(0,-s*.55);c.lineTo(-s*.3,-s*.8);c.restore();}c.stroke();}
+FXS.scoop=(W,H,D)=>{const k=Math.min(W,H)/600,cy=H*.46,ax=W*.27,bx=W*.73,R0=140*k,Pt=Array.from({length:90},()=>({a:_fR()*6.283,r:_fRn(.5,1.9)*R0*1.7,s:_fRn(3,9)*k,h:_fR(),v:_fRn(160,520)*k}));
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);
+  const hole=(x,r,col)=>{if(r<2)return;c.globalCompositeOperation='source-over';c.globalAlpha=.93*fade;c.fillStyle='#05020c';c.beginPath();c.arc(x,cy,r,0,6.283);c.fill();
+   c.globalCompositeOperation='lighter';c.globalAlpha=.95*fade;c.strokeStyle=col;c.lineWidth=4*k;c.beginPath();for(let i=0;i<=48;i++){const a=i/48*6.283,rr=r*(1+.045*Math.sin(a*9+t*16));const px=x+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;i?c.lineTo(px,py):c.moveTo(px,py);}c.stroke();fxGlow(c,x,cy,r*1.7,col,.4*fade);};
+  const r1=R0*_fSm(.05,.55,t)*(1-_fSm(.66,.9,t)),r2=R0*1.15*_fSm(.85,1.2,t)*(1-_fSm(1.45,1.95,t));
+  hole(ax,r1,'#c8a8ff');hole(bx,r2,'#7ae0ff');
+  c.globalCompositeOperation='lighter';
+  for(const p of Pt){if(t<.85){const q=_fSm(0,.8,t),rr=p.r*(1-q);if(rr<4)continue;const a=p.a+q*3;c.globalAlpha=.85*fade;c.fillStyle=p.h<.5?'#efe2ff':'#a8e0ff';c.fillRect(ax+Math.cos(a)*rr,cy+Math.sin(a)*rr*.8,p.s,p.s);}
+   else{const q=t-.85,d=q*p.v;if(q>1.2)continue;c.globalAlpha=Math.max(0,1-q/1.2)*fade;c.fillStyle=p.h<.5?'#efe2ff':'#a8e0ff';c.fillRect(bx+Math.cos(p.a)*d,cy+Math.sin(p.a)*d*.8,p.s,p.s);}}
+  const s=_fSm(.6,.95,t);if(s>0&&t<1.5){const e=ax+(bx-ax)*s,a=(1-_fSm(1.0,1.4,t))*fade;c.globalAlpha=a;c.strokeStyle='#fff';c.lineWidth=7*k;c.lineCap='round';c.beginPath();c.moveTo(ax,cy);c.lineTo(e,cy);c.stroke();fxGlow(c,e,cy,70*k,'#d8c8ff',a);}
+  const w=(t-.9)/.8;if(w>0&&w<1){c.globalAlpha=(1-w)*fade;c.strokeStyle='#fff';c.lineWidth=6*(1-w)+1;c.beginPath();c.arc(bx,cy,w*W*.4,0,6.283);c.stroke();}
+  c.globalAlpha=1;};};
+FXS.zipper=(W,H,D)=>{const k=Math.min(W,H)/600,y=H*.46,tw=15*k,N=Math.ceil(W/tw)+4,fy=(x,sx,gap)=>gap*Math.min(1,Math.max(0,(sx-x)/(280*k)));
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),p=_fSm(.1,.95,t),sx=-30*k+(W+60*k)*p,gap=_fSm(.2,1.4,t)*150*k;
+  c.globalCompositeOperation='source-over';
+  if(gap>1){const g=c.createLinearGradient(0,y-gap,0,y+gap);g.addColorStop(0,'rgba(20,10,60,1)');g.addColorStop(.5,'rgba(255,255,255,1)');g.addColorStop(1,'rgba(20,10,60,1)');c.globalAlpha=.97*fade;c.fillStyle=g;c.beginPath();c.moveTo(0,y);for(let x=0;x<=Math.min(sx,W);x+=12)c.lineTo(x,y-fy(x,sx,gap));c.lineTo(Math.min(sx,W),y);for(let x=Math.min(sx,W);x>=0;x-=12)c.lineTo(x,y+fy(x,sx,gap));c.closePath();c.fill();}
+  for(let i=0;i<N;i++){const x=i*tw,o=fy(x,sx,gap),up=i%2===0;
+   const ty=x<sx?(up?y-o-6*k:y+o):(up?y-5*k:y);c.globalAlpha=fade;c.fillStyle=up?'#e8ecf4':'#b8c0d0';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.roundRect?c.roundRect(x,ty,tw*.9,6*k,2):c.rect(x,ty,tw*.9,6*k);c.fill();c.stroke();}
+  if(sx>-20&&sx<W+20){c.globalAlpha=fade;c.fillStyle='#ffd23a';c.strokeStyle='#000';c.lineWidth=3;c.beginPath();c.moveTo(sx-14*k,y-16*k);c.lineTo(sx+20*k,y-9*k);c.lineTo(sx+20*k,y+9*k);c.lineTo(sx-14*k,y+16*k);c.closePath();c.fill();c.stroke();
+   c.beginPath();c.moveTo(sx-2*k,y+14*k);c.lineTo(sx+10*k,y+14*k);c.lineTo(sx+10*k,y+52*k);c.lineTo(sx-2*k,y+52*k);c.closePath();c.fill();c.stroke();c.fillStyle='#fff6c0';c.beginPath();c.arc(sx+4*k,y+44*k,3.5*k,0,6.283);c.fill();c.stroke();
+   c.globalCompositeOperation='lighter';fxGlow(c,sx,y,60*k,'#fff2a0',.8*fade);c.globalCompositeOperation='source-over';}
+  if(gap>20*k){c.globalCompositeOperation='lighter';c.globalAlpha=.3*fade*_fSm(.6,1.4,t);for(let i=0;i<7;i++){const x=W*(i+.5)/7;c.fillStyle='#bfe8ff';c.beginPath();c.moveTo(x-8*k,y);c.lineTo(x+(x-W/2)*.5,y-H*.5);c.lineTo(x+(x-W/2)*.5+20*k,y-H*.5);c.lineTo(x+8*k,y);c.fill();}}
+  c.globalAlpha=1;};};
+FXS.frostsuit=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,R=150*k,Fl=Array.from({length:70},()=>({x:_fR()*W,y:_fR()*H,s:_fRn(6,22)*k,v:_fRn(20,90)*k,r:_fR()*6})),Bu=Array.from({length:7},(_,i)=>({a:-.8+i*.55+_fRn(-.2,.2),t0:.45+i*.14}));
+  const hex=(c,r,rot)=>{c.beginPath();for(let i=0;i<6;i++){const a=rot+i*1.0472;i?c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):c.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}c.closePath();};
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),f=_fSm(0,.7,t);c.globalCompositeOperation='source-over';
+  const v=c.createRadialGradient(cx,cy,Math.min(W,H)*.2,cx,cy,Math.max(W,H)*.75);v.addColorStop(0,'rgba(150,220,255,0)');v.addColorStop(1,`rgba(190,235,255,${.7*f*fade})`);c.fillStyle=v;c.fillRect(0,0,W,H);
+  c.globalCompositeOperation='lighter';
+  for(const q of Fl){q.y+=q.v*dt;q.r+=dt;if(q.y>H)q.y=-10;c.save();c.translate(q.x,q.y);c.rotate(q.r);c.globalAlpha=.7*f*fade;c.strokeStyle='#e8f8ff';c.lineWidth=1.4;_flake(c,q.s);c.restore();}
+  const sh=_fSm(.15,.55,t);c.globalAlpha=fade*sh;c.fillStyle='rgba(150,220,255,.22)';hex(c,R*sh,.2);c.fill();c.strokeStyle='#e8fbff';c.lineWidth=4*k;c.stroke();hex(c,R*sh*.78,.2);c.lineWidth=1.6;c.stroke();
+  c.globalAlpha=fade*sh*.6;c.beginPath();for(let i=0;i<6;i++){const a=.2+i*1.0472;c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a)*R*sh,cy+Math.sin(a)*R*sh);}c.stroke();
+  for(const b of Bu){const q=(t-b.t0)/.45;if(q<0||q>1)continue;const d=R*1.9*(1-Math.min(q,.55)/.55*.47)*(q<.55?1:1),out=q<.55?d:R*.9+(q-.55)/.45*R*1.5*(q<.55?0:1);const dir=q<.55?1:-1;const bx=cx+Math.cos(b.a)*(q<.55?R*2.4*(1-q/.55)+R:R+(q-.55)/.45*R*1.5),by=cy+Math.sin(b.a)*(q<.55?R*2.4*(1-q/.55)+R:R+(q-.55)/.45*R*1.5);
+   c.globalAlpha=fade;c.strokeStyle=q<.55?'#ffe8a0':'#a8e8ff';c.lineWidth=3*k;c.beginPath();c.moveTo(bx,by);c.lineTo(bx-Math.cos(b.a)*30*k*(q<.55?1:-1),by-Math.sin(b.a)*30*k*(q<.55?1:-1));c.stroke();
+   if(Math.abs(q-.55)<.1){const pr=1-Math.abs(q-.55)/.1;fxFlare(c,cx+Math.cos(b.a)*R,cy+Math.sin(b.a)*R,34*k*pr,'#ffffff',fade*pr);}}
+  fxGlow(c,cx,cy,R*1.5,'#9adfff',.35*sh*fade);
+  c.globalCompositeOperation='source-over';c.globalAlpha=fade*_fSm(.5,.9,t);c.font=`900 ${34*k}px sans-serif`;c.textAlign='center';c.fillStyle='#e8fbff';c.strokeStyle='#0a3a66';c.lineWidth=6;c.strokeText('−273.15℃',cx,cy+R+54*k);c.fillText('−273.15℃',cx,cy+R+54*k);
+  c.globalAlpha=1;};};
+FXS.virus=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,Sp=Array.from({length:60},()=>({a:_fR()*6.283,v:_fRn(80,380)*k,s:_fRn(8,26)*k,ph:_fR()*9})),Vn=Array.from({length:12},(_,i)=>{const a=i/12*6.283,pts=[[0,0]];let ang=a;for(let j=1;j<9;j++){ang+=_fRn(-.45,.45);pts.push([pts[j-1][0]+Math.cos(ang)*_fRn(30,60)*k,pts[j-1][1]+Math.sin(ang)*_fRn(30,60)*k]);}return pts;});
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),g=_fSm(0,1.5,t);c.globalCompositeOperation='source-over';
+  const rad=Math.max(W,H)*.75*g,gr=c.createRadialGradient(cx,cy,0,cx,cy,Math.max(10,rad));gr.addColorStop(0,'rgba(120,255,60,.5)');gr.addColorStop(.6,'rgba(80,40,120,.45)');gr.addColorStop(1,'rgba(40,10,60,0)');c.globalAlpha=fade;c.fillStyle=gr;c.fillRect(0,0,W,H);
+  c.globalCompositeOperation='lighter';c.lineCap='round';
+  for(const pts of Vn){const n=Math.floor(pts.length*_fSm(.1,1.3,t));c.globalAlpha=.7*fade;c.strokeStyle='#9aff40';c.lineWidth=2.4*k;c.beginPath();c.moveTo(cx,cy);for(let j=1;j<=n&&j<pts.length;j++)c.lineTo(cx+pts[j][0],cy+pts[j][1]);c.stroke();}
+  for(const s of Sp){const d=s.v*t,x=cx+Math.cos(s.a)*d,y=cy+Math.sin(s.a)*d*.85+Math.sin(t*3+s.ph)*8*k,r=s.s*(.8+.2*Math.sin(t*6+s.ph));c.globalAlpha=Math.max(0,1-t/D*.7)*fade;c.fillStyle='#b8ff60';c.strokeStyle='#e8ffb0';c.lineWidth=1.4;c.beginPath();c.arc(x,y,r,0,6.283);c.fill();for(let i=0;i<8;i++){const a=i*.785+t;c.beginPath();c.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r);c.lineTo(x+Math.cos(a)*r*1.6,y+Math.sin(a)*r*1.6);c.stroke();}}
+  c.globalCompositeOperation='source-over';c.globalAlpha=fade*_fSm(0,.3,t)*(1-_fSm(.6,1.2,t));c.strokeStyle='#d8ff80';c.lineWidth=7*k;for(let i=0;i<3;i++){const a=i*2.094-1.57;c.beginPath();c.arc(cx+Math.cos(a)*26*k,cy+Math.sin(a)*26*k,30*k,a-.7,a+.7);c.stroke();}
+  c.globalAlpha=fade*(1-g)*.0;c.globalAlpha=1;};};
+FXS.magnet=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,Fi=Array.from({length:130},()=>({a:_fR()*3.1416,p:_fR(),l:_fRn(.45,1.3),s:_fRn(4,10)*k})),Bl=Array.from({length:16},(_,i)=>({a:i/16*6.283+_fRn(-.15,.15),v:_fRn(380,880)*k,s:_fRn(18,46)*k,sc:_fR()<.35,dl:.55+_fR()*.25}));
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);c.globalCompositeOperation='source-over';
+  const ex=_fSm(0,.5,t),L=W*.34*ex;
+  const mg=(x,col,txt)=>{c.fillStyle=col;c.strokeStyle='#000';c.lineWidth=4;c.globalAlpha=fade;c.beginPath();c.rect(x-36*k,cy-52*k,72*k,104*k);c.fill();c.stroke();c.fillStyle='#fff';c.font=`900 ${52*k}px sans-serif`;c.textAlign='center';c.fillText(txt,x,cy+18*k);};
+  mg(cx-L,'#e8183a','N');mg(cx+L,'#1858e8','S');
+  c.globalCompositeOperation='lighter';c.lineWidth=2;
+  for(let i=1;i<=6;i++){const rr=i*34*k*ex;c.globalAlpha=.4*fade;c.strokeStyle=i%2?'#ffb0b8':'#a8c4ff';c.beginPath();c.ellipse(cx,cy,L*.9+rr*.3,rr*1.3,0,0,6.283);c.stroke();}
+  for(const f of Fi){const u=((f.p+t*.35)%1),a=u*6.283,rx=L*.9+f.l*70*k*(f.a/3.14),ry=f.l*(.6+f.a/3.14)*120*k,x=cx+Math.cos(a)*rx*ex,y=cy+Math.sin(a)*ry*ex;c.save();c.translate(x,y);c.rotate(Math.atan2(Math.cos(a)*ry,-Math.sin(a)*rx));c.globalAlpha=.85*fade*Math.min(1,t*3);c.fillStyle='#d8dce8';c.fillRect(-f.s,-1.4,f.s*2,2.8);c.restore();}
+  for(const b of Bl){const q=t-b.dl;if(q<0)continue;const d=q*b.v,x=cx+Math.cos(b.a)*d,y=cy+Math.sin(b.a)*d*.8;c.save();c.translate(x,y);c.rotate(b.a+q*(b.sc?9:0));c.globalAlpha=Math.max(0,1-q/1.3)*fade;
+   if(b.sc){c.strokeStyle='#e8ecf4';c.lineWidth=4*k;c.beginPath();c.moveTo(-b.s,-b.s*.4);c.lineTo(b.s,b.s*.4);c.moveTo(-b.s,b.s*.4);c.lineTo(b.s,-b.s*.4);c.stroke();}
+   else{c.fillStyle='#e8ecf4';c.beginPath();c.moveTo(-b.s,-b.s*.12);c.lineTo(b.s,0);c.lineTo(-b.s,b.s*.12);c.closePath();c.fill();c.strokeStyle='#ff4a5a';c.lineWidth=1.4;c.stroke();}c.restore();fxGlow(c,x,y,16*k,'#ff8a98',.35*fade*Math.max(0,1-q/1.3));}
+  c.globalAlpha=1;};};
+FXS.weather=(W,H,D)=>{const k=Math.min(W,H)/600,Rn=Array.from({length:150},()=>({x:_fR()*W,y:_fR()*H,v:_fRn(700,1300)*k,l:_fRn(14,34)*k})),Ox=Array.from({length:34},()=>({x:_fR()*W,y:H+_fR()*H*.3,v:_fRn(40,120)*k,r:_fRn(5,16)*k,ph:_fR()*9})),bolt=[];let nb=.5;
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),A=_fSm(0,.5,t);c.globalCompositeOperation='source-over';
+  const cl=c.createLinearGradient(0,0,0,H*.6);cl.addColorStop(0,`rgba(30,36,60,${.92*A*fade})`);cl.addColorStop(1,'rgba(30,36,60,0)');c.fillStyle=cl;c.fillRect(0,0,W,H*.6);
+  const clr=_fSm(1.5,2.2,t);
+  c.globalCompositeOperation='lighter';
+  if(clr<1){for(let i=0;i<4;i++){const y=H*(.55+i*.1)+Math.sin(t*.8+i)*12*k;c.globalAlpha=.16*(1-clr)*A*fade;c.fillStyle='#dce4f0';c.fillRect(((t*60*k*(i%2?1:-1))%W)-W*.1,y,W*1.2,50*k);}
+   c.strokeStyle='#b8d0ff';c.lineWidth=1.6*k;c.globalAlpha=.55*(1-clr)*A*fade;c.beginPath();for(const r of Rn){r.y+=r.v*dt;r.x-=r.v*dt*.22;if(r.y>H){r.y=-20;r.x=_fR()*W*1.2;}c.moveTo(r.x,r.y);c.lineTo(r.x+r.l*.22,r.y-r.l);}c.stroke();}
+  if(t>nb&&t<1.6){nb=t+_fRn(.25,.5);const x=_fRn(W*.2,W*.8);const pts=[[x,0]];let px=x,py=0;while(py<H*.55){px+=_fRn(-40,40)*k;py+=_fRn(30,70)*k;pts.push([px,py]);}bolt.push({pts,t0:t});}
+  for(let i=bolt.length-1;i>=0;i--){const b=bolt[i],q=(t-b.t0)/.25;if(q>1){bolt.splice(i,1);continue;}c.globalAlpha=(1-q)*fade;c.strokeStyle='#fff';c.lineWidth=4*k;c.beginPath();b.pts.forEach((p,j)=>j?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.stroke();c.globalAlpha=(1-q)*.18*fade;c.fillStyle='#cfe0ff';c.fillRect(0,0,W,H);}
+  for(const o of Ox){o.y-=o.v*dt;if(o.y<-30)o.y=H+20;const a=_fSm(.9,1.6,t)*fade;c.globalAlpha=.7*a;c.strokeStyle='#e8fbff';c.lineWidth=1.6;c.beginPath();c.arc(o.x+Math.sin(t*2+o.ph)*10*k,o.y,o.r,0,6.283);c.stroke();c.globalAlpha=.25*a;c.fillStyle='#9ae0ff';c.fill();}
+  if(clr>0){const g=c.createRadialGradient(W*.8,H*.1,0,W*.8,H*.1,W*.6);g.addColorStop(0,`rgba(255,240,170,${.8*clr*fade})`);g.addColorStop(1,'rgba(255,240,170,0)');c.globalAlpha=1;c.fillStyle=g;c.fillRect(0,0,W,H);}
+  c.globalCompositeOperation='source-over';const sn=_fSm(1.6,2.2,t);if(sn>0){const x=W*.2+sn*W*.5,y=H*.78;c.globalAlpha=fade*sn;c.font=`${64*k}px sans-serif`;c.textAlign='center';c.fillText('🐌',x,y);c.font=`900 ${22*k}px sans-serif`;c.fillStyle='#fff';c.strokeStyle='#000';c.lineWidth=4;c.strokeText('のろ…のろ…',x,y+34*k);c.fillText('のろ…のろ…',x,y+34*k);}
+  c.globalAlpha=1;};};
+FXS.book=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,bw=190*k,bh=250*k,Ch=Array.from({length:50},()=>({x:_fRn(-bw,bw),v:_fRn(60,220)*k,s:_fRn(14,26)*k,dl:_fR()*1.2,g:'あいうえお命令従記憶読絶対書'[Math.floor(_fR()*14)]}));
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),op=_fSm(0,.5,t);c.globalCompositeOperation='lighter';fxGlow(c,cx,cy,bw*2.2,'#ffd878',.35*op*fade);c.globalCompositeOperation='source-over';
+  const side=(dir)=>{c.save();c.translate(cx,cy);c.scale(dir,1);c.globalAlpha=fade;const w=bw*op;const g=c.createLinearGradient(0,0,w,0);g.addColorStop(0,'#cfae70');g.addColorStop(.15,'#fff4d8');g.addColorStop(1,'#f0e0b8');c.fillStyle=g;c.strokeStyle='#000';c.lineWidth=4;c.beginPath();c.moveTo(0,-bh/2);c.quadraticCurveTo(w*.5,-bh/2-14*k,w,-bh/2+8*k);c.lineTo(w,bh/2+8*k);c.quadraticCurveTo(w*.5,bh/2-6*k,0,bh/2);c.closePath();c.fill();c.stroke();
+   c.strokeStyle='rgba(90,60,20,.55)';c.lineWidth=2;for(let i=0;i<9;i++){const y=-bh/2+40*k+i*22*k;c.beginPath();c.moveTo(w*.12,y);c.lineTo(w*.88*Math.min(1,_fSm(.4+i*.04,.9+i*.04,t)),y);c.stroke();}c.restore();};
+  side(1);side(-1);
+  const flip=(t-.5)/.35;for(let i=0;i<3;i++){const q=flip-i*.35;if(q<0||q>1)continue;const w=bw*Math.cos(q*3.1416);c.save();c.translate(cx,cy);c.globalAlpha=fade*.9;c.fillStyle='#fff8e6';c.strokeStyle='#000';c.lineWidth=3;c.beginPath();c.moveTo(0,-bh/2);c.lineTo(w,-bh/2+Math.sin(q*3.14)*-30*k);c.lineTo(w,bh/2+Math.sin(q*3.14)*-30*k);c.lineTo(0,bh/2);c.closePath();c.fill();c.stroke();c.restore();}
+  c.globalCompositeOperation='lighter';c.textAlign='center';for(const h of Ch){const q=t-.7-h.dl;if(q<0)continue;const y=cy-q*h.v*2,a=Math.max(0,1-q/1.2)*fade;c.globalAlpha=a;c.fillStyle='#ffe488';c.font=`900 ${h.s}px serif`;c.fillText(h.g,cx+h.x,y);}
+  const st=_fSm(1.0,1.5,t);if(st>0){c.globalCompositeOperation='source-over';c.globalAlpha=fade*st;c.font=`900 ${96*k}px serif`;c.fillStyle='#ffd23a';c.strokeStyle='#5a1a00';c.lineWidth=8;c.strokeText('絶対',cx,cy+30*k);c.fillText('絶対',cx,cy+30*k);c.globalCompositeOperation='lighter';fxGlow(c,cx,cy,190*k,'#ffc040',.5*st*fade);}
+  c.globalAlpha=1;};};
+FXS.cure=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,Pl=Array.from({length:44},()=>({x:_fRn(-1,1)*W*.42,v:_fRn(60,200)*k,s:_fRn(10,28)*k,dl:_fR()*1.4,pl:_fR()<.5,ph:_fR()*9})),St=Array.from({length:9},(_,i)=>({x:(i-4)*14*k,ph:i*.9}));
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),A=_fSm(0,.4,t);c.globalCompositeOperation='lighter';fxGlow(c,cx,cy,Math.max(W,H)*.6,'#8affb0',.3*A*fade);
+  c.globalCompositeOperation='source-over';c.globalAlpha=fade*A;const by=cy+150*k;
+  const g=c.createLinearGradient(0,by,0,by+80*k);g.addColorStop(0,'#fff6e0');g.addColorStop(1,'#c8a878');c.fillStyle=g;c.strokeStyle='#000';c.lineWidth=4;c.beginPath();c.ellipse(cx,by,120*k,26*k,0,0,6.283);c.fill();c.stroke();c.beginPath();c.moveTo(cx-120*k,by);c.quadraticCurveTo(cx,by+150*k,cx+120*k,by);c.fill();c.stroke();
+  c.fillStyle='#ffb84a';c.beginPath();c.ellipse(cx,by-2*k,102*k,18*k,0,0,6.283);c.fill();
+  c.globalCompositeOperation='lighter';c.lineCap='round';c.lineWidth=7*k;
+  for(const s of St){c.globalAlpha=.4*fade*A;c.strokeStyle='#f4ffe8';c.beginPath();for(let j=0;j<=14;j++){const y=by-j*16*k-((t*80*k)%(16*k)),x=cx+s.x+Math.sin(j*.8+t*3+s.ph)*14*k;j?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();}
+  c.textAlign='center';for(const p of Pl){const q=t-p.dl;if(q<0)continue;const y=by-q*p.v*2,x=cx+p.x*.5+Math.sin(q*3+p.ph)*18*k,a=Math.max(0,1-q/1.6)*fade;c.globalAlpha=a;c.fillStyle='#8affb0';if(p.pl){c.fillRect(x-p.s*.15,y-p.s*.5,p.s*.3,p.s);c.fillRect(x-p.s*.5,y-p.s*.15,p.s,p.s*.3);}else{fxGlow(c,x,y,p.s,'#d8ffe0',a);}}
+  const st=_fSm(1.0,1.5,t);if(st>0){c.globalCompositeOperation='source-over';c.globalAlpha=fade*st;c.font=`900 ${90*k}px serif`;c.fillStyle='#e8ffd0';c.strokeStyle='#0a5a28';c.lineWidth=8;c.strokeText('完治',cx,cy-110*k);c.fillText('完治',cx,cy-110*k);}
   c.globalAlpha=1;};};
 function fxStartScene(el,id,D){const mk=FXS[id];if(!mk||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches))return;const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;cv.style.cssText='position:absolute;inset:0;width:100%;height:100%';const c=cv.getContext('2d'),draw=mk(W,H,D),dim=el.querySelector('.cf-dim');if(dim)dim.after(cv);else el.prepend(cv);let last=performance.now(),t0=last;(function loop(now){if(!el.isConnected)return;const dt=Math.min(.05,(now-last)/1000);last=now;const t=(now-t0)/1000;c.setTransform(dpr,0,0,dpr,0,0);c.globalCompositeOperation='source-over';c.globalAlpha=1;c.shadowBlur=0;c.clearRect(0,0,W,H);try{draw(c,t,dt);}catch(e){if(!window.__fxe){window.__fxe=e.message;console.log("FXERR",id,e.message);}}requestAnimationFrame(loop);})(last);}
 let _callFxTimer=null,_skipSnd='';
@@ -6085,6 +6184,14 @@ GACHA_ITEMS.push(
   {id:'fx_chronolock',rarity:'rare',category:'fx',gold:1,fxKind:'win',fxId:'chronolock',icon:'🧊',title:'止まった世界',desc:'上がりの演出：世界にひびが走り、すべてが静止する'},
   {id:'fx_rewind',rarity:'superrare',category:'fx',gold:1,fxKind:'win',fxId:'rewind',icon:'⏪',title:'巻き戻し',desc:'上がりの演出：時間がするすると巻き戻る'},
   {id:'fx_cosmos',rarity:'superrare',category:'fx',gold:1,fxKind:'win',fxId:'cosmos',icon:'🌌',title:'宇宙一巡',desc:'上がりの演出：宇宙が加速して一巡し、新しい世界が始まる'},
+  {id:'fx_scoop',rarity:'superrare',category:'fx',gold:1,fxKind:'riichi',fxId:'scoop',icon:'🕳️',title:'削り取る',desc:'リーチの演出：空間が丸く削られ、閉じた先へ一瞬で飛ぶ'},
+  {id:'fx_zipper',rarity:'rare',category:'fx',gold:1,fxKind:'riichi',fxId:'zipper',icon:'🤐',title:'ジッパー',desc:'リーチの演出：ジッパーが走り、世界が真ん中から開く'},
+  {id:'fx_frostsuit',rarity:'rare',category:'fx',gold:1,fxKind:'riichi',fxId:'frostsuit',icon:'🥶',title:'絶対零度',desc:'リーチの演出：氷の鎧が空気まで凍らせ、弾丸を弾き返す'},
+  {id:'fx_virus',rarity:'superrare',category:'fx',gold:1,fxKind:'ron',fxId:'virus',icon:'🦠',title:'殺人ウイルス',desc:'ロンの演出：緑の胞子が広がり、すべてを腐らせる'},
+  {id:'fx_magnet',rarity:'rare',category:'fx',gold:1,fxKind:'ron',fxId:'magnet',icon:'🧲',title:'磁力の刃',desc:'ロンの演出：磁力に集まった鉄が、剃刀とハサミになって飛び出す'},
+  {id:'fx_weather',rarity:'superrare',category:'fx',gold:1,fxKind:'win',fxId:'weather',icon:'⛈️',title:'天候',desc:'上がりの演出：雨・霧・雷、そして純酸素。最後はカタツムリ'},
+  {id:'fx_book',rarity:'rare',category:'fx',gold:1,fxKind:'win',fxId:'book',icon:'📖',title:'命令の本',desc:'上がりの演出：本が開き、書き込まれた命令は絶対になる'},
+  {id:'fx_cure',rarity:'uncommon',category:'fx',gold:1,fxKind:'win',fxId:'cure',icon:'🍲',title:'癒しの料理',desc:'上がりの演出：湯気が立ち、どんな不調も完治する'},
   {id:'bg_disc',rarity:'uncommon',category:'fieldbg',type:'scene',gold:1,icon:'💿',title:'ディスクの海',desc:'場の背景：虹色に光るディスクが漂う',get value(){return sceneUri('disc');}},
   {id:'bg_gravflip',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'🔃',title:'反転した街',desc:'場の背景：逆さまの街と、空へ向かう矢印',get value(){return sceneUri('gravflip');}},
   {id:'bg_erase',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'🎞️',title:'消えたコマ',desc:'場の背景：途中のコマが消えたフィルム',get value(){return sceneUri('erase');}},
@@ -6119,6 +6226,16 @@ Object.assign(GOLD_SVG,{
   disc:['#2a3aa8',`<path d="M24 6A18 18 0 1 1 24 42A18 18 0 1 1 24 6ZM24 21A4 4 0 1 0 24 29A4 4 0 1 0 24 21Z" fill="#7ae0ff" fill-rule="evenodd" ${_GS}/><path d="M24 24L38 17A16 16 0 0 0 28 8Z" fill="#fff" opacity=".6"/><path d="M12 20A13 13 0 0 1 20 12" fill="none" stroke="#ff7ad8" stroke-width="3" stroke-linecap="round"/><path d="M36 30A13 13 0 0 1 28 38" fill="none" stroke="#ffe03a" stroke-width="3" stroke-linecap="round"/>`],
   gravflip:['#c0307a',`<path d="M16 6L6 18H13V30H19V18H26Z" fill="#ffe03a" ${_GS}/><path d="M32 42L42 30H35V18H29V30H22Z" fill="#7ae0ff" ${_GS}/>`],
   cosmos:['#2a1a6a',`<circle cx="24" cy="25" r="7" fill="#ffe8a0" ${_GS}/><path d="M24 25Q30 10 40 14M24 25Q10 22 8 34M24 25Q34 38 22 44" fill="none" stroke="#000" stroke-width="6.4" stroke-linecap="round"/><path d="M24 25Q30 10 40 14M24 25Q10 22 8 34M24 25Q34 38 22 44" fill="none" stroke="#c0a0ff" stroke-width="3" stroke-linecap="round"/><circle cx="38" cy="38" r="2" fill="#fff"/><circle cx="9" cy="10" r="1.6" fill="#fff"/>`]
+});
+Object.assign(GOLD_SVG,{
+  scoop:['#3a1a78',`<path d="M24 6A18 18 0 1 0 42 24L30 24A6 6 0 0 1 24 18Z" fill="#efe2ff" ${_GS}/><circle cx="36" cy="12" r="7" fill="#05020c" stroke="#c8a8ff" stroke-width="2.4" stroke-dasharray="3 2.6"/><path d="M8 40L16 34M12 44L20 40" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>`],
+  zipper:['#d89a10',`<path d="M24 4V44" fill="none" stroke="#000" stroke-width="3"/><g fill="#e8ecf4" ${_GS}><rect x="14" y="6" width="9" height="5" rx="1.5"/><rect x="25" y="12" width="9" height="5" rx="1.5"/><rect x="14" y="18" width="9" height="5" rx="1.5"/></g><path d="M16 26H32L29 36H19Z" fill="#ffe03a" ${_GS}/><rect x="21" y="36" width="6" height="9" rx="2" fill="#ffe03a" ${_GS}/>`],
+  frostsuit:['#1a78c8',`<g fill="none" stroke="#000" stroke-width="6.4" stroke-linecap="round"><path d="M24 6V42M8.4 15L39.6 33M8.4 33L39.6 15"/></g><g fill="none" stroke="#e8fbff" stroke-width="3" stroke-linecap="round"><path d="M24 6V42M8.4 15L39.6 33M8.4 33L39.6 15M18 10L24 15L30 10M18 38L24 33L30 38"/></g><circle cx="24" cy="24" r="4.4" fill="#9adfff" ${_GS}/>`],
+  virus:['#5a1a8a',`<g stroke="#000" stroke-width="2.6" stroke-linecap="round"><path d="M24 4V12M24 36V44M4 24H12M36 24H44M10 10L16 16M32 32L38 38M38 10L32 16M16 32L10 38" fill="none"/></g><circle cx="24" cy="24" r="12" fill="#a8ff48" ${_GS}/><circle cx="20" cy="20" r="3.4" fill="#e8ffb0" stroke="#000" stroke-width="1.6"/><circle cx="29" cy="28" r="2.6" fill="#5a9a10" stroke="#000" stroke-width="1.6"/><circle cx="4" cy="24" r="2.8" fill="#d8ff80" stroke="#000" stroke-width="1.6"/><circle cx="44" cy="24" r="2.8" fill="#d8ff80" stroke="#000" stroke-width="1.6"/>`],
+  magnet:['#b01830',`<path d="M10 40V22A14 14 0 0 1 38 22V40H29V22A5 5 0 0 0 19 22V40Z" fill="#e8183a" ${_GS}/><path d="M10 40H19V33H10Z" fill="#e8ecf4" ${_GS}/><path d="M29 40H38V33H29Z" fill="#e8ecf4" ${_GS}/><path d="M40 6L46 12M44 4L36 12" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"/><path d="M40 6L46 12M44 4L36 12" fill="none" stroke="#f4f6fc" stroke-width="2.2" stroke-linecap="round"/>`],
+  weather:['#26468a',`<path d="M12 28Q5 28 5 21Q5 14 13 14Q15 7 25 8Q34 8 35 15Q44 15 44 22Q44 28 37 28Z" fill="#c8d4f0" ${_GS}/><path d="M26 28L20 36H26L22 44L32 33H26L30 28Z" fill="#ffe03a" ${_GS}/><path d="M12 33Q15 38 12 41Q9 38 12 33Z" fill="#9adfff" ${_GS}/>`],
+  book:['#7a3a10',`<path d="M24 12Q14 7 4 10V38Q14 35 24 40Q34 35 44 38V10Q34 7 24 12Z" fill="#fff4d8" ${_GS}/><path d="M24 12V40" fill="none" stroke="#000" stroke-width="2.2"/><path d="M9 17Q15 16 20 18M9 23Q15 22 20 24M28 18Q33 16 39 17M28 24Q33 22 39 23" fill="none" stroke="#b07a30" stroke-width="2" stroke-linecap="round"/><path d="M38 4L40 8L44 9L40 11L38 15L36 11L32 9L36 8Z" fill="#ffee50" ${_GS}/>`],
+  cure:['#18903a',`<path d="M6 26H42Q42 42 24 42Q6 42 6 26Z" fill="#fff6e0" ${_GS}/><path d="M8 26Q24 20 40 26" fill="#ffb84a" stroke="#000" stroke-width="2"/><path d="M16 17Q12 12 16 8M24 17Q20 11 24 6M32 17Q28 12 32 8" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><path d="M39 6V14M35 10H43" fill="none" stroke="#000" stroke-width="6" stroke-linecap="round"/><path d="M39 6V14M35 10H43" fill="none" stroke="#8affb0" stroke-width="2.6" stroke-linecap="round"/>`]
 });
 function goldIcon(id){const g=GOLD_SVG[id];if(!g)return '';return `<svg viewBox="0 0 48 48" style="width:1em;height:1em;display:inline-block;vertical-align:-.14em"><rect x="1.5" y="1.5" width="45" height="45" rx="7" fill="${g[0]}" stroke="#000" stroke-width="3"/><path d="M4 4H30L4 30Z" fill="#fff" opacity=".2"/><g fill="#fff" opacity=".28"><circle cx="41" cy="6" r="1.1"/><circle cx="37" cy="6" r="1.1"/><circle cx="41" cy="10" r="1.1"/><circle cx="43" cy="14" r="1.1"/><circle cx="6" cy="42" r="1.1"/><circle cx="10" cy="42" r="1.1"/><circle cx="6" cy="38" r="1.1"/></g>${g[1]}</svg>`;}
 GACHA_ITEMS.forEach(it=>{if(it.gold){const key=it.fxId||it.id.replace('bg_','').replace('chrono','chronolock');it.icon=goldIcon(key)||it.icon;}});
@@ -6693,6 +6810,7 @@ function closeGacha(){ showScreen('lobby'); }
 // お届けBOX
 // ============================================================
 const GIFTBOX_ITEMS=[
+  {id:'info_gold_gacha3', info:true, title:'🌟 「黄金の精神」に演出を8種追加', desc:'削り取る・ジッパー・絶対零度（リーチ）、殺人ウイルス・磁力の刃（ロン）、天候・命令の本・癒しの料理（上がり）を追加しました。\nアイコンもマンガ調で新しくなっています。'},
   {id:'info_gold_gacha2', info:true, title:'🌟 「黄金の精神」に景品を追加', desc:'演出に、赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡を追加しました。\nあわせて、場の背景も9種追加しています（ディスクの海・反転した街・消えたコマ・光の刃・爆弾戦車隊・赤い閃光・静止した世界・巻き戻る時・宇宙の夜明け）。'},
   {id:'info_gold_gacha', info:true, title:'🌟 新ガチャ「黄金の精神」', desc:'ガチャ画面を横にスワイプすると「黄金の精神」が出ます。\nリーチ・ロン・上がりの演出（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き）が当たります。\n引いた演出は、カスタマイズの「演出」で選べます。'},
   {id:'apology_ltd_items_1000', title:'🙇 お詫びと補填：花びら1000枚', desc:'期間限定ガチャで入手したアイテムが、期間終了後に表示されず、消えたように見える不具合がありました。ご迷惑とご心配をおかけし、誠に申し訳ございません。\n入手済みの景品は消えておらず、ガチャ画面の「期間限定景品（入手済み）」からいつでも装備できるように修正しました。\nお詫びとして、花びら1000枚をお届けします（お一人様1回限り）。', petals:1000},
