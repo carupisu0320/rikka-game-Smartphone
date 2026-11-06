@@ -222,7 +222,7 @@ const FIELD_BG_PRESETS = new Set([
   'bg_forest', 'bg_dunes', 'bg_snowfield', 'bg_fireflies', 'bg_mountain', 'bg_waves', 'bg_sakuranight', 'bg_nebula', 'bg_galaxy',
   'bg_koi', 'bg_cityrain', 'bg_fuji', 'bg_fireworks',
   'bg_lanterns', 'bg_redmoon', 'bg_pumpkinfield', 'bg_haunted', // 期間限定ガチャ・ハロウィンイベントの背景
-  'bg_xmasnight', 'bg_newyearsun', 'bg_heartnight', 'bg_sakurastorm', 'bg_milkyway', 'bg_festival', 'bg_moonviewing', 'bg_gameovera3', 'bg_gameovera4', 'bg_momijiyama', 'bg_ginkgo', 'bg_utsuroi', // 季節イベントの背景
+  'bg_xmasnight', 'bg_newyearsun', 'bg_heartnight', 'bg_sakurastorm', 'bg_milkyway', 'bg_festival', 'bg_moonviewing', 'bg_gameovera3', 'bg_gameovera4', 'bg_momijiyama', 'bg_ginkgo', 'bg_utsuroi', 'bg_disc', 'bg_gravflip', 'bg_erase', 'bg_lightblade', 'bg_tankbomb', 'bg_redray', 'bg_chrono', 'bg_rewind', 'bg_cosmos', // 季節イベントの背景
 ]);
 function sanitizeFieldBg(url) {
   if (typeof url !== 'string') return '';
@@ -265,9 +265,9 @@ const TITLE_IDS = new Set(['title_first', 'title_zoro', 'title_apprentice', 'tit
 // 実績の報酬の称号は 'title_a_<実績ID>' の形
 // 演出（リーチ・ロン・上がり）の選択。許可した名前だけを通す
 const FX_STYLE_IDS = {
-  riichi: new Set(['default', 'flame', 'sakura', 'ice', 'thunder', 'aura', 'thread', 'bubble', 'forest']),
-  ron:    new Set(['default', 'crimson', 'void', 'gold', 'ocean', 'rush', 'claw', 'heavyrain', 'jade']),
-  win:    new Set(['default', 'fireworks', 'confetti', 'star', 'royal', 'timestop', 'mend', 'sprout', 'rainbow']),
+  riichi: new Set(['default', 'flame', 'sakura', 'ice', 'thunder', 'aura', 'thread', 'bubble', 'erase', 'disc', 'gravflip', 'forest']),
+  ron:    new Set(['default', 'crimson', 'void', 'gold', 'ocean', 'rush', 'claw', 'heavyrain', 'redray', 'lightblade', 'tankbomb', 'jade']),
+  win:    new Set(['default', 'fireworks', 'confetti', 'star', 'royal', 'timestop', 'mend', 'sprout', 'chronolock', 'rewind', 'cosmos', 'rainbow']),
 };
 function sanitizeFx(fx) {
   const o = {};
