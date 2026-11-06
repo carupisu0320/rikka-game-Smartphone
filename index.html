@@ -906,6 +906,34 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 #call-fx.cf-rb .cf-dim{background:radial-gradient(circle at 50% 60%,rgba(40,60,110,.28),rgba(4,8,24,.84))}
 #call-fx.cf-rb .cf-text{filter:drop-shadow(0 0 18px #fff) drop-shadow(0 4px 0 rgba(0,0,30,.6));background:linear-gradient(90deg,#ff6a6a,#ffd24a,#6aff8a,#4ac8ff,#b07aff);-webkit-background-clip:text;background-clip:text;color:transparent}
 @media (prefers-reduced-motion:reduce){.cf-rainbow .rb,.cf-rainbow .rb2{animation-duration:.01s;animation-delay:0s}}
+/* ガチャ「黄金の精神」：マンガ調の見た目（網点・集中線・太い輪郭・ゴゴゴ） */
+@keyframes joTrem{0%,100%{transform:translate(0,0) rotate(var(--r,0deg))}25%{transform:translate(2px,-2px) rotate(var(--r,0deg))}50%{transform:translate(-2px,1px) rotate(var(--r,0deg))}75%{transform:translate(1px,2px) rotate(var(--r,0deg))}}
+@keyframes joFlash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+.gacha-main.jo-main{position:relative;overflow:hidden;background-color:#3a0a68;background-image:radial-gradient(circle,rgba(255,255,255,.22) 1.6px,transparent 2.2px),repeating-conic-gradient(from 0deg at 50% 42%,rgba(255,255,255,.09) 0 5deg,transparent 5deg 13deg),linear-gradient(150deg,#3a0a68,#c0186e 55%,#ff9a1a);background-size:11px 11px,auto,auto;border:3px solid #fff;border-radius:6px;box-shadow:5px 5px 0 #000,0 0 0 3px #ffd020;transform:rotate(-1deg);margin:.5rem .4rem}
+.jo-main>*{position:relative;z-index:1}
+.jo-main>.jo-go{position:absolute;z-index:0;font-weight:900;font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:rgba(255,230,80,.6);-webkit-text-stroke:1.5px rgba(0,0,0,.75);animation:joTrem .22s linear infinite;pointer-events:none;line-height:1}
+.jo-title{font-size:2.3rem;font-weight:900;font-style:italic;color:#ffe03a;-webkit-text-stroke:2.5px #000;paint-order:stroke fill;text-shadow:3px 3px 0 #e0186e,6px 6px 0 #000;letter-spacing:.12em;transform:skew(-8deg);margin:.1rem 0 .3rem;animation:joFlash 1.6s ease-in-out infinite}
+.jo-tag{display:inline-block;background:#000;color:#ffe03a;font-weight:900;font-size:.78rem;padding:.12rem .8rem;transform:skew(-10deg);letter-spacing:.1em;border:2px solid #ffe03a;margin-bottom:.3rem}
+.jo-lead{font-size:.86rem;font-weight:900;color:#fff;-webkit-text-stroke:.6px #000;paint-order:stroke fill;text-shadow:2px 2px 0 #000;margin:.2rem 0}
+.jo-main .gacha-draw-btn{background:linear-gradient(180deg,#ffee50,#ffb010);color:#1a0030;border:3px solid #000;border-radius:4px;box-shadow:4px 4px 0 #000;transform:skew(-6deg);font-weight:900;letter-spacing:.1em}
+.jo-main .gacha-multi-btn{border:3px solid #000;border-radius:4px;box-shadow:4px 4px 0 #000;transform:skew(-6deg);background:linear-gradient(180deg,#5af0e0,#20b0c8);color:#05202a}
+.jo-main .gacha-multi-btn.big{background:linear-gradient(180deg,#ff8ac8,#e0186e);color:#fff;-webkit-text-stroke:.4px #000}
+.jo-main .gacha-cost{color:#ffe9c0;font-weight:700;text-shadow:1px 1px 0 #000}
+#gacha.gold-mode{background-color:#12041f;background-image:radial-gradient(circle,rgba(255,255,255,.07) 1.4px,transparent 2px),linear-gradient(180deg,#240842,#0a0212);background-size:12px 12px,auto}
+.gold-mode .gacha-title{color:#ffe03a;font-style:italic;-webkit-text-stroke:1.5px #000;paint-order:stroke fill;text-shadow:2px 2px 0 #e0186e}
+.gold-mode .gacha-rarity-title{font-size:1rem!important;color:#ffe03a!important;font-style:italic;font-weight:900;-webkit-text-stroke:.4px #000;border-top-color:#e0186e;text-shadow:1px 1px 0 #000}
+.gold-mode .gacha-item{border:2px solid #000;border-radius:4px;box-shadow:3px 3px 0 #e0186e;background:#1e0836}
+.gold-mode .gacha-item.gacha-owned{border-color:#ffd020;background:#34104f}
+.gold-mode .gacha-item-title{color:#fff!important;font-weight:900}
+.gold-mode .gacha-item-desc{color:#d0b8f0}
+.gold-mode .gacha-dots i.on{background:#ffe03a}
+.gold-mode .gacha-item-title{font-size:.95rem!important;font-style:italic;font-weight:900;letter-spacing:.06em;color:#ffe4f6!important;text-shadow:2px 0 #3a0a50,-2px 0 #3a0a50,0 2px #3a0a50,0 -2px #3a0a50,2px 2px 0 #3a0a50,-2px -2px 0 #3a0a50,2px -2px 0 #3a0a50,-2px 2px 0 #3a0a50,3px 3px 0 #e0186e}
+.gold-mode .gacha-item-icon.ltd .ltd-ttl{font-size:2.1rem}
+.gold-mode .gacha-item-icon.ltd{width:52px;height:52px}
+#gacha-fx.gold-fx{background:radial-gradient(circle at 50% 42%,#7a1a96 0%,#2e0648 55%,#0a0214 100%)}
+.gfx-gogo{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.gfx-gogo span{position:absolute;font-weight:900;font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:rgba(255,230,80,.5);-webkit-text-stroke:2px rgba(0,0,0,.7);animation:joTrem .2s linear infinite;line-height:1}
+@media (prefers-reduced-motion:reduce){.jo-main>.jo-go,.gfx-gogo span,.jo-title{animation:none}}
 @media (prefers-reduced-motion:reduce){.cf-glyph{display:none}}
 @media (prefers-reduced-motion:reduce){#call-fx.shake{animation:cfLife var(--dur) linear forwards}.cf-rays,.cf-spark,.cf-ring{display:none}}
 
@@ -1762,6 +1790,18 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <button class="gacha-draw-btn" onclick="drawGacha('limited')">限定ガチャを引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'limited')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'limited')">100連<small>🌸 1000</small></button></div>
     <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号・アイコン・紙吹雪</div>
+  </div>
+  </div>
+  <div class="gacha-banner" id="gacha-banner-gold">
+  <div class="gacha-main jo-main">
+    <span class="jo-go" style="left:6px;top:4px;font-size:2.6rem;--r:-8deg">ゴ</span><span class="jo-go" style="right:8px;top:10px;font-size:2rem;--r:7deg">ゴ</span><span class="jo-go" style="left:12px;bottom:60px;font-size:1.8rem;--r:5deg">ゴ</span><span class="jo-go" style="right:6px;bottom:84px;font-size:2.8rem;--r:-6deg">ゴ</span><span class="jo-go" style="left:46%;bottom:2px;font-size:1.6rem;--r:4deg">ゴ</span>
+    <div class="jo-tag">NEW GACHA</div>
+    <div class="jo-title">黄金の精神</div>
+    <div class="jo-lead">リーチ・ロン・上がりの「演出」と「背景」が当たる！</div>
+    <div id="jo-banner-icons" style="font-size:2.6rem;letter-spacing:.35rem;margin:.3rem 0;filter:drop-shadow(3px 3px 0 #000)"></div>
+    <button class="gacha-draw-btn" onclick="drawGacha('gold')">黄金の精神を引く</button>
+    <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'gold')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'gold')">100連<small>🌸 1000</small></button></div>
+    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：演出18種（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き・赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡）と、場の背景9種</div>
   </div>
   </div>
   </div>
@@ -2964,6 +3004,9 @@ const FX_STYLES={
     {id:'aura',name:'威圧',icon:'👁️',c1:'#b060ff',c2:'#f0d8ff',bg:'rgba(24,4,48,.88)',dm:'rgba(30,6,60,.4)',g:['✦'],mode:'burst'},
     {id:'thread',name:'糸',icon:'🧵',c1:'#d6c0ff',c2:'#ffffff',bg:'rgba(20,10,44,.88)',dm:'rgba(26,12,56,.4)',mode:'burst'},
     {id:'bubble',name:'シャボン玉',icon:'🫧',c1:'#8ad8ff',c2:'#f0fbff',bg:'rgba(4,28,48,.86)',dm:'rgba(6,34,58,.4)',mode:'burst'},
+    {id:'erase',name:'過程消去',icon:'🎞️',c1:'#ffe03a',c2:'#ffffff',bg:'rgba(10,10,16,.9)',dm:'rgba(14,10,20,.45)',mode:'burst'},
+    {id:'disc',name:'ディスク',icon:'💿',c1:'#7ae0ff',c2:'#f0fbff',bg:'rgba(6,16,58,.88)',dm:'rgba(8,20,70,.4)',mode:'burst'},
+    {id:'gravflip',name:'重力反転',icon:'🔃',c1:'#ff7ac8',c2:'#ffe8f6',bg:'rgba(30,10,60,.88)',dm:'rgba(36,12,70,.4)',mode:'burst'},
     {id:'forest',name:'翠',icon:'🍃',c1:'#40d890',c2:'#e0ffe8',bg:'rgba(4,36,22,.88)',dm:'rgba(4,44,26,.4)',g:['🍃'],mode:'fall'},
   ],
   ron:[
@@ -2975,6 +3018,9 @@ const FX_STYLES={
     {id:'rush',name:'ラッシュ',icon:'👊',c1:'#5ae0ff',c2:'#e8f8ff',bg:'rgba(4,16,40,.9)',dm:'rgba(4,22,52,.45)',g:['✦'],mode:'burst'},
     {id:'claw',name:'爪弾',icon:'💅',c1:'#ffb0d8',c2:'#fff0f8',bg:'rgba(40,6,28,.9)',dm:'rgba(50,8,34,.45)',mode:'burst'},
     {id:'heavyrain',name:'重い雨',icon:'🌧️',c1:'#9ab8f0',c2:'#e8f0ff',bg:'rgba(6,10,36,.92)',dm:'rgba(8,14,46,.5)',mode:'burst'},
+    {id:'redray',name:'赤光線',icon:'👁️',c1:'#ff3a40',c2:'#ffe0e0',bg:'rgba(40,4,12,.9)',dm:'rgba(50,4,14,.45)',mode:'burst'},
+    {id:'lightblade',name:'光刃',icon:'🗡️',c1:'#7ae0ff',c2:'#f0fcff',bg:'rgba(4,22,46,.9)',dm:'rgba(4,28,56,.45)',mode:'burst'},
+    {id:'tankbomb',name:'戦車爆弾',icon:'💣',c1:'#ff8a30',c2:'#fff0c8',bg:'rgba(30,10,2,.9)',dm:'rgba(40,12,2,.45)',mode:'burst'},
     {id:'jade',name:'翡翠',icon:'💎',c1:'#20c0a0',c2:'#d8fff4',bg:'rgba(0,36,30,.9)',dm:'rgba(0,44,36,.45)',g:['💎'],mode:'burst'},
   ],
   win:[
@@ -2986,11 +3032,14 @@ const FX_STYLES={
     {id:'timestop',name:'時間停止',icon:'⏱️',c1:'#efe2b0',c2:'#fffbe8',bg:'rgba(20,20,28,.9)',dm:'rgba(24,24,34,.45)',g:['✦'],mode:'burst'},
     {id:'mend',name:'修復',icon:'🔧',c1:'#ffd860',c2:'#fff8d8',bg:'rgba(30,24,6,.88)',dm:'rgba(36,28,6,.4)',mode:'burst'},
     {id:'sprout',name:'芽吹き',icon:'🌱',c1:'#7ae890',c2:'#f0ffe8',bg:'rgba(6,30,16,.88)',dm:'rgba(8,38,20,.4)',mode:'burst'},
+    {id:'chronolock',name:'止まった世界',icon:'🧊',c1:'#cfeaff',c2:'#ffffff',bg:'rgba(14,24,38,.9)',dm:'rgba(18,30,48,.45)',mode:'burst'},
+    {id:'rewind',name:'巻き戻し',icon:'⏪',c1:'#ff7ad8',c2:'#f4e0ff',bg:'rgba(26,6,48,.9)',dm:'rgba(32,8,58,.45)',mode:'burst'},
+    {id:'cosmos',name:'宇宙一巡',icon:'🌌',c1:'#b090ff',c2:'#fff2c8',bg:'rgba(10,4,30,.9)',dm:'rgba(14,6,40,.45)',mode:'burst'},
     {id:'rainbow',name:'虹',icon:'🌈',c1:'#ff9a60',c2:'#f4f0ff',bg:'rgba(10,20,40,.86)',dm:'rgba(12,24,50,.35)',g:['✨','💫'],mode:'fall'},
   ],
 };
 function loadMyFx(){try{return JSON.parse(localStorage.getItem('rikka_fx')||'{}')||{};}catch(e){return {};}}
-function myFxId(kind){const v=loadMyFx()[kind];return FX_STYLES[kind].some(s=>s.id===v)?v:'default';}
+function myFxId(kind){const v=loadMyFx()[kind];if(!FX_STYLES[kind].some(s=>s.id===v))return 'default';const g=(typeof GOLD_FX!=='undefined')&&GOLD_FX[v];if(g&&!loadGachaState().owned.includes(g))return 'default';return v;}
 function myFxPayload(){return {riichi:myFxId('riichi'),ron:myFxId('ron'),win:myFxId('win')};}
 function fxStyleOf(kind,fx){const id=fx&&fx[kind];return FX_STYLES[kind].find(s=>s.id===id)||FX_STYLES[kind][0];}
 // その人の演出（自分は自分の設定、相手は届いた設定、CPUは標準）
@@ -3181,6 +3230,121 @@ FXS.sprout=(W,H,D)=>{const k=Math.min(W,H)/600,V=Array.from({length:9},(_,i)=>({
    if(u>.9){const b=_fSm(.9,1,u),p=pos(v,u);c.save();c.translate(p.x,p.y);c.scale(b,b);c.rotate(Math.sin(t*1.5+v.ph)*.1);c.globalAlpha=fade;for(let j=0;j<6;j++){c.save();c.rotate(j*1.0472);c.translate(0,-20*k);fxPetal(c,22*k,v.fc[0],v.fc[1]);c.restore();}c.fillStyle='#ffe070';c.beginPath();c.arc(0,0,8*k,0,6.3);c.fill();c.restore();}}
   for(const h of Ch){h.y+=h.vy*dt;h.r+=h.vr*dt;if(h.y<-30)continue;c.save();c.translate(h.x,h.y);c.rotate(h.r);c.globalAlpha=fade;if(t<h.tc){c.fillStyle='#8c8f9a';c.strokeStyle='#d0d4de';c.lineWidth=1;c.beginPath();c.moveTo(-h.s,-h.s*.3);c.lineTo(-h.s*.2,-h.s);c.lineTo(h.s,-h.s*.4);c.lineTo(h.s*.5,h.s);c.lineTo(-h.s*.7,h.s*.7);c.closePath();c.fill();c.stroke();}else{const g=_fSm(h.tc,h.tc+.25,t);c.scale(g,g);fxPetal(c,h.s*1.3,'#ffffff',h.c);}c.restore();}
   if(t>.9)for(const b of Bf){const u=t-.9,x=b.x+Math.sin(u*b.sp*2+b.ph)*W*.12,y=H*.78-u*H*.28+Math.sin(u*4+b.ph)*20*k,w=Math.abs(Math.sin(t*16+b.ph));c.save();c.translate(x,y);c.globalAlpha=fade*_fSm(.9,1.3,t);c.fillStyle=b.col;for(const sg of[-1,1]){c.beginPath();c.ellipse(sg*b.s*.5*w,-b.s*.1,b.s*.55*w+1,b.s*.8,sg*.4,0,6.3);c.fill();}c.fillStyle='#4a3a2a';c.fillRect(-1.5,-b.s*.5,3,b.s);c.restore();}
+  c.globalAlpha=1;};};
+// ===== 能力モチーフの演出その2（オリジナル）：赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡 =====
+FXS.redray=(W,H,D)=>{const k=Math.min(W,H)/600,ey=H*.2,ex=[W*.4,W*.6],V=[],B=[],P=[];let acc=0;
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);c.globalCompositeOperation='lighter';
+  const charge=_fSm(0,.75,t);
+  if(t<.8){acc+=dt*50;while(acc>=1){acc--;const s=_fR()<.5?0:1;V.push({x:ex[s]+_fRn(-60,60)*k,y:ey+_fRn(20,160)*k,l:0,m:_fRn(.5,.9),s:_fRn(16,34)*k,e:s});}}
+  for(let i=V.length-1;i>=0;i--){const v=V[i];v.l+=dt;if(v.l>v.m){V.splice(i,1);continue;}const f=v.l/v.m;v.x+=(ex[v.e]-v.x)*dt*3.5;v.y+=(ey-v.y)*dt*3.5;fxGlow(c,v.x,v.y,v.s*(1-f*.4),'#ffd0d8',.35*(1-f)*fade);}
+  for(const x of ex){fxGlow(c,x,ey,(14+70*charge)*k,'#ff2030',.9*fade);fxGlow(c,x,ey,(6+22*charge)*k,'#ffffff',.9*fade);}
+  if(t>.8){const u=_fSm(.8,1.9,t),tx=W*(.08+.84*u),ty=H*.82;
+   if(B.length<400)B.push([tx,ty]);
+   for(let j=0;j<2;j++){const x0=ex[j];c.lineCap='round';
+    c.globalAlpha=.3*fade;c.strokeStyle='#ff1830';c.lineWidth=34*k;c.beginPath();c.moveTo(x0,ey);c.lineTo(tx,ty);c.stroke();
+    c.globalAlpha=.7*fade;c.strokeStyle='#ff5a60';c.lineWidth=14*k;c.beginPath();c.moveTo(x0,ey);c.lineTo(tx,ty);c.stroke();
+    c.globalAlpha=fade;c.strokeStyle='#fff';c.lineWidth=4.5*k;c.beginPath();c.moveTo(x0,ey);c.lineTo(tx,ty);c.stroke();}
+   fxGlow(c,tx,ty,110*k,'#ff3a20',.95*fade);fxGlow(c,tx,ty,40*k,'#fff4d0',fade);
+   for(let i=0;i<3;i++)P.push({x:tx,y:ty,vx:_fRn(-300,300),vy:-_fRn(120,520),l:0,m:_fRn(.4,.9)});}
+  if(B.length>1){c.strokeStyle='#ff4020';c.lineWidth=7*k;c.globalAlpha=.55*fade*(1-_fSm(1.9,D,t)*.6);c.beginPath();B.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.stroke();}
+  for(let i=P.length-1;i>=0;i--){const p=P[i];p.l+=dt;if(p.l>p.m){P.splice(i,1);continue;}p.vy+=700*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;fxGlow(c,p.x,p.y,7*k,'#ffc060',(1-p.l/p.m)*fade);}
+  c.globalAlpha=1;};};
+FXS.lightblade=(W,H,D)=>{const k=Math.min(W,H)/600,S=[],Sh=[];const T=[.55,.8,1.05,1.3];let n=0;
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);c.globalCompositeOperation='lighter';
+  const u=_fSm(.05,.5,t),ax=W+30,ay=H*.28,bx=W*.22,by=H*.66,tx=ax+(bx-ax)*u,ty=ay+(by-ay)*u;
+  if(u>0){const a=Math.atan2(by-ay,bx-ax),nx=-Math.sin(a),ny=Math.cos(a),w=16*k;
+   c.globalAlpha=fade;c.fillStyle='#e8fbff';c.beginPath();c.moveTo(ax+nx*w,ay+ny*w);c.lineTo(tx,ty);c.lineTo(ax-nx*w,ay-ny*w);c.closePath();c.fill();
+   c.strokeStyle='#7ae0ff';c.lineWidth=2.5;c.stroke();fxGlow(c,tx,ty,60*k,'#aef0ff',.9*fade);
+   for(let i=0;i<14;i++){const s=i/14,px=ax+(tx-ax)*s,py=ay+(ty-ay)*s,ra=a+Math.PI/2*(i%2?1:-1)+Math.sin(t*6+i)*.15,L=Math.max(W,H)*(.25+.15*((i*7)%5)/5);c.globalAlpha=.45*fade*_fSm(.2,.5,t);c.strokeStyle=`hsl(${(i*53+t*200)%360},100%,70%)`;c.lineWidth=2;c.beginPath();c.moveTo(px,py);c.lineTo(px+Math.cos(ra)*L,py+Math.sin(ra)*L);c.stroke();}}
+  while(n<T.length&&t>=T[n]){const a=_fRn(-.5,.5)+(n%2?.6:-.6),cx=W/2+_fRn(-W*.15,W*.15),cy=H*.46+_fRn(-H*.1,H*.1),L=Math.max(W,H);S.push({x1:cx-Math.cos(a)*L,y1:cy-Math.sin(a)*L,x2:cx+Math.cos(a)*L,y2:cy+Math.sin(a)*L,t0:t,a});n++;}
+  for(const s of S){const q=t-s.t0,g=_fSm(0,.1,q),gap=_fSm(.05,.5,q)*26*k,nx=-Math.sin(s.a),ny=Math.cos(s.a),al=(1-_fSm(.5,1,q))*fade;if(al<=0)continue;
+   c.lineCap='round';c.globalAlpha=al*.8;c.strokeStyle='#7ae0ff';c.lineWidth=6*k;for(const sg of[-1,1]){c.beginPath();c.moveTo(s.x1+nx*gap*sg,s.y1+ny*gap*sg);c.lineTo(s.x1+(s.x2-s.x1)*g+nx*gap*sg,s.y1+(s.y2-s.y1)*g+ny*gap*sg);c.stroke();}
+   c.globalAlpha=al;c.strokeStyle='#fff';c.lineWidth=3*k*(1-q*.8);c.beginPath();c.moveTo(s.x1,s.y1);c.lineTo(s.x1+(s.x2-s.x1)*g,s.y1+(s.y2-s.y1)*g);c.stroke();
+   if(q<.05)for(let i=0;i<10;i++)Sh.push({x:(s.x1+s.x2)/2+_fRn(-W*.3,W*.3)*Math.cos(s.a),y:(s.y1+s.y2)/2+_fRn(-W*.3,W*.3)*Math.sin(s.a),vx:nx*_fRn(-500,500),vy:ny*_fRn(-500,500),l:0,m:_fRn(.5,1),r:_fR()*6});}
+  for(let i=Sh.length-1;i>=0;i--){const p=Sh[i];p.l+=dt;if(p.l>p.m){Sh.splice(i,1);continue;}p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=dt*6;c.save();c.translate(p.x,p.y);c.rotate(p.r);c.globalAlpha=(1-p.l/p.m)*fade;c.fillStyle='#d8f6ff';c.beginPath();c.moveTo(0,-9*k);c.lineTo(4*k,6*k);c.lineTo(-4*k,6*k);c.fill();c.restore();}
+  c.globalAlpha=1;};};
+FXS.chronolock=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,L=[],Dr=Array.from({length:64},()=>({x:_fR()*W,y:_fR()*H,vy:_fRn(-80,260),s:_fRn(3,9)*k,tw:_fR()*9}));
+  const crack=(x,y,a,len,d)=>{if(d>3)return;const n=5+(d?0:2),pts=[[x,y]];let px=x,py=y,aa=a;for(let i=0;i<n;i++){aa+=_fRn(-.35,.35);px+=Math.cos(aa)*len/n;py+=Math.sin(aa)*len/n;pts.push([px,py]);if(_fR()<.35)crack(px,py,aa+_fRn(-1.1,1.1),len*.5,d+1);}L.push({pts,d});};
+  for(let i=0;i<16;i++)crack(cx,cy,i/16*6.283+_fRn(-.15,.15),Math.max(W,H)*.6,0);
+  return(c,t,dt)=>{const fade=1-_fSm(D-.5,D,t),u=_fSm(.05,.75,t),fr=_fSm(.7,.9,t);c.globalCompositeOperation='source-over';
+  const g=c.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.8*Math.max(u,.01));g.addColorStop(0,'rgba(140,170,200,.05)');g.addColorStop(1,`rgba(70,95,130,${.42*fade})`);c.fillStyle=g;c.fillRect(0,0,W,H);
+  c.globalCompositeOperation='lighter';c.lineCap='round';
+  for(const l of L){const n=Math.max(1,Math.floor(l.pts.length*u));c.globalAlpha=(.9-l.d*.15)*fade;c.strokeStyle='#cfeaff';c.lineWidth=Math.max(.8,(3.2-l.d)*k);c.beginPath();for(let i=0;i<n;i++){const p=l.pts[i];i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);}c.stroke();}
+  for(const d of Dr){d.y+=d.vy*dt*(1-fr);c.save();c.translate(d.x,d.y);c.globalAlpha=.8*fade*_fSm(.2,.5,t);c.fillStyle='#d8f0ff';c.beginPath();c.moveTo(0,-d.s*1.6);c.quadraticCurveTo(d.s,0,0,d.s);c.quadraticCurveTo(-d.s,0,0,-d.s*1.6);c.fill();if(Math.sin(t*4+d.tw)>.85){c.fillStyle='#fff';c.fillRect(-d.s*.2,-d.s*2,d.s*.4,d.s*3);}c.restore();}
+  for(const t0 of[.8,1.25]){const f=(t-t0)/.55;if(f>0&&f<1){c.globalAlpha=(1-f)*fade;c.strokeStyle='#fff';c.lineWidth=6*(1-f)+1;c.beginPath();c.arc(cx,cy,30+f*Math.max(W,H)*.6,0,6.3);c.stroke();}}
+  if(t>.8&&t<.95){c.globalAlpha=(1-(t-.8)/.15)*.5;c.fillStyle='#fff';c.fillRect(0,0,W,H);}
+  c.globalAlpha=1;};};
+FXS.tankbomb=(W,H,D)=>{const cx=W/2,cy=H*.5,k=Math.min(W,H)/600,Tk=Array.from({length:9},(_,i)=>{const side=i%3,x0=side===0?-40:side===1?W+40:_fRn(.15,.85)*W,y0=side===2?H+40:_fRn(.55,1)*H;return{x0,y0,tx:cx+_fRn(-W*.12,W*.12),ty:cy+_fRn(-H*.1,H*.1),t0:.08+i*.1,dur:_fRn(.7,.95),ex:0};}),F=[];
+  const tank=(c,x,y,a,s)=>{c.save();c.translate(x,y);c.rotate(a);c.scale(s,s);c.fillStyle='#2a2a30';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.roundRect(-18,-14,36,6,3);c.roundRect(-18,8,36,6,3);c.fill();c.stroke();
+   c.fillStyle='#e8a030';c.beginPath();c.roundRect(-15,-9,30,18,4);c.fill();c.stroke();c.fillStyle='#ffd070';c.beginPath();c.arc(-2,0,6.5,0,6.3);c.fill();c.stroke();c.fillStyle='#d88a20';c.fillRect(4,-2,18,4);c.strokeRect(4,-2,18,4);
+   c.fillStyle='#ff2a2a';c.beginPath();c.arc(-9,0,2.6,0,6.3);c.fill();c.restore();};
+  return(c,t,dt)=>{const fade=1-_fSm(D-.4,D,t);c.globalCompositeOperation='lighter';
+  const heat=_fSm(0,.5,t)*(.6+.4*Math.sin(t*9));fxGlow(c,cx,cy,120*k,'#ff5a20',.5*heat*fade);fxGlow(c,cx,cy,50*k,'#ffe0a0',.7*heat*fade);
+  c.globalCompositeOperation='source-over';
+  for(const T of Tk){const u=(t-T.t0)/T.dur;if(u<0)continue;if(u>=1){if(!T.ex){T.ex=1;F.push({x:T.tx,y:T.ty,t0:t});}continue;}const e=u*u*.5+u*.5,x=T.x0+(T.tx-T.x0)*e+Math.sin(u*14)*6*k,y=T.y0+(T.ty-T.y0)*e,a=Math.atan2(T.ty-T.y0,T.tx-T.x0);
+   c.globalAlpha=fade*Math.min(1,u*8);c.fillStyle='rgba(200,180,150,.35)';for(let i=1;i<4;i++){c.beginPath();c.arc(x-Math.cos(a)*i*14*k,y-Math.sin(a)*i*14*k,(6-i)*k*1.4,0,6.3);c.fill();}
+   c.globalAlpha=fade;tank(c,x,y,a,1.15*k);}
+  c.globalCompositeOperation='lighter';
+  for(let i=F.length-1;i>=0;i--){const f=F[i],q=(t-f.t0)/.7;if(q>1){F.splice(i,1);continue;}c.globalAlpha=1;fxGlow(c,f.x,f.y,(60+q*130)*k,q<.3?'#fff0c0':'#ff7020',(1-q)*.95*fade);
+   c.globalAlpha=(1-q)*fade;c.strokeStyle='#ffb050';c.lineWidth=6*(1-q)+1;c.beginPath();c.arc(f.x,f.y,q*170*k,0,6.3);c.stroke();
+   c.strokeStyle='#ffe090';c.lineWidth=2;for(let j=0;j<10;j++){const a=j*.628+f.x,r0=q*60*k,r1=q*200*k;c.beginPath();c.moveTo(f.x+Math.cos(a)*r0,f.y+Math.sin(a)*r0);c.lineTo(f.x+Math.cos(a)*r1,f.y+Math.sin(a)*r1);c.stroke();}}
+  c.globalAlpha=1;};};
+FXS.rewind=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,P=Array.from({length:90},()=>({a:_fR()*6.283,r:_fRn(.3,1)*Math.max(W,H)*.6,s:_fRn(2,6)*k,sp:_fRn(.6,1.3),col:['#ff7ad8','#7ae0ff','#ffe070','#ffffff'][Math.floor(_fR()*4)]}));
+  const chev=(c,x,y,s,col,al)=>{c.globalAlpha=al;c.fillStyle=col;for(let j=0;j<2;j++){const o=j*s*.95;c.beginPath();c.moveTo(x-o,y);c.lineTo(x-o+s,y-s*.6);c.lineTo(x-o+s,y+s*.6);c.closePath();c.fill();}};
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);c.globalCompositeOperation='lighter';
+  const R=Math.min(W,H)*.34;c.save();c.translate(cx,cy);c.globalAlpha=.55*fade*_fSm(.05,.4,t);c.strokeStyle='#e8c0ff';c.lineWidth=5*k;c.beginPath();c.arc(0,0,R,0,6.3);c.stroke();
+  const ang=-t*t*9-t*3;c.lineCap='round';c.lineWidth=6*k;c.beginPath();c.moveTo(0,0);c.lineTo(Math.sin(ang)*R*.85,-Math.cos(ang)*R*.85);c.stroke();c.lineWidth=9*k;c.beginPath();c.moveTo(0,0);c.lineTo(Math.sin(ang/12)*R*.55,-Math.cos(ang/12)*R*.55);c.stroke();
+  c.globalAlpha=.25*fade;c.fillStyle='#ff7ad8';c.beginPath();c.moveTo(0,0);c.arc(0,0,R*.85,-Math.PI/2+ang+Math.PI/2*0,-Math.PI/2+ang+1.6,false);c.closePath();c.fill();c.restore();
+  const sp=(t*420*k)%(260*k);for(let i=-2;i<8;i++){const x=W-i*260*k+sp*0-sp;chev(c,x-sp*0+(-sp),cy,120*k,'#ff5ad0',.5*fade);chev(c,x+8*k-sp,cy+6*k,120*k,'#4adcff',.45*fade);}
+  for(const p of P){p.r-=p.sp*dt*(180+t*500)*k;if(p.r<10)p.r=Math.max(W,H)*.65;p.a-=dt*(.8+t);fxGlow(c,cx+Math.cos(p.a)*p.r,cy+Math.sin(p.a)*p.r*.8,p.s*3,p.col,.7*fade);}
+  c.globalAlpha=.1*fade;c.fillStyle='#fff';for(let y=((t*300)%8)-8;y<H;y+=8)c.fillRect(0,y,W,2);
+  for(let i=0;i<3;i++){const y=((t*(260+i*90)+i*190)%(H+60))-30;c.globalAlpha=.25*fade;c.fillStyle='#bfe8ff';c.fillRect(0,y,W,_fRn(4,14)*k);}
+  if(t>D-.7&&t<D-.4){c.globalAlpha=(1-Math.abs((t-(D-.55))/.15))*.5;c.fillStyle='#fff';c.fillRect(0,0,W,H);}
+  c.globalAlpha=1;};};
+FXS.erase=(W,H,D)=>{const k=Math.min(W,H)/600,y=H*.46+110*k,x0=W*.08,x1=W*.92,xa=W*.3,xb=W*.7,N=12,fr=Array.from({length:N},(_,i)=>({hue:i*28,er:i>=4&&i<8,dl:.35+(i-4)*.06}));
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);c.globalCompositeOperation='source-over';
+  const fw=(x1-x0)/N,fh=70*k,fy=y-fh-40*k;
+  fr.forEach((f,i)=>{const x=x0+i*fw+fw*.08,w=fw*.84;let al=_fSm(i*.03,i*.03+.3,t)*fade;if(f.er){const q=_fSm(f.dl,f.dl+.35,t);if(q>0){c.globalAlpha=al;c.fillStyle='#fff';c.fillRect(x,fy,w,fh);for(let j=0;j<10;j++){c.fillStyle=_fR()<.5?'#000':'#aaa';c.fillRect(x+_fR()*w,fy+_fR()*fh,_fRn(3,w*.5),_fRn(2,6));}}al*=1-_fSm(f.dl+.3,f.dl+.6,t)*1;if(al<=.02){c.globalAlpha=fade*.5;c.strokeStyle='#e0183a';c.setLineDash([5,5]);c.lineWidth=2;c.strokeRect(x,fy,w,fh);c.setLineDash([]);}}
+   if(!f.er||al>.02){c.globalAlpha=al;const g=c.createLinearGradient(x,fy,x+w,fy+fh);g.addColorStop(0,`hsl(${f.hue},80%,60%)`);g.addColorStop(1,`hsl(${f.hue+40},80%,35%)`);if(!(f.er&&_fSm(f.dl,f.dl+.35,t)>0)){c.fillStyle=g;c.fillRect(x,fy,w,fh);}c.strokeStyle='#000';c.lineWidth=3;c.strokeRect(x,fy,w,fh);}});
+  const er=_fSm(.35,.75,t);c.globalAlpha=fade;c.lineCap='round';c.lineWidth=7*k;c.strokeStyle='#fff';
+  const seg=(a,b,col)=>{c.strokeStyle=col;c.beginPath();c.moveTo(a,y);c.lineTo(b,y);c.stroke();};
+  seg(x0,Math.min(xa,x0+(x1-x0)*_fSm(0,.4,t)),'#fff');
+  if(t<.75){c.globalAlpha=fade*(1-er);for(let i=0;i<24;i++){const x=xa+(xb-xa)*i/24;c.fillStyle=_fR()<.5?'#e0183a':'#fff';c.fillRect(x,y-8*k+_fRn(-10,10)*k,(xb-xa)/24*.8,_fRn(3,12)*k);}}
+  c.globalAlpha=fade;if(t>.75){const j=_fSm(.75,.95,t);seg(xb,xb+(x1-xb)*j,'#ffe03a');c.globalCompositeOperation='lighter';for(let i=0;i<8;i++){c.globalAlpha=(1-i/8)*.6*fade*(1-_fSm(.95,1.3,t));c.fillStyle='#fff';c.fillRect(xa+(xb-xa)*(i/8)*.0+(xb-xa)*(1-i/8)*.0+xa+(xb-xa)*(i/8),y-4*k,(xb-xa)/8,8*k);}c.globalCompositeOperation='source-over';}
+  const cur=t<.75?xa:t<.95?xb:xb;c.globalAlpha=fade;for(const[mx,col]of[[x0,'#fff'],[x1,'#ffe03a']]){c.fillStyle=col;c.strokeStyle='#000';c.lineWidth=3;c.beginPath();c.moveTo(mx,y-18*k);c.lineTo(mx+10*k,y);c.lineTo(mx,y+18*k);c.lineTo(mx-10*k,y);c.closePath();c.fill();c.stroke();}
+  c.globalCompositeOperation='lighter';fxGlow(c,t<.75?Math.min(x0+(x1-x0)*_fSm(0,.4,t),xa):xb+(x1-xb)*_fSm(.75,.95,t),y,36*k,'#ffffff',.95*fade);
+  if(t>.95){const q=(t-.95)/.7;if(q<1){c.globalAlpha=(1-q)*fade;c.strokeStyle='#ffe03a';c.lineWidth=6*(1-q)+1;c.beginPath();c.arc(x1,y,20+q*220*k,0,6.3);c.stroke();}}
+  c.globalAlpha=1;};};
+FXS.disc=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,Ds=Array.from({length:14},(_,i)=>{const a=i/14*6.283+_fRn(-.2,.2),v=_fRn(260,620);return{vx:Math.cos(a)*v,vy:Math.sin(a)*v-40,x:cx,y:cy,r:_fRn(26,50)*k,rot:_fR()*6,fl:_fR()*6,vf:_fRn(3,8),dl:.05+i*.07,s:0};});
+  const disc=(c,x,y,r,tilt,rot)=>{c.save();c.translate(x,y);c.rotate(rot);c.scale(1,Math.max(.14,Math.abs(tilt)));
+   let g;if(c.createConicGradient){g=c.createConicGradient(0,0,0);['#ff5ad0','#ffe05a','#5affc8','#5ab4ff','#c85aff','#ff5ad0'].forEach((cl,i)=>g.addColorStop(i/5,cl));}else{g='#bfe8ff';}
+   c.fillStyle=g;c.strokeStyle='#000';c.lineWidth=2.4;c.beginPath();c.arc(0,0,r,0,6.3);c.arc(0,0,r*.18,0,6.3,true);c.fill('evenodd');c.stroke();
+   c.fillStyle='rgba(255,255,255,.5)';c.beginPath();c.moveTo(0,0);c.arc(0,0,r*.92,-.5,.1);c.closePath();c.fill();c.strokeStyle='rgba(255,255,255,.7)';c.lineWidth=1.4;c.beginPath();c.arc(0,0,r*.5,0,6.3);c.stroke();c.restore();};
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);c.globalCompositeOperation='lighter';
+  const sw=_fSm(0,.5,t),by=cy-80*k+sw*160*k;c.globalAlpha=.7*fade*(1-_fSm(.5,.7,t));c.fillStyle='#9ae4ff';c.fillRect(0,by,W,3*k);fxGlow(c,W*sw,by,50*k,'#ffffff',.8*fade*(1-_fSm(.5,.7,t)));
+  c.globalCompositeOperation='source-over';
+  for(const d of Ds){const q=t-d.dl;if(q<0)continue;const e=Math.min(1,q*3);d.x+=d.vx*dt;d.y+=d.vy*dt;d.vy+=60*dt;d.fl+=d.vf*dt;d.rot+=dt*.8;c.globalAlpha=fade*Math.min(1,q*5);disc(c,d.x,d.y,d.r*(.5+.5*e),Math.cos(d.fl),d.rot);}
+  c.globalCompositeOperation='lighter';for(const d of Ds){if(t>d.dl&&Math.sin(t*9+d.fl)>.9)fxFlare(c,d.x+d.r*.4,d.y-d.r*.2,22*k,'#ffffff',fade);}
+  c.globalAlpha=1;};};
+FXS.gravflip=(W,H,D)=>{const k=Math.min(W,H)/600,flipT=.6,P=Array.from({length:110},()=>({x:_fR()*W,y:_fR()*H,vy:_fRn(200,700)*k,sh:_fR()<.35,s:_fRn(4,12)*k,r:_fR()*6,vr:_fRn(-5,5)}));
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),dir=t<flipT?1:-1;c.globalCompositeOperation='lighter';
+  for(const p of P){p.vy+=dir*1900*k*dt;p.vy*=Math.pow(.55,dt);p.y+=p.vy*dt;if(p.y>H+40)p.y=-30;if(p.y<-40)p.y=H+30;p.r+=p.vr*dt;
+   const len=Math.min(160*k,Math.abs(p.vy)*.07);c.globalAlpha=.6*fade;c.strokeStyle=dir>0?'#8ab8ff':'#ff9ad8';c.lineWidth=2;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x,p.y-Math.sign(p.vy)*len);c.stroke();
+   c.save();c.translate(p.x,p.y);c.rotate(p.r);c.globalAlpha=.9*fade;c.fillStyle=p.sh?'#e8e0ff':(dir>0?'#bcd8ff':'#ffc8ec');if(p.sh){c.beginPath();c.moveTo(0,-p.s);c.lineTo(p.s*.8,p.s*.6);c.lineTo(-p.s*.8,p.s*.6);c.fill();}else{c.beginPath();c.arc(0,0,p.s*.45,0,6.3);c.fill();}c.restore();}
+  const q=(t-flipT)/.5;if(q>0&&q<1){c.globalAlpha=(1-q)*fade;c.strokeStyle='#fff';c.lineWidth=8*(1-q)+1;c.beginPath();c.arc(W/2,H*.46,q*Math.max(W,H)*.7,0,6.3);c.stroke();c.fillStyle='#fff';c.globalAlpha=(1-q)*.45*fade;c.fillRect(0,0,W,H);}
+  c.globalCompositeOperation='source-over';c.globalAlpha=.7*fade;for(let i=0;i<6;i++){const x=W*(i+.5)/6,off=((t*260*k*dir)+i*140)%(H+80),y=dir>0?off:H-((off+H+80)%(H+80));c.fillStyle=dir>0?'rgba(120,160,255,.5)':'rgba(255,120,200,.5)';const s=22*k,d=dir>0?1:-1;c.beginPath();c.moveTo(x-s,y-d*s*.4);c.lineTo(x,y+d*s*.5);c.lineTo(x+s,y-d*s*.4);c.lineTo(x+s,y-d*s*.9);c.lineTo(x,y);c.lineTo(x-s,y-d*s*.9);c.fill();}
+  c.globalAlpha=1;};};
+FXS.cosmos=(W,H,D)=>{const cx=W/2,cy=H*.46,R=Math.max(W,H)*.75,k=Math.min(W,H)/600,St=Array.from({length:240},()=>({a:_fR()*6.283,r:Math.sqrt(_fR())*R,s:_fRn(1,3.2)*k,hue:_fRn(190,300)})),Ar=Array.from({length:3},(_,i)=>i*2.094),N2=Array.from({length:120},()=>({x:_fR()*W,y:_fR()*H*.8,tw:_fR()*9,s:_fRn(1,3)*k}));
+  let ang=0,last=0;
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);const w=.4+Math.pow(Math.min(t,1.3),3)*9;ang+=w*dt;c.globalCompositeOperation='lighter';
+  if(t<1.55){const out=1-_fSm(1.3,1.55,t);
+   c.globalAlpha=.5*out*fade;for(const a0 of Ar){c.strokeStyle='#b090ff';c.lineWidth=5*k;c.beginPath();for(let i=0;i<40;i++){const s=i/39,r=s*R*.8,aa=a0+ang*.6+s*3.2;const x=cx+Math.cos(aa)*r,y=cy+Math.sin(aa)*r*.6;i?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();}
+   fxGlow(c,cx,cy,170*k,'#ffe0a0',.6*out*fade);
+   for(const s of St){const a1=s.a+ang*(.6+.5*(1-s.r/R)),a0=a1-Math.min(.9,w*dt*6),x1=cx+Math.cos(a1)*s.r,y1=cy+Math.sin(a1)*s.r*.62,x0=cx+Math.cos(a0)*s.r,y0=cy+Math.sin(a0)*s.r*.62;c.globalAlpha=(.4+.6*(s.r/R))*out*fade;c.strokeStyle=`hsl(${s.hue+t*30},90%,${70+Math.min(20,w)}%)`;c.lineWidth=s.s;c.lineCap='round';c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);c.stroke();}}
+  const bang=_fSm(1.2,1.6,t);if(bang>0){const f=(t-1.2)/.7;if(f<1){c.globalAlpha=Math.min(1,(1-f)*1.6)*fade;c.fillStyle='#fff';c.beginPath();c.arc(cx,cy,f*R*1.3,0,6.3);c.fill();}
+   for(let j=0;j<3;j++){const q=(t-1.25-j*.12)/.7;if(q>0&&q<1){c.globalAlpha=(1-q)*fade;c.strokeStyle=['#ffe070','#ff8ad0','#7ae0ff'][j];c.lineWidth=7*(1-q)+1;c.beginPath();c.arc(cx,cy,q*R,0,6.3);c.stroke();}}}
+  if(t>1.5){const d=_fSm(1.5,2.1,t);const g=c.createLinearGradient(0,H,0,H*.25);g.addColorStop(0,`rgba(255,200,110,${.7*d*fade})`);g.addColorStop(.5,`rgba(255,110,170,${.4*d*fade})`);g.addColorStop(1,'rgba(90,60,200,0)');c.globalAlpha=1;c.fillStyle=g;c.fillRect(0,H*.25,W,H*.75);fxGlow(c,cx,H*.9-d*H*.12,(120+d*90)*k,'#fff2c0',.9*d*fade);
+   for(const s of N2){c.globalAlpha=d*fade*(.3+.7*Math.abs(Math.sin(t*3+s.tw)));c.fillStyle='#fff';c.beginPath();c.arc(s.x,s.y,s.s*.6,0,6.3);c.fill();}}
   c.globalAlpha=1;};};
 function fxStartScene(el,id,D){const mk=FXS[id];if(!mk||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches))return;const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=document.createElement('canvas');cv.width=W*dpr;cv.height=H*dpr;cv.style.cssText='position:absolute;inset:0;width:100%;height:100%';const c=cv.getContext('2d'),draw=mk(W,H,D),dim=el.querySelector('.cf-dim');if(dim)dim.after(cv);else el.prepend(cv);let last=performance.now(),t0=last;(function loop(now){if(!el.isConnected)return;const dt=Math.min(.05,(now-last)/1000);last=now;const t=(now-t0)/1000;c.setTransform(dpr,0,0,dpr,0,0);c.globalCompositeOperation='source-over';c.globalAlpha=1;c.shadowBlur=0;c.clearRect(0,0,W,H);try{draw(c,t,dt);}catch(e){if(!window.__fxe){window.__fxe=e.message;console.log("FXERR",id,e.message);}}requestAnimationFrame(loop);})(last);}
 let _callFxTimer=null,_skipSnd='';
@@ -4722,7 +4886,33 @@ const _sceneCache={};
 function sceneUri(name){return _sceneCache[name]||(_sceneCache[name]=_sceneUri(LOBBY_SCENES[name]()));}
 
 // 画面の形（縦長・横長）で見える範囲が変わるので、各風景の「見せたい高さ」を決めておく（%）
-const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50,lanterns:55,redmoon:40,pumpkinfield:60,haunted:55,xmasnight:60,newyearsun:55,heartnight:50,sakurastorm:45,milkyway:55,festival:55,moonviewing:50};
+// ===== 黄金の精神の背景（マンガ調：べた塗り・集中線・太い輪郭） =====
+const _jrays=(r,cx,cy,n,r0,r1,col,op)=>{let o='';for(let i=0;i<n;i++){const a=r()*6.283,w=.015+r()*.03,ra=r0+r()*(r1-r0);o+=`<path d="M${(cx+Math.cos(a-w)*r0).toFixed(0)} ${(cy+Math.sin(a-w)*r0).toFixed(0)}L${(cx+Math.cos(a)*(ra+r1*.5)).toFixed(0)} ${(cy+Math.sin(a)*(ra+r1*.5)).toFixed(0)}L${(cx+Math.cos(a+w)*r0).toFixed(0)} ${(cy+Math.sin(a+w)*r0).toFixed(0)}Z" fill="${col}" opacity="${op}"/>`;}return o;};
+const _jbg=(id,a,b)=>`<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+LOBBY_SCENES.redray=function(){const r=_rng(301);return `<defs>${_jbg('a','#2a0410','#8a0c24')}<radialGradient id="g"><stop offset="0" stop-color="#fff2d0"/><stop offset=".35" stop-color="#ff5a30"/><stop offset="1" stop-color="#ff2020" stop-opacity="0"/></radialGradient></defs><rect width="400" height="800" fill="url(#a)"/>${_jrays(r,200,650,70,60,380,'#ff6a50',.22)}
+<path d="M95 70L195 655L210 655Z" fill="#ff2a3a" opacity=".55"/><path d="M305 70L205 655L190 655Z" fill="#ff2a3a" opacity=".55"/><path d="M100 78L200 650" stroke="#fff" stroke-width="5" opacity=".9"/><path d="M300 78L200 650" stroke="#fff" stroke-width="5" opacity=".9"/>
+<circle cx="200" cy="655" r="150" fill="url(#g)"/><ellipse cx="200" cy="720" rx="220" ry="60" fill="#120208"/><g fill="none" stroke="#ff9a60" stroke-width="2" opacity=".35">${[1,2,3,4].map(i=>`<circle cx="200" cy="655" r="${40+i*34}"/>`).join('')}</g>${[0,1].map(s=>`<g transform="translate(${s?305:95} 70)"><circle r="26" fill="#ff1830" opacity=".8"/><circle r="12" fill="#fff"/></g>`).join('')}`;};
+LOBBY_SCENES.lightblade=function(){const r=_rng(311);let rb='';for(let i=0;i<28;i++){const x=300-i*7,y=150+i*14,a=-1.2+r()*.5;rb+=`<path d="M${x} ${y}L${(x+Math.cos(a)*420).toFixed(0)} ${(y+Math.sin(a)*420+300).toFixed(0)}" stroke="hsl(${(i*37)%360},100%,70%)" stroke-width="2" opacity=".5"/>`;}
+  return `<defs>${_jbg('a','#04162e','#0c5a8a')}</defs><rect width="400" height="800" fill="url(#a)"/>${rb}<path d="M430 130L60 640L90 660L440 170Z" fill="#e8fbff" stroke="#7ae0ff" stroke-width="3"/><path d="M60 640L20 700L90 660Z" fill="#fff"/>
+<path d="M-20 300L430 420" stroke="#fff" stroke-width="4"/><path d="M-20 318L430 438" stroke="#000" stroke-width="22" opacity=".55"/><path d="M-20 520L430 400" stroke="#fff" stroke-width="3"/>${[0,1,2,3,4,5,6].map(i=>`<path d="M${40+i*55} ${60+(i*131)%500}l16 -28 12 34z" fill="#d8f6ff" opacity=".8"/>`).join('')}`;};
+LOBBY_SCENES.chrono=function(){const r=_rng(321);let cr='';for(let i=0;i<16;i++){let a=i/16*6.283+r()*.2,x=200,y=420,d=`M200 420`;for(let j=0;j<7;j++){a+=(r()-.5)*.6;x+=Math.cos(a)*70;y+=Math.sin(a)*70;d+=`L${x.toFixed(0)} ${y.toFixed(0)}`;}cr+=`<path d="${d}" stroke="#d8f0ff" stroke-width="${(1+r()*2).toFixed(1)}" fill="none" opacity=".85"/>`;}let dr='';for(let i=0;i<40;i++){const x=r()*400,y=r()*800,s=3+r()*7;dr+=`<path d="M${x.toFixed(0)} ${(y-s*1.6).toFixed(0)}Q${(x+s).toFixed(0)} ${y.toFixed(0)} ${x.toFixed(0)} ${(y+s).toFixed(0)}Q${(x-s).toFixed(0)} ${y.toFixed(0)} ${x.toFixed(0)} ${(y-s*1.6).toFixed(0)}Z" fill="#cfe8ff" opacity=".8"/>`;}
+  return `<defs>${_jbg('a','#0a1624','#46688a')}<radialGradient id="g"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="400" height="800" fill="url(#a)"/><circle cx="200" cy="420" r="120" fill="url(#g)"/><circle cx="200" cy="420" r="210" fill="none" stroke="#e8f4ff" stroke-width="3" opacity=".4"/>${cr}${dr}`;};
+LOBBY_SCENES.tankbomb=function(){const r=_rng(331);const tk=(x,y,s,a)=>`<g transform="translate(${x} ${y}) rotate(${a}) scale(${s})" stroke="#000" stroke-width="2"><rect x="-18" y="-14" width="36" height="6" rx="3" fill="#2a2a30"/><rect x="-18" y="8" width="36" height="6" rx="3" fill="#2a2a30"/><rect x="-15" y="-9" width="30" height="18" rx="4" fill="#e8a030"/><circle cx="-2" cy="0" r="6.5" fill="#ffd070"/><rect x="4" y="-2" width="18" height="4" fill="#d88a20"/><circle cx="-9" cy="0" r="2.6" fill="#ff2a2a" stroke="none"/></g>`;
+  let t='';[[70,640,1.6,-50],[330,660,1.6,-130],[60,480,1.2,-30],[345,500,1.2,-150],[120,740,1.8,-70],[290,750,1.8,-110]].forEach(a=>t+=tk(...a));
+  return `<defs>${_jbg('a','#150602','#b84a10')}<radialGradient id="g"><stop offset="0" stop-color="#fff0c0"/><stop offset=".4" stop-color="#ff7020"/><stop offset="1" stop-color="#ff3000" stop-opacity="0"/></radialGradient></defs><rect width="400" height="800" fill="url(#a)"/>${_jrays(r,200,330,60,40,380,'#ffb050',.25)}<circle cx="200" cy="330" r="190" fill="url(#g)"/><path d="M200 150l22 80 70-40-30 78 82 10-70 50 60 60-80-10 12 80-66-60-66 60 12-80-80 10 60-60-70-50 82-10-30-78 70 40z" fill="#ffe070" stroke="#000" stroke-width="5" opacity=".92"/>${t}`;};
+LOBBY_SCENES.rewind=function(){const r=_rng(341);let ch='';for(let row=0;row<5;row++)for(let i=0;i<3;i++){const x=40+i*150-(row%2)*50,y=120+row*140;ch+=`<path d="M${x+120} ${y-45}L${x} ${y}L${x+120} ${y+45}Z" fill="${row%2?'#ff5ad0':'#4adcff'}" opacity=".5"/><path d="M${x+60} ${y-45}L${x-60} ${y}L${x+60} ${y+45}Z" fill="${row%2?'#4adcff':'#ff5ad0'}" opacity=".35"/>`;}let sl='';for(let y=0;y<800;y+=8)sl+=`<rect y="${y}" width="400" height="2" fill="#fff" opacity=".07"/>`;
+  return `<defs>${_jbg('a','#1a0630','#9a1a9a')}</defs><rect width="400" height="800" fill="url(#a)"/>${ch}${sl}<circle cx="200" cy="420" r="130" fill="none" stroke="#f0d0ff" stroke-width="6" opacity=".7"/><path d="M200 420L170 320M200 420L120 440" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".85"/><path d="M110 360A110 110 0 0 1 200 300" fill="none" stroke="#ffe03a" stroke-width="7"/><path d="M95 372L112 340L130 372Z" fill="#ffe03a"/>${[0,1,2].map(i=>`<rect y="${200+i*210}" width="400" height="${6+i*4}" fill="#bfe8ff" opacity=".25"/>`).join('')}`;};
+LOBBY_SCENES.erase=function(){let fr='';for(let i=0;i<9;i++){const x=10+i*43,er=i>=3&&i<6;fr+=er?`<rect x="${x}" y="150" width="38" height="60" fill="#fff" stroke="#000" stroke-width="3"/><path d="M${x+4} 160h30M${x+6} 175h20M${x+8} 190h28" stroke="#999" stroke-width="2" stroke-dasharray="3 3"/>`:`<rect x="${x}" y="150" width="38" height="60" fill="hsl(${i*40},75%,50%)" stroke="#000" stroke-width="3"/>`;}
+  return `<defs>${_jbg('a','#08080e','#1a1020')}</defs><rect width="400" height="800" fill="url(#a)"/><path d="M-20 700L420 340L420 400L-20 760Z" fill="#e0183a" opacity=".8"/><path d="M-20 600L420 240L420 270L-20 630Z" fill="#fff" opacity=".18"/>${fr}<g stroke="#000" stroke-width="3"><rect x="40" y="420" width="330" height="26" rx="4" fill="#fff"/><rect x="40" y="420" width="90" height="26" rx="4" fill="#ffe03a"/><rect x="250" y="420" width="120" height="26" rx="4" fill="#ffe03a"/></g><path d="M130 433h120" stroke="#e0183a" stroke-width="5" stroke-dasharray="7 6"/><path d="M130 480Q190 520 250 480" stroke="#ffe03a" stroke-width="5" fill="none"/><path d="M240 466l16 12-20 8z" fill="#ffe03a"/>${[0,1,2,3,4,5].map(i=>`<rect x="${130+i*20}" y="${545+(i%3)*14}" width="14" height="8" fill="${i%2?'#fff':'#444'}"/>`).join('')}`;};
+LOBBY_SCENES.disc=function(){const r=_rng(361);let d='';const rb=['#ff5ad0','#ffe05a','#5affc8','#5ab4ff','#c85aff','#ff5ad0'];for(let i=0;i<14;i++){const x=r()*400,y=60+r()*680,s=30+r()*70,a=r()*180,sy=.35+r()*.65;d+=`<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${a.toFixed(0)}) scale(1 ${sy.toFixed(2)})"><path d="M${s} 0A${s} ${s} 0 1 1 ${-s} 0A${s} ${s} 0 1 1 ${s} 0ZM${s*.18} 0A${s*.18} ${s*.18} 0 1 0 ${-s*.18} 0A${s*.18} ${s*.18} 0 1 0 ${s*.18} 0Z" fill="url(#rb)" fill-rule="evenodd" stroke="#000" stroke-width="3"/><path d="M0 0L${s*.9} ${-s*.3}A${s*.9} ${s*.9} 0 0 0 ${s*.5} ${-s*.75}Z" fill="#fff" opacity=".4"/></g>`;}
+  return `<defs>${_jbg('a','#05103a','#2a3aa0')}<linearGradient id="rb" x1="0" y1="0" x2="1" y2="1">${rb.map((c,i)=>`<stop offset="${i/5}" stop-color="${c}"/>`).join('')}</linearGradient></defs><rect width="400" height="800" fill="url(#a)"/>${_jrays(r,200,400,50,60,380,'#9ae4ff',.12)}${d}`;};
+LOBBY_SCENES.gravflip=function(){const r=_rng(371);let up='',dn='';for(let i=0;i<9;i++){const x=i*46,w=34+r()*10;up+=`<rect x="${x}" y="0" width="${w.toFixed(0)}" height="${(90+r()*170).toFixed(0)}" fill="#3a1050" stroke="#000" stroke-width="3"/>`;dn+=`<rect x="${x+20}" y="${(560+r()*120).toFixed(0)}" width="${w.toFixed(0)}" height="260" fill="#10205a" stroke="#000" stroke-width="3"/>`;}
+  let ar='';for(let i=0;i<7;i++){const x=30+i*55,y=300+((i*97)%260);ar+=`<path d="M${x} ${y}l18 26h-10v26h-16v-26h-10z" fill="#ffe03a" stroke="#000" stroke-width="2.5" opacity=".9"/>`;}let db='';for(let i=0;i<22;i++)db+=`<path d="M${(r()*400).toFixed(0)} ${(250+r()*350).toFixed(0)}l${(6+r()*10).toFixed(0)} ${(-14-r()*10).toFixed(0)} 6 12z" fill="#ffd0f0" opacity=".8"/>`;
+  return `<defs>${_jbg('a','#e0307a','#202a8a')}</defs><rect width="400" height="800" fill="url(#a)"/>${_jrays(r,200,430,60,50,380,'#fff',.1)}${up}${dn}<path d="M0 430H400" stroke="#fff" stroke-width="3" stroke-dasharray="10 8" opacity=".7"/>${ar}${db}`;};
+LOBBY_SCENES.cosmos=function(){const r=_rng(381);let sp='',st='';for(let a=0;a<3;a++){let d='';for(let i=0;i<60;i++){const s=i/59,rr=s*300,aa=a*2.094+s*4;d+=(i?'L':'M')+(200+Math.cos(aa)*rr).toFixed(0)+' '+(380+Math.sin(aa)*rr*.7).toFixed(0);}sp+=`<path d="${d}" stroke="#b090ff" stroke-width="9" fill="none" opacity=".55"/><path d="${d}" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>`;}
+  for(let i=0;i<110;i++){const x=r()*400,y=r()*640;st+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(.6+r()*1.8).toFixed(1)}" fill="#fff" opacity="${(.4+r()*.6).toFixed(2)}"/>`;}
+  return `<defs><radialGradient id="a" cx=".5" cy=".45" r=".8"><stop offset="0" stop-color="#3a1a80"/><stop offset=".6" stop-color="#120830"/><stop offset="1" stop-color="#05020f"/></radialGradient>${_jbg('d','#ff6aa8','#ffd070')}<radialGradient id="g"><stop offset="0" stop-color="#fff2c0"/><stop offset="1" stop-color="#ffb060" stop-opacity="0"/></radialGradient></defs><rect width="400" height="800" fill="url(#a)"/>${st}${sp}<circle cx="200" cy="380" r="60" fill="url(#g)"/><rect y="640" width="400" height="160" fill="url(#d)" opacity=".85"/><circle cx="200" cy="700" r="90" fill="url(#g)"/><path d="M0 720Q100 690 200 715T400 705V800H0Z" fill="#1a0a30" stroke="#000" stroke-width="3"/>`;};
+const FIELD_SCENE_FOCUS={sunset:62,ocean:45,aurora:38,forest:64,dunes:60,snowfield:62,fireflies:62,mountain:64,waves:58,sakuranight:40,nebula:45,galaxy:50,lanterns:55,redmoon:40,pumpkinfield:60,redray:55,lightblade:55,chrono:50,tankbomb:50,rewind:50,erase:50,disc:50,gravflip:50,cosmos:50,haunted:55,xmasnight:60,newyearsun:55,heartnight:50,sakurastorm:45,milkyway:55,festival:55,moonviewing:50};
 
 // ============================================================
 // 場の背景のアニメーション（風景の上に動きを重ねる）。座標は風景画と同じ 400x800 の世界で描く
@@ -5725,12 +5915,77 @@ function ltdIcon(it,has,big){
 }
 function isLimitedActive(){if(_ldDevPick())return true;const t=_loginToday();return t>=LIMITED_GACHA.start&&t<=LIMITED_GACHA.end;}
 // ガチャの景品プール（banner='limited'なら期間限定、それ以外は恒常）
+// ===== ガチャ「黄金の精神」：リーチ・ロン・上がりの演出が景品 =====
+GACHA_ITEMS.push(
+  {id:'fx_thread',rarity:'common',category:'fx',gold:1,fxKind:'riichi',fxId:'thread',icon:'🧵',title:'糸',desc:'リーチの演出：身体がほどけた糸が、縄のように伸びる'},
+  {id:'fx_bubble',rarity:'common',category:'fx',gold:1,fxKind:'riichi',fxId:'bubble',icon:'🫧',title:'シャボン玉',desc:'リーチの演出：音・水・摩擦を閉じ込めたシャボン玉が舞う'},
+  {id:'fx_aura',rarity:'uncommon',category:'fx',gold:1,fxKind:'riichi',fxId:'aura',icon:'👁️',title:'威圧',desc:'リーチの演出：紫のオーラと「ゴ」の文字が迫る'},
+  {id:'fx_sprout',rarity:'uncommon',category:'fx',gold:1,fxKind:'win',fxId:'sprout',icon:'🌱',title:'芽吹き',desc:'上がりの演出：石が花に変わり、つるが伸びて蝶が舞う'},
+  {id:'fx_rush',rarity:'rare',category:'fx',gold:1,fxKind:'ron',fxId:'rush',icon:'👊',title:'ラッシュ',desc:'ロンの演出：光る拳が次々と打ち込まれる'},
+  {id:'fx_claw',rarity:'rare',category:'fx',gold:1,fxKind:'ron',fxId:'claw',icon:'💅',title:'爪弾',desc:'ロンの演出：爪が弾丸のように撃ち出される'},
+  {id:'fx_mend',rarity:'rare',category:'fx',gold:1,fxKind:'win',fxId:'mend',icon:'🔧',title:'修復',desc:'上がりの演出：砕けた破片が戻り、金色に輝く'},
+  {id:'fx_heavyrain',rarity:'superrare',category:'fx',gold:1,fxKind:'ron',fxId:'heavyrain',icon:'🌧️',title:'重い雨',desc:'ロンの演出：重い雨粒が降り注ぎ、すべてを押しつぶす'},
+  {id:'fx_timestop',rarity:'superrare',category:'fx',gold:1,fxKind:'win',fxId:'timestop',icon:'⏱️',title:'時間停止',desc:'上がりの演出：時計の針が止まり、世界が静止する'}
+);
+GACHA_ITEMS.push(
+  {id:'fx_disc',rarity:'uncommon',category:'fx',gold:1,fxKind:'riichi',fxId:'disc',icon:'💿',title:'ディスク',desc:'リーチの演出：ディスクが飛び交い、光が走る'},
+  {id:'fx_gravflip',rarity:'rare',category:'fx',gold:1,fxKind:'riichi',fxId:'gravflip',icon:'🔃',title:'重力反転',desc:'リーチの演出：重力が逆さまになり、すべてが空へ落ちる'},
+  {id:'fx_erase',rarity:'superrare',category:'fx',gold:1,fxKind:'riichi',fxId:'erase',icon:'🎞️',title:'過程消去',desc:'リーチの演出：過程が消え、結果だけが残る'},
+  {id:'fx_lightblade',rarity:'rare',category:'fx',gold:1,fxKind:'ron',fxId:'lightblade',icon:'🗡️',title:'光刃',desc:'ロンの演出：腕から刃が伸び、光の反射が切り裂く'},
+  {id:'fx_tankbomb',rarity:'rare',category:'fx',gold:1,fxKind:'ron',fxId:'tankbomb',icon:'💣',title:'戦車爆弾',desc:'ロンの演出：熱を追う小さな戦車型爆弾が突っ込む'},
+  {id:'fx_redray',rarity:'superrare',category:'fx',gold:1,fxKind:'ron',fxId:'redray',icon:'👁️',title:'赤光線',desc:'ロンの演出：気化した体液が、目から赤い光線になる'},
+  {id:'fx_chronolock',rarity:'rare',category:'fx',gold:1,fxKind:'win',fxId:'chronolock',icon:'🧊',title:'止まった世界',desc:'上がりの演出：世界にひびが走り、すべてが静止する'},
+  {id:'fx_rewind',rarity:'superrare',category:'fx',gold:1,fxKind:'win',fxId:'rewind',icon:'⏪',title:'巻き戻し',desc:'上がりの演出：時間がするすると巻き戻る'},
+  {id:'fx_cosmos',rarity:'superrare',category:'fx',gold:1,fxKind:'win',fxId:'cosmos',icon:'🌌',title:'宇宙一巡',desc:'上がりの演出：宇宙が加速して一巡し、新しい世界が始まる'},
+  {id:'bg_disc',rarity:'uncommon',category:'fieldbg',type:'scene',gold:1,icon:'💿',title:'ディスクの海',desc:'場の背景：虹色に光るディスクが漂う',get value(){return sceneUri('disc');}},
+  {id:'bg_gravflip',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'🔃',title:'反転した街',desc:'場の背景：逆さまの街と、空へ向かう矢印',get value(){return sceneUri('gravflip');}},
+  {id:'bg_erase',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'🎞️',title:'消えたコマ',desc:'場の背景：途中のコマが消えたフィルム',get value(){return sceneUri('erase');}},
+  {id:'bg_lightblade',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'🗡️',title:'光の刃',desc:'場の背景：光の反射が空間を切り裂く',get value(){return sceneUri('lightblade');}},
+  {id:'bg_tankbomb',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'💣',title:'爆弾戦車隊',desc:'場の背景：熱を追って進む小さな戦車たち',get value(){return sceneUri('tankbomb');}},
+  {id:'bg_redray',rarity:'superrare',category:'fieldbg',type:'scene',gold:1,icon:'👁️',title:'赤い閃光',desc:'場の背景：二筋の赤い光線が一点を焼く',get value(){return sceneUri('redray');}},
+  {id:'bg_chrono',rarity:'superrare',category:'fieldbg',type:'scene',gold:1,icon:'🧊',title:'静止した世界',desc:'場の背景：ひび割れた世界と、宙に浮く雫',get value(){return sceneUri('chrono');}},
+  {id:'bg_rewind',rarity:'superrare',category:'fieldbg',type:'scene',gold:1,icon:'⏪',title:'巻き戻る時',desc:'場の背景：巻き戻しの矢印と逆回りの時計',get value(){return sceneUri('rewind');}},
+  {id:'bg_cosmos',rarity:'superrare',category:'fieldbg',type:'scene',gold:1,icon:'🌌',title:'宇宙の夜明け',desc:'場の背景：渦巻く宇宙と、新しい世界の夜明け',get value(){return sceneUri('cosmos');}}
+);
+var GOLD_FX={};GACHA_ITEMS.forEach(it=>{if(it.gold&&it.fxId)GOLD_FX[it.fxId]=it.id;});
+// ===== 黄金の精神のアイコン：太い輪郭・鮮やかな色・ハイライトのマンガ調（オリジナルの絵柄） =====
+const _GS='stroke="#000" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"';
+const GOLD_SVG={
+  thread:['#7a2cd0',`<circle cx="22" cy="27" r="12" fill="#ff7ac8" ${_GS}/><path d="M12 23Q22 15 32 25M11 29Q22 21 33 31M14 35Q24 29 31 37" fill="none" stroke="#000" stroke-width="1.6"/><path d="M32 22Q43 15 39 8Q35 4 31 10" fill="none" stroke="#000" stroke-width="5.6" stroke-linecap="round"/><path d="M32 22Q43 15 39 8Q35 4 31 10" fill="none" stroke="#ffe03a" stroke-width="3" stroke-linecap="round"/>`],
+  bubble:['#18b4d8',`<circle cx="24" cy="26" r="15" fill="#c8f6ff" ${_GS}/><path d="M33 34Q37 28 36 22" fill="none" stroke="#ff8ac8" stroke-width="3" stroke-linecap="round"/><path d="M13 22Q15 14 23 13" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="39" cy="11" r="4.5" fill="#e8fbff" ${_GS}/><circle cx="9" cy="12" r="3" fill="#e8fbff" ${_GS}/>`],
+  aura:['#8a1ab8',`<path d="M4 26Q24 8 44 26Q24 44 4 26Z" fill="#fff" ${_GS}/><circle cx="24" cy="26" r="8.5" fill="#d048ff" ${_GS}/><circle cx="24" cy="26" r="3.8" fill="#000"/><circle cx="21.5" cy="23.5" r="1.8" fill="#fff"/><path d="M5 15L24 6L43 15" fill="none" stroke="#000" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><text x="33" y="45" font-size="11" font-weight="900" fill="#ffe03a" stroke="#000" stroke-width="2" paint-order="stroke" font-family="serif">ゴ</text>`],
+  sprout:['#30b846',`<path d="M8 41L12 32L22 30L33 33L40 41Z" fill="#a6acb8" ${_GS}/><path d="M24 31Q24 24 24 17" fill="none" stroke="#000" stroke-width="5.4" stroke-linecap="round"/><path d="M24 31Q24 24 24 17" fill="none" stroke="#5ae04a" stroke-width="2.6" stroke-linecap="round"/><path d="M24 22Q11 23 10 10Q23 9 24 22Z" fill="#8af27a" ${_GS}/><path d="M24 18Q36 19 38 7Q25 6 24 18Z" fill="#8af27a" ${_GS}/>`],
+  rush:['#f09a10',`<path d="M13 23Q13 15 20 15H33Q40 15 40 23V30Q40 38 32 38H22Q13 38 13 30Z" fill="#ffd2a0" ${_GS}/><path d="M20 15V25M27 15V25M33.5 15V25" fill="none" stroke="#000" stroke-width="2"/><path d="M13 28Q6 28 8 33Q10 37 19 36" fill="#ffd2a0" ${_GS}/><path d="M3 14H10M2 22H8M3 30H9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>`],
+  claw:['#e0186e',`<path d="M43 24Q30 13 11 16L9 32Q30 35 43 24Z" fill="#ffd4ea" ${_GS}/><path d="M17 20Q27 19 34 22" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M2 18H8M2 24H6M2 30H8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M40 6L42 11L47 12L42 14L40 19L38 14L33 12L38 11Z" fill="#ffee50" ${_GS}/>`],
+  mend:['#f0b818',`<circle cx="24" cy="25" r="16" fill="#fff4c4" ${_GS}/><path d="M24 9L20 20L28 26L22 41" fill="none" stroke="#000" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 9L20 20L28 26L22 41" fill="none" stroke="#ff9a00" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M39 6L40.6 10L45 11L40.6 13L39 17L37.4 13L33 11L37.4 10Z" fill="#fff" ${_GS}/>`],
+  heavyrain:['#26359a',`<path d="M11 26Q5 26 5 20Q5 14 12 14Q14 7 24 8Q33 8 34 15Q43 15 43 21Q43 26 37 26Z" fill="#8a94d8" ${_GS}/><path d="M13 30Q18 36 13 41Q8 36 13 30Z" fill="#b4d8ff" ${_GS}/><path d="M24 31Q29 37 24 43Q19 37 24 31Z" fill="#b4d8ff" ${_GS}/><path d="M35 30Q40 36 35 41Q30 36 35 30Z" fill="#b4d8ff" ${_GS}/>`],
+  timestop:['#1e9a9a',`<circle cx="24" cy="25" r="16" fill="#fff8e0" ${_GS}/><circle cx="24" cy="25" r="19.5" fill="none" stroke="#ffe03a" stroke-width="2" stroke-dasharray="4 3.5"/><path d="M24 11V14M24 36V39M10 25H13M35 25H38" fill="none" stroke="#000" stroke-width="2.4"/><path d="M24 25V14" fill="none" stroke="#000" stroke-width="3.4" stroke-linecap="round"/><path d="M24 25L32 29" fill="none" stroke="#000" stroke-width="3.4" stroke-linecap="round"/><circle cx="24" cy="25" r="2.6" fill="#e0186e" ${_GS}/>`]
+};
+Object.assign(GOLD_SVG,{
+  redray:['#c01830',`<path d="M4 22Q24 6 44 22Q24 38 4 22Z" fill="#fff" ${_GS}/><circle cx="24" cy="22" r="8" fill="#ff2a3a" ${_GS}/><circle cx="24" cy="22" r="3.4" fill="#000"/><circle cx="21.6" cy="19.6" r="1.7" fill="#fff"/><path d="M14 30L8 44M34 30L40 44" fill="none" stroke="#000" stroke-width="6" stroke-linecap="round"/><path d="M14 30L8 44M34 30L40 44" fill="none" stroke="#ffd0d0" stroke-width="2.4" stroke-linecap="round"/>`],
+  lightblade:['#1a78b8',`<path d="M42 5L8 40L12 44L45 9Z" fill="#f0fcff" ${_GS}/><path d="M8 40L4 46L12 44Z" fill="#fff" ${_GS}/><path d="M22 8L25 14M32 18L38 18M14 20L8 18" fill="none" stroke="#ffe03a" stroke-width="2.4" stroke-linecap="round"/>`],
+  chronolock:['#3a5a7a',`<circle cx="24" cy="25" r="16" fill="#e8f6ff" ${_GS}/><path d="M24 9L20 19L28 25L21 33L26 41M28 25L38 22M20 19L10 16" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 12V25L32 29" fill="none" stroke="#3a7ab8" stroke-width="2.6" stroke-linecap="round"/>`],
+  tankbomb:['#c05010',`<g ${_GS}><rect x="6" y="14" width="36" height="6" rx="3" fill="#2a2a30"/><rect x="6" y="34" width="36" height="6" rx="3" fill="#2a2a30"/><rect x="9" y="19" width="30" height="16" rx="4" fill="#ffc050"/><circle cx="22" cy="27" r="6.5" fill="#ffe090"/><rect x="26" y="25" width="17" height="4" fill="#e89020"/></g><circle cx="14" cy="27" r="2.6" fill="#ff2a2a"/><path d="M40 8L42 12L46 13L42 15L40 19L38 15L34 13L38 12Z" fill="#ffee50" ${_GS}/>`],
+  rewind:['#8a1a9a',`<path d="M26 11L6 25L26 39Z" fill="#ff7ad8" ${_GS}/><path d="M44 11L24 25L44 39Z" fill="#7ae0ff" ${_GS}/>`],
+  erase:['#2a2030',`<rect x="3" y="14" width="12" height="16" fill="#ff6a50" ${_GS}/><rect x="18" y="14" width="12" height="16" fill="#fff" stroke="#e0183a" stroke-width="2.2" stroke-dasharray="3 3"/><rect x="33" y="14" width="12" height="16" fill="#ffe03a" ${_GS}/><path d="M6 38Q24 48 42 38" fill="none" stroke="#000" stroke-width="5.4" stroke-linecap="round"/><path d="M6 38Q24 48 42 38" fill="none" stroke="#ffe03a" stroke-width="2.6" stroke-linecap="round"/><path d="M38 34L45 39L36 43Z" fill="#ffe03a" ${_GS}/>`],
+  disc:['#2a3aa8',`<path d="M24 6A18 18 0 1 1 24 42A18 18 0 1 1 24 6ZM24 21A4 4 0 1 0 24 29A4 4 0 1 0 24 21Z" fill="#7ae0ff" fill-rule="evenodd" ${_GS}/><path d="M24 24L38 17A16 16 0 0 0 28 8Z" fill="#fff" opacity=".6"/><path d="M12 20A13 13 0 0 1 20 12" fill="none" stroke="#ff7ad8" stroke-width="3" stroke-linecap="round"/><path d="M36 30A13 13 0 0 1 28 38" fill="none" stroke="#ffe03a" stroke-width="3" stroke-linecap="round"/>`],
+  gravflip:['#c0307a',`<path d="M16 6L6 18H13V30H19V18H26Z" fill="#ffe03a" ${_GS}/><path d="M32 42L42 30H35V18H29V30H22Z" fill="#7ae0ff" ${_GS}/>`],
+  cosmos:['#2a1a6a',`<circle cx="24" cy="25" r="7" fill="#ffe8a0" ${_GS}/><path d="M24 25Q30 10 40 14M24 25Q10 22 8 34M24 25Q34 38 22 44" fill="none" stroke="#000" stroke-width="6.4" stroke-linecap="round"/><path d="M24 25Q30 10 40 14M24 25Q10 22 8 34M24 25Q34 38 22 44" fill="none" stroke="#c0a0ff" stroke-width="3" stroke-linecap="round"/><circle cx="38" cy="38" r="2" fill="#fff"/><circle cx="9" cy="10" r="1.6" fill="#fff"/>`]
+});
+function goldIcon(id){const g=GOLD_SVG[id];if(!g)return '';return `<svg viewBox="0 0 48 48" style="width:1em;height:1em;display:inline-block;vertical-align:-.14em"><rect x="1.5" y="1.5" width="45" height="45" rx="7" fill="${g[0]}" stroke="#000" stroke-width="3"/><path d="M4 4H30L4 30Z" fill="#fff" opacity=".2"/><g fill="#fff" opacity=".28"><circle cx="41" cy="6" r="1.1"/><circle cx="37" cy="6" r="1.1"/><circle cx="41" cy="10" r="1.1"/><circle cx="43" cy="14" r="1.1"/><circle cx="6" cy="42" r="1.1"/><circle cx="10" cy="42" r="1.1"/><circle cx="6" cy="38" r="1.1"/></g>${g[1]}</svg>`;}
+GACHA_ITEMS.forEach(it=>{if(it.gold){const key=it.fxId||it.id.replace('bg_','').replace('chrono','chronolock');it.icon=goldIcon(key)||it.icon;}});
+
+function equipFxItem(id){const it=GACHA_ITEMS.find(x=>x.id===id);if(!it||!it.fxKind)return;if(!loadGachaState().owned.includes(id))return;
+  const o=loadMyFx();o[it.fxKind]=(o[it.fxKind]===it.fxId)?'default':it.fxId;try{localStorage.setItem('rikka_fx',JSON.stringify(o));}catch(e){}
+  syncMyFx();renderGachaCollection();try{refreshCustomize();}catch(e){}}
+function previewFxItem(id){const it=GACHA_ITEMS.find(x=>x.id===id);if(it&&it.fxKind)showCallFx(it.fxKind,myName(),'見本',{[it.fxKind]:it.fxId});}
 function gachaPool(rarity,banner){
+  if(banner==='gold'){const p=GACHA_ITEMS.filter(it=>it.gold&&it.rarity===rarity);return p.length?p:GACHA_ITEMS.filter(it=>it.gold);}
   if(banner==='limited'){
     const p=GACHA_ITEMS.filter(it=>it.rarity===rarity&&(it.limited===LIMITED_GACHA.id||LIMITED_GACHA.existing.includes(it.id)));
     if(p.length)return p;
   }
-  return GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar&&!it.limited&&!it.event&&!it.limited);
+  return GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar&&!it.limited&&!it.event&&!it.gold);
 }
 backfillAchievementRewards();
 const GACHA_RARITY_INFO={
@@ -5798,6 +6053,7 @@ function pickGachaRarity(){
 let _gachaBatch=null;
 const RARITY_ORDER={common:0,uncommon:1,rare:2,superrare:3};
 function drawGachaMulti(n,banner='std'){
+  _lastBanner=banner;
   if(banner==='limited'&&!isLimitedActive()){toast('期間限定ガチャは終了しました');return;}
   const cost=GACHA_COST*n;
   if(loadPetals()<cost){toast('花びらが足りません');return;}
@@ -5848,7 +6104,9 @@ function showGachaSummary(b){
   document.body.appendChild(el);
   try{if(typeof soundEnabled!=='undefined')gfxRevealSound(cnt.superrare?'superrare':cnt.rare?'rare':'uncommon');}catch(e){}
 }
+var _lastBanner='std';
 function drawGacha(banner='std'){
+  _lastBanner=banner;
   if(banner==='limited'&&!isLimitedActive()){toast('期間限定ガチャは終了しました');return;}
   const petals=loadPetals();
   if(petals<GACHA_COST){ toast('花びらが足りません'); return; }
@@ -6035,6 +6293,9 @@ function startGachaFx(item,isDup){
   Object.assign(_gfx,{timers:[],stage:'charge',item,isDup,parts:[],rarity:item.rarity,tell:false});
   cv.width=window.innerWidth; cv.height=window.innerHeight;
   el.className=''; el.dataset.rarity=item.rarity;
+  {const old=el.querySelector('.gfx-gogo');if(old)old.remove();
+   if(_lastBanner==='gold'){el.classList.add('gold-fx');const go=document.createElement('div');go.className='gfx-gogo';
+    go.innerHTML=Array.from({length:14},(_,i)=>`<span style="left:${(i*37+6)%90}%;top:${(i*53+4)%86}%;font-size:${2.2+(i%4)*1.1}rem;--r:${(i%5-2)*6}deg">ゴ</span>`).join('');el.prepend(go);}}
   el.style.setProperty('--gc',cfg.color); el.style.setProperty('--gc2',cfg.color2);
   el.style.setProperty('--charge-ms',chargeMs+'ms');
   const orb=document.getElementById('gfx-orb');
@@ -6060,6 +6321,7 @@ function gfxBurst(){
   gfxAfter({common:450,uncommon:550,rare:750,superrare:1100}[_gfx.rarity],()=>gfxReveal());
 }
 function gfxPreviewHtml(it){
+  if(it.category==='fx')return `<div class="gfx-prev-title">${{riichi:'リーチ',ron:'ロン',win:'上がり'}[it.fxKind]}の演出</div>`;
   if(it.category==='fieldbg'){
     const bg=fieldBgPreviewCss(it);
     return `<div class="gfx-prev" style="width:150px;height:76px;background:${bg}"></div>`;
@@ -6078,7 +6340,7 @@ function gfxReveal(){
   gfxStopChargeSound();
   const el=document.getElementById('gacha-fx'),cfg=GFX_CFG[_gfx.rarity],item=_gfx.item,info=GACHA_RARITY_INFO[item.rarity];
   _gfx.stage='reveal'; el.classList.remove('st-charge','st-burst'); el.classList.add('st-reveal');
-  const st=loadGachaState(),canUse=st.owned.includes(item.id)&&st.equipped[item.category]!==item.id;
+  const st=loadGachaState(),canUse=st.owned.includes(item.id)&&(item.category==='fx'?myFxId(item.fxKind)!==item.fxId:st.equipped[item.category]!==item.id);
   const canAgain=loadPetals()>=GACHA_COST;
   const stars=Array.from({length:cfg.stars},(_,i)=>`<span style="animation-delay:${.5+i*.12}s">★</span>`).join('');
   document.getElementById('gfx-cardwrap').innerHTML=`
@@ -6108,7 +6370,7 @@ function skipGachaFx(){
 }
 function gfxEquipNow(){
   const it=_gfx.item; if(!it)return;
-  equipGachaItem(it.category,it.id);
+  if(it.category==='fx'){const o=loadMyFx();o[it.fxKind]=it.fxId;try{localStorage.setItem('rikka_fx',JSON.stringify(o));}catch(e){}syncMyFx();renderGachaCollection();try{refreshCustomize();}catch(e){}}else equipGachaItem(it.category,it.id);
   const b=document.getElementById('gfx-equip-btn');
   if(b){b.textContent='✔ 使用中';b.disabled=true;}
 }
@@ -6123,7 +6385,7 @@ function closeGachaFx(){
   }
   if(_gfxPendingAch.length){const l=_gfxPendingAch;_gfxPendingAch=[];setTimeout(()=>showAchievementPopup(l),400);}
 }
-function gfxAgain(){ closeGachaFx(); drawGacha(); }
+function gfxAgain(){ closeGachaFx(); drawGacha(_lastBanner); }
 
 function showGachaResult(item,isDup){
   const info=GACHA_RARITY_INFO[item.rarity];
@@ -6141,8 +6403,9 @@ function renderGachaCollection(){
   const st=loadGachaState();
   const owned=new Set(st.owned);
   const groups={};
-  const _lim=_gachaView==='limited';
-  GACHA_ITEMS.filter(it=>_lim?(it.limited===LIMITED_GACHA.id||LIMITED_GACHA.existing.includes(it.id)):(!it.achievement&&!it.loginStar&&!it.limited&&!it.event)).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
+  const _lim=_gachaView==='limited',_gold=_gachaView==='gold';
+  try{document.getElementById('gacha').classList.toggle('gold-mode',_gold);}catch(e){}
+  GACHA_ITEMS.filter(it=>_lim?(it.limited===LIMITED_GACHA.id||LIMITED_GACHA.existing.includes(it.id)):_gold?!!it.gold:(!it.achievement&&!it.loginStar&&!it.limited&&!it.event&&!it.gold)).forEach(it=>{ (groups[it.rarity]=groups[it.rarity]||[]).push(it); });
   let html='';
   for(const [rarity,info] of Object.entries(GACHA_RARITY_INFO)){
     const items=groups[rarity]||[];
@@ -6150,10 +6413,13 @@ function renderGachaCollection(){
     html+=`<div class="gacha-rarity-title" style="color:${info.color}">${esc(info.label)}</div>`;
     html+=items.map(it=>{
       const has=owned.has(it.id);
-      const isEquipped=st.equipped[it.category]===it.id;
-      const btn=has?`<button class="gacha-equip-btn${isEquipped?' gacha-equipped':''}" onclick="equipGachaItem('${it.category}','${it.id}')">${isEquipped?'使用中':'使う'}</button>`:'';
+      const isFx=it.category==='fx';
+      const isEquipped=isFx?myFxId(it.fxKind)===it.fxId:st.equipped[it.category]===it.id;
+      const onc=isFx?`equipFxItem('${it.id}')`:`equipGachaItem('${it.category}','${it.id}')`;
+      let btn=has?`<button class="gacha-equip-btn${isEquipped?' gacha-equipped':''}" onclick="${onc}">${isEquipped?'使用中':'使う'}</button>`:'';
+      if(isFx)btn=`<div style="display:flex;flex-direction:column;gap:.3rem">${btn}<button class="gacha-equip-btn" onclick="previewFxItem('${it.id}')">見る</button></div>`;
       return `<div class="gacha-item${has?' gacha-owned':''}">
-        <div class="gacha-item-icon${_lim?' ltd':''}">${_lim?ltdIcon(it,has):(has?itemIconHtml(it):'🔒')}</div>
+        <div class="gacha-item-icon${(_lim||_gold)?' ltd':''}">${(_lim||_gold)?ltdIcon(it,has):(has?itemIconHtml(it):'🔒')}</div>
         <div class="gacha-item-body">
           <div class="gacha-item-title">${esc(it.title)}</div>
           <div class="gacha-item-desc">${esc(it.desc)}</div>
@@ -6163,7 +6429,7 @@ function renderGachaCollection(){
     }).join('');
   }
   // 実績の報酬（ガチャには出ない）
-  const rw=_lim?[]:GACHA_ITEMS.filter(it=>it.achievement);
+  const rw=(_lim||_gold)?[]:GACHA_ITEMS.filter(it=>it.achievement);
   if(rw.length){
     html+=`<div class="gacha-rarity-title" style="color:#ffd978">🏅 実績の報酬</div>`;
     html+=rw.map(it=>{
@@ -6178,7 +6444,7 @@ function renderGachaCollection(){
     }).join('');
   }
   // 過去の期間限定景品（入手済みのものは期間終了後も残る）
-  const _past=_lim?[]:GACHA_ITEMS.filter(it=>it.limited&&owned.has(it.id));
+  const _past=(_lim||_gold)?[]:GACHA_ITEMS.filter(it=>it.limited&&owned.has(it.id));
   if(_past.length){
     html+=`<div class="gacha-rarity-title" style="color:#ffd978">✨ 期間限定景品（入手済み）</div>`;
     html+=_past.map(it=>{
@@ -6259,16 +6525,19 @@ function openGacha(){
   const toStd=()=>{if(bn)bn.scrollLeft=0;updateGachaDots();};
   toStd();requestAnimationFrame(toStd);
 }
+function fillJoBanner(){const e=document.getElementById('jo-banner-icons');if(e&&!e.innerHTML)e.innerHTML=['aura','rush','timestop'].map(goldIcon).join(' ');}
 function updateGachaDots(){
+  fillJoBanner();
   const el=document.getElementById('gacha-dots'),bn=document.getElementById('gacha-banners');
   if(!el||!bn)return;
-  if(!isLimitedActive()){el.style.display='none';if(_gachaView!=='std'){_gachaView='std';renderGachaCollection();}return;}
+  const vs=['std'].concat(isLimitedActive()?['limited']:[]).concat(['gold']);
   if(!bn.clientWidth)return; // 画面が非表示のあいだは判定しない
-  const on=bn.scrollLeft>bn.clientWidth/2?1:0;
-  const v=on?'limited':'std';
+  const idx=Math.max(0,Math.min(vs.length-1,Math.round(bn.scrollLeft/bn.clientWidth)));
+  const v=vs[idx];
   if(v!==_gachaView){_gachaView=v;renderGachaCollection();}
   el.style.display='block';
-  el.innerHTML=`<i class="${on?'':'on'}"></i><i class="${on?'on':''}"></i><br>${on?'← 恒常ガチャへ':'期間限定ガチャ開催中！ 横にスワイプ →'}`;
+  const hint=idx===0?(isLimitedActive()?'期間限定ガチャ開催中！ ':'')+'横にスワイプで他のガチャへ →':(idx===vs.length-1?'← 他のガチャへ':'← 恒常ガチャ　黄金の精神 →');
+  el.innerHTML=vs.map((_,k)=>`<i class="${k===idx?'on':''}"></i>`).join('')+'<br>'+hint;
 }
 function closeGacha(){ showScreen('lobby'); }
 
@@ -6276,6 +6545,8 @@ function closeGacha(){ showScreen('lobby'); }
 // お届けBOX
 // ============================================================
 const GIFTBOX_ITEMS=[
+  {id:'info_gold_gacha2', info:true, title:'🌟 「黄金の精神」に景品を追加', desc:'演出に、赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡を追加しました。\nあわせて、場の背景も9種追加しています（ディスクの海・反転した街・消えたコマ・光の刃・爆弾戦車隊・赤い閃光・静止した世界・巻き戻る時・宇宙の夜明け）。'},
+  {id:'info_gold_gacha', info:true, title:'🌟 新ガチャ「黄金の精神」', desc:'ガチャ画面を横にスワイプすると「黄金の精神」が出ます。\nリーチ・ロン・上がりの演出（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き）が当たります。\n引いた演出は、カスタマイズの「演出」で選べます。'},
   {id:'apology_ltd_items_1000', title:'🙇 お詫びと補填：花びら1000枚', desc:'期間限定ガチャで入手したアイテムが、期間終了後に表示されず、消えたように見える不具合がありました。ご迷惑とご心配をおかけし、誠に申し訳ございません。\n入手済みの景品は消えておらず、ガチャ画面の「期間限定景品（入手済み）」からいつでも装備できるように修正しました。\nお詫びとして、花びら1000枚をお届けします（お一人様1回限り）。', petals:1000},
   {id:'google_welcome_1000', title:'🎉 今だけ！花びら1000枚プレゼント', desc:'Googleでログインしている方への特典です（お一人様1回限り）', petals:1000, condition:'google'},
   {id:'login_catchup_500', title:'🌸 ログインボーナス追加記念 花びら500枚', desc:'これまでログインしてくれた分のお礼です（お一人様1回限り）', petals:500},
@@ -6967,7 +7238,7 @@ function renderCustomize(){
     let h=`<div class="custom-sub">リーチ・ロン・上がりの演出を選べます。選ぶとプレビューが流れます（対戦相手の画面にも、あなたが選んだ演出で出ます）</div>`;
     [['riichi','リーチ'],['ron','ロン'],['win','上がり']].forEach(([k,lab])=>{
       h+=`<div class="custom-sub" style="margin-top:.8rem;color:#c9a84c;font-weight:700">${lab}の演出</div><div class="custom-list">`;
-      h+=FX_STYLES[k].map(s=>{const sel=myFxId(k)===s.id;return `<button class="custom-row${sel?' sel':''}" onclick="selectFx('${k}','${s.id}')"><div class="ic">${s.icon}</div><div class="tx">${esc(s.name)}</div>${sel?'<span class="chk">✔</span>':''}</button>`;}).join('');
+      h+=FX_STYLES[k].map(s=>{const gid=GOLD_FX[s.id];if(gid&&!owned.has(gid))return `<button class="custom-row locked" onclick="showCallFx('${k}',myName(),'見本',{${k}:'${s.id}'})"><div class="ic">🔒</div><div class="tx">${esc(s.name)}<div class="ds">「黄金の精神」ガチャで入手（タップで見本）</div></div></button>`;const sel=myFxId(k)===s.id;return `<button class="custom-row${sel?' sel':''}" onclick="selectFx('${k}','${s.id}')"><div class="ic">${GOLD_SVG[s.id]?goldIcon(s.id):s.icon}</div><div class="tx">${esc(s.name)}</div>${sel?'<span class="chk">✔</span>':''}</button>`;}).join('');
       h+='</div>';
     });
     body.innerHTML=h;
@@ -7017,7 +7288,7 @@ function renderCustomize(){
     let h='<div class="custom-sub">場の背景（自分の番のとき）</div><div class="custom-grid">';
     h+=`<button class="custom-card${noneSel?' sel':''}" onclick="selectFieldBgPreset('')">
       ${noneSel?'<span class="chk">✔</span>':''}<div class="sw-bg" style="background:#1a1410">🟫</div><div class="nm">デフォルト</div></button>`;
-    h+=GACHA_ITEMS.filter(it=>it.category==='fieldbg'&&((!it.limited&&!it.event)||owned.has(it.id))).map(it=>{
+    h+=GACHA_ITEMS.filter(it=>it.category==='fieldbg'&&((!it.limited&&!it.event&&!it.gold)||owned.has(it.id))).map(it=>{
       const has=owned.has(it.id);
       const sel=has&&!hasCustom&&eq===it.id;
       const bg=!has?'#1a1410':fieldBgPreviewCss(it);
@@ -9052,7 +9323,7 @@ function _wpick(items){
 }
 function botRandomBg(prev){ // prev：直前の背景（同じものが続けて出ないようにする）
   if(Math.random()<.1&&prev)return ''; // ときどき、初期の背景
-  const pool=GACHA_ITEMS.filter(it=>it.category==='fieldbg'&&!it.event&&!it.loginStar&&!it.achievement);
+  const pool=GACHA_ITEMS.filter(it=>it.category==='fieldbg'&&!it.event&&!it.loginStar&&!it.achievement&&!it.gold);
   if(!pool.length)return '';
   for(let k=0;k<6;k++){const v='preset:'+_wpick(pool).id;if(v!==prev)return v;}
   return '';
