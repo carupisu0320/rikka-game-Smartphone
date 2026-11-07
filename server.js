@@ -265,9 +265,9 @@ const TITLE_IDS = new Set(['title_first', 'title_zoro', 'title_apprentice', 'tit
 // 実績の報酬の称号は 'title_a_<実績ID>' の形
 // 演出（リーチ・ロン・上がり）の選択。許可した名前だけを通す
 const FX_STYLE_IDS = {
-  riichi: new Set(['default', 'flame', 'sakura', 'ice', 'thunder', 'aura', 'thread', 'bubble', 'erase', 'disc', 'gravflip', 'forest']),
-  ron:    new Set(['default', 'crimson', 'void', 'gold', 'ocean', 'rush', 'claw', 'heavyrain', 'redray', 'lightblade', 'tankbomb', 'jade']),
-  win:    new Set(['default', 'fireworks', 'confetti', 'star', 'royal', 'timestop', 'mend', 'sprout', 'chronolock', 'rewind', 'cosmos', 'rainbow']),
+  riichi: new Set(['default', 'flame', 'sakura', 'ice', 'thunder', 'aura', 'thread', 'bubble', 'erase', 'disc', 'gravflip', 'forest', 'scoop', 'zipper', 'frostsuit', 'kickshot', 'dive']),
+  ron:    new Set(['default', 'crimson', 'void', 'gold', 'ocean', 'rush', 'claw', 'heavyrain', 'redray', 'lightblade', 'tankbomb', 'jade', 'virus', 'magnet', 'rapier', 'strafe']),
+  win:    new Set(['default', 'fireworks', 'confetti', 'star', 'royal', 'timestop', 'mend', 'sprout', 'chronolock', 'rewind', 'cosmos', 'rainbow', 'weather', 'book', 'cure', 'dino', 'stillrain']),
 };
 function sanitizeFx(fx) {
   const o = {};
