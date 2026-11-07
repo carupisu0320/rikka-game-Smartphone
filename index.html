@@ -909,28 +909,48 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 /* ガチャ「黄金の精神」：マンガ調の見た目（網点・集中線・太い輪郭・ゴゴゴ） */
 @keyframes joTrem{0%,100%{transform:translate(0,0) rotate(var(--r,0deg))}25%{transform:translate(2px,-2px) rotate(var(--r,0deg))}50%{transform:translate(-2px,1px) rotate(var(--r,0deg))}75%{transform:translate(1px,2px) rotate(var(--r,0deg))}}
 @keyframes joFlash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
-.gacha-main.jo-main{position:relative;overflow:hidden;background-color:#3a0a68;background-image:radial-gradient(circle,rgba(255,255,255,.22) 1.6px,transparent 2.2px),repeating-conic-gradient(from 0deg at 50% 42%,rgba(255,255,255,.09) 0 5deg,transparent 5deg 13deg),linear-gradient(150deg,#3a0a68,#c0186e 55%,#ff9a1a);background-size:11px 11px,auto,auto;border:3px solid #fff;border-radius:6px;box-shadow:5px 5px 0 #000,0 0 0 3px #ffd020;transform:rotate(-1deg);margin:.5rem .4rem}
+/* 表紙の配色（青・赤・緑）。ガチャ画面を開くたびにランダムで変わり、栞のマークをタップすると切り替わる */
+:root{--jc:#1e4fc4;--jc-d:#0e2c80;--jc-dd:#081a52;--jc-cream:#f4ecd0;--jc-ink:#0a0a12}
+:root[data-jc=red]{--jc:#d4261c;--jc-d:#8e140f;--jc-dd:#580a07}
+:root[data-jc=green]{--jc:#1f8a57;--jc-d:#10563a;--jc-dd:#0a3524}
+/* ガチャ「黄金の精神」：単行本の表紙風（べた塗り・三角形・星・ギザギザ三角の飾り・黒い帯） */
+.gacha-main.jo-main{position:relative;overflow:hidden;background:var(--jc);border:3px solid var(--jc-ink);border-radius:3px;padding:1.1rem 1.1rem 1.1rem;margin:.5rem .4rem;transition:background .35s}
+.jo-main::before{content:"";position:absolute;inset:6px;border:2px solid var(--jc-cream);pointer-events:none;z-index:0}
 .jo-main>*{position:relative;z-index:1}
-.jo-main>.jo-go{position:absolute;z-index:0;font-weight:900;font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:rgba(255,230,80,.6);-webkit-text-stroke:1.5px rgba(0,0,0,.75);animation:joTrem .22s linear infinite;pointer-events:none;line-height:1}
-.jo-title{font-size:2.3rem;font-weight:900;font-style:italic;color:#ffe03a;-webkit-text-stroke:2.5px #000;paint-order:stroke fill;text-shadow:3px 3px 0 #e0186e,6px 6px 0 #000;letter-spacing:.12em;transform:skew(-8deg);margin:.1rem 0 .3rem;animation:joFlash 1.6s ease-in-out infinite}
-.jo-tag{display:inline-block;background:#000;color:#ffe03a;font-weight:900;font-size:.78rem;padding:.12rem .8rem;transform:skew(-10deg);letter-spacing:.1em;border:2px solid #ffe03a;margin-bottom:.3rem}
-.jo-lead{font-size:.86rem;font-weight:900;color:#fff;-webkit-text-stroke:.6px #000;paint-order:stroke fill;text-shadow:2px 2px 0 #000;margin:.2rem 0}
-.jo-main .gacha-draw-btn{background:linear-gradient(180deg,#ffee50,#ffb010);color:#1a0030;border:3px solid #000;border-radius:4px;box-shadow:4px 4px 0 #000;transform:skew(-6deg);font-weight:900;letter-spacing:.1em}
-.jo-main .gacha-multi-btn{border:3px solid #000;border-radius:4px;box-shadow:4px 4px 0 #000;transform:skew(-6deg);background:linear-gradient(180deg,#5af0e0,#20b0c8);color:#05202a}
-.jo-main .gacha-multi-btn.big{background:linear-gradient(180deg,#ff8ac8,#e0186e);color:#fff;-webkit-text-stroke:.4px #000}
-.jo-main .gacha-cost{color:#ffe9c0;font-weight:700;text-shadow:1px 1px 0 #000}
-#gacha.gold-mode{background-color:#12041f;background-image:radial-gradient(circle,rgba(255,255,255,.07) 1.4px,transparent 2px),linear-gradient(180deg,#240842,#0a0212);background-size:12px 12px,auto}
-.gold-mode .gacha-title{color:#ffe03a;font-style:italic;-webkit-text-stroke:1.5px #000;paint-order:stroke fill;text-shadow:2px 2px 0 #e0186e}
-.gold-mode .gacha-rarity-title{font-size:1rem!important;color:#ffe03a!important;font-style:italic;font-weight:900;-webkit-text-stroke:.4px #000;border-top-color:#e0186e;text-shadow:1px 1px 0 #000}
-.gold-mode .gacha-item{border:2px solid #000;border-radius:4px;box-shadow:3px 3px 0 #e0186e;background:#1e0836}
-.gold-mode .gacha-item.gacha-owned{border-color:#ffd020;background:#34104f}
-.gold-mode .gacha-item-title{color:#fff!important;font-weight:900}
-.gold-mode .gacha-item-desc{color:#d0b8f0}
-.gold-mode .gacha-dots i.on{background:#ffe03a}
-.gold-mode .gacha-item-title{font-size:.95rem!important;font-style:italic;font-weight:900;letter-spacing:.06em;color:#ffe4f6!important;text-shadow:2px 0 #3a0a50,-2px 0 #3a0a50,0 2px #3a0a50,0 -2px #3a0a50,2px 2px 0 #3a0a50,-2px -2px 0 #3a0a50,2px -2px 0 #3a0a50,-2px 2px 0 #3a0a50,3px 3px 0 #e0186e}
+.jo-main>.jo-zz,.jo-main>.jo-corner{position:absolute;z-index:0}
+.jo-zz{top:4.2rem;height:180px;width:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='60' viewBox='0 0 26 60'%3E%3Cpolygon points='2,2 24,15 2,28' fill='%23f4ecd0' stroke='%230a0a12' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpolygon points='2,32 24,45 2,58' fill='%230a0a12' stroke='%23f4ecd0' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") repeat-y;opacity:.95}
+.jo-zz.l{left:16px}
+.jo-zz.r{right:16px;transform:scaleX(-1)}
+.jo-corner{top:14px;width:1.9rem;height:1.9rem;border-radius:50%;background:var(--jc-cream);border:3px solid var(--jc-ink);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--jc-ink);line-height:1}
+.jo-corner.l{left:16px}.jo-corner.r{right:16px}
+.jo-stars{font-size:.62rem;letter-spacing:.55em;color:var(--jc-cream);text-shadow:1px 1px 0 var(--jc-ink);margin:0;padding-left:.55em}
+.jo-title{font-size:2.15rem;font-weight:900;color:var(--jc-cream);-webkit-text-stroke:1.5px var(--jc-ink);paint-order:stroke fill;text-shadow:3px 3px 0 var(--jc-ink);letter-spacing:.14em;margin:.15rem 0 .25rem;padding-left:.14em;font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
+.jo-tri{position:relative;width:min(100%,18.5rem);aspect-ratio:200/150;margin:.1rem auto 0;z-index:1}
+.jo-tri svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.jo-tri .t1{fill:var(--jc-dd);stroke:var(--jc-ink);stroke-width:5;stroke-linejoin:round;transition:fill .35s}
+.jo-tri .t2{fill:none;stroke:var(--jc-cream);stroke-width:2.5;stroke-linejoin:round}
+.jo-tri-star{position:absolute;left:0;right:0;top:34%;font-size:1.5rem;color:var(--jc-cream);text-shadow:2px 2px 0 var(--jc-ink);line-height:1}
+#jo-banner-icons{position:absolute;left:0;right:0;bottom:8%;display:flex;justify-content:center;align-items:center;gap:.35rem;font-size:2.5rem;filter:drop-shadow(2px 2px 0 var(--jc-ink))}
+.jo-band{display:flex;align-items:center;justify-content:center;gap:.7rem;height:1.9rem;margin:.95rem -1.1rem 1.15rem;background:var(--jc-ink);color:var(--jc-cream);font-weight:900;font-size:.8rem;letter-spacing:.32em;z-index:1}
+.jo-band span{flex:1}.jo-band span:first-child{text-align:right}.jo-band span:last-child{text-align:left}
+.jo-emblem{flex:none;width:3.3rem;height:3.3rem;border-radius:50%;background:var(--jc-cream);color:var(--jc-ink);border:4px solid var(--jc-ink);box-shadow:0 0 0 2px var(--jc-cream),0 0 0 4px var(--jc-ink);font:900 1.5rem/1 'Hiragino Mincho ProN','Yu Mincho',serif;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+.jo-emblem:active{transform:scale(.94)}
+.jo-lead{font-size:.8rem;font-weight:900;color:var(--jc-cream);text-shadow:2px 2px 0 var(--jc-ink);margin:.1rem 0 .5rem;letter-spacing:.04em}
+.jo-main .gacha-draw-btn{background:var(--jc-cream);color:var(--jc-ink);border:3px solid var(--jc-ink);border-radius:2px;box-shadow:4px 4px 0 var(--jc-ink);font-weight:900;letter-spacing:.12em}
+.jo-main .gacha-multi-btn{border:3px solid var(--jc-cream);border-radius:2px;box-shadow:4px 4px 0 var(--jc-ink);background:var(--jc-ink);color:var(--jc-cream)}
+.jo-main .gacha-multi-btn.big{background:#ffd84a;color:var(--jc-ink);border-color:var(--jc-ink)}
+.jo-main .gacha-cost{color:var(--jc-cream);font-weight:700;text-shadow:1px 1px 0 var(--jc-ink)}
+#gacha.gold-mode{background-color:var(--jc-dd);background-image:radial-gradient(circle,rgba(255,255,255,.07) 1.4px,transparent 2px);background-size:12px 12px;transition:background-color .35s}
+.gold-mode .gacha-title{color:var(--jc-cream);-webkit-text-stroke:1.5px var(--jc-ink);paint-order:stroke fill;text-shadow:2px 2px 0 var(--jc)}
+.gold-mode .gacha-rarity-title{font-size:1rem!important;color:var(--jc-cream)!important;font-weight:900;letter-spacing:.12em;-webkit-text-stroke:.4px var(--jc-ink);border-top-color:var(--jc);text-shadow:1px 1px 0 var(--jc-ink)}
+.gold-mode .gacha-item{border:2px solid var(--jc-ink);border-radius:2px;box-shadow:3px 3px 0 var(--jc);background:var(--jc-d)}
+.gold-mode .gacha-item.gacha-owned{border-color:var(--jc-cream);background:var(--jc)}
+.gold-mode .gacha-item-desc{color:var(--jc-cream);opacity:.8}
+.gold-mode .gacha-dots i.on{background:var(--jc-cream)}
+.gold-mode .gacha-item-title{font-size:.95rem!important;font-weight:900;letter-spacing:.06em;color:var(--jc-cream)!important;text-shadow:2px 0 var(--jc-ink),-2px 0 var(--jc-ink),0 2px var(--jc-ink),0 -2px var(--jc-ink),2px 2px 0 var(--jc-ink),-2px -2px 0 var(--jc-ink),2px -2px 0 var(--jc-ink),-2px 2px 0 var(--jc-ink),3px 3px 0 var(--jc)}
 .gold-mode .gacha-item-icon.ltd .ltd-ttl{font-size:2.1rem}
 .gold-mode .gacha-item-icon.ltd{width:52px;height:52px}
-#gacha-fx.gold-fx{background:radial-gradient(circle at 50% 42%,#7a1a96 0%,#2e0648 55%,#0a0214 100%)}
+#gacha-fx.gold-fx{background:radial-gradient(circle at 50% 42%,var(--jc) 0%,var(--jc-d) 55%,var(--jc-dd) 100%)}
 .gfx-gogo{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .gfx-gogo span{position:absolute;font-weight:900;font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:rgba(255,230,80,.5);-webkit-text-stroke:2px rgba(0,0,0,.7);animation:joTrem .2s linear infinite;line-height:1}
 @media (prefers-reduced-motion:reduce){.jo-main>.jo-go,.gfx-gogo span,.jo-title{animation:none}}
@@ -1794,14 +1814,20 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   </div>
   <div class="gacha-banner" id="gacha-banner-gold">
   <div class="gacha-main jo-main">
-    <span class="jo-go" style="left:6px;top:4px;font-size:2.6rem;--r:-8deg">ゴ</span><span class="jo-go" style="right:8px;top:10px;font-size:2rem;--r:7deg">ゴ</span><span class="jo-go" style="left:12px;bottom:60px;font-size:1.8rem;--r:5deg">ゴ</span><span class="jo-go" style="right:6px;bottom:84px;font-size:2.8rem;--r:-6deg">ゴ</span><span class="jo-go" style="left:46%;bottom:2px;font-size:1.6rem;--r:4deg">ゴ</span>
-    <div class="jo-tag">NEW GACHA</div>
+    <i class="jo-zz l"></i><i class="jo-zz r"></i>
+    <span class="jo-corner l">★</span><span class="jo-corner r">★</span>
+    <div class="jo-stars">★★★ NEW GACHA ★★★</div>
     <div class="jo-title">黄金の精神</div>
+    <div class="jo-tri">
+      <svg viewBox="0 0 200 150" preserveAspectRatio="none" aria-hidden="true"><polygon class="t1" points="100,4 197,146 3,146"/><polygon class="t2" points="100,17 184,139 16,139"/></svg>
+      <div class="jo-tri-star">★</div>
+      <div id="jo-banner-icons"></div>
+    </div>
+    <div class="jo-band"><span>RIKKA</span><button class="jo-emblem" onclick="cycleJoCover()" aria-label="表紙の色を変える">六</button><span>GACHA</span></div>
     <div class="jo-lead">リーチ・ロン・上がりの「演出」と「背景」が当たる！</div>
-    <div id="jo-banner-icons" style="font-size:2.6rem;letter-spacing:.35rem;margin:.3rem 0;filter:drop-shadow(3px 3px 0 #000)"></div>
     <button class="gacha-draw-btn" onclick="drawGacha('gold')">黄金の精神を引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'gold')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'gold')">100連<small>🌸 1000</small></button></div>
-    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：演出26種（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き・赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡・削り取る・ジッパー・絶対零度・殺人ウイルス・磁力の刃・天候・命令の本・癒しの料理）と、場の背景9種</div>
+    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：動くプレイヤーアイコン6種、演出32種（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き・赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡・削り取る・ジッパー・絶対零度・殺人ウイルス・磁力の刃・天候・命令の本・癒しの料理・目にも留まらぬ剣技・蹴り弾・機銃掃射と爆撃・潜り込み・恐竜化・静止する雨）と、場の背景13種</div>
   </div>
   </div>
   </div>
@@ -6202,6 +6228,199 @@ GACHA_ITEMS.push(
   {id:'bg_rewind',rarity:'superrare',category:'fieldbg',type:'scene',gold:1,icon:'⏪',title:'巻き戻る時',desc:'場の背景：巻き戻しの矢印と逆回りの時計',get value(){return sceneUri('rewind');}},
   {id:'bg_cosmos',rarity:'superrare',category:'fieldbg',type:'scene',gold:1,icon:'🌌',title:'宇宙の夜明け',desc:'場の背景：渦巻く宇宙と、新しい世界の夜明け',get value(){return sceneUri('cosmos');}}
 );
+// ===== 黄金の精神 第4弾：プレイヤーアイコン6種（動く）・演出6種・背景4種（すべてオリジナルの絵柄）=====
+const _DN={up:'M10 48Q12 36 28 32Q44 18 66 24Q88 30 92 52L88 56H34Q20 56 10 52Z',lo:'M14 58Q40 62 88 58L92 70Q60 86 20 70Z'};
+const _G4S='stroke="#0a0e18" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"';
+// ---- アイコン1：甲冑の剣士（剣技→甲冑を脱ぎ捨てる→加速して残像）----
+GICON_SVG.gi_knight=function(){
+  const S=_G4S;
+  const head=`<path d="M50 20Q60 6 76 12Q64 16 60 26Z" fill="#e23648" ${S}/><path d="M37 46Q37 24 50 22Q63 24 63 46V56Q63 63 50 65Q37 63 37 56Z" fill="#c4cfde" ${S}/><rect x="40" y="40" width="20" height="5" rx="1.5" fill="#0c1018"/><path d="M50 24V40M44 52H56" stroke="#7d8ca2" stroke-width="1.6" fill="none"/>`;
+  const cloth=`<path d="M31 100L34 76Q50 68 66 76L69 100Z" fill="#33437a" ${S}/><path d="M50 72V100" stroke="#8fa4e0" stroke-width="1.6"/>`;
+  const ghost=(dx,dl)=>`<g transform="translate(${dx} 0)"><g style="animation:knGh 6s ease-in-out ${dl}s infinite;opacity:0">${cloth}${head}</g></g>`;
+  let ln='';for(let i=0;i<7;i++)ln+=`<path d="M${4+i*14} ${8+(i%3)*6}L${14+i*14} ${(i%3)*6+30}" stroke="#fff" stroke-width=".8" opacity=".25"/>`;
+  return _giSvg(_giRG('#2c4070','#060814'),`<style>
+@keyframes knGh{0%,42%{opacity:0}52%{opacity:.42}90%{opacity:.34}100%{opacity:0}}
+@keyframes knPl{0%,40%{opacity:1}46%,96%{opacity:0}100%{opacity:1}}
+@keyframes knPaL{0%,40%{transform:translate(0,0) rotate(0);opacity:1}62%{transform:translate(-34px,-16px) rotate(-80deg);opacity:0}96%{opacity:0}100%{transform:none;opacity:1}}
+@keyframes knPaR{0%,40%{transform:translate(0,0) rotate(0);opacity:1}62%{transform:translate(34px,-16px) rotate(80deg);opacity:0}96%{opacity:0}100%{transform:none;opacity:1}}
+@keyframes knSw{0%,40%{transform:translate(0,0)}6%{transform:translate(-6px,6px)}14%{transform:translate(1px,-1px)}22%{transform:translate(-5px,5px)}30%{transform:translate(0,0)}48%{transform:translate(-7px,7px)}52%{transform:translate(2px,-2px)}56%{transform:translate(-7px,7px)}60%{transform:translate(2px,-2px)}64%{transform:translate(-7px,7px)}68%{transform:translate(0,0)}78%{transform:translate(-7px,7px)}84%{transform:translate(2px,-2px)}90%{transform:translate(-7px,7px)}100%{transform:translate(0,0)}}
+@keyframes knFl{0%,100%{opacity:0}8%{opacity:1}24%{opacity:0}}
+@keyframes knSh{0%,100%{transform:translateX(0)}50%{transform:translateX(-2px)}}
+</style>${ln}${ghost(-22,0)}${ghost(-11,.05)}${ghost(22,.1)}${ghost(11,.15)}
+<g style="animation:knSh .5s linear infinite">${cloth}
+<g style="animation:knPl 6s ease-in-out infinite"><path d="M31 100L34 74Q50 66 66 74L69 100Z" fill="#8d9db4" ${S}/><path d="M50 70V100M40 82Q50 88 60 82" stroke="#4b5a72" stroke-width="1.8" fill="none"/></g>
+<g style="animation:knPaL 6s ease-in-out infinite;transform-origin:29px 75px"><ellipse cx="29" cy="75" rx="12" ry="8" fill="#b4c2d6" ${S}/></g>
+<g style="animation:knPaR 6s ease-in-out infinite;transform-origin:71px 75px"><ellipse cx="71" cy="75" rx="12" ry="8" fill="#b4c2d6" ${S}/></g>
+${head}</g>
+<g style="animation:knSw 6s linear infinite"><path d="M70 92L96 30" stroke="#f4f8ff" stroke-width="3" stroke-linecap="round"/><path d="M70 92L96 30" stroke="#0a0e18" stroke-width=".8"/><path d="M63 86L77 93" stroke="#e0b030" stroke-width="3.4" stroke-linecap="round"/><circle cx="68" cy="95" r="3.2" fill="#e0b030" ${S}/></g>
+<path d="M10 34Q46 6 90 26" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" style="animation:knFl 1.5s linear infinite"/><path d="M8 62Q40 40 92 58" stroke="#bfe0ff" stroke-width="2" fill="none" stroke-linecap="round" style="animation:knFl 1.5s linear .5s infinite"/><path d="M16 14Q50 30 88 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" style="animation:knFl 1.5s linear 1s infinite"/>`);};
+// ---- アイコン2：弾丸を操る6人の小さなスタンド ----
+GICON_SVG.gi_bullets=function(){
+  const S=_G4S,cols=['#ff5a5a','#ffb030','#ffe84a','#5ad878','#4aa8ff','#c070ff'],pos=[[20,68],[50,80],[80,68],[22,32],[50,22],[80,32]];
+  let f='';pos.forEach(([x,y],i)=>f+=`<g style="animation:bHop 1.8s ease-in-out ${(i*.3).toFixed(1)}s infinite"><g transform="translate(${x} ${y})"><ellipse cy="10" rx="5.5" ry="1.8" fill="#000" opacity=".3"/><rect x="-3.4" y="1.5" width="6.8" height="7.5" rx="2.2" fill="${cols[i]}" ${S}/><circle cy="-3" r="5.2" fill="#ffdcb4" ${S}/><path d="M-5.8-4Q0-12.5 5.8-4Z" fill="${cols[i]}" ${S}/><circle cx="-1.9" cy="-2.4" r="1" fill="#000"/><circle cx="1.9" cy="-2.4" r="1" fill="#000"/></g></g>`);
+  const P='M22 56L50 70L80 56L26 42L50 36L80 44L50 54Z';let b='';
+  [0,.14,.28,.42].forEach((d,i)=>b+=`<g opacity="${(1-i*.25).toFixed(2)}"><ellipse rx="${5.5-i}" ry="${2.8-i*.4}" fill="#ffd34a" stroke="#000" stroke-width="1.4"/><path d="M5 0L10 0" stroke="#fff" stroke-width="1" opacity="0"/><animateMotion dur="3.6s" begin="-${d}s" repeatCount="indefinite" rotate="auto" path="${P}"/></g>`);
+  let k='';[[22,56],[50,70],[80,56],[26,42],[50,36],[80,44]].forEach(([x,y],i)=>k+=`<path d="M${x} ${y-6}L${x+1.6} ${y-1.6}L${x+6} ${y}L${x+1.6} ${y+1.6}L${x} ${y+6}L${x-1.6} ${y+1.6}L${x-6} ${y}L${x-1.6} ${y-1.6}Z" fill="#fff" style="animation:tw 1.8s ease-in-out ${(i*.3).toFixed(1)}s infinite"/>`);
+  return _giSvg(_giRG('#42205e','#08030f'),`<style>@keyframes bHop{0%,100%{transform:translateY(0)}18%{transform:translateY(-6px)}36%{transform:translateY(0)}}</style><path d="${P}" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="2 3" opacity=".3"/>${k}${f}${b}`);};
+// ---- アイコン3：プロペラ機（機銃・爆撃・二酸化炭素レーダー）----
+GICON_SVG.gi_plane=function(){
+  const S=_G4S;let co='';[[16,92,0],[34,95,.8],[56,93,1.6],[78,96,.4],[90,92,1.2]].forEach(([x,y,d])=>co+=`<circle cx="${x}" cy="${y}" r="1.8" fill="#a8ffc8" style="animation:rise 3s ease-out ${d}s infinite"/>`);
+  return _giSvg(_giLG('#2a2a6a','#f2915a'),`<style>@keyframes pf{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.35)}}@keyframes dsh{to{stroke-dashoffset:-9}}@keyframes bomb{0%{transform:translate(0,0) rotate(0);opacity:1}70%{opacity:1}100%{transform:translate(8px,46px) rotate(40deg);opacity:0}}@keyframes pBob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-3px) rotate(1.5deg)}}</style>
+<path d="M0 100V84Q20 74 40 84T80 82T100 80V100Z" fill="#150a22"/>${co}
+<circle cx="58" cy="40" r="6" fill="none" stroke="#7affa8" stroke-width="1.6"><animate attributeName="r" from="6" to="52" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" from=".85" to="0" dur="2.4s" repeatCount="indefinite"/></circle>
+<circle cx="58" cy="40" r="6" fill="none" stroke="#7affa8" stroke-width="1.6"><animate attributeName="r" from="6" to="52" dur="2.4s" begin="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" from=".85" to="0" dur="2.4s" begin="1.2s" repeatCount="indefinite"/></circle>
+<g style="animation:pBob 2.2s ease-in-out infinite;transform-origin:50px 40px">
+<g style="animation:bomb 2.4s ease-in infinite"><ellipse cx="50" cy="52" rx="3.2" ry="5" fill="#2a2a36" ${S}/><path d="M47 49L45 46M53 49L55 46" stroke="#000" stroke-width="1.6"/></g>
+<path d="M82 46L98 62" stroke="#ffe060" stroke-width="2.4" stroke-dasharray="4 5" style="animation:dsh .45s linear infinite"/>
+<path d="M22 44L10 34L16 32L30 40Z" fill="#a8b24a" ${S}/><path d="M24 44Q26 36 42 36H66Q76 36 82 42Q76 50 66 50H40Q28 50 24 44Z" fill="#cdd672" ${S}/><path d="M42 42L52 22H62L56 42Z" fill="#a8b24a" ${S}/><ellipse cx="58" cy="36" rx="6.5" ry="4" fill="#8ae0ff" ${S}/><circle cx="36" cy="44" r="3" fill="#d83a3a"/>
+<ellipse class="o" cx="83" cy="42" rx="1.8" ry="11" fill="#fff" opacity=".75" style="animation:pf .12s linear infinite"/><circle cx="82" cy="42" r="2.4" fill="#e0b030" ${S}/></g>`);};
+// ---- アイコン4：潜り込む（体の中へ潜り、ダメージを肩代わり）----
+GICON_SVG.gi_dive=function(){
+  const S=_G4S;let rp='';[0,.8,1.6].forEach(d=>rp+=`<ellipse cx="50" cy="70" rx="12" ry="3.5" fill="none" stroke="#7af0ff" stroke-width="1.6"><animate attributeName="rx" from="12" to="46" dur="2.4s" begin="${d}s" repeatCount="indefinite"/><animate attributeName="ry" from="3.5" to="13" dur="2.4s" begin="${d}s" repeatCount="indefinite"/><animate attributeName="opacity" from=".9" to="0" dur="2.4s" begin="${d}s" repeatCount="indefinite"/></ellipse>`);
+  return _giSvg(_giLG('#0c3446','#031018'),`<style>@keyframes dvF{0%,100%{transform:translateY(26px)}30%,62%{transform:translateY(-4px)}}@keyframes dvSp{0%{transform:translate(-34px,-26px) scale(1.2);opacity:1}55%{transform:translate(0,0) scale(.6);opacity:1}100%{transform:translate(0,0) scale(.1);opacity:0}}@keyframes dvEy{0%,100%{opacity:.5}50%{opacity:1}}</style>
+<defs><clipPath id="dc"><rect x="0" y="0" width="100" height="71"/></clipPath></defs>
+<ellipse cx="50" cy="70" rx="38" ry="11" fill="#06212e"/>${rp}
+<g clip-path="url(#dc)"><g style="animation:dvF 3.6s ease-in-out infinite"><path d="M22 96Q24 62 50 58Q76 62 78 96Z" fill="#cfe4f2" ${S}/><circle cx="50" cy="42" r="14" fill="#e6f2fa" ${S}/><path d="M36 38Q50 24 64 38" fill="#7fa0b8" ${S}/><circle cx="44" cy="43" r="2.6" fill="#38e8ff" style="animation:dvEy 1.2s infinite"/><circle cx="56" cy="43" r="2.6" fill="#38e8ff" style="animation:dvEy 1.2s infinite"/></g></g>
+<path d="M12 71Q50 84 88 71" fill="none" stroke="#7af0ff" stroke-width="2.4" stroke-linecap="round"/>
+<g style="animation:dvSp 3.6s ease-in infinite;transform-origin:50px 56px"><path d="M50 50L53 56L59 58L53 60L50 66L47 60L41 58L47 56Z" fill="#ffb347" ${S}/></g>`);};
+// ---- アイコン5：恐竜化（野性の牙・鋭い嗅覚・動体視力）----
+GICON_SVG.gi_dino=function(){
+  const S=_G4S;let tu='',tl='';for(let i=0;i<7;i++){const x=16+i*10;tu+=`<path d="M${x} 56L${x+4} 56L${x+2} 63Z" fill="#fff" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>`;tl+=`<path d="M${x+3} 59L${x+7} 59L${x+5} 52Z" fill="#fff" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>`;}
+  let st='';[[34,0],[44,1],[54,2],[64,3]].forEach(([x,i])=>st+=`<path d="M${x} ${30-i}L${x+4} ${50}" stroke="#1c5a1c" stroke-width="3.2" stroke-linecap="round" opacity=".7"/>`);
+  return _giSvg(_giRG('#d8701c','#2a0c06'),`<style>@keyframes dnJ{0%,55%,100%{transform:rotate(0)}70%,86%{transform:rotate(15deg)}}@keyframes dnH{0%,100%{transform:translate(0,0)}70%{transform:translate(-2px,-2px) rotate(-2deg)}}@keyframes dnP{0%{transform:translate(0,0) scale(.4);opacity:.85}100%{transform:translate(-14px,-20px) scale(1.7);opacity:0}}@keyframes dnE{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.55)}}</style>
+<path d="M0 100V78Q14 66 26 80Q40 62 52 78Q66 64 80 78Q92 70 100 80V100Z" fill="#1a3a14"/>
+<g style="animation:dnH 2.6s ease-in-out infinite;transform-origin:88px 56px"><path d="M84 40L96 28L92 46Z" fill="#2a8a2a" ${S}/><path d="${_DN.up}" fill="#52b04a" ${S}/>${st}<path d="M6 50Q2 46 6 42L14 44L12 52Z" fill="#52b04a" ${S}/>
+<g style="animation:dnJ 2.6s ease-in-out infinite;transform-origin:88px 58px"><path d="${_DN.lo}" fill="#3a8a3a" ${S}/>${tl}</g>${tu}
+<path d="M44 34Q56 28 72 34" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/><circle cx="62" cy="40" r="6.4" fill="#ffe030" ${S}/><ellipse class="o" cx="62" cy="40" rx="1.8" ry="5.2" fill="#000" style="animation:dnE 2.6s ease-in-out infinite"/><circle cx="60" cy="37.5" r="1.4" fill="#fff"/><ellipse cx="17" cy="44" rx="2.4" ry="1.6" fill="#0a2a0a"/></g>
+<circle cx="14" cy="42" r="3" fill="#fff" style="animation:dnP 2.6s ease-out infinite"/><circle cx="14" cy="42" r="3" fill="#fff" style="animation:dnP 2.6s ease-out 1.3s infinite"/>`);};
+// ---- アイコン6：空中で止まった雨（刃・雨の上を歩く・体が雨に溶ける）----
+GICON_SVG.gi_stillrain=function(){
+  const S=_G4S;let a=7,rnd=()=>(a=(a*16807)%2147483647)/2147483647,dr='';
+  for(let i=0;i<30;i++){const x=rnd()*100,y=rnd()*92,s=.6+rnd()*.9;dr+=`<path d="M${x.toFixed(1)} ${(y-5*s).toFixed(1)}L${(x+1.7*s).toFixed(1)} ${y.toFixed(1)}L${x.toFixed(1)} ${(y+3.2*s).toFixed(1)}L${(x-1.7*s).toFixed(1)} ${y.toFixed(1)}Z" fill="#dcefff" style="animation:tw ${(1.6+rnd()*2.4).toFixed(1)}s ease-in-out ${(rnd()*2).toFixed(1)}s infinite"/>`;}
+  let stp='';[[16,90],[32,80],[48,70],[64,60]].forEach(([x,y])=>stp+=`<path d="M${x} ${y-6}L${x+4.4} ${y}L${x} ${y+4}L${x-4.4} ${y}Z" fill="#bfe2ff" ${S}/>`);
+  return _giSvg(_giLG('#4f6286','#121a2e'),`<style>@keyframes rnG{0%,100%{opacity:1}50%{opacity:.45}}@keyframes rnB{0%{transform:translateX(-80px);opacity:0}6%{opacity:1}26%{transform:translateX(80px);opacity:0}100%{transform:translateX(80px);opacity:0}}@keyframes rnW{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}</style>${dr}${stp}
+<g style="animation:rnW .8s ease-in-out infinite"><g style="animation:rnG 2.4s ease-in-out infinite"><circle cx="64" cy="38" r="6" fill="#26385e" stroke="#cfe8ff" stroke-width="1.6"/><path d="M58 46Q64 42 70 46L71 55H57Z" fill="#26385e" stroke="#cfe8ff" stroke-width="1.6" stroke-linejoin="round"/><path d="M60 55L58 60M68 55L71 59" stroke="#cfe8ff" stroke-width="4.6" stroke-linecap="round"/><path d="M60 55L58 60M68 55L71 59" stroke="#26385e" stroke-width="2.6" stroke-linecap="round"/><path d="M60 30L60 62M64 28L64 62M68 30L68 62" stroke="#bfe2ff" stroke-width=".8" opacity=".7"/></g></g>
+<g style="animation:rnB 3.4s linear infinite"><path d="M6 22L56 18" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M52 16L66 18L52 21Z" fill="#fff"/></g><g style="animation:rnB 3.4s linear 1.7s infinite"><path d="M10 46L52 40" stroke="#dff0ff" stroke-width="1.8" stroke-linecap="round"/><path d="M48 38L60 40L48 43Z" fill="#dff0ff"/></g>`);};
+
+// ---- 演出の登録（画面の演出一覧に出る名前・色）----
+FX_STYLES.riichi.push(
+  {id:'kickshot',name:'蹴り弾',icon:'🔫',c1:'#ffd34a',c2:'#fff4c0',bg:'rgba(30,12,48,.9)',dm:'rgba(36,14,58,.45)',mode:'burst'},
+  {id:'dive',name:'潜り込み',icon:'🌀',c1:'#7af0ff',c2:'#e8fbff',bg:'rgba(4,24,34,.9)',dm:'rgba(6,30,42,.45)',mode:'burst'});
+FX_STYLES.ron.push(
+  {id:'rapier',name:'目にも留まらぬ剣技',icon:'⚔️',c1:'#cfe4ff',c2:'#ffffff',bg:'rgba(8,12,34,.9)',dm:'rgba(10,16,44,.45)',mode:'burst'},
+  {id:'strafe',name:'機銃掃射と爆撃',icon:'✈️',c1:'#ffd060',c2:'#fff4d0',bg:'rgba(10,26,16,.9)',dm:'rgba(12,32,20,.45)',mode:'burst'});
+FX_STYLES.win.push(
+  {id:'dino',name:'恐竜化',icon:'🦖',c1:'#ffb040',c2:'#fff0c0',bg:'rgba(34,14,4,.9)',dm:'rgba(42,18,6,.45)',mode:'burst'},
+  {id:'stillrain',name:'静止する雨',icon:'🌧️',c1:'#bfe2ff',c2:'#ffffff',bg:'rgba(12,18,34,.9)',dm:'rgba(16,24,44,.45)',mode:'burst'});
+// ---- 景品の登録 ----
+GACHA_ITEMS.push(
+  {id:'gi_bullets',rarity:'uncommon',category:'gicon',gold:1,icon:'🔫',title:'六人の弾丸小隊',desc:'アイコン：弾丸を蹴って軌道を変える、6人の小さな意思たち（動く）',value:'gi_bullets'},
+  {id:'gi_dive',rarity:'uncommon',category:'gicon',gold:1,icon:'🌀',title:'潜り込む影',desc:'アイコン：体の中へ潜り込み、ダメージを肩代わりする（動く）',value:'gi_dive'},
+  {id:'gi_plane',rarity:'rare',category:'gicon',gold:1,icon:'✈️',title:'プロペラの爆撃機',desc:'アイコン：機銃と爆撃、そして吐息を探るレーダー（動く）',value:'gi_plane'},
+  {id:'gi_stillrain',rarity:'rare',category:'gicon',gold:1,icon:'🌧️',title:'空中に止まる雨',desc:'アイコン：雨粒は刃になり、雨の上を歩き、体は雨に溶ける（動く）',value:'gi_stillrain'},
+  {id:'gi_knight',rarity:'superrare',category:'gicon',gold:1,icon:'⚔️',title:'疾風の甲冑剣士',desc:'アイコン：目にも留まらぬ剣技。甲冑を脱ぎ捨てると加速し、残像が生まれる（動く）',value:'gi_knight'},
+  {id:'gi_dino',rarity:'superrare',category:'gicon',gold:1,icon:'🦖',title:'恐竜化の咆哮',desc:'アイコン：鋭い嗅覚と動体視力を得た、野性の牙（動く）',value:'gi_dino'},
+  {id:'fx_dive',rarity:'uncommon',category:'fx',gold:1,fxKind:'riichi',fxId:'dive',icon:'',title:'潜り込み',desc:'リーチの演出：影のように潜り込み、ダメージを引き受ける'},
+  {id:'fx_kickshot',rarity:'rare',category:'fx',gold:1,fxKind:'riichi',fxId:'kickshot',icon:'',title:'蹴り弾',desc:'リーチの演出：弾丸を蹴り、あり得ない角度から撃ち抜く'},
+  {id:'fx_strafe',rarity:'rare',category:'fx',gold:1,fxKind:'ron',fxId:'strafe',icon:'',title:'機銃掃射と爆撃',desc:'ロンの演出：プロペラ機が機銃掃射と爆撃を浴びせる'},
+  {id:'fx_stillrain',rarity:'rare',category:'fx',gold:1,fxKind:'win',fxId:'stillrain',icon:'',title:'静止する雨',desc:'上がりの演出：降る雨が空中で止まり、刃となって走る'},
+  {id:'fx_rapier',rarity:'superrare',category:'fx',gold:1,fxKind:'ron',fxId:'rapier',icon:'',title:'目にも留まらぬ剣技',desc:'ロンの演出：甲冑を脱ぎ捨てて加速し、残像だけが残る'},
+  {id:'fx_dino',rarity:'superrare',category:'fx',gold:1,fxKind:'win',fxId:'dino',icon:'',title:'恐竜化',desc:'上がりの演出：野性の咆哮と足音、爪痕が走る'},
+  {id:'bg_strafe',rarity:'uncommon',category:'fieldbg',type:'scene',gold:1,icon:'',title:'レーダーの夜空',desc:'場の背景：吐息を探るレーダーと、飛び交うプロペラ機',get value(){return sceneUri('strafe');}},
+  {id:'bg_stillrain',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'',title:'止まった雨の街',desc:'場の背景：空中で静止した雨粒が光る街',get value(){return sceneUri('stillrain');}},
+  {id:'bg_dino',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'',title:'太古の密林',desc:'場の背景：恐竜が闊歩する原始の夕暮れ',get value(){return sceneUri('dino');}},
+  {id:'bg_rapier',rarity:'rare',category:'fieldbg',type:'scene',gold:1,icon:'',title:'甲冑の間',desc:'場の背景：脱ぎ捨てられた甲冑と、剣の残光',get value(){return sceneUri('rapier');}}
+);
+// ---- 演出の描画（canvas）----
+const _knSil=(c,x,y,s,col)=>{c.fillStyle=col;c.beginPath();c.arc(x,y-60*s,18*s,0,7);c.fill();c.beginPath();c.moveTo(x-6*s,y-76*s);c.quadraticCurveTo(x+14*s,y-104*s,x+40*s,y-92*s);c.quadraticCurveTo(x+18*s,y-88*s,x+10*s,y-76*s);c.fill();c.beginPath();c.moveTo(x-34*s,y+60*s);c.lineTo(x-26*s,y-38*s);c.lineTo(x+26*s,y-38*s);c.lineTo(x+34*s,y+60*s);c.fill();c.strokeStyle=col;c.lineWidth=5*s;c.beginPath();c.moveTo(x+30*s,y+20*s);c.lineTo(x+92*s,y-70*s);c.stroke();};
+FXS.rapier=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,M=Math.max(W,H),
+  sl=Array.from({length:22},(_,i)=>{const a=_fRn(-.9,.9)+(i%2?0:Math.PI),r=M*_fRn(.5,.9),x=cx+_fRn(-.3,.3)*W,y=cy+_fRn(-.3,.3)*H;return{t0:.05+i*.07,x1:x-Math.cos(a)*r,y1:y-Math.sin(a)*r,x2:x+Math.cos(a)*r,y2:y+Math.sin(a)*r};}),
+  sh=Array.from({length:14},()=>{const a=_fR()*6.283,v=_fRn(300,900)*k;return{vx:Math.cos(a)*v,vy:Math.sin(a)*v-220*k,r:_fR()*6,vr:_fRn(-8,8),s:_fRn(12,30)*k};});
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t);c.globalCompositeOperation='source-over';c.globalAlpha=.55*fade*_fSm(0,.2,t);c.fillStyle='#050816';c.fillRect(0,0,W,H);
+  c.globalCompositeOperation='lighter';c.lineCap='round';
+  for(const s of sl){const u=(t-s.t0)/.22;if(u<0||u>1)continue;const e=Math.min(1,u*2),e0=Math.max(0,e-.45),dx=s.x2-s.x1,dy=s.y2-s.y1;c.strokeStyle='#dff0ff';c.globalAlpha=(1-u)*fade;c.lineWidth=3+5*(1-u);c.shadowColor='#7ab8ff';c.shadowBlur=14;c.beginPath();c.moveTo(s.x1+dx*e0,s.y1+dy*e0);c.lineTo(s.x1+dx*e,s.y1+dy*e);c.stroke();}
+  c.shadowBlur=0;
+  if(t>.45){const u=t-.45;c.globalCompositeOperation='source-over';for(const p of sh){c.save();c.translate(cx+p.vx*u,cy+p.vy*u+700*k*u*u);c.rotate(p.r+p.vr*u);c.globalAlpha=Math.max(0,1-u/1.1)*fade;c.fillStyle='#b4c2d6';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.moveTo(-p.s,-p.s*.5);c.lineTo(p.s,-p.s*.7);c.lineTo(p.s*.7,p.s*.6);c.lineTo(-p.s*.8,p.s*.5);c.closePath();c.fill();c.stroke();c.restore();}}
+  if(t>.7){c.globalCompositeOperation='lighter';const a=_fSm(.7,1,t)*fade;for(let i=-3;i<=3;i++){const x=cx+i*120*k+Math.sin(t*16+i)*9*k;c.globalAlpha=a*(i===0?.9:.5/(Math.abs(i)*.7+.3));_knSil(c,x,cy+20*k,1.5*k,i===0?'#e6f2ff':'#7aa8ff');}}};};
+FXS.kickshot=(W,H,D)=>{const cx=W/2,cy=H*.46,k=Math.min(W,H)/600,N=7,pts=[{x:W*.08,y:H*.2}],cols=['#ff5a5a','#ffb030','#ffe84a','#5ad878','#4aa8ff','#c070ff'];for(let i=1;i<N-1;i++)pts.push({x:W*_fRn(.1,.9),y:H*_fRn(.1,.85)});pts.push({x:cx,y:cy});
+  const fig=(c,x,y,s,col,a)=>{c.globalAlpha=a;c.fillStyle=col;c.strokeStyle='#000';c.lineWidth=2.4;c.beginPath();c.arc(x,y,9*s,0,7);c.fill();c.stroke();c.beginPath();c.moveTo(x-10*s,y-2*s);c.quadraticCurveTo(x,y-18*s,x+10*s,y-2*s);c.fill();c.stroke();c.fillStyle='#ffdcb4';c.beginPath();c.arc(x,y+2*s,6*s,0,3.14);c.fill();c.fillStyle=col;c.fillRect(x-6*s,y+10*s,12*s,12*s);c.strokeRect(x-6*s,y+10*s,12*s,12*s);};
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),Tm=D*.72,p=Math.min(N-1,t/Tm*(N-1)),ip=Math.floor(p);c.globalCompositeOperation='source-over';c.globalAlpha=.4*fade*_fSm(0,.25,t);c.fillStyle='#0a0414';c.fillRect(0,0,W,H);
+  c.globalCompositeOperation='lighter';c.lineCap='round';c.lineJoin='round';c.strokeStyle='#ffd34a';c.shadowColor='#ffb030';c.shadowBlur=16;c.lineWidth=5*k+2;c.globalAlpha=.85*fade;c.beginPath();c.moveTo(pts[0].x,pts[0].y);for(let i=1;i<=ip&&i<N;i++)c.lineTo(pts[i].x,pts[i].y);let hx=pts[Math.min(ip,N-1)].x,hy=pts[Math.min(ip,N-1)].y,ang=0;if(ip<N-1){const a=pts[ip],b=pts[ip+1],f=p-ip;hx=a.x+(b.x-a.x)*f;hy=a.y+(b.y-a.y)*f;ang=Math.atan2(b.y-a.y,b.x-a.x);c.lineTo(hx,hy);}c.stroke();c.shadowBlur=0;
+  if(ip<N-1){c.globalCompositeOperation='source-over';c.save();c.translate(hx,hy);c.rotate(ang);c.globalAlpha=fade;c.fillStyle='#ffd34a';c.strokeStyle='#000';c.lineWidth=2.4;c.beginPath();c.ellipse(0,0,16*k,8*k,0,0,7);c.fill();c.stroke();c.restore();}
+  for(let i=1;i<N-1;i++){if(p<i)continue;const u=t-i/(N-1)*Tm;c.globalCompositeOperation='lighter';fxFlare(c,pts[i].x,pts[i].y,70*k*(1-_fSm(0,.5,u)*.5),cols[i%6],Math.max(0,1-u*1.6)*fade);c.globalCompositeOperation='source-over';fig(c,pts[i].x,pts[i].y-26*k,Math.min(1,u*8)*1.5*k,cols[i%6],fade*Math.max(0,1-u*.8));}
+  if(t>Tm){const u=t-Tm;c.globalCompositeOperation='lighter';for(let i=0;i<3;i++){const r=(u*1.2-i*.12);if(r<0||r>1)continue;c.strokeStyle='#ffe9a0';c.globalAlpha=(1-r)*fade;c.lineWidth=10*(1-r)+1;c.beginPath();c.arc(cx,cy,r*Math.max(W,H)*.5,0,7);c.stroke();}fxGlow(c,cx,cy,260*k,'#ffd34a',.6*(1-_fSm(0,.9,u))*fade);}};};
+FXS.strafe=(W,H,D)=>{const k=Math.min(W,H)/600,tr=[],bm=[],ex=[];let nt=0,nb=.8;
+  const plane=(c,x,y,s,a)=>{c.globalAlpha=a;c.strokeStyle='#000';c.lineWidth=3;c.fillStyle='#cdd672';c.beginPath();c.ellipse(x,y,50*s,13*s,0,0,7);c.fill();c.stroke();c.fillStyle='#a8b24a';c.beginPath();c.moveTo(x-48*s,y-4*s);c.lineTo(x-68*s,y-26*s);c.lineTo(x-52*s,y-26*s);c.lineTo(x-30*s,y-6*s);c.fill();c.stroke();c.beginPath();c.moveTo(x-12*s,y-8*s);c.lineTo(x+4*s,y-40*s);c.lineTo(x+22*s,y-40*s);c.lineTo(x+14*s,y-8*s);c.fill();c.stroke();c.fillStyle='#8ae0ff';c.beginPath();c.ellipse(x+12*s,y-9*s,13*s,8*s,0,3.14,6.283);c.fill();c.stroke();c.fillStyle='rgba(255,255,255,.7)';c.beginPath();c.ellipse(x+54*s,y,3*s,22*s*Math.abs(Math.cos(performance.now()*.05)),0,0,7);c.fill();};
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),f=t/D,px=-80*k+(W+160*k)*Math.min(1,f*1.12),py=H*.2+Math.sin(t*3)*8*k;c.globalCompositeOperation='source-over';c.globalAlpha=.42*fade*_fSm(0,.2,t);c.fillStyle='#08180e';c.fillRect(0,0,W,H);
+  c.globalCompositeOperation='lighter';c.strokeStyle='#6dff9a';c.lineWidth=2;for(let i=0;i<3;i++){const u=(t*.7+i/3)%1;c.globalAlpha=(1-u)*.5*fade;c.beginPath();c.arc(px,py,u*W*.5,0,7);c.stroke();}
+  nt+=dt;while(nt>.03&&f<.82){nt-=.03;tr.push({x:px+56*k,y:py+10*k,vx:_fRn(160,320)*k,vy:_fRn(1300,1900)*k});}
+  for(let i=tr.length-1;i>=0;i--){const p=tr[i];p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.y>H*.9){ex.push({x:p.x,y:H*.9,l:0,s:1});tr.splice(i,1);continue;}c.strokeStyle='#ffe060';c.globalAlpha=.9*fade;c.lineWidth=3*k+1;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.x-p.vx*.035,p.y-p.vy*.035);c.stroke();}
+  if(t>nb&&f<.82){nb+=.32;bm.push({x:px,y:py+16*k,vx:300*k,vy:0});}
+  for(let i=bm.length-1;i>=0;i--){const b=bm[i];b.vy+=1500*k*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;if(b.y>H*.88){ex.push({x:b.x,y:H*.88,l:0,s:3.2});bm.splice(i,1);continue;}c.globalCompositeOperation='source-over';c.save();c.translate(b.x,b.y);c.rotate(Math.atan2(b.vy,b.vx)-1.57);c.globalAlpha=fade;c.fillStyle='#2a2a36';c.strokeStyle='#000';c.lineWidth=2;c.beginPath();c.ellipse(0,0,7*k,13*k,0,0,7);c.fill();c.stroke();c.restore();}
+  c.globalCompositeOperation='lighter';for(let i=ex.length-1;i>=0;i--){const e=ex[i];e.l+=dt;if(e.l>.55){ex.splice(i,1);continue;}const u=e.l/.55;fxGlow(c,e.x,e.y,(30+90*u)*e.s*k,u<.4?'#fff0b0':'#ff7a20',(1-u)*.9*fade);if(e.s>1){c.strokeStyle='#ffb050';c.globalAlpha=(1-u)*fade;c.lineWidth=6*(1-u)+1;c.beginPath();c.ellipse(e.x,e.y,u*220*k,u*50*k,0,0,7);c.stroke();}}
+  c.globalCompositeOperation='source-over';plane(c,px,py,1.1*k+.3,fade);};};
+FXS.dive=(W,H,D)=>{const cx=W/2,cy=H*.6,k=Math.min(W,H)/600,M=Math.max(W,H),sp=Array.from({length:44},()=>({a:_fR()*6.283,r:_fRn(.45,1)*M*.55,ph:_fR(),s:_fRn(5,13)}));
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),A=_fSm(0,.35,t)*fade;c.globalCompositeOperation='source-over';c.globalAlpha=.5*A;c.fillStyle='#02121a';c.fillRect(0,0,W,H);
+  const pr=Math.min(1,t/.6),rx=W*.3*pr+40*k,ry=rx*.28,g=c.createRadialGradient(cx,cy,0,cx,cy,rx);g.addColorStop(0,'#010a10');g.addColorStop(.7,'#06303f');g.addColorStop(1,'rgba(6,48,63,0)');c.globalAlpha=.95*A;c.fillStyle=g;c.beginPath();c.ellipse(cx,cy,rx,ry,0,0,7);c.fill();
+  c.globalCompositeOperation='lighter';c.strokeStyle='#7af0ff';for(let i=0;i<4;i++){const u=(t*.8+i/4)%1;c.globalAlpha=(1-u)*.7*A;c.lineWidth=3*(1-u)+1;c.beginPath();c.ellipse(cx,cy,rx*(.3+u*1.2),ry*(.3+u*1.2),0,0,7);c.stroke();}
+  for(const p of sp){const f=(p.ph+t*.8)%1,r=p.r*(1-f),x=cx+Math.cos(p.a)*r,y=cy+Math.sin(p.a)*r*.6;fxGlow(c,x,y,p.s*k*(1.4-f),'#ffb347',Math.sin(f*3.14)*.9*A);}
+  const rise=Math.pow(Math.sin(3.14*Math.min(1,Math.max(0,(t-.3)/(D-.8)))),.7),fy=cy+60*k-190*k*rise;c.save();c.beginPath();c.rect(0,0,W,cy);c.clip();c.globalCompositeOperation='source-over';c.globalAlpha=.95*A;c.fillStyle='#d4e8f6';c.strokeStyle='#000';c.lineWidth=4;c.beginPath();c.ellipse(cx,fy,52*k,56*k,0,0,7);c.fill();c.stroke();c.beginPath();c.moveTo(cx-120*k,fy+260*k);c.quadraticCurveTo(cx-110*k,fy+60*k,cx,fy+52*k);c.quadraticCurveTo(cx+110*k,fy+60*k,cx+120*k,fy+260*k);c.fill();c.stroke();c.globalCompositeOperation='lighter';for(const s of[-1,1])fxGlow(c,cx+s*20*k,fy-4*k,22*k,'#38e8ff',.9*A);c.restore();};};
+FXS.dino=(W,H,D)=>{const k=Math.min(W,H)/600,M=Math.max(W,H),up=new Path2D(_DN.up),lo=new Path2D(_DN.lo),fp=Array.from({length:6},(_,i)=>({x:W*(.12+i*.15),y:H*(.8+(i%2)*.07),t0:.5+i*.28}));let sk=0;
+  const claw=(c,x,y,L,u)=>{c.beginPath();c.moveTo(x,y);c.lineTo(x+L*u,y+L*.6*u);c.stroke();};
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),A=_fSm(0,.3,t)*fade;c.globalCompositeOperation='source-over';c.globalAlpha=.5*A;c.fillStyle='#2a0e04';c.fillRect(0,0,W,H);
+  c.globalCompositeOperation='lighter';c.strokeStyle='#ffb040';c.lineWidth=5*k+1;for(let i=0;i<4;i++){const u=(t*.9-i*.18);if(u<0||u>1)continue;c.globalAlpha=(1-u)*.7*fade;c.beginPath();c.arc(W*.05,H*.55,u*M*.9,-.7,.7);c.stroke();}
+  const ls=_fSm(0,.5,t),hx=-W*.2+W*.42*ls,hy=H*.58,s=W*.0062;c.globalCompositeOperation='source-over';c.save();c.translate(hx,hy);c.scale(s,s);c.translate(-10,-40+Math.sin(t*12)*1.2);c.globalAlpha=fade;c.fillStyle='#1a3a14';c.strokeStyle='#000';c.lineWidth=3;c.fill(up);c.stroke(up);c.save();c.translate(88,58);c.rotate(.28*Math.max(0,Math.sin(Math.max(0,t-.3)*7)));c.translate(-88,-58);c.fillStyle='#173010';c.fill(lo);c.stroke(lo);c.restore();c.fillStyle='#ffe030';c.beginPath();c.arc(62,40,6.4,0,7);c.fill();c.stroke();c.fillStyle='#000';c.fillRect(61,34,2.2,12);c.fillStyle='#fff';for(let i=0;i<7;i++){c.beginPath();c.moveTo(16+i*10,56);c.lineTo(20+i*10,56);c.lineTo(18+i*10,63);c.fill();}c.restore();
+  if(t>.55){const u=t-.55;c.globalCompositeOperation='lighter';c.lineCap='round';for(let i=0;i<3;i++){const e=Math.min(1,Math.max(0,(u-i*.07)*5));if(e<=0)continue;const x=W*(.45+i*.07),y=H*.14+i*H*.03;c.strokeStyle='#ff8a30';c.shadowColor='#ffd060';c.shadowBlur=14;c.globalAlpha=Math.max(0,1-u/1.4)*fade;c.lineWidth=10*k+2;c.beginPath();c.moveTo(x,y);c.lineTo(x+W*.4*e,y+H*.6*e);c.stroke();}c.shadowBlur=0;}
+  for(const f of fp){const u=t-f.t0;if(u<0)continue;c.globalCompositeOperation='source-over';c.globalAlpha=Math.max(0,1-u/1.2)*fade*.85;c.fillStyle='#0a0602';c.strokeStyle='#000';c.beginPath();c.ellipse(f.x,f.y,28*k,18*k,0,0,7);c.fill();for(const a of[-.6,0,.6]){c.beginPath();c.ellipse(f.x+Math.sin(a)*40*k,f.y-Math.cos(a)*26*k,8*k,14*k,a,0,7);c.fill();}c.globalCompositeOperation='lighter';if(u<.7){c.strokeStyle='#ffc070';c.globalAlpha=(1-u/.7)*.7*fade;c.lineWidth=5*(1-u)+1;c.beginPath();c.ellipse(f.x,f.y,u*260*k,u*60*k,0,0,7);c.stroke();}fxGlow(c,f.x,f.y-10*k,60*k*(1+u),'#c89050',Math.max(0,.5-u)*fade);}};};
+FXS.stillrain=(W,H,D)=>{const k=Math.min(W,H)/600,N=150,Tu=D-.8,dr=Array.from({length:N},()=>({x:_fR()*W,y0:_fRn(-.2,.7)*H,v:_fRn(700,1100)*k,ft:_fRn(.3,1),l:_fRn(12,26)*k})),bl=[];let nb=1.1;
+  const Y=(d,t)=>t<d.ft?d.y0+d.v*t:t<Tu?d.y0+d.v*d.ft:d.y0+d.v*d.ft+d.v*.8*(t-Tu);
+  return(c,t,dt)=>{const fade=1-_fSm(D-.45,D,t),A=_fSm(0,.3,t)*fade;c.globalCompositeOperation='source-over';c.globalAlpha=.55*A;c.fillStyle='#0a1426';c.fillRect(0,0,W,H);c.lineCap='round';
+  for(const d of dr){const y=Y(d,t),fz=t>d.ft&&t<Tu;c.globalCompositeOperation='lighter';c.strokeStyle=fz?'#f0f8ff':'#8cb8e8';c.globalAlpha=(fz?.95:.55)*A;c.lineWidth=(fz?2.4:1.6)*k+.4;c.beginPath();c.moveTo(d.x,y-d.l);c.lineTo(d.x,y);c.stroke();if(fz&&((d.x*7+t*3)%5)<.4)fxGlow(c,d.x,y,10*k,'#cfe8ff',.7*A);}
+  if(t>nb&&t<Tu-.2){nb+=.22;const d=dr[Math.floor(_fR()*N)];bl.push({x:d.x,y:Y(d,t),dir:_fR()<.5?-1:1,t0:t});}
+  for(let i=bl.length-1;i>=0;i--){const b=bl[i],u=t-b.t0;if(u>.4){bl.splice(i,1);continue;}const x=b.x+b.dir*u*W*2.6;c.globalCompositeOperation='lighter';c.strokeStyle='#fff';c.shadowColor='#9ad0ff';c.shadowBlur=14;c.globalAlpha=(1-u/.4)*A;c.lineWidth=3*k+1;c.beginPath();c.moveTo(x-b.dir*180*k,b.y);c.lineTo(x,b.y);c.stroke();c.shadowBlur=0;}
+  if(t>.5&&t<Tu){const u=Math.min(1,(t-.5)/(Tu-.5)),x=W*(.15+.7*u),y=H*(.78-.42*u),sw=Math.sin(t*10),s=1.5*k;c.globalCompositeOperation='lighter';for(let i=0;i<5;i++){const q=Math.min(1,Math.max(0,u*5-i)),sx=W*(.15+.7*i/5),sy=H*(.78-.42*i/5);if(q>0)fxGlow(c,sx,sy+8*k,22*k,'#bfe2ff',.8*A);}
+  c.globalCompositeOperation='source-over';c.globalAlpha=(.6+.25*Math.sin(t*8))*A;c.fillStyle="#1a2c52";c.strokeStyle="#9ad0ff";c.lineWidth=2.2;c.beginPath();c.arc(x,y-60*s,12*s,0,7);c.fill();c.stroke();c.beginPath();c.moveTo(x-10*s,y-46*s);c.lineTo(x+10*s,y-46*s);c.lineTo(x+8*s,y-14*s);c.lineTo(x-8*s,y-14*s);c.closePath();c.fill();c.stroke();c.lineWidth=7*s;c.strokeStyle='#0a1428';c.beginPath();c.moveTo(x-4*s,y-14*s);c.lineTo(x-4*s+sw*10*s,y+4*s);c.moveTo(x+4*s,y-14*s);c.lineTo(x+4*s-sw*10*s,y+4*s);c.stroke();}};};
+
+// ---- 背景4種（400×800のSVG。見せ場は高さ340〜470の帯）----
+const _g4Fin=()=>`<defs><radialGradient id="vgx" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".62"/></radialGradient><filter id="grn" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .9 -.35"/></filter></defs><rect width="400" height="800" filter="url(#grn)" opacity=".16"/><rect width="400" height="800" fill="url(#vgx)"/>`;
+const _g4Kn=(x,y,s,o,col)=>`<g opacity="${o}" fill="${col}"><circle cx="${x}" cy="${y-60*s}" r="${18*s}"/><path d="M${x-6*s} ${y-76*s}Q${x+14*s} ${y-104*s} ${x+40*s} ${y-92*s}Q${x+18*s} ${y-88*s} ${x+10*s} ${y-76*s}Z"/><path d="M${x-34*s} ${y+60*s}L${x-26*s} ${y-38*s}L${x+26*s} ${y-38*s}L${x+34*s} ${y+60*s}Z"/><path d="M${x+30*s} ${y+20*s}L${x+92*s} ${y-70*s}" stroke="${col}" stroke-width="${4*s}" fill="none"/></g>`;
+LOBBY_SCENES.stillrain=function(){const r=_rng(612);let dr='',st='';
+  for(let i=0;i<190;i++){const x=r()*400,y=40+r()*620,s=.5+r()*1.3,o=(.25+r()*.65).toFixed(2),an=i%8===0?`><animate attributeName="opacity" values=".2;1;.2" dur="${(2+r()*3).toFixed(1)}s" repeatCount="indefinite"/></path>`:'/>';dr+=`<path d="M${x.toFixed(0)} ${(y-5*s).toFixed(0)}L${(x+1.7*s).toFixed(0)} ${y.toFixed(0)}L${x.toFixed(0)} ${(y+3.2*s).toFixed(0)}L${(x-1.7*s).toFixed(0)} ${y.toFixed(0)}Z" fill="#dcefff" opacity="${o}"${an}`;}
+  [[70,452],[110,430],[150,408],[190,386],[230,364]].forEach(([x,y])=>st+=`<path d="M${x} ${y-9}L${x+9} ${y}L${x} ${y+7}L${x-9} ${y}Z" fill="#bfe2ff" stroke="#0a1224" stroke-width="2"/>`);
+  return `<defs>${_bf}${_gs('sk',[[0,'#26324c'],[.5,'#56688a'],[1,'#141a2c']])}</defs><rect width="400" height="800" fill="url(#sk)"/><path d="${_ridge(_rng(5),{base:330,amp:16,rough:.5}).fill}" fill="#1a2238" opacity=".9"/>${_bld(r,290,470,'#141a2c','#9ad0ff',6,16,40)}${_bld(_rng(8),340,470,'#0a0e1a','#cfe8ff',5,22,50)}
+<rect y="470" width="400" height="330" fill="#080c18"/><rect y="470" width="400" height="26" fill="#9ad0ff" opacity=".12"/>${dr}${st}
+<g fill="#0a1224" stroke="#9ad0ff" stroke-width="1.4" opacity=".85"><circle cx="230" cy="326" r="8"/><path d="M221 338Q230 332 239 338L241 362H219Z"/><path d="M224 362L220 376M236 362L240 375" stroke-width="5" stroke-linecap="round" stroke="#0a1224"/></g>
+<g><animateTransform attributeName="transform" type="translate" values="-140 0;520 0;520 0" keyTimes="0;.35;1" dur="3.4s" repeatCount="indefinite"/><path d="M0 372L150 362" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M146 358L176 362L146 367Z" fill="#fff"/></g>
+<g><animateTransform attributeName="transform" type="translate" values="520 0;-140 0;-140 0" keyTimes="0;.35;1" begin="1.7s" dur="3.4s" repeatCount="indefinite"/><path d="M0 420L120 412" stroke="#dff0ff" stroke-width="2.4" stroke-linecap="round"/><path d="M-4 408L-30 414L-4 418Z" fill="#dff0ff"/></g>${_g4Fin()}`;};
+LOBBY_SCENES.strafe=function(){const r=_rng(77);let dots='',trees='',blip='';
+  for(let i=0;i<36;i++){const x=r()*400,y=470+r()*100;dots+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1+r()*1.8).toFixed(1)}" fill="#a8ffc8" opacity=".6"><animate attributeName="cy" values="${y.toFixed(0)};${(y-80-r()*60).toFixed(0)}" dur="${(3+r()*3).toFixed(1)}s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0" dur="${(3+r()*3).toFixed(1)}s" repeatCount="indefinite"/></circle>`;}
+  for(let x=-10;x<420;x+=18+r()*16){const h=18+r()*34;trees+=`<path d="M${x.toFixed(0)} 472L${(x+9).toFixed(0)} ${(472-h).toFixed(0)}L${(x+18).toFixed(0)} 472Z" fill="#040e08"/>`;}
+  for(let i=0;i<7;i++){const a=r()*6.283,d=40+r()*130;blip+=`<circle cx="${(200+Math.cos(a)*d).toFixed(0)}" cy="${(395+Math.sin(a)*d).toFixed(0)}" r="3" fill="#7affa8"><animate attributeName="opacity" values="0;1;0" dur="6s" begin="${(r()*6).toFixed(1)}s" repeatCount="indefinite"/></circle>`;}
+  const pl=(y,dur,b)=>`<g><animateTransform attributeName="transform" type="translate" values="-120 ${y};520 ${y}" dur="${dur}s" begin="${b}s" repeatCount="indefinite"/><path d="M0 0Q4-6 14-6H40Q48-6 52 0Q48 6 40 6H12Q4 6 0 0ZM16-4L24-20H32L28-4ZM2-1L-8-12H-2L8-3Z" fill="#0a1a10" stroke="#7affa8" stroke-width="1.4"/><path d="M54 4L96 40" stroke="#ffe060" stroke-width="2" stroke-dasharray="5 6" opacity=".8"/></g>`;
+  return `<defs>${_bf}${_gs('sk',[[0,'#01090a'],[1,'#0a2a1a']])}<radialGradient id="sw" cx="0" cy="1" r="1"><stop offset="0" stop-color="#2aff7a" stop-opacity=".55"/><stop offset="1" stop-color="#2aff7a" stop-opacity="0"/></radialGradient></defs><rect width="400" height="800" fill="url(#sk)"/>
+<g fill="none" stroke="#2aff7a" opacity=".38" stroke-width="1.6"><circle cx="200" cy="395" r="45"/><circle cx="200" cy="395" r="90"/><circle cx="200" cy="395" r="135"/><circle cx="200" cy="395" r="180"/><path d="M200 215V575M20 395H380"/></g>
+<g><animateTransform attributeName="transform" type="rotate" from="0 200 395" to="360 200 395" dur="6s" repeatCount="indefinite"/><path d="M200 395L200 215A180 180 0 0 1 327 268Z" fill="url(#sw)"/><path d="M200 395V215" stroke="#9affc0" stroke-width="2.4"/></g>${blip}${pl(270,9,0)}${pl(560,12,3)}
+<rect y="472" width="400" height="328" fill="#030a05"/>${trees}${dots}${_g4Fin()}`;};
+LOBBY_SCENES.dino=function(){const r=_rng(4242);let fern='',pt='';
+  [[40,470,1.2,-20],[110,474,.9,10],[300,470,1.3,15],[370,476,1,-10],[210,478,.8,0]].forEach(([x,y,s,a])=>{for(let i=-5;i<=5;i++){const an=(i*17+a)*Math.PI/180;fern+=`<path d="M${x} ${y}Q${x+Math.sin(an)*50*s} ${y-60*s} ${x+Math.sin(an)*95*s} ${y-30*s-Math.abs(i)*5*s}" stroke="#08180a" stroke-width="${(5*s).toFixed(1)}" fill="none" stroke-linecap="round"/>`;}});
+  for(let i=0;i<3;i++)pt+=`<g><animateTransform attributeName="transform" type="translate" values="-60 ${300+i*40};460 ${270+i*40}" dur="${(10+i*3)}s" begin="${i*2}s" repeatCount="indefinite"/><path d="M0 0Q12-10 26 0Q12-4 0 0Z" fill="#12060a"/><path d="M26 0L40 -2L28 4Z" fill="#12060a"/></g>`;
+  return `<defs>${_bf}${_gs('sk',[[0,'#2a0a3a'],[.5,'#d8582a'],[.78,'#ffb050'],[1,'#ffd890']])}<radialGradient id="sun"><stop offset="0" stop-color="#fff0c0"/><stop offset=".5" stop-color="#ffb050"/><stop offset="1" stop-color="#ffb050" stop-opacity="0"/></radialGradient></defs><rect width="400" height="800" fill="url(#sk)"/><circle cx="290" cy="360" r="90" fill="url(#sun)"/><circle cx="290" cy="360" r="38" fill="#fff0c0"/>
+<path d="M30 460L100 330L130 340L190 460Z" fill="#2a0e12"/><path d="M92 346L100 330L124 338L132 352Q112 362 92 346Z" fill="#ff5a20" opacity=".9"><animate attributeName="opacity" values=".6;1;.6" dur="2s" repeatCount="indefinite"/></path>
+<path d="${_ridge(_rng(9),{base:430,amp:26,rough:.55}).fill}" fill="#3a1a14"/><path d="${_ridge(_rng(13),{base:452,amp:16,rough:.5}).fill}" fill="#14260e"/>${pt}
+<g fill="#08120a"><g transform="translate(262 452) scale(.95)"><path d="M-40 -10Q-20 -50 20 -50Q60 -48 70 -10L74 10L40 20L36 52L24 52L22 24L-6 24L-10 52L-22 52L-24 18Q-40 8 -60 20Q-50 0 -40 -10Z"/><g transform="translate(46 -86) scale(.52)"><path d="${_DN.up}"/><path d="${_DN.lo}"/></g></g></g>
+<rect y="476" width="400" height="324" fill="#08120a"/>${fern}${_g4Fin()}`;};
+LOBBY_SCENES.rapier=function(){const r=_rng(909);let tile='',sh='',gh='';
+  for(let i=0;i<9;i++)tile+=`<path d="M${200+(i-4)*14} 470L${200+(i-4)*70} 800" stroke="#1c2440" stroke-width="2"/>`;
+  for(let y=490,k=0;y<800;k++,y+=14+k*7)tile+=`<path d="M0 ${y}H400" stroke="#1c2440" stroke-width="2"/>`;
+  for(let i=0;i<9;i++){const x=40+r()*320,y=490+r()*60,a=r()*180;sh+=`<path d="M-14 -6L14 -9L10 7L-12 6Z" transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${a.toFixed(0)})" fill="#8a98ae" stroke="#0a0e18" stroke-width="2"/>`;}
+  [[110,.9,.16],[165,.95,.24],[220,1,.34],[275,1.05,.5],[335,1.1,.8]].forEach(([x,s,o],i)=>gh+=_g4Kn(x,420,s*.55,o,i===4?'#dff0ff':'#6a8cff'));
+  return `<defs>${_bf}${_gs('wl',[[0,'#0a1024'],[1,'#222c4c']])}<linearGradient id="lt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe0ff" stop-opacity=".55"/><stop offset="1" stop-color="#cfe0ff" stop-opacity="0"/></linearGradient></defs><rect width="400" height="800" fill="url(#wl)"/>
+<path d="M150 250V120Q200 60 250 120V250Z" fill="#0a1430" stroke="#3a4a7a" stroke-width="4"/><path d="M160 244V124Q200 74 240 124V244Z" fill="#aac8ff" opacity=".5"/><path d="M160 244L60 470H230L240 244Z" fill="url(#lt)" opacity=".7"/>
+<g fill="#10182e" stroke="#2a3660" stroke-width="3"><rect x="0" y="150" width="46" height="330"/><rect x="354" y="150" width="46" height="330"/></g>
+<g><path d="M0 480H400V800H0Z" fill="#141c36"/>${tile}</g>${sh}${gh}
+<g fill="none" stroke="#fff" stroke-linecap="round"><path d="M40 330Q200 290 360 340" stroke-width="2.4" opacity=".8"><animate attributeName="opacity" values="0;.9;0" dur="2.4s" repeatCount="indefinite"/></path><path d="M60 400Q220 380 350 420" stroke-width="1.8" opacity=".6"><animate attributeName="opacity" values="0;.8;0" dur="2.4s" begin=".8s" repeatCount="indefinite"/></path><path d="M30 440Q180 410 380 380" stroke-width="2" opacity=".6"><animate attributeName="opacity" values="0;.8;0" dur="2.4s" begin="1.6s" repeatCount="indefinite"/></path></g>${_g4Fin()}`;};
+Object.assign(FIELD_SCENE_FOCUS,{stillrain:50,strafe:50,dino:56,rapier:55});
+
 var GOLD_FX={};GACHA_ITEMS.forEach(it=>{if(it.gold&&it.fxId)GOLD_FX[it.fxId]=it.id;});
 // ===== 黄金の精神のアイコン：太い輪郭・鮮やかな色・ハイライトのマンガ調（オリジナルの絵柄） =====
 const _GS='stroke="#000" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"';
@@ -6237,6 +6456,16 @@ Object.assign(GOLD_SVG,{
   book:['#7a3a10',`<path d="M24 12Q14 7 4 10V38Q14 35 24 40Q34 35 44 38V10Q34 7 24 12Z" fill="#fff4d8" ${_GS}/><path d="M24 12V40" fill="none" stroke="#000" stroke-width="2.2"/><path d="M9 17Q15 16 20 18M9 23Q15 22 20 24M28 18Q33 16 39 17M28 24Q33 22 39 23" fill="none" stroke="#b07a30" stroke-width="2" stroke-linecap="round"/><path d="M38 4L40 8L44 9L40 11L38 15L36 11L32 9L36 8Z" fill="#ffee50" ${_GS}/>`],
   cure:['#18903a',`<path d="M6 26H42Q42 42 24 42Q6 42 6 26Z" fill="#fff6e0" ${_GS}/><path d="M8 26Q24 20 40 26" fill="#ffb84a" stroke="#000" stroke-width="2"/><path d="M16 17Q12 12 16 8M24 17Q20 11 24 6M32 17Q28 12 32 8" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><path d="M39 6V14M35 10H43" fill="none" stroke="#000" stroke-width="6" stroke-linecap="round"/><path d="M39 6V14M35 10H43" fill="none" stroke="#8affb0" stroke-width="2.6" stroke-linecap="round"/>`]
 });
+// ---- 一覧用の小アイコン（48×48）----
+Object.assign(GOLD_SVG,{
+  rapier:['#33437a',`<path d="M14 38Q14 16 24 14Q34 16 34 38Z" fill="#c4cfde" ${_GS}/><rect x="17" y="24" width="14" height="4" fill="#0c1018"/><path d="M24 14Q30 2 42 8Q34 8 30 16Z" fill="#e23648" ${_GS}/><path d="M6 44L44 6" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M4 30L20 40" stroke="#bfe0ff" stroke-width="1.6" opacity=".7"/>`],
+  kickshot:['#4a2078',`<path d="M6 40L18 28L12 14L32 24L26 6" fill="none" stroke="#000" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 40L18 28L12 14L32 24L26 6" fill="none" stroke="#ffd34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="36" cy="30" rx="7" ry="3.6" fill="#ffd34a" ${_GS} transform="rotate(-30 36 30)"/><circle cx="12" cy="14" r="4" fill="#ff5a5a" ${_GS}/>`],
+  strafe:['#2a4a88',`<path d="M8 28Q10 22 20 22H34Q42 22 44 28Q42 34 34 34H18Q10 34 8 28Z" fill="#cdd672" ${_GS}/><path d="M20 26L26 10H32L28 26Z" fill="#a8b24a" ${_GS}/><path d="M10 26L4 18H8L14 24Z" fill="#a8b24a" ${_GS}/><ellipse cx="45" cy="28" rx="1.6" ry="8" fill="#fff"/><path d="M40 36L46 46" stroke="#ffe060" stroke-width="2.6" stroke-dasharray="3 3"/>`],
+  dive:['#0a4a5a',`<ellipse cx="24" cy="36" rx="18" ry="6" fill="#06212e" stroke="#7af0ff" stroke-width="2"/><circle cx="24" cy="20" r="9" fill="#e6f2fa" ${_GS}/><circle cx="20.5" cy="21" r="2" fill="#38e8ff"/><circle cx="27.5" cy="21" r="2" fill="#38e8ff"/><path d="M6 34Q24 44 42 34" fill="none" stroke="#7af0ff" stroke-width="2.4" stroke-linecap="round"/>`],
+  dino:['#2a6a1c',`<path d="M4 28Q6 18 16 15Q28 6 38 12Q46 18 44 30L40 32H14Q6 32 4 28Z" fill="#6ac85a" ${_GS}/><circle cx="31" cy="18" r="4" fill="#ffe030" ${_GS}/><rect x="30" y="14.5" width="2" height="7" fill="#000"/><path d="M12 32L14 37L17 32M20 32L22 37L25 32M28 32L30 37L33 32" fill="#fff" stroke="#000" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 33Q22 40 42 33L44 38Q22 46 6 38Z" fill="#3a8a3a" ${_GS}/>`],
+  stillrain:['#3a4c78',`<path d="M12 8L16 14L12 19L8 14Z M30 14L34 20L30 25L26 20Z M18 28L22 34L18 39L14 34Z M36 32L40 38L36 43L32 38Z" fill="#dcefff" ${_GS}/><path d="M4 22L40 14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M38 11L46 14L38 17Z" fill="#fff"/>`]
+});
+
 function goldIcon(id){const g=GOLD_SVG[id];if(!g)return '';return `<svg viewBox="0 0 48 48" style="width:1em;height:1em;display:inline-block;vertical-align:-.14em"><rect x="1.5" y="1.5" width="45" height="45" rx="7" fill="${g[0]}" stroke="#000" stroke-width="3"/><path d="M4 4H30L4 30Z" fill="#fff" opacity=".2"/><g fill="#fff" opacity=".28"><circle cx="41" cy="6" r="1.1"/><circle cx="37" cy="6" r="1.1"/><circle cx="41" cy="10" r="1.1"/><circle cx="43" cy="14" r="1.1"/><circle cx="6" cy="42" r="1.1"/><circle cx="10" cy="42" r="1.1"/><circle cx="6" cy="38" r="1.1"/></g>${g[1]}</svg>`;}
 GACHA_ITEMS.forEach(it=>{if(it.gold){const key=it.fxId||it.id.replace('bg_','').replace('chrono','chronolock');it.icon=goldIcon(key)||it.icon;}});
 
@@ -6773,7 +7002,9 @@ function updateSbTitle(){
   el.textContent=item?item.value:'';
 }
 let _gachaView='std';
+function cycleJoCover(){const c=['blue','red','green'],r=document.documentElement;r.dataset.jc=c[(c.indexOf(r.dataset.jc)+1)%c.length];}
 function openGacha(){
+  document.documentElement.dataset.jc=['blue','red','green'][Math.floor(Math.random()*3)];
   _gachaView='std';
   document.getElementById('gacha-cost-label').textContent=GACHA_COST;
   updatePetalDisplays();
@@ -6810,6 +7041,7 @@ function closeGacha(){ showScreen('lobby'); }
 // お届けBOX
 // ============================================================
 const GIFTBOX_ITEMS=[
+  {id:'info_gold_gacha4', info:true, title:'🌟 「黄金の精神」に動くプレイヤーアイコンを追加', desc:'疾風の甲冑剣士・六人の弾丸小隊・プロペラの爆撃機・潜り込む影・恐竜化の咆哮・空中に止まる雨の、動くプレイヤーアイコン6種を追加しました。\n演出に目にも留まらぬ剣技・機銃掃射と爆撃（ロン）、蹴り弾・潜り込み（リーチ）、恐竜化・静止する雨（上がり）、背景にレーダーの夜空・止まった雨の街・太古の密林・甲冑の間を追加しています。'},
   {id:'info_gold_gacha3', info:true, title:'🌟 「黄金の精神」に演出を8種追加', desc:'削り取る・ジッパー・絶対零度（リーチ）、殺人ウイルス・磁力の刃（ロン）、天候・命令の本・癒しの料理（上がり）を追加しました。\nアイコンもマンガ調で新しくなっています。'},
   {id:'info_gold_gacha2', info:true, title:'🌟 「黄金の精神」に景品を追加', desc:'演出に、赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡を追加しました。\nあわせて、場の背景も9種追加しています（ディスクの海・反転した街・消えたコマ・光の刃・爆弾戦車隊・赤い閃光・静止した世界・巻き戻る時・宇宙の夜明け）。'},
   {id:'info_gold_gacha', info:true, title:'🌟 新ガチャ「黄金の精神」', desc:'ガチャ画面を横にスワイプすると「黄金の精神」が出ます。\nリーチ・ロン・上がりの演出（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き）が当たります。\n引いた演出は、カスタマイズの「演出」で選べます。'},
