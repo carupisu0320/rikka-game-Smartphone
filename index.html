@@ -571,9 +571,15 @@ background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
 .gacha-result-dup{font-size:.72rem;color:#8a7048;margin-top:.2rem}
 .gacha-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
 .gacha-collection{flex:none;overflow:visible}
-.gacha-banners{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;flex-shrink:0;scrollbar-width:none}
+.gacha-carousel{position:relative;flex-shrink:0}
+.gacha-banners{display:flex;gap:2%;overflow-x:auto;overflow-anchor:none;scroll-snap-type:x mandatory;flex-shrink:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .gacha-banners::-webkit-scrollbar{display:none}
-.gacha-banner{flex:0 0 100%;scroll-snap-align:center;box-sizing:border-box}
+.gacha-banners::before,.gacha-banners::after{content:"";flex:0 0 10%}
+.gacha-banner{flex:0 0 76%;scroll-snap-align:center;scroll-snap-stop:always;box-sizing:border-box;transition:opacity .25s,transform .25s}
+.gacha-banner.gb-side{opacity:.6;transform:scale(.94);cursor:pointer}
+.gacha-arrow{position:absolute;top:8.6rem;transform:translateY(-50%);z-index:6;width:1.7rem;height:3.4rem;border:none;padding:0;background:rgba(10,8,22,.62);color:#fff;font-size:1.6rem;line-height:3.4rem;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 0 8px rgba(0,0,0,.5)}
+.gacha-arrow.l{left:0;border-radius:0 14px 14px 0}.gacha-arrow.r{right:0;border-radius:14px 0 0 14px}
+.gacha-arrow:active{background:rgba(255,154,208,.6)}
 .gacha-limited{background:linear-gradient(160deg,#2a0f24,#150a1c);border-color:#a0407a}
 .gacha-ltd-badge{display:inline-block;padding:.15rem .8rem;border-radius:12px;font-size:.78rem;font-weight:700;background:linear-gradient(135deg,#ff9ad0,#c060ff);color:#2a0618;margin-bottom:.5rem}
 .gacha-ltd-period{font-size:.78rem;color:#e0a0d0;margin-bottom:.2rem}
@@ -923,10 +929,10 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 .jo-zz.r{right:16px;transform:scaleX(-1)}
 .jo-corner{top:14px;width:1.9rem;height:1.9rem;border-radius:50%;background:var(--jc-cream);border:3px solid var(--jc-ink);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--jc-ink);line-height:1}
 .jo-corner.l{left:16px}.jo-corner.r{right:16px}
-.jo-stars{font-size:.62rem;letter-spacing:.55em;color:var(--jc-cream);text-shadow:1px 1px 0 var(--jc-ink);margin:0;padding-left:.55em}
+.jo-stars{white-space:nowrap;font-size:.58rem;letter-spacing:.3em;color:var(--jc-cream);text-shadow:1px 1px 0 var(--jc-ink);margin:0;padding-left:.55em}
 .jo-title{font-size:2.15rem;font-weight:900;color:var(--jc-cream);-webkit-text-stroke:1.5px var(--jc-ink);paint-order:stroke fill;text-shadow:3px 3px 0 var(--jc-ink);letter-spacing:.14em;margin:.15rem 0 .25rem;padding-left:.14em;font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
 .jo-tri{position:relative;width:min(100%,18.5rem);aspect-ratio:200/150;margin:.1rem auto 0;z-index:1}
-.jo-tri svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.jo-tri>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .jo-tri .t1{fill:var(--jc-dd);stroke:var(--jc-ink);stroke-width:5;stroke-linejoin:round;transition:fill .35s}
 .jo-tri .t2{fill:none;stroke:var(--jc-cream);stroke-width:2.5;stroke-linejoin:round}
 .jo-tri-star{position:absolute;left:0;right:0;top:34%;font-size:1.5rem;color:var(--jc-cream);text-shadow:2px 2px 0 var(--jc-ink);line-height:1}
@@ -936,7 +942,7 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
 .jo-emblem{flex:none;width:3.3rem;height:3.3rem;border-radius:50%;background:var(--jc-cream);color:var(--jc-ink);border:4px solid var(--jc-ink);box-shadow:0 0 0 2px var(--jc-cream),0 0 0 4px var(--jc-ink);font:900 1.5rem/1 'Hiragino Mincho ProN','Yu Mincho',serif;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
 .jo-emblem:active{transform:scale(.94)}
 .jo-lead{font-size:.8rem;font-weight:900;color:var(--jc-cream);text-shadow:2px 2px 0 var(--jc-ink);margin:.1rem 0 .5rem;letter-spacing:.04em}
-.jo-main .gacha-draw-btn{background:var(--jc-cream);color:var(--jc-ink);border:3px solid var(--jc-ink);border-radius:2px;box-shadow:4px 4px 0 var(--jc-ink);font-weight:900;letter-spacing:.12em}
+.jo-main .gacha-draw-btn{background:var(--jc-cream);color:var(--jc-ink);border:3px solid var(--jc-ink);border-radius:2px;box-shadow:4px 4px 0 var(--jc-ink);font-weight:900;letter-spacing:.04em;white-space:nowrap;font-size:.95rem}
 .jo-main .gacha-multi-btn{border:3px solid var(--jc-cream);border-radius:2px;box-shadow:4px 4px 0 var(--jc-ink);background:var(--jc-ink);color:var(--jc-cream)}
 .jo-main .gacha-multi-btn.big{background:#ffd84a;color:var(--jc-ink);border-color:var(--jc-ink)}
 .jo-main .gacha-cost{color:var(--jc-cream);font-weight:700;text-shadow:1px 1px 0 var(--jc-ink)}
@@ -1792,7 +1798,8 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="gacha-currency">🌸 <span id="gacha-petals">0</span></div>
   </div>
   <div class="gacha-scroll">
-  <div class="gacha-banners" id="gacha-banners" onscroll="updateGachaDots()">
+  <div class="gacha-carousel">
+  <div class="gacha-banners" id="gacha-banners" onscroll="gachaScrolled()">
   <div class="gacha-banner">
   <div class="gacha-main">
     <div class="gacha-ltd-badge" style="background:#3a2a14;color:#c9a84c">🌸 恒常ガチャ</div>
@@ -1830,6 +1837,8 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：動くプレイヤーアイコン6種、演出32種（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き・赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡・削り取る・ジッパー・絶対零度・殺人ウイルス・磁力の刃・天候・命令の本・癒しの料理・目にも留まらぬ剣技・蹴り弾・機銃掃射と爆撃・潜り込み・恐竜化・静止する雨）と、場の背景13種</div>
   </div>
   </div>
+  </div>
+  <button class="gacha-arrow l" onclick="gachaNav(-1)" aria-label="前のガチャ">‹</button><button class="gacha-arrow r" onclick="gachaNav(1)" aria-label="次のガチャ">›</button>
   </div>
   <div class="gacha-dots" id="gacha-dots"></div>
   <div class="gacha-result" id="gacha-result"></div>
@@ -7354,22 +7363,56 @@ function openGacha(){
   const ti=document.getElementById('ltd-top-icons');if(ti)ti.innerHTML=LIMITED_GACHA.top.map(id=>ltdIcon(GACHA_ITEMS.find(x=>x.id===id),true,true)).join('');
   showScreen('gacha');
   // 画面を表示してから、恒常ガチャの位置に戻す（非表示のうちは位置を変えられず、前回のスワイプ位置が残ってしまうため）
-  const bn=document.getElementById('gacha-banners');
-  const toStd=()=>{if(bn)bn.scrollLeft=0;updateGachaDots();};
+  const toStd=()=>{buildGachaLoop();const b=document.getElementById('gacha-banners');_gbInit(b);if(b){b.style.scrollSnapType='none';b.scrollLeft=b.querySelector('[data-clone]')?_gbStep(b):0;requestAnimationFrame(()=>{b.style.scrollSnapType='';});}updateGachaDots();};
   toStd();requestAnimationFrame(toStd);
 }
-function fillJoBanner(){const e=document.getElementById('jo-banner-icons');if(e&&!e.innerHTML)e.innerHTML=['aura','rush','timestop'].map(goldIcon).join(' ');}
+function fillJoBanner(){const e=document.getElementById('jo-banner-icons');if(e&&!e.innerHTML){e.innerHTML=['aura','rush','timestop'].map(goldIcon).join(' ');return true;}return false;}
+// ---- ガチャのバナー：左右に隣のバナーをのぞかせ、端でつながるループにする ----
+function _gbVis(bn){return[...bn.children].filter(e=>e.style.display!=='none');}
+function _gbList(){const bn=document.getElementById('gacha-banners');return bn?[...bn.children].filter(e=>!e.dataset.clone&&e.style.display!=='none'):[];}
+function _gbStep(bn){const k=_gbVis(bn);return k.length>1?k[1].offsetLeft-k[0].offsetLeft:bn.clientWidth;}
+function buildGachaLoop(){
+  const bn=document.getElementById('gacha-banners');if(!bn)return;
+  const keep=bn.scrollLeft;bn.querySelectorAll('[data-clone]').forEach(e=>e.remove());
+  const r=_gbList();if(r.length<2)return;
+  const mk=el=>{const c=el.cloneNode(true);c.dataset.clone='1';c.removeAttribute('id');c.setAttribute('aria-hidden','true');c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));return c;};
+  bn.insertBefore(mk(r[r.length-1]),bn.firstChild);bn.appendChild(mk(r[0]));
+  bn.style.scrollSnapType='none';bn.scrollLeft=keep+(keep?0:0);requestAnimationFrame(()=>{bn.style.scrollSnapType='';});
+}
+let _gbT=0,_gbTouch=0;
+// 端の複製バナーに入ったら、見た目がまったく同じ「本物の位置」へ即座に入れ替える（位置の端数も保つので、ずれ・飛びが出ない）
+function _gbWrap(){
+  const bn=document.getElementById('gacha-banners');if(!bn||!bn.clientWidth)return false;
+  const n=_gbList().length;if(n<2||!bn.querySelector('[data-clone]'))return false;
+  const st=_gbStep(bn),p=bn.scrollLeft;let q=p;
+  if(p<st*.5)q=p+n*st;else if(p>(n+.5)*st)q=p-n*st;
+  if(q===p)return false;
+  bn.style.scrollSnapType='none';bn.scrollLeft=q;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{bn.style.scrollSnapType='';updateGachaDots();}));return true;
+}
+function gachaScrolled(){updateGachaDots();clearTimeout(_gbT);if(!_gbTouch)_gbT=setTimeout(_gbWrap,50);}
+function _gbInit(bn){
+  if(!bn||bn._gbInit)return;bn._gbInit=1;
+  bn.addEventListener('touchstart',()=>{_gbTouch=1;clearTimeout(_gbT);_gbWrap();},{passive:true});
+  const end=()=>{_gbTouch=0;clearTimeout(_gbT);_gbT=setTimeout(_gbWrap,60);};
+  bn.addEventListener('touchend',end,{passive:true});bn.addEventListener('touchcancel',end,{passive:true});
+  bn.addEventListener('scrollend',()=>{if(!_gbTouch)_gbWrap();});
+}
+function gachaNav(d){const bn=document.getElementById('gacha-banners');if(!bn)return;const st=_gbStep(bn),n=_gbVis(bn).length,di=Math.round(bn.scrollLeft/st),t=Math.max(0,Math.min(n-1,di+d));bn.scrollTo({left:t*st,behavior:'smooth'});}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#gacha-banners .gacha-banner.gb-side');if(!b)return;e.stopPropagation();e.preventDefault();const bn=b.parentNode;bn.scrollTo({left:_gbVis(bn).indexOf(b)*_gbStep(bn),behavior:'smooth'});},true);
 function updateGachaDots(){
-  fillJoBanner();
+  const filled=fillJoBanner();if(filled)buildGachaLoop();
   const el=document.getElementById('gacha-dots'),bn=document.getElementById('gacha-banners');
   if(!el||!bn)return;
   const vs=['std'].concat(isLimitedActive()?['limited']:[]).concat(['gold']);
   if(!bn.clientWidth)return; // 画面が非表示のあいだは判定しない
-  const idx=Math.max(0,Math.min(vs.length-1,Math.round(bn.scrollLeft/bn.clientWidth)));
+  const kids=_gbVis(bn),loop=!!bn.querySelector('[data-clone]'),st=_gbStep(bn)||bn.clientWidth,di=Math.max(0,Math.min(kids.length-1,Math.round(bn.scrollLeft/st)));
+  kids.forEach((k,j)=>k.classList.toggle('gb-side',j!==di));
+  const idx=loop?((di-1)%vs.length+vs.length)%vs.length:Math.min(vs.length-1,di);
   const v=vs[idx];
   if(v!==_gachaView){_gachaView=v;renderGachaCollection();}
   el.style.display='block';
-  const hint=idx===0?(isLimitedActive()?'期間限定ガチャ開催中！ ':'')+'横にスワイプで他のガチャへ →':(idx===vs.length-1?'← 他のガチャへ':'← 恒常ガチャ　黄金の精神 →');
+  const hint=(idx===0&&isLimitedActive()?'期間限定ガチャ開催中！ ':'')+'← 左右にスワイプで他のガチャへ →';
   el.innerHTML=vs.map((_,k)=>`<i class="${k===idx?'on':''}"></i>`).join('')+'<br>'+hint;
 }
 function closeGacha(){ showScreen('lobby'); }
