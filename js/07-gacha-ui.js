@@ -1,4 +1,3 @@
-
 // ============================================================
 // 10連・100連ガチャ。10回ごとに、レア以上が1つ確定
 // ============================================================
@@ -306,7 +305,7 @@ function goldKakuHtml(){
 <div class="kk-gogo l"><span>ゴ</span><span>ゴ</span><span>ゴ</span><span>ゴ</span></div>
 <div class="kk-gogo r"><span>ゴ</span><span>ゴ</span><span>ゴ</span><span>ゴ</span></div>
 <div class="kk-bar t"></div><div class="kk-bar b"></div>
-<div class="kk-title">黄金の精神</div><div class="kk-sub">超 レ ア 確 定</div>
+<div class="kk-quote">きさま！見ているなッ！</div><div class="kk-title">黄金の精神</div><div class="kk-sub">超 レ ア 確 定</div>
 <div class="kk-white"></div><div class="kk-black"></div>`;
 }
 // 確定演出の音：低いうなり→鼓動→星が光る鐘の音→和音のふくらみ
@@ -387,7 +386,7 @@ function goldKakuPhotoHtml(){
 <div class="kk-gogo l"><span>ゴ</span><span>ゴ</span><span>ゴ</span><span>ゴ</span></div>
 <div class="kk-gogo r"><span>ゴ</span><span>ゴ</span><span>ゴ</span><span>ゴ</span></div>
 <div class="kk-bar t"></div><div class="kk-bar b"></div>
-<div class="kk-title">黄金の精神</div><div class="kk-sub">超 レ ア 確 定</div>
+<div class="kk-quote">きさま！見ているなッ！</div><div class="kk-title">黄金の精神</div><div class="kk-sub">超 レ ア 確 定</div>
 <div class="kk-white"></div><div class="kk-black"></div>`;
 }
 
