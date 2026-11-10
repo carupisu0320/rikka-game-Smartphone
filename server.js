@@ -227,7 +227,7 @@ const FIELD_BG_PRESETS = new Set([
 function sanitizeFieldBg(url) {
   if (typeof url !== 'string') return '';
   url = url.trim();
-  if (url.startsWith('preset:')) return FIELD_BG_PRESETS.has(url.slice(7)) ? url : '';
+  if (url.startsWith('preset:')) { const pid = url.slice(7); return (FIELD_BG_PRESETS.has(pid) || /^bg_[a-z0-9_]{1,40}$/.test(pid)) ? url : ''; } // 新しい背景は、IDが bg_英小文字数字_ の形なら自動で通す
   if (url.length === 0 || url.length > 500) return '';
   if (!/^https:\/\//i.test(url)) return '';
   if (/["'\\()<>]/.test(url)) return '';
@@ -273,11 +273,11 @@ function sanitizeFx(fx) {
   const o = {};
   for (const k of Object.keys(FX_STYLE_IDS)) {
     const v = fx && typeof fx[k] === 'string' ? fx[k] : '';
-    o[k] = FX_STYLE_IDS[k].has(v) ? v : 'default';
+    o[k] = (FX_STYLE_IDS[k].has(v) || (/^[a-z][a-z0-9]{0,23}$/.test(v) && !['constructor', 'prototype', 'valueof', 'tostring'].includes(v))) ? v : 'default'; // 新しい演出は、IDが英小文字と数字の形なら自動で通す
   }
   return o;
 }
-function sanitizeTitle(id) { return (typeof id === 'string' && (TITLE_IDS.has(id) || /^title_a_[a-z0-9_]{1,30}$/.test(id) || /^title_login_[0-9]{1,3}$/.test(id) || /^title_ev_[a-z0-9_]{1,30}$/.test(id) || id === 'title_gameovera')) ? id : ''; }
+function sanitizeTitle(id) { return (typeof id === 'string' && (TITLE_IDS.has(id) || /^title_a_[a-z0-9_]{1,30}$/.test(id) || /^title_login_[0-9]{1,3}$/.test(id) || /^title_ev_[a-z0-9_]{1,30}$/.test(id) || id === 'title_gameovera' || /^title_[a-z0-9_]{1,40}$/.test(id))) ? id : ''; } // 新しい称号は、IDが title_英小文字数字_ の形なら自動で通す
 function genCode() {
   let c;
   do { c = Math.random().toString(36).slice(2, 6).toUpperCase(); } while (rooms.has(c));
