@@ -1943,7 +1943,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="ltd-top-icons" id="ltd-top-icons"></div>
     <button class="gacha-draw-btn" onclick="drawGacha('limited')">限定ガチャを引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'limited')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'limited')">100連<small>🌸 1000</small></button></div>
-    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号・アイコン・紙吹雪</div>
+    <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号・アイコン・紙吹雪<br>🎁 ここで手に入れた景品は、開催が終わってもずっと使えます</div>
   </div>
   </div>
   <div class="gacha-banner" id="gacha-banner-gold">
@@ -7717,20 +7717,28 @@ function renderGachaCollection(){
         </div>${btn}</div>`;
     }).join('');
   }
-  // 過去の期間限定景品（入手済みのものは期間終了後も残る）
+  // 期間限定景品（入手済み）：開催ごとにまとめて表示。ガチャが終わっても、入手済みの景品はずっと残り、いつでも使える
   const _past=(_lim||_gold)?[]:GACHA_ITEMS.filter(it=>it.limited&&owned.has(it.id));
   if(_past.length){
-    html+=`<div class="gacha-rarity-title" style="color:#ffd978">✨ 期間限定景品（入手済み）</div>`;
-    html+=_past.map(it=>{
-      const isEquipped=st.equipped[it.category]===it.id;
-      const btn=`<button class="gacha-equip-btn${isEquipped?' gacha-equipped':''}" onclick="equipGachaItem('${it.category}','${it.id}')">${isEquipped?'使用中':'使う'}</button>`;
-      return `<div class="gacha-item gacha-owned">
-        <div class="gacha-item-icon ltd">${ltdIcon(it,true)}</div>
-        <div class="gacha-item-body">
-          <div class="gacha-item-title">${esc(it.title)}</div>
-          <div class="gacha-item-desc">${esc(it.desc)}</div>
-        </div>${btn}</div>`;
-    }).join('');
+    html+=`<div class="gacha-rarity-title" style="color:#ffd978">✨ 期間限定景品（入手済み）</div><div style="font-size:.7rem;color:#8a7048;margin:-.1rem 0 .4rem">期間限定ガチャで手に入れた景品は、開催が終わってもずっと使えます</div>`;
+    const _gids=LIMITED_LIST.map(x=>String(x.id));
+    const _gname=g=>{const x=LIMITED_LIST.find(y=>String(y.id)===String(g));return x?x.name:'その他';};
+    const _order=g=>{const i=_gids.indexOf(String(g));return i<0?999:i;};
+    const _gs=[...new Set(_past.map(it=>String(it.limited)))].sort((p,q)=>_order(p)-_order(q));
+    _gs.forEach(g=>{
+      const _live=isLimitedActive()&&String(LIMITED_GACHA.id)===g;
+      html+=`<div style="font-size:.78rem;color:#c9a84c;margin:.5rem 0 .25rem">${esc(_gname(g))}${_live?'（開催中）':''}</div>`;
+      html+=_past.filter(it=>String(it.limited)===g).map(it=>{
+        const isEquipped=st.equipped[it.category]===it.id;
+        const btn=`<button class="gacha-equip-btn${isEquipped?' gacha-equipped':''}" onclick="equipGachaItem('${it.category}','${it.id}')">${isEquipped?'使用中':'使う'}</button>`;
+        return `<div class="gacha-item gacha-owned">
+          <div class="gacha-item-icon ltd">${ltdIcon(it,true)}</div>
+          <div class="gacha-item-body">
+            <div class="gacha-item-title">${esc(it.title)}</div>
+            <div class="gacha-item-desc">${esc(it.desc)}</div>
+          </div>${btn}</div>`;
+      }).join('');
+    });
   }
   el.innerHTML=html;
 }
@@ -10667,6 +10675,13 @@ function quickBotFallback(){
     setTimeout(()=>{if(!done){done=true;go();}},2500);
   }else go(); // サーバーにつながらないときも、CPUが相手になる
 }
+// 手牌を選んでいるときに、選んだ牌まわりのボタン以外をタップすると、選択を解除する
+document.addEventListener('click',e=>{
+  if(typeof G==='undefined'||!G||G.selIdx===-1||G.selIdx===undefined||G.phase!=='playing')return;
+  const t=e.target;if(!t||!t.closest)return;
+  if(t.closest('.htile,#btn-discard,#btn-win,#riichi-btn,.abtn,#modal,#call-fx,#toast'))return; // 手牌・捨てる/上がる/リーチのボタン・ウィンドウは除く
+  G.selIdx=-1;render();
+});
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2400);}
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
