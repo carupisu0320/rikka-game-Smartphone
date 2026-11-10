@@ -1,0 +1,30 @@
+.ico{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;line-height:1}
+.ico svg{width:100%;height:100%;display:block;overflow:visible}
+.ico svg{animation:2.6s ease-in-out infinite}
+@keyframes ik-spin{to{transform:rotate(360deg)}}
+@keyframes ik-twk{0%,100%{transform:scale(.85) rotate(0);opacity:.7}50%{transform:scale(1.15) rotate(14deg);opacity:1}}
+@keyframes ik-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}
+@keyframes ik-beat{0%,50%,100%{transform:scale(1)}12%{transform:scale(1.25)}25%{transform:scale(.96)}37%{transform:scale(1.15)}}
+@keyframes ik-bob{0%,100%{transform:translateY(8%)}50%{transform:translateY(-8%)}}
+@keyframes ik-sway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+@keyframes ik-flick{0%,100%{transform:scale(1,1)}33%{transform:scale(.92,1.1)}66%{transform:scale(1.06,.94)}}
+@keyframes ik-zap{0%,40%,60%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.5}}
+@keyframes ik-hop{0%,65%,100%{transform:translateY(0) rotate(0)}78%{transform:translateY(-24%) rotate(-6deg)}90%{transform:translateY(0) rotate(4deg)}}
+@keyframes ik-wig{0%,55%,100%{transform:rotate(0)}65%{transform:rotate(-13deg)}78%{transform:rotate(13deg)}90%{transform:rotate(-7deg)}}
+@keyframes ik-burst{0%{transform:scale(.55);opacity:.35}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1.22);opacity:.45}}
+@keyframes ik-flip{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.68)}}
+.ik-spin svg{animation-name:ik-spin;animation-duration:14s;animation-timing-function:linear}
+.ik-spin2 svg{animation-name:ik-spin;animation-duration:9s;animation-timing-function:linear}
+.ik-twk svg{animation-name:ik-twk;animation-duration:2.2s}
+.ik-pulse svg{animation-name:ik-pulse}
+.ik-beat svg{animation-name:ik-beat;animation-duration:1.5s}
+.ik-bob svg{animation-name:ik-bob}
+.ik-sway svg{animation-name:ik-sway;animation-duration:3.2s;transform-origin:50% 8%}
+.ik-swb svg{animation-name:ik-sway;animation-duration:3.6s;transform-origin:50% 100%}
+.ik-flick svg{animation-name:ik-flick;animation-duration:.9s;transform-origin:50% 100%}
+.ik-zap svg{animation-name:ik-zap;animation-duration:1.4s}
+.ik-hop svg{animation-name:ik-hop;animation-duration:2.4s;transform-origin:50% 100%}
+.ik-wig svg{animation-name:ik-wig;animation-duration:3s}
+.ik-burst svg{animation-name:ik-burst;animation-duration:1.8s;animation-timing-function:ease-out}
+.ik-flip svg{animation-name:ik-flip;animation-duration:2.8s}
+@media(prefers-reduced-motion:reduce){.ico svg{animation:none!important}}

@@ -1,0 +1,1509 @@
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html,body{height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent}
+
+body{font-family:'Hiragino Sans','Yu Gothic UI','Noto Sans JP',sans-serif;
+
+background:#0d0a08;color:#f0e8d8;user-select:none;height:100vh;height:100dvh;touch-action:manipulation}
+
+.screen{display:none;width:100vw;height:100vh;height:100dvh;flex-direction:column}
+
+.screen.active{display:flex}
+
+/* ── LOBBY ── */
+
+#lobby{position:relative;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;
+
+background:var(--lobby-bg,radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.09) 0%,transparent 60%));}
+
+.lobby-inner{width:100%;max-width:480px;padding:.6rem 1.2rem 2rem;margin:0 auto;position:relative;z-index:1}
+
+.logo{text-align:center;margin-bottom:.8rem;padding-top:.5rem}
+
+.logo-kanji{font-size:clamp(3rem,12vw,5.5rem);font-weight:700;color:var(--logo-c,#e8c97a);
+
+letter-spacing:.25em;line-height:1;
+
+text-shadow:0 0 40px var(--logo-glow,rgba(201,168,76,.4)),0 2px 8px rgba(0,0,0,.8);
+
+font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
+
+.logo-sub{font-size:.9rem;letter-spacing:.55em;color:#6a5830;margin-top:.3rem;text-transform:uppercase}
+
+.sparks{display:flex;justify-content:center;gap:9px;margin:.55rem 0}
+
+.sp{width:7px;height:7px;border-radius:50%;animation:sp 2s infinite}
+
+.sp:nth-child(1){background:#f06060}.sp:nth-child(2){background:#f0a060;animation-delay:.25s}
+
+.sp:nth-child(3){background:#d4c040;animation-delay:.5s}.sp:nth-child(4){background:#50c870;animation-delay:.75s}
+
+.sp:nth-child(5){background:#60a8f0;animation-delay:1s}.sp:nth-child(6){background:#a070e8;animation-delay:1.25s}
+
+@keyframes sp{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.8);opacity:1}}
+
+/* Google */
+
+.google-login-area{background:#1a1410;border:1px solid #3e2e1e;border-radius:10px;
+
+padding:.8rem;margin-bottom:.75rem;text-align:center}
+
+.google-user-info{display:flex;align-items:center;gap:.75rem;background:#1a1410;
+
+border:1px solid #3e2e1e;border-radius:10px;padding:.65rem .9rem;margin-bottom:.75rem}
+
+.google-avatar{width:38px;height:38px;border-radius:50%;border:2px solid #c9a84c;object-fit:cover;flex-shrink:0}
+
+.google-avatar-init{width:38px;height:38px;border-radius:50%;background:#3a2810;border:2px solid #c9a84c;
+
+display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;
+
+color:#e8c97a;flex-shrink:0}
+
+.google-user-name{font-size:.95rem;color:#e8c97a;font-weight:700}
+
+.google-user-email{font-size:.7rem;color:#6a5830}
+
+.google-logout-btn{margin-left:auto;background:transparent;border:1px solid #3e2e1e;color:#6a5030;
+
+padding:.28rem .7rem;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:inherit;
+
+white-space:nowrap;flex-shrink:0}
+
+.google-login-label{font-size:.78rem;color:#6a5830;margin-bottom:.55rem}
+
+.flabel{display:block;font-size:.9rem;color:#8a7048;letter-spacing:.06em;margin-bottom:.35rem}
+
+.finput{width:100%;background:#1a1410;border:1px solid #3e2e1e;border-radius:8px;
+
+padding:.75rem 1rem;font-size:1rem;color:#f0e8d8;font-family:inherit;outline:none;transition:border-color .18s}
+
+.finput:focus{border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+
+.fgroup{margin-bottom:.75rem}
+
+.bot-row{display:flex;gap:.5rem}
+
+.fselect{flex:1;background:#1a1410;border:1px solid #3e2e1e;border-radius:8px;
+
+padding:.7rem .8rem;color:#c8b898;font-size:.95rem;font-family:inherit;outline:none;cursor:pointer}
+
+.lbtn{display:block;width:100%;padding:.9rem;border:none;border-radius:10px;
+
+font-family:inherit;font-size:1.05rem;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:all .18s}
+
+.lbtn-gold{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}
+
+.lbtn-gold:active{transform:scale(.97)}
+
+.rules-card{background:#141008;border:1px solid #3e2e1e;border-radius:10px;padding:1rem;margin-top:.9rem}
+
+.rules-title{color:#8a7048;letter-spacing:.08em;margin-bottom:.55rem;font-size:.85rem}
+
+.rrow{display:flex;align-items:flex-start;padding:.38rem 0;border-bottom:1px solid #221810;gap:.5rem}
+
+.rrow:last-child{border-bottom:none}
+
+.rname{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:#e8c97a;min-width:3rem;font-size:1rem;font-weight:700}
+
+.rdesc{color:#9a8858;flex:1;font-size:.82rem;line-height:1.5}
+
+.rpts{font-weight:700;color:#f0e8d8;min-width:2.2rem;text-align:right;font-size:.95rem;padding-top:.1rem}
+
+.rnote{margin-top:.65rem;font-size:.78rem;color:#5a4820;line-height:1.6;
+
+background:#0d0a06;border-radius:6px;padding:.55rem .75rem}
+
+/* ── GAME ── */
+
+#game{background:#0d0a08;overflow:hidden}
+
+#hdr{display:flex;align-items:center;justify-content:space-between;
+
+padding:.5rem 1rem .5rem 4rem;background:linear-gradient(180deg,#1a1208 0%,#0e0a06 100%);
+
+border-bottom:1px solid #3a2810;box-shadow:0 2px 12px rgba(0,0,0,0.6);flex-shrink:0;gap:.4rem}
+
+.hdr-logo{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;
+
+font-size:1.35rem;color:#e8c97a;letter-spacing:.2em;flex-shrink:0}
+
+#scoreboard{display:flex;gap:.4rem;flex-wrap:wrap;flex:1;justify-content:center}
+
+.spill{background:#1e1612;border:1px solid #3e2e1e;border-radius:20px;
+
+padding:.22rem .75rem;font-size:.82rem;display:flex;align-items:center;gap:.4rem;transition:border-color .3s,box-shadow .3s}
+
+.spill.active-human{border-color:#4a9e8a;box-shadow:0 0 10px rgba(74,158,138,.3)}
+
+.spill.active-bot{border-color:#8a6aad;box-shadow:0 0 10px rgba(138,106,173,.3)}
+
+.spill .sn{color:#8a7048;max-width:5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.spill .sv{color:#e8c97a;font-weight:700;font-size:.95rem}
+
+.spill-avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid #4a9e8a;flex-shrink:0}
+
+#opp-area{display:none!important} /* 相手の名前・得点は上のスコア表示と重複するので非表示にして、その分を場に回す */
+#opp-area{display:flex;gap:.4rem;padding:.4rem .9rem;flex-shrink:0;flex-wrap:wrap;background:#0d0a08}
+
+.ocard{background:#141008;border:1px solid #2a1e12;border-radius:9px;padding:.38rem .8rem;
+
+display:flex;align-items:center;gap:.45rem;font-size:.88rem;flex:1;min-width:110px;max-width:220px;transition:border-color .3s}
+
+.ocard.oactive{border-color:#8a6aad;box-shadow:0 0 10px rgba(138,106,173,.2)}
+
+.oname .spill-avatar{vertical-align:middle;margin-right:3px}
+.oname{color:#b08dd4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px}
+
+.ohand{display:flex;gap:2px;flex-wrap:wrap}
+
+.tback{width:18px;height:30px;border-radius:3px;background:linear-gradient(135deg,#2a1e12,#1a1208);
+
+border:1px solid #4a3a28;flex-shrink:0;position:relative;overflow:hidden}
+
+.tback::after{content:'';position:absolute;inset:2px;
+
+background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(201,168,76,.05) 2px,rgba(201,168,76,.05) 4px);border-radius:2px}
+
+.oscore{margin-left:auto;color:#e8c97a;font-weight:700;white-space:nowrap}
+
+.tdots{display:flex;gap:3px;margin-left:3px}
+
+.tdot{width:4px;height:4px;border-radius:50%;background:#8a6aad;animation:tdot 1.2s infinite}
+
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+
+@keyframes tdot{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1.1);opacity:1}}
+
+#field-wrap{text-shadow:0 1px 4px rgba(0,0,0,.9);position:relative;isolation:isolate;flex:1;min-height:0;display:flex;flex-direction:column;
+
+padding:.5rem .9rem;border-bottom:1px solid #1e1208}
+
+#field-wrap::before{content:'';position:absolute;inset:0;z-index:-1;clip-path:circle(150% at 100% 0%);
+
+background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.04) 0%,transparent 70%)}
+
+@keyframes fieldWipeOut{from{clip-path:circle(150% at 0% 100%)}to{clip-path:circle(0% at 0% 100%)}}
+@keyframes fieldWipeIn{from{clip-path:circle(0% at 100% 0%)}to{clip-path:circle(150% at 100% 0%)}}
+#field-wrap.field-wipe-out::before{animation:fieldWipeOut .4s ease-in forwards}
+#field-wrap.field-wipe-in::before{animation:fieldWipeIn .4s ease-out forwards}
+
+.field-hdr{display:flex;justify-content:space-between;align-items:center;
+
+font-size:.82rem;color:#8a7048;letter-spacing:.06em;margin-bottom:.45rem}
+
+#field-grid{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;
+overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0}
+
+.fsec{width:100%;font-size:.74rem;color:#5a4820;display:flex;align-items:center;gap:.4rem;
+
+margin-bottom:3px;margin-top:5px;padding-bottom:2px;border-bottom:1px dashed #1e1610}
+
+.fsec:first-child{margin-top:0}
+
+/* ── TILE ── */
+
+.tile{width:calc(clamp(26px, 8.5vw, 38px) * var(--tile-scale, 1));aspect-ratio:32/52;height:auto;border-radius:6px;
+
+background:linear-gradient(180deg,#ffffff 0%,#efe4ce 100%);border:1.5px solid #b89860;
+
+box-shadow:0 3px 8px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,1);
+
+display:flex;flex-direction:column;cursor:pointer;transition:transform .13s,border-color .13s,box-shadow .13s;
+
+position:relative;overflow:hidden;flex-shrink:0}
+
+.tile .th,.tile .tb{flex:1;display:flex;align-items:center;justify-content:center;
+
+pointer-events:none;overflow:hidden;position:relative}
+
+.tile .th{border-bottom:1.5px solid #c8a870;background:rgba(255,255,255,0.5)}
+
+.tile .tb{background:rgba(235,218,192,0.3)}
+
+.tile .th svg,.tile .tb svg{width:66%;height:66%;display:block;overflow:visible}
+
+.tile.pickable:hover{border-color:#30a090;transform:translateY(-5px);
+
+box-shadow:0 8px 20px rgba(48,160,144,.5),0 2px 6px rgba(0,0,0,0.3)}
+
+.tile.pickable:active{transform:translateY(-3px)}
+
+.tile.nopick{cursor:default;opacity:.82}
+
+.tile.discarded{border-color:#c09050}
+
+.tile.discarded.pickable:hover{border-color:#d47830}
+
+.fback{width:calc(clamp(26px, 8.5vw, 38px) * var(--tile-scale, 1));aspect-ratio:32/52;height:auto;border-radius:5px;
+
+background:linear-gradient(165deg,#2e2018 0%,#120c06 100%);border:1.5px solid #5a4028;
+
+box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),0 2px 6px rgba(0,0,0,0.5);
+
+position:relative;overflow:hidden;flex-shrink:0;transition:transform .12s,border-color .12s,box-shadow .12s}
+
+.fback::before{content:'';position:absolute;inset:0;
+
+background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(201,168,76,.07) 4px,rgba(201,168,76,.07) 5px)}
+
+.fback::after{content:'❋';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+font-size:.9rem;color:rgba(201,168,76,.25);pointer-events:none}
+
+.fback-pickable:hover{border-color:#4a9e8a;transform:translateY(-5px);box-shadow:0 7px 18px rgba(74,158,138,.4)}
+
+.fback-pickable:active{transform:translateY(-3px)}
+
+.htile{width:calc(clamp(26px, 8.5vw, 38px) * var(--tile-scale, 1));aspect-ratio:32/52;height:auto;border-radius:5px;
+
+background:linear-gradient(180deg,#ffffff 0%,#ece0c8 100%);border:1.5px solid #a89060;
+
+box-shadow:0 4px 12px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,1)}
+
+.htile .th{border-bottom:1px solid #c0a068}
+
+
+.htile:active{transform:translateY(-3px)}
+
+.htile.selected{border-color:#e02020!important;
+box-shadow:0 0 16px rgba(220,30,30,.8),0 0 6px rgba(220,30,30,.5)!important;transform:translateY(-8px)!important}
+
+.rule-tile{width:calc(52px*min(1,var(--tile-scale,1)));height:calc(86px*min(1,var(--tile-scale,1)));border-radius:6px;
+
+background:linear-gradient(160deg,#1e1a10,#2a2210);border:2px solid #7a6030;
+
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+
+cursor:pointer;transition:transform .15s,border-color .15s;flex-shrink:0;gap:3px;position:relative;overflow:hidden}
+
+.rule-tile::before{content:'';position:absolute;inset:0;
+
+background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(201,168,76,.04) 4px,rgba(201,168,76,.04) 5px)}
+
+.rule-tile:active{border-color:#c9a84c;transform:translateY(-3px)}
+
+.rule-tile-icon{font-size:1.4rem;pointer-events:none;position:relative;z-index:1}
+
+.rule-tile-label{font-size:.5rem;color:#c9a84c;pointer-events:none;position:relative;z-index:1;text-align:center;line-height:1.3}
+
+.tile-star{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+font-size:.55rem;color:#A07800;pointer-events:none;z-index:3;line-height:1}
+
+.htile .tile-star{font-size:.55rem}
+  
+#hand-area{flex-shrink:0;min-height:calc(clamp(26px,8.5vw,38px)*var(--tile-scale,1)*1.625 + 6.6rem); /* 牌の大きさに合わせて手牌エリアの高さも変わる */
+background:linear-gradient(0deg,#060402 0%,#0e0a06 100%);
+
+border-top:1px solid #3a2810;box-shadow:0 -3px 14px rgba(0,0,0,0.55);padding:.55rem .9rem 1.6rem}
+
+.hand-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.38rem}
+
+.hand-label{font-size:.88rem;color:#8a7048;letter-spacing:.06em}
+
+#hand-hint{font-size:.82rem;color:#6a5830}
+
+#hand-hint.can-win{color:#f0c030;font-weight:700;font-size:.92rem}
+
+#status{font-size:.72rem;text-align:center;padding:.22rem 0 .38rem;min-height:26px;color:#6a5830}
+
+#status.myturn{color:#6fc4ae}
+
+#status.boturn{color:#b08dd4}
+
+.hand-row{display:flex;align-items:flex-end;gap:.4rem .7rem;flex-wrap:wrap;justify-content:flex-end}
+
+#hand-tiles{display:flex;gap:4px;flex:1;min-width:calc(clamp(26px,8.5vw,38px)*var(--tile-scale,1)*5 + 16px); /* 牌が大きいときは横に並びきらないので、ルールブック等を下の段に回す */overflow-x:auto;padding:10px 0 3px;-webkit-overflow-scrolling:touch}
+
+.hand-right{display:flex;align-items:flex-end;gap:.5rem;flex-shrink:0}
+
+#hand-btns{display:flex;flex-direction:column;gap:.4rem}
+
+.abtn{padding:.55rem 1rem;border-radius:8px;border:none;font-family:inherit;
+
+font-size:.9rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s}
+
+.abtn:disabled{opacity:.25;cursor:not-allowed!important}
+
+#btn-discard{background:#7a1818;color:#ffd0d0;display:none}
+
+#btn-win{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}
+
+/* ── 上下反転ポップアップ ── */
+
+#flip-popup{position:fixed;display:none;z-index:150;transform:translateX(-50%);text-align:center;pointer-events:auto}
+
+.flip-popup-btn{background:linear-gradient(135deg,#3a8e7e,#1e5e52);color:#e8fff8;
+
+border:1.5px solid #4aae9a;border-radius:8px;padding:.42rem .9rem;font-family:inherit;
+
+font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;display:block;
+
+box-shadow:0 3px 12px rgba(0,0,0,0.55);letter-spacing:.04em}
+
+.flip-popup-btn:active{transform:scale(.95)}
+
+.flip-popup-arrow{width:0;height:0;border-left:8px solid transparent;
+
+border-right:8px solid transparent;border-top:8px solid #1e5e52;margin:0 auto}
+
+/* ── TOAST ── */
+
+#toast{position:fixed;bottom:165px;left:50%;transform:translateX(-50%) translateY(10px);
+
+background:#3a2010;border:1.5px solid #7a5020;border-radius:10px;
+
+padding:.65rem 1.3rem;font-size:.95rem;color:#f0d8b0;z-index:300;
+
+pointer-events:none;opacity:0;transition:opacity .22s,transform .22s;white-space:nowrap;max-width:90vw;text-align:center}
+
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#achievement-popup{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-16px) scale(.92);
+  background:linear-gradient(135deg,#2a1e10,#1a1208);border:2px solid #c9a84c;border-radius:14px;
+  padding:.8rem 1.3rem;z-index:400;pointer-events:none;opacity:0;
+  transition:opacity .3s,transform .3s;box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 20px rgba(201,168,76,.45);
+  display:flex;align-items:center;gap:.7rem;max-width:min(90vw,360px)}
+#achievement-popup.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+#achievement-popup .ap-icon{font-size:2.1rem;flex-shrink:0}
+#achievement-popup .ap-label{font-size:.66rem;color:#c9a84c;font-weight:700;letter-spacing:.04em}
+#achievement-popup .ap-title{font-size:1rem;color:#f5e0a0;font-weight:700;margin-top:.1rem}
+#achievement-popup{z-index:960!important}
+#achievement-popup .ap-reward{font-size:.78rem;color:#ffd978;font-weight:700;margin-top:.25rem}
+#achievement-popup .ap-desc{font-size:.72rem;color:#8a7860;margin-top:.15rem}
+.ach-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .5rem;border-radius:8px;
+  background:#150f0a;border:1px solid #241a10;margin-bottom:.35rem;opacity:.55}
+.ach-item.ach-done{opacity:1;border-color:#5a4020;background:#1e1610}
+.ach-icon{font-size:1.3rem;flex-shrink:0;width:1.7rem;text-align:center}
+.ach-title{font-size:.76rem;color:#c8b898;font-weight:700}
+.ach-item.ach-done .ach-title{color:#e8c97a}
+.ach-prog{font-size:.64rem;color:#8a7048;margin-top:.15rem}
+.ach-reward{font-size:.64rem;color:#6a5830;margin-top:.15rem}
+.ach-reward.got{color:#d8b04a}
+.ach-desc{font-size:.66rem;color:#5a4820;margin-top:.1rem;line-height:1.35}
+
+/* ── MODAL ── */
+
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;
+
+align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
+
+#modal.open{display:flex}
+
+.mbox{background:#1a1410;border:1.5px solid #4a3018;border-radius:16px;
+
+padding:1.6rem;max-width:440px;width:92%;text-align:center;
+
+animation:mboxin .25s ease-out;max-height:88vh;overflow-y:auto}
+
+@keyframes mboxin{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+
+.mtitle{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.5rem;color:#e8c97a;margin-bottom:.35rem}
+
+.mrole{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:2.2rem;color:#f5e0a0;margin:.3rem 0}
+
+.mpts{color:#a89878;margin-bottom:.8rem;font-size:1rem}
+
+.mhand{display:flex;gap:6px;justify-content:center;margin:.75rem 0;flex-wrap:wrap}
+
+.mscores{width:100%;border-collapse:collapse;margin:.7rem 0;font-size:.95rem}
+
+.mscores td{padding:.38rem .65rem;border-bottom:1px solid #2a1e12}
+
+.mscores td:last-child{text-align:right;color:#e8c97a;font-weight:700}
+
+.mbtn{display:block;width:100%;padding:.82rem;border:none;border-radius:9px;
+
+font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;
+
+background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00;margin-top:.75rem;transition:all .15s}
+
+.mbtn:active{transform:scale(.97)}
+
+/* ── RULEBOOK ── */
+
+#rule-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;
+
+align-items:center;justify-content:center;z-index:250;backdrop-filter:blur(4px)}
+
+#rule-modal.open{display:flex}
+
+.rbook{background:#1a1610;border:1.5px solid #7a6030;border-radius:16px;
+
+padding:1.5rem;max-width:480px;width:94%;animation:mboxin .25s ease-out;max-height:88vh;overflow-y:auto}
+
+.rbook-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;
+
+font-size:1.35rem;color:#e8c97a;text-align:center;margin-bottom:1rem;letter-spacing:.15em}
+
+.rb-section{margin-bottom:1rem}
+
+.rb-section-title{font-size:.78rem;color:#8a7048;letter-spacing:.12em;
+
+border-bottom:1px solid #2e2010;padding-bottom:.28rem;margin-bottom:.65rem}
+
+.rb-role{display:flex;align-items:flex-start;gap:.65rem;padding:.5rem 0;border-bottom:1px solid #1e1608}
+
+.rb-role:last-child{border-bottom:none}
+
+.rb-role-name{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;
+
+font-size:1.05rem;color:#e8c97a;min-width:3.2rem;font-weight:700}
+
+.rb-role-desc{color:#a89868;font-size:.82rem;line-height:1.6;flex:1}
+
+.rb-role-ex{font-size:.74rem;color:#6a5830;margin-top:.28rem;
+
+background:#0d0a06;border-radius:5px;padding:.3rem .5rem;display:inline-block}
+
+.rb-op-row{display:flex;align-items:center;gap:.55rem;padding:.4rem 0;border-bottom:1px solid #1e1608;font-size:.85rem}
+
+.rb-op-row:last-child{border-bottom:none}
+
+.rb-op-key{background:#2a2010;border:1px solid #4a3820;border-radius:5px;
+
+padding:.15rem .55rem;color:#c9a84c;font-size:.78rem;white-space:nowrap;min-width:5rem;text-align:center}
+
+.rb-op-desc{color:#9a8858;line-height:1.5}
+
+.rbook-close{display:block;width:100%;padding:.75rem;border:none;border-radius:9px;
+
+font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;
+
+background:#2a2010;border:1.5px solid #4a3820;color:#c9a84c;margin-top:.9rem}
+
+/* ── チュートリアル ── */
+.tut-wrap{flex:1;display:flex;flex-direction:column;min-height:0;padding:.9rem 1rem;box-sizing:border-box}
+.tut-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.75rem;flex-shrink:0;padding-left:2.9rem /* 左上の☰ボタンと重ならないように */}
+.tut-back{background:transparent;border:1px solid #4a3018;border-radius:8px;color:#c9a84c;
+  font-family:inherit;font-size:.82rem;padding:.4rem .7rem;cursor:pointer}
+.tut-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.05rem;color:#e8c97a;font-weight:700}
+.tut-chips{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:.6rem;flex-shrink:0}
+.tut-chip{flex-shrink:0;padding:.4rem .75rem;border-radius:20px;border:1.5px solid #3e2e1e;
+  background:#1a1410;color:#8a7048;font-size:.78rem;font-family:inherit;cursor:pointer;white-space:nowrap}
+.tut-chip.active{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00;border-color:#c9a84c;font-weight:700}
+.tut-content{flex:1;overflow-y:auto;background:#150f0a;border:1px solid #2a1e10;border-radius:12px;
+  padding:1rem;min-height:0}
+.tut-content-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.3rem;color:#f5e0a0;margin-bottom:.15rem}
+.tut-content-pts{font-size:.78rem;color:#8a7048;margin-bottom:.75rem}
+.tut-content-desc{color:#c8b898;font-size:.9rem;line-height:1.7}
+.tut-ex-label{font-size:.72rem;color:#8a7048;font-weight:700;letter-spacing:.05em}
+.tut-nav{display:flex;justify-content:space-between;align-items:center;margin-top:.7rem;flex-shrink:0}
+.tut-navbtn{background:#1a1410;border:1.5px solid #5a4028;border-radius:9px;color:#c9a84c;
+  font-family:inherit;font-size:.85rem;padding:.6rem 1rem;cursor:pointer}
+.tut-navbtn:disabled{opacity:.35;cursor:default}
+.tut-practice{margin-top:1.2rem;padding-top:1rem;border-top:1px solid #2a1e10}
+.tut-practice-label{font-size:.85rem;color:#e8c97a;font-weight:700;margin-bottom:.2rem}
+.tut-practice-hint{font-size:.78rem;color:#8a7048;margin-bottom:.6rem}
+.tut-practice-field{display:flex;flex-wrap:wrap;gap:8px;padding:.8rem;border-radius:10px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.05) 0%,transparent 70%) , #0e0a06;
+  border:1px solid #2a1e10;margin-bottom:1rem}
+.tut-practice-field .rbtile{cursor:pointer;transition:transform .12s,box-shadow .12s}
+.tut-practice-field .rbtile:hover{transform:translateY(-4px);box-shadow:0 6px 14px rgba(0,0,0,.5)}
+.tut-practice-field .rbtile.tut-miss{animation:tutMissShake .35s}
+@keyframes tutMissShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tut-practice-hand-label{font-size:.78rem;color:#8a7048;margin-bottom:.5rem}
+.tut-practice-hand{display:flex;flex-wrap:wrap;gap:8px;min-height:88px}
+.tut-practice-hand .rbtile.tut-new{animation:tutNewTile .4s ease-out}
+@keyframes tutNewTile{from{transform:scale(0) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.tut-practice-status{margin-top:.7rem;text-align:center;font-size:.88rem;color:#8a7048;min-height:1.3em}
+.tut-practice-status.tut-win{color:#f5d040;font-weight:700}
+.tut-pos{font-size:.78rem;color:#6a5830}
+
+/* ── ガチャ ── */
+#gacha-lobby-btn{position:absolute;top:.75rem;right:.75rem;z-index:50;
+  display:flex;align-items:center;gap:.35rem;padding:.45rem .85rem;border-radius:20px;
+  background:linear-gradient(135deg,#e878b0,#a04a70);border:none;color:#2a0a16;
+  font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#giftbox-lobby-btn{position:absolute;top:3.15rem;right:.75rem;z-index:50;
+  display:flex;align-items:center;gap:.35rem;padding:.45rem .85rem;border-radius:20px;
+  background:linear-gradient(135deg,#e8a850,#a06a20);border:none;color:#2a1608;
+  font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#giftbox-lobby-btn .giftbox-dot{width:8px;height:8px;border-radius:50%;background:#ff4040;
+  box-shadow:0 0 6px rgba(255,64,64,.8);animation:assistPulse 1s infinite}
+@keyframes giftBlink{0%,100%{filter:none;box-shadow:0 2px 10px rgba(0,0,0,.4)}50%{filter:brightness(1.5);box-shadow:0 0 16px 4px rgba(255,208,112,.9)}}
+#event-lobby-btn{display:none;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.8rem;margin-bottom:.6rem;border-radius:10px;
+  background:linear-gradient(135deg,#ff9a30,#b04a08);border:none;color:#2a1000;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.4);animation:evGlow 2s ease-in-out infinite}
+@keyframes evGlow{0%,100%{box-shadow:0 2px 10px rgba(0,0,0,.4)}50%{box-shadow:0 0 16px 3px rgba(255,150,40,.85)}}
+#event-badge{display:none;position:fixed;top:.35rem;left:50%;transform:translateX(-50%);z-index:60;padding:.15rem .8rem;border-radius:12px;background:rgba(40,16,2,.85);border:1px solid #ff9a30;color:#ffc070;font-size:.72rem;font-weight:700;pointer-events:none;white-space:nowrap}
+.ev-box{text-align:left}.ev-rule{font-size:.82rem;color:#e8c9a0;margin:.25rem 0}
+.ev-rw{display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;margin:.25rem 0;border:1px solid #3a2410;border-radius:8px;font-size:.82rem;color:#c9a870}
+.ev-rw.got{border-color:#ff9a30;color:#ffd090;background:rgba(255,150,40,.1)}.ev-rw b{min-width:3.6rem;color:#ffa040}
+.ev-bar{height:8px;border-radius:4px;background:#2a1a0c;overflow:hidden;margin:.3rem 0 .6rem}.ev-bar i{display:block;height:100%;background:linear-gradient(90deg,#ff9a30,#ffd060)}
+#giftbox-lobby-btn.giftbox-blink{animation:giftBlink 1s infinite}
+.gacha-wrap{flex:1;display:flex;flex-direction:column;min-height:0;padding:.9rem 1rem;box-sizing:border-box}
+.gacha-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.75rem;flex-shrink:0;padding-left:2.9rem}
+.gacha-back{background:transparent;border:1px solid #4a3018;border-radius:8px;color:#c9a84c;
+  font-family:inherit;font-size:.82rem;padding:.4rem .7rem;cursor:pointer}
+.gacha-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.05rem;color:#e8c97a;font-weight:700}
+.gacha-currency{margin-left:auto;font-size:.92rem;color:#f5d040;font-weight:700;
+  display:flex;align-items:center;gap:.3rem;background:#1a1410;border:1px solid #4a3018;
+  border-radius:20px;padding:.35rem .8rem}
+.gacha-main{flex-shrink:0;background:#150f0a;border:1px solid #2a1e10;border-radius:14px;
+  padding:1.3rem 1rem;text-align:center;margin-bottom:.9rem}
+.gacha-draw-btn{padding:.85rem 2rem;border:none;border-radius:12px;
+  background:linear-gradient(135deg,#e878b0,#a04a70);color:#2a0a16;
+  font-family:inherit;font-size:1.05rem;font-weight:700;cursor:pointer;
+  box-shadow:0 3px 14px rgba(224,120,176,.4)}
+.gacha-draw-btn:disabled{opacity:.4;cursor:default;box-shadow:none}
+.gacha-cost{font-size:.74rem;color:#8a7048;margin-top:.5rem}
+.gacha-result{margin-top:1rem;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gacha-result-card{animation:gachaReveal .5s ease-out;text-align:center}
+@keyframes gachaReveal{from{transform:scale(.5) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.gacha-result-rarity{font-size:.7rem;font-weight:700;letter-spacing:.1em;margin-bottom:.3rem}
+.gacha-result-icon{font-size:2.4rem}
+.gacha-result-title{font-size:1rem;color:#f5e0a0;font-weight:700;margin-top:.3rem}
+.gacha-result-dup{font-size:.72rem;color:#8a7048;margin-top:.2rem}
+.gacha-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+.gacha-collection{flex:none;overflow:visible}
+.gacha-carousel{position:relative;flex-shrink:0}
+.gacha-banners{display:flex;gap:2%;overflow-x:auto;overflow-anchor:none;scroll-snap-type:x mandatory;flex-shrink:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.gacha-banners::-webkit-scrollbar{display:none}
+.gacha-banners::before,.gacha-banners::after{content:"";flex:0 0 10%}
+.gacha-banner{flex:0 0 76%;scroll-snap-align:center;scroll-snap-stop:always;box-sizing:border-box;transition:opacity .25s,transform .25s}
+.gacha-banner.gb-side{opacity:.6;transform:scale(.94);cursor:pointer}
+.gacha-arrow{position:absolute;top:8.6rem;transform:translateY(-50%);z-index:6;width:1.7rem;height:3.4rem;border:none;padding:0;background:rgba(10,8,22,.62);color:#fff;font-size:1.6rem;line-height:3.4rem;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 0 8px rgba(0,0,0,.5)}
+.gacha-arrow.l{left:0;border-radius:0 14px 14px 0}.gacha-arrow.r{right:0;border-radius:14px 0 0 14px}
+.gacha-arrow:active{background:rgba(255,154,208,.6)}
+.gacha-limited{background:linear-gradient(160deg,#2a0f24,#150a1c);border-color:#a0407a}
+.gacha-ltd-badge{display:inline-block;padding:.15rem .8rem;border-radius:12px;font-size:.78rem;font-weight:700;background:linear-gradient(135deg,#ff9ad0,#c060ff);color:#2a0618;margin-bottom:.5rem}
+.gacha-ltd-period{font-size:.78rem;color:#e0a0d0;margin-bottom:.2rem}
+.gacha-ltd-top{font-size:.8rem;color:#f5d040;margin-bottom:.6rem}
+.gacha-dots{display:none;text-align:center;font-size:.74rem;color:#8a7048;margin-top:.4rem;flex-shrink:0}
+.gacha-dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4a3a28;margin:0 3px}
+.gacha-dots i.on{background:#ff9ad0}
+.gacha-rarity-title{font-size:.78rem;color:#8a7048;font-weight:700;letter-spacing:.05em;
+  margin:.8rem 0 .4rem;padding-top:.5rem;border-top:1px solid #2a1e10}
+.gacha-rarity-title:first-child{margin-top:0;padding-top:0;border-top:none}
+.gacha-item{display:flex;align-items:center;gap:.6rem;padding:.5rem;border-radius:8px;
+  background:#150f0a;border:1px solid #241a10;margin-bottom:.35rem;opacity:.5}
+.gacha-item.gacha-owned{opacity:1;border-color:#5a4020;background:#1e1610}
+.gacha-item-icon.ltd{width:46px;height:46px;display:flex;align-items:center;justify-content:center}
+.ltd-ico{position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ltd-ico.big{width:58px;height:58px}
+.ltd-ico.locked>*{filter:grayscale(.85) brightness(.55)}
+.ltd-ico.locked::after{content:'🔒';position:absolute;font-size:1rem}
+.ltd-tile{width:30px;height:46px;display:flex;align-items:center;justify-content:center;animation:ltdFloat 2.4s ease-in-out infinite}
+.ltd-ico.big .ltd-tile{width:38px;height:58px}
+.ltd-fb{width:100%;height:100%;box-sizing:border-box;border-radius:5px;background:linear-gradient(165deg,#2e2018,#120c06);border:1.5px solid #5a4028;position:relative;overflow:hidden}
+.ltd-fb::before{content:'';position:absolute;inset:0}
+.ltd-fb::after{content:'❋';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.9rem;color:rgba(201,168,76,.25);pointer-events:none}
+.ltd-sw{width:100%;height:100%;border-radius:5px;border:1.5px solid var(--b);background:linear-gradient(165deg,var(--a),#05030a);position:relative;overflow:hidden}
+.ltd-sw::after,.ltd-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.4) 50%,transparent 62%);background-size:260% 100%;animation:ltdShine 2.8s linear infinite}
+.ltd-bg{position:relative;overflow:hidden;width:100%;height:100%;border-radius:10px;border:1px solid rgba(255,255,255,.25);background-color:#140a1c;background-repeat:no-repeat;animation:ltdPan 7s ease-in-out infinite}
+.ltd-bg-bg_lanterns::before{content:'';position:absolute;inset:0;background:radial-gradient(circle,#ffc060 0 2px,transparent 3px) 20% 100%/18px 18px,radial-gradient(circle,#ffa040 0 1.5px,transparent 3px) 70% 100%/14px 22px;animation:ltdRise 3s linear infinite}
+.ltd-bg-bg_redmoon::before{content:'';position:absolute;left:50%;top:22%;width:16px;height:16px;margin-left:-4px;border-radius:50%;background:#ff5a48;box-shadow:0 0 12px 4px rgba(255,70,60,.7);animation:ltdBeat 1.6s ease-in-out infinite}
+.ltd-bg-bg_gameovera3,.ltd-bg-bg_gameovera4{animation:ltdPan 7s ease-in-out infinite,ltdFlick 3.2s steps(1) infinite}
+.ltd-ttl{font-size:1.7rem;animation:ltdBounce 1.5s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(255,200,90,.8))}
+.ltd-top-icons{display:flex;gap:.7rem;justify-content:center;margin:.1rem 0 .7rem}
+@keyframes ltdFloat{0%,100%{transform:translateY(1px) rotate(-3deg)}50%{transform:translateY(-3px) rotate(3deg)}}
+@keyframes ltdShine{from{background-position:130% 0}to{background-position:-130% 0}}
+@keyframes ltdPan{0%,100%{background-position:25% 40%;background-size:150%}50%{background-position:75% 60%;background-size:185%}}
+@keyframes ltdRise{from{background-position:20% 100%,70% 100%}to{background-position:20% -20%,70% -30%}}
+@keyframes ltdBeat{0%,100%{transform:scale(.85);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+@keyframes ltdFlick{0%,92%,100%{filter:none}94%{filter:hue-rotate(60deg) brightness(1.5)}97%{filter:invert(.15)}}
+@keyframes ltdBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.12)}}
+.gacha-item-icon{font-size:1.3rem;flex-shrink:0;width:1.8rem;text-align:center}
+.gacha-item-body{flex:1;min-width:0}
+.gacha-item-title{font-size:.78rem;color:#c8b898;font-weight:700}
+.gacha-item.gacha-owned .gacha-item-title{color:#e8c97a}
+.gacha-item-desc{font-size:.66rem;color:#5a4820;margin-top:.1rem}
+.gacha-equip-btn{flex-shrink:0;padding:.35rem .65rem;border-radius:7px;border:1.5px solid #5a4028;
+  background:transparent;color:#c9a84c;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer}
+.gacha-equip-btn.gacha-equipped{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00;border-color:transparent}
+
+/* ── お届けBOX ── */
+.giftbox-wrap{flex:1;display:flex;flex-direction:column;min-height:0;padding:.9rem 1rem;box-sizing:border-box}
+.giftbox-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem;flex-shrink:0;padding-left:2.9rem}
+.giftbox-back{background:transparent;border:1px solid #4a3018;border-radius:8px;color:#c9a84c;
+  font-family:inherit;font-size:.82rem;padding:.4rem .7rem;cursor:pointer}
+.giftbox-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.05rem;color:#e8c97a;font-weight:700}
+.giftbox-list{flex:1;overflow-y:auto}
+.giftbox-item{background:#150f0a;border:1px solid #4a3018;border-radius:14px;padding:1rem;margin-bottom:.8rem}
+.giftbox-item-title{font-size:.95rem;color:#f5e0a0;font-weight:700;margin-bottom:.3rem}
+.giftbox-item-desc{font-size:.78rem;color:#8a7048;margin-bottom:.8rem;line-height:1.5}
+.giftbox-claim-btn{width:100%;padding:.7rem;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#e8a850,#a06a20);color:#2a1608;
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.giftbox-claim-btn:disabled{background:#2a2018;color:#5a4820;cursor:default}
+.giftbox-empty{text-align:center;color:#5a4820;font-size:.85rem;padding:2rem 1rem}
+
+/* ── SIDEBAR ── */
+
+#menu-btn{position:fixed;top:.55rem;left:.75rem;z-index:400;
+
+background:rgba(20,16,8,.9);border:1px solid #3e2e1e;border-radius:7px;
+
+color:#c9a84c;font-size:1.2rem;width:36px;height:36px;cursor:pointer;
+
+display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:450}
+
+#sidebar{display:none;position:fixed;top:0;left:0;width:min(290px,85vw);height:100vh;
+
+background:#1a1410;border-right:1px solid #3e2e1e;z-index:500;overflow-y:auto;
+
+-webkit-overflow-scrolling:touch;padding:1rem}
+
+.sb-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+
+.sb-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.1rem;color:#e8c97a;letter-spacing:.1em}
+
+.sb-close{background:transparent;border:none;color:#8a7048;font-size:1.3rem;cursor:pointer;padding:.2rem}
+
+.sb-section{background:#141008;border:1px solid #3e2e1e;border-radius:10px;padding:.9rem;margin-bottom:.8rem}
+
+.sb-section-title{font-size:.74rem;color:#8a7048;letter-spacing:.12em;margin-bottom:.65rem;
+
+border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
+
+.history-item{padding:.45rem 0;border-bottom:1px solid #2a1e10;font-size:.8rem}
+
+.history-item:last-child{border-bottom:none}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:.6rem}
+.stat-card{background:#0d0a06;border:1px solid #3e2e1e;border-radius:8px;padding:.55rem .6rem;text-align:center}
+.stat-card-title{font-size:.68rem;color:#6a5830;letter-spacing:.06em;margin-bottom:.3rem}
+.stat-card-val{font-size:1.25rem;color:#e8c97a;font-weight:700}
+#icon-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;
+  align-items:center;justify-content:center;z-index:600;backdrop-filter:blur(4px)}
+#icon-modal.open{display:flex}
+#fieldbg-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;
+  align-items:center;justify-content:center;z-index:600;backdrop-filter:blur(4px)}
+#fieldbg-modal.open{display:flex}
+.icon-mbox{background:#1a1410;border:1.5px solid #4a3018;border-radius:16px;
+  padding:1.6rem;max-width:340px;width:92%;text-align:center;animation:mboxin .25s ease-out}
+
+
+
+/* ── タイトル画面のイベント背景 ── */
+#lobby-fx{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+#lobby-event-banner{display:none;width:max-content;max-width:100%;margin:0 auto .6rem;padding:.3rem .9rem;border-radius:999px;
+  font-size:.78rem;font-weight:700;letter-spacing:.1em;text-align:center;color:var(--logo-c,#e8c97a);
+  border:1px solid var(--logo-c,#e8c97a);background:rgba(0,0,0,.35);box-shadow:0 0 14px var(--logo-glow,transparent)}
+.lf{position:absolute;left:0;top:0;line-height:1;will-change:transform,opacity;animation-timing-function:linear;animation-iteration-count:infinite}
+.lf-fall{animation-name:lfFall}
+.lf-rise{animation-name:lfRise}
+.lf-twinkle{animation-name:lfTwinkle;animation-timing-function:ease-in-out}
+.lf-pop{animation-name:lfPop;animation-timing-function:ease-out}
+.lf-fly{animation-name:lfFly}
+.lf-bob{animation-name:lfBob;animation-timing-function:ease-in-out}
+@keyframes lfFall{from{transform:translate3d(0,-12vh,0) rotate(0)}to{transform:translate3d(var(--sx,20px),112vh,0) rotate(360deg)}}
+@keyframes lfRise{from{transform:translate3d(0,112vh,0) scale(.7)}to{transform:translate3d(var(--sx,20px),-12vh,0) scale(1.1)}}
+@keyframes lfTwinkle{0%,100%{opacity:.1;transform:scale(.5)}50%{opacity:1;transform:scale(1.25)}}
+@keyframes lfPop{0%{opacity:0;transform:scale(.2)}18%{opacity:1;transform:scale(1.3)}60%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
+@keyframes lfFly{0%{transform:translate3d(-15vw,0,0)}25%{transform:translate3d(30vw,-22px,0)}50%{transform:translate3d(55vw,16px,0)}75%{transform:translate3d(85vw,-16px,0)}100%{transform:translate3d(115vw,0,0)}}
+@keyframes lfBob{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:.85;transform:translateY(-16px)}}
+.lf-moon{position:absolute;top:19%;right:5%;width:84px;height:84px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fffbe0,#f5d890 70%,#d8b060);
+  box-shadow:0 0 40px 10px var(--moon-glow,rgba(255,230,150,.45)),0 0 120px 40px var(--moon-glow2,rgba(255,220,130,.2))}
+.lf-ground{position:absolute;bottom:.3rem;font-size:3rem;line-height:1}
+.lf-ground.l{left:.6rem}.lf-ground.r{right:.6rem}
+.hw-pump{filter:drop-shadow(0 0 14px rgba(255,150,30,.9));animation:hwFlicker 2.6s ease-in-out infinite}
+@keyframes hwFlicker{0%,100%{filter:drop-shadow(0 0 10px rgba(255,150,30,.7))}45%{filter:drop-shadow(0 0 24px rgba(255,190,60,1))}60%{filter:drop-shadow(0 0 8px rgba(255,120,20,.6))}}
+.hw-fog{position:absolute;left:-30%;width:160%;height:34%;bottom:0;
+  background:radial-gradient(ellipse at 50% 100%,rgba(200,170,255,.22),transparent 70%);filter:blur(12px);animation:hwFog 14s ease-in-out infinite alternate}
+.hw-fog.f2{height:26%;bottom:-4%;background:radial-gradient(ellipse at 50% 100%,rgba(255,170,90,.2),transparent 70%);animation-duration:19s;animation-direction:alternate-reverse}
+@keyframes hwFog{from{transform:translateX(-6%)}to{transform:translateX(6%)}}
+.hw-spider{position:absolute;top:0;left:14%;display:flex;flex-direction:column;align-items:center;animation:hwSpider 5s ease-in-out infinite}
+.hw-spider i{display:block;width:1px;height:70px;background:rgba(255,255,255,.45)}
+.hw-spider span{font-size:1.6rem;line-height:1}
+@keyframes hwSpider{0%,100%{transform:translateY(-34px)}50%{transform:translateY(20px)}}
+
+.lf-star{position:absolute;border-radius:50%;background:#fff;animation:lfTwinkle 3s ease-in-out infinite}
+#lobby-fx canvas{position:absolute;inset:0;width:100%;height:100%}
+
+.wing{transform-origin:36px 22px;transform-box:view-box;animation:wingFlap .24s ease-in-out infinite alternate}
+@keyframes wingFlap{from{transform:rotate(-24deg)}to{transform:rotate(22deg)}}
+.hw-face{animation:hwGlow 2.6s ease-in-out infinite}
+@keyframes hwGlow{0%,100%{opacity:.85}45%{opacity:1}60%{opacity:.68}}
+.xl{animation:xlBlink 1.6s ease-in-out infinite}
+@keyframes xlBlink{0%,100%{opacity:.3}50%{opacity:1}}
+.tz{transform-box:fill-box;transform-origin:50% 0;animation:tzSway 3.2s ease-in-out infinite}
+@keyframes tzSway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.sus{transform-box:fill-box;transform-origin:50% 100%;animation:susSway 4.5s ease-in-out infinite}
+@keyframes susSway{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(3deg)}}
+.lf-cloud{position:absolute;left:0;width:240px;height:54px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(190,200,225,.3),transparent 70%);filter:blur(8px);animation:cloudDrift 70s linear infinite}
+@keyframes cloudDrift{from{transform:translateX(-260px)}to{transform:translateX(120vw)}}
+.lf-moon2{position:absolute;filter:drop-shadow(0 0 26px var(--mg,rgba(255,235,170,.55)))}
+
+#assist-info{display:none;margin:.2rem 0 .1rem;padding:.35rem .6rem;border-radius:8px;background:rgba(42,158,110,.12);border:1px solid rgba(42,158,110,.4);font-size:.72rem;color:#c8f0e0;line-height:1.7}
+#assist-info.on{display:block}
+#assist-info b{color:#ffe28a}
+.am-tile{display:inline-flex;flex-direction:column;position:relative;width:20px;height:31px;margin:0 3px;vertical-align:middle;border:1px solid #c9a84c;border-radius:4px;background:#f4ead0}
+.am-tile>span{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5px}
+.am-tile>span:first-child{border-bottom:1px solid #c9a84c}
+.am-tile svg{width:100%;height:100%}
+.am-tile i{position:absolute;right:-5px;bottom:-6px;min-width:13px;height:13px;border-radius:7px;background:#2a1e14;border:1px solid #c9a84c;color:#ffe28a;font-style:normal;font-size:.55rem;line-height:11px;text-align:center}
+.tile.assist-win{border-color:#ffd24a!important;box-shadow:0 0 16px rgba(255,210,70,.95),0 0 4px #fff3a0!important;animation:assistPulse .7s infinite;position:relative}
+.tile.assist-win::after{content:'上がり！';position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);background:#ffd24a;color:#2a1a00;font-size:.5rem;font-weight:900;padding:0 .3rem;border-radius:5px;white-space:nowrap}
+.tile.assist-wait{border-color:#60a8f0!important;box-shadow:0 0 10px rgba(96,168,240,.7)!important}
+.htile.assist-danger{position:relative}
+.htile.assist-danger::before{content:'⚠';position:absolute;top:-8px;left:-3px;font-size:.8rem;filter:drop-shadow(0 0 3px #000);z-index:3}
+
+#icon-update-btn{display:none;margin:.1rem auto .6rem;padding:.4rem 1rem;border-radius:999px;border:1.5px solid var(--logo-c,#e8c97a);background:linear-gradient(135deg,rgba(0,0,0,.55),rgba(30,20,10,.65));
+  color:var(--logo-c,#e8c97a);font-family:inherit;font-size:.78rem;font-weight:700;letter-spacing:.06em;cursor:pointer;animation:iuPulse 2s ease-in-out infinite}
+#icon-update-btn.on{display:block}
+@keyframes iuPulse{0%,100%{box-shadow:0 0 6px var(--logo-glow,rgba(201,168,76,.3))}50%{box-shadow:0 0 16px var(--logo-glow,rgba(201,168,76,.7))}}
+#icon-update-modal{position:fixed;inset:0;z-index:960;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.82);backdrop-filter:blur(4px);animation:mfIn .25s ease-out both}
+.iu-box{width:min(380px,94vw);max-height:90vh;overflow-y:auto;background:#1a1410;border:1.5px solid #4a3018;border-radius:16px;padding:1.1rem}
+.iu-title{text-align:center;font-weight:700;color:#e8c97a;letter-spacing:.08em;font-size:1.05rem}
+.iu-prev{display:flex;align-items:center;justify-content:center;gap:.8rem;margin:.9rem 0}
+.iu-prev img{width:76px;height:76px;border-radius:18px;border:1px solid #4a3018;background:#0d0a08;object-fit:cover}
+.iu-prev .arrow{color:#c9a84c;font-size:1.3rem}.iu-prev small{display:block;text-align:center;font-size:.62rem;color:#8a7048;margin-top:.25rem}
+.iu-note{font-size:.74rem;color:#b8a070;line-height:1.65;margin:.5rem 0}
+.iu-steps{margin:.4rem 0 .6rem;padding-left:1.2rem;font-size:.8rem;color:#e8d8b0;line-height:1.8}
+.iu-steps b{color:#ffe28a}
+.iu-btns{display:flex;flex-direction:column;gap:.45rem;margin-top:.7rem}
+.iu-btns button,.iu-btns a{padding:.65rem;border-radius:10px;border:none;font-family:inherit;font-size:.88rem;font-weight:700;text-align:center;text-decoration:none;cursor:pointer;display:block}
+.iu-btns .main{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}
+.iu-btns .sub{background:#2a1e14;color:#e8c97a;border:1px solid #5a4028}
+.iu-btns .ghost{background:transparent;color:#8a7048;font-weight:400}
+
+/* ── 「あなたの番です」の演出 ── */
+#turn-fx{position:fixed;left:0;right:0;top:30%;height:clamp(84px,21vw,120px);z-index:920;pointer-events:none;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#turn-fx .tf-band{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(24,16,6,.9) 16%,rgba(24,16,6,.9) 84%,transparent);animation:tfBand 1.35s cubic-bezier(.2,.9,.3,1) forwards}
+@keyframes tfBand{0%{transform:translateX(-100%)}20%{transform:translateX(0)}80%{transform:translateX(0)}100%{transform:translateX(100%)}}
+#turn-fx .tf-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#ffe28a,transparent);box-shadow:0 0 10px #ffc830;top:0;animation:tfBand 1.35s cubic-bezier(.2,.9,.3,1) forwards}
+#turn-fx .tf-line.b{top:auto;bottom:0}
+#turn-fx .tf-text{position:relative;font-family:'Hiragino Mincho ProN','Yu Mincho','Noto Serif CJK JP',serif;font-weight:900;font-size:clamp(1.8rem,9vw,3rem);letter-spacing:.14em;white-space:nowrap;
+  background:linear-gradient(180deg,#fffdf0 10%,#ffe27a 55%,#e8a020 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,200,48,.8)) drop-shadow(0 3px 0 rgba(60,30,0,.7));animation:tfText 1.35s ease-out forwards}
+@keyframes tfText{0%,14%{opacity:0;transform:scale(1.7)}30%{opacity:1;transform:scale(1)}80%{opacity:1;transform:none}100%{opacity:0;transform:translateX(50px)}}
+#turn-fx .tf-hint{position:relative;margin-top:.15rem;font-size:clamp(.72rem,3.2vw,.9rem);color:#e8d8b0;letter-spacing:.12em;text-shadow:0 2px 6px #000;animation:tfHint 1.35s ease-out forwards}
+@keyframes tfHint{0%,30%{opacity:0;transform:translateY(8px)}46%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){#turn-fx .tf-text{animation:tfHint 1.35s ease-out forwards}}
+
+/* ── ルームの待機画面 ── */
+#room-wait{position:fixed;inset:0;z-index:925;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,#14283a,#080e18 60%,#04070e);animation:mfIn .3s ease-out both;overflow-y:auto}
+.rw-box{width:min(400px,94vw);padding:1.2rem 1rem;text-align:center}
+.rw-head{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.3rem;font-weight:700;color:#e8f6f4;letter-spacing:.08em;text-shadow:0 0 14px rgba(74,200,192,.6)}
+.rw-check{width:64px;height:64px;margin:0 auto .5rem;border-radius:50%;border:3px solid #60e8a0;display:flex;align-items:center;justify-content:center;color:#60e8a0;font-size:2rem;font-weight:900;box-shadow:0 0 20px rgba(96,232,160,.5);animation:rwCheck .6s cubic-bezier(.2,1.6,.4,1) both,rwRing 2.4s ease-in-out infinite}
+@keyframes rwCheck{from{transform:scale(0) rotate(-90deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes rwRing{0%,100%{box-shadow:0 0 14px rgba(96,232,160,.4)}50%{box-shadow:0 0 28px rgba(96,232,160,.8)}}
+.rw-codebox{margin:.8rem auto;padding:.5rem .8rem;border-radius:12px;background:rgba(0,0,0,.4);border:1px solid #3a6a50;display:inline-block}
+.rw-codelabel{font-size:.65rem;color:#6a9a80;letter-spacing:.14em}
+.rw-code{font-size:2rem;font-weight:700;color:#60e8a0;letter-spacing:.35em;padding-left:.35em;font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
+.rw-copy{margin-top:.15rem;padding:.2rem .7rem;border-radius:999px;border:1px solid #3a6a50;background:transparent;color:#8acaa8;font-family:inherit;font-size:.7rem;cursor:pointer}
+.rw-slots{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin:.9rem 0}
+.rw-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.7rem .5rem;border-radius:14px;background:linear-gradient(160deg,rgba(24,40,54,.92),rgba(10,18,28,.92));border:1px solid #4a8a94;min-height:128px;justify-content:center}
+.rw-card.me{border-color:#ffd24a;box-shadow:0 0 14px rgba(255,200,60,.3)}
+.rw-card.new{animation:rwPop .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes rwPop{0%{transform:scale(.3) rotate(-8deg);opacity:0}100%{transform:none;opacity:1}}
+.rw-card.new::after{content:'';position:absolute;inset:-4px;border-radius:16px;border:2px solid #60e8a0;opacity:0;animation:rwBurst .9s .15s ease-out both}
+@keyframes rwBurst{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(1.25)}}
+.rw-av{width:58px;height:58px;border-radius:50%;overflow:hidden;background:#2a1e12;border:2px solid #c9a84c;display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:700;color:#e8c97a}
+.rw-av img{width:100%;height:100%;object-fit:cover}
+.rw-card .win-title{margin:.05rem 0 0;font-size:.62rem;padding:.08rem .45rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-name{font-weight:700;color:#fff;font-size:.88rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-tag{position:absolute;top:5px;left:7px;font-size:.62rem;color:#ffd24a}
+.rw-you{font-size:.6rem;color:#ffd24a;letter-spacing:.14em}
+.rw-empty{border:1.5px dashed #3a5a68;background:rgba(10,20,30,.5);color:#5a8a98;font-size:.8rem}
+.rw-empty i{font-style:normal;animation:mfDot 1.6s infinite}
+.rw-status{font-size:.82rem;color:#9ad8d0;margin:.4rem 0}
+.rw-btns{display:flex;flex-direction:column;gap:.45rem;margin-top:.8rem}
+.rw-btns button{padding:.7rem;border-radius:10px;border:none;font-family:inherit;font-weight:700;font-size:.92rem;cursor:pointer}
+.rw-btns .main{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}.rw-btns .ghost{background:transparent;color:#7a98a0;font-weight:400}
+.rw-join-banner{position:fixed;left:50%;top:4%;transform:translateX(-50%);z-index:965;padding:.6rem 1.3rem;border-radius:999px;background:linear-gradient(135deg,rgba(20,60,50,.95),rgba(10,30,30,.95));border:1.5px solid #60e8a0;
+  color:#d8fff0;font-weight:700;letter-spacing:.06em;box-shadow:0 0 22px rgba(96,232,160,.5);animation:rwBanner 2.4s ease-out forwards;white-space:nowrap}
+@keyframes rwBanner{0%{opacity:0;transform:translate(-50%,-30px) scale(.8)}12%{opacity:1;transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-10px)}}
+#tile-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+#field-fx{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.win-title{display:inline-block;margin:.15rem 0 .35rem;padding:.16rem .75rem;border-radius:999px;border:1px solid #c9a84c;background:rgba(201,168,76,.12);color:#f5d78a;font-size:.78rem;font-weight:700;letter-spacing:.06em}
+.lf-bottom{position:absolute;bottom:0;left:0;width:100%;height:auto;overflow:visible}
+
+.santa{position:absolute;top:17%;left:0;width:190px;opacity:.97;will-change:transform;
+  transform:translate3d(-260px,0,0);animation:santaFly 46s linear infinite}
+@keyframes santaFly{0%,17%{transform:translate3d(-260px,50px,0) rotate(-4deg)}45%,100%{transform:translate3d(calc(100vw + 60px),-40px,0) rotate(-6deg)}}
+.santa svg{display:block;width:100%;height:auto;filter:drop-shadow(0 0 8px rgba(255,220,120,.55));animation:santaBob 1.1s ease-in-out infinite}
+@keyframes santaBob{0%,100%{transform:translateY(-3px)}50%{transform:translateY(3px)}}
+.santa-trail{position:absolute;right:92%;top:46%;width:170px;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,transparent,rgba(255,230,150,.6));filter:blur(2px)}
+.santa-trail i{position:absolute;top:-4px;width:3px;height:3px;border-radius:50%;background:#fff3b0;box-shadow:0 0 6px #ffe27a;animation:lfTwinkle 1s ease-in-out infinite}
+.lf-drift{animation:lfDrift 24s ease-in-out infinite alternate}
+@keyframes lfDrift{from{transform:translateX(-18px)}to{transform:translateX(22px)}}
+@media (prefers-reduced-motion:reduce){.santa,.lf-drift{animation:none}.santa{display:none}.lf,.lf-star,.lf-cloud,#lobby-fx canvas{display:none}.hw-spider,.hw-fog,.hw-pump{animation:none}}
+
+/* ── リーチ・ロンの演出 ── */
+#call-fx{position:fixed;inset:0;z-index:940;pointer-events:none;overflow:hidden;--c1:#4aa8ff;--c2:#d6eeff;--dur:1.6s;animation:cfLife var(--dur) linear forwards}
+@keyframes cfLife{0%{opacity:1}86%{opacity:1}100%{opacity:0}}
+#call-fx.shake{animation:cfLife var(--dur) linear forwards,cfShake .5s .28s linear}
+@keyframes cfShake{0%,100%{transform:translate(0)}12%{transform:translate(-10px,6px)}28%{transform:translate(9px,-7px)}44%{transform:translate(-7px,-4px)}60%{transform:translate(6px,6px)}78%{transform:translate(-3px,3px)}}
+.cf-dim{position:absolute;inset:0;background:radial-gradient(circle at 50% 46%,rgba(0,0,0,.35),rgba(0,0,0,.78));animation:cfDim .25s ease-out both}
+@keyframes cfDim{from{opacity:0}to{opacity:1}}
+.cf-rays{position:absolute;left:50%;top:46%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;
+  background:repeating-conic-gradient(var(--c1) 0 3deg,transparent 3deg 12deg);opacity:0;
+  -webkit-mask-image:radial-gradient(circle closest-side,rgba(0,0,0,.9),transparent 26%);mask-image:radial-gradient(circle closest-side,rgba(0,0,0,.9),transparent 26%);
+  animation:cfRays var(--dur) linear forwards}
+@keyframes cfRays{0%{opacity:0;transform:rotate(0) scale(.4)}14%{opacity:.5;transform:rotate(12deg) scale(1)}100%{opacity:.25;transform:rotate(70deg) scale(1.1)}}
+.cf-band{position:absolute;left:0;right:0;top:46%;height:clamp(110px,24vw,170px);margin-top:calc(clamp(110px,24vw,170px)/-2);
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.85) 18%,rgba(0,0,0,.85) 82%,transparent);animation:cfBand .28s cubic-bezier(.2,.9,.3,1) both}
+@keyframes cfBand{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
+.cf-line{position:absolute;left:0;right:0;height:2px;top:calc(46% - clamp(55px,12vw,85px));background:linear-gradient(90deg,transparent,var(--c2),transparent);box-shadow:0 0 12px var(--c1)}
+.cf-line.b{top:calc(46% + clamp(55px,12vw,85px))}
+.cf-text{position:absolute;left:0;right:0;top:46%;text-align:center;transform:translateY(-52%);
+  font-family:'Hiragino Mincho ProN','Yu Mincho','Noto Serif CJK JP',serif;font-weight:900;font-size:clamp(4rem,21vw,8.5rem);letter-spacing:.06em;line-height:1;white-space:nowrap;
+  background:linear-gradient(180deg,#fff 10%,var(--c2) 45%,var(--c1) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 14px var(--c1)) drop-shadow(0 4px 0 rgba(0,0,0,.6));animation:cfSlam .34s cubic-bezier(.2,1.5,.4,1) .12s both}
+@keyframes cfSlam{0%{transform:translateY(-52%) scale(3.4);opacity:0}60%{opacity:1}100%{transform:translateY(-52%) scale(1);opacity:1}}
+.cf-sub{position:absolute;left:0;right:0;top:calc(46% + clamp(70px,15vw,105px));text-align:center;color:#fff;font-weight:700;font-size:clamp(.9rem,3.6vw,1.2rem);
+  letter-spacing:.12em;text-shadow:0 2px 8px #000,0 0 12px var(--c1);animation:cfSub .3s .38s both}
+@keyframes cfSub{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.cf-ring{position:absolute;left:50%;top:46%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:4px solid var(--c2);opacity:0;animation:cfRing .75s .3s ease-out both}
+.cf-ring.r2{border-color:var(--c1);animation-delay:.38s}
+@keyframes cfRing{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(22)}}
+.cf-flash{position:absolute;inset:0;background:var(--c2);opacity:0;animation:cfFlash .5s .3s ease-out both}
+@keyframes cfFlash{0%{opacity:.85}100%{opacity:0}}
+.cf-spark{position:absolute;left:50%;top:46%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:50%;background:var(--c2);box-shadow:0 0 8px var(--c1);
+  opacity:0;animation:cfSpark .75s .3s ease-out both}
+@keyframes cfSpark{0%{opacity:1;transform:rotate(var(--a)) translateX(0)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d))}}
+/* ロン：斬撃 */
+.cf-slash{position:absolute;left:-10%;width:120%;height:5px;top:46%;background:linear-gradient(90deg,transparent,#fff 30%,#fff 70%,transparent);box-shadow:0 0 14px var(--c1),0 0 30px var(--c1);transform-origin:center;opacity:0;animation:cfSlash .3s .22s ease-out both}
+.cf-slash.s1{transform:rotate(-14deg)}.cf-slash.s2{transform:rotate(12deg);animation-delay:.3s}
+@keyframes cfSlash{0%{opacity:1;clip-path:inset(0 100% 0 0)}60%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 0)}}
+/* 上がり：金色と六華の花 */
+#call-fx.cf-win{--c1:#ffc830;--c2:#fff4c0}
+#call-fx.cf-win .cf-text{background:linear-gradient(180deg,#fffdf0 5%,#ffe27a 45%,#e8a020 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #ffc830) drop-shadow(0 4px 0 rgba(70,40,0,.7))}
+#call-fx.cf-win .cf-band{background:linear-gradient(180deg,transparent,rgba(40,24,0,.86) 18%,rgba(40,24,0,.86) 82%,transparent)}
+#call-fx.cf-win .cf-dim{background:radial-gradient(circle at 50% 46%,rgba(50,30,0,.35),rgba(0,0,0,.8))}
+.cf-flower{position:absolute;left:50%;top:46%;width:min(120vw,620px);height:min(120vw,620px);margin:calc(min(120vw,620px)/-2) 0 0 calc(min(120vw,620px)/-2);opacity:0;animation:cfFlower 1.5s .12s ease-out both}
+.cf-flower svg{width:100%;height:100%;display:block}
+@keyframes cfFlower{0%{opacity:0;transform:rotate(-60deg) scale(.2)}25%{opacity:.9}100%{opacity:0;transform:rotate(40deg) scale(1.15)}}
+.cf-petal-fall{position:absolute;top:-30px;width:var(--s);height:calc(var(--s)*.55);border-radius:50%;background:var(--c2);opacity:.9;left:var(--x);animation:cfFall var(--t) var(--dl) linear both}
+@keyframes cfFall{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--dx),108vh) rotate(var(--r))}}
+#call-fx.cf-ron{--c1:#ff4a1a;--c2:#ffd9a0}
+#call-fx.cf-ron .cf-text{background:linear-gradient(180deg,#fff 5%,#ffe28a 40%,#ff5a20 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #ff4a1a) drop-shadow(0 4px 0 rgba(60,0,0,.7))}
+#call-fx.cf-ron .cf-band{background:linear-gradient(180deg,transparent,rgba(40,0,0,.88) 18%,rgba(40,0,0,.88) 82%,transparent)}
+#call-fx.cf-ron .cf-dim{background:radial-gradient(circle at 50% 46%,rgba(60,0,0,.4),rgba(0,0,0,.82))}
+/* 選んだ演出（色・飾りを差し替える） */
+#call-fx.fxc .cf-text{background:linear-gradient(180deg,#fff 10%,var(--c2) 45%,var(--c1) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px var(--c1)) drop-shadow(0 4px 0 rgba(0,0,0,.6))}
+#call-fx.fxc .cf-band{background:linear-gradient(180deg,transparent,var(--bg) 18%,var(--bg) 82%,transparent)}
+#call-fx.fxc .cf-dim{background:radial-gradient(circle at 50% 46%,var(--dm),rgba(0,0,0,.82))}
+.cf-glyph{position:absolute;left:50%;top:46%;font-size:var(--s,22px);line-height:1;opacity:0;margin:-.5em 0 0 -.5em}
+.cf-glyph.burst{animation:cfGlyphB .95s .3s ease-out both}
+@keyframes cfGlyphB{0%{opacity:1;transform:translate(0,0) scale(.5) rotate(0)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1.3) rotate(var(--r))}}
+.cf-glyph.fall{left:var(--lx);top:-6%;margin:0;animation:cfGlyphF var(--t) var(--dl) ease-in both}
+@keyframes cfGlyphF{0%{opacity:0;transform:translate(0,0) rotate(0)}12%{opacity:1}100%{opacity:.9;transform:translate(var(--dx),112vh) rotate(var(--r))}}
+/* 上がり演出「虹」：弧が左から右へ描かれていく本物の虹 */
+.cf-rainbow{position:absolute;left:50%;bottom:34%;width:min(104vw,980px);transform:translateX(-50%);aspect-ratio:1000/600;opacity:0;animation:cfRbFade var(--dur) linear both}
+.cf-rainbow svg{width:100%;height:100%;overflow:visible;display:block}
+.cf-rainbow .rb{fill:none;stroke-linecap:butt;stroke-dasharray:1;stroke-dashoffset:1;animation:cfRbDraw 1.1s cubic-bezier(.3,.7,.3,1) forwards;animation-delay:calc(.15s + var(--i)*.05s)}
+.cf-rainbow .rb2{opacity:.0;animation-name:cfRbDraw2;animation-delay:calc(.6s + var(--i)*.05s)}
+.cf-rainbow .mist{opacity:0;animation:cfRbMist 1.2s .3s ease-out forwards}
+@keyframes cfRbFade{0%{opacity:0}8%{opacity:1}78%{opacity:1}100%{opacity:0}}
+@keyframes cfRbDraw{to{stroke-dashoffset:0}}
+@keyframes cfRbDraw2{0%{stroke-dashoffset:1;opacity:.28}100%{stroke-dashoffset:0;opacity:.28}}
+@keyframes cfRbMist{to{opacity:1}}
+#call-fx.cf-rb .cf-dim{background:radial-gradient(circle at 50% 60%,rgba(40,60,110,.28),rgba(4,8,24,.84))}
+#call-fx.cf-rb .cf-text{filter:drop-shadow(0 0 18px #fff) drop-shadow(0 4px 0 rgba(0,0,30,.6));background:linear-gradient(90deg,#ff6a6a,#ffd24a,#6aff8a,#4ac8ff,#b07aff);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media (prefers-reduced-motion:reduce){.cf-rainbow .rb,.cf-rainbow .rb2{animation-duration:.01s;animation-delay:0s}}
+/* ガチャ「黄金の精神」：マンガ調の見た目（網点・集中線・太い輪郭・ゴゴゴ） */
+@keyframes joTrem{0%,100%{transform:translate(0,0) rotate(var(--r,0deg))}25%{transform:translate(2px,-2px) rotate(var(--r,0deg))}50%{transform:translate(-2px,1px) rotate(var(--r,0deg))}75%{transform:translate(1px,2px) rotate(var(--r,0deg))}}
+@keyframes joFlash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+/* 表紙の配色（青・赤・緑）。ガチャ画面を開くたびにランダムで変わり、栞のマークをタップすると切り替わる */
+:root{--jc:#1e4fc4;--jc-d:#0e2c80;--jc-dd:#081a52;--jc-cream:#f4ecd0;--jc-ink:#0a0a12}
+:root[data-jc=red]{--jc:#d4261c;--jc-d:#8e140f;--jc-dd:#580a07}
+:root[data-jc=green]{--jc:#1f8a57;--jc-d:#10563a;--jc-dd:#0a3524}
+/* ガチャ「黄金の精神」：単行本の表紙風（べた塗り・三角形・星・ギザギザ三角の飾り・黒い帯） */
+.gacha-main.jo-main{position:relative;overflow:hidden;background:var(--jc);border:3px solid var(--jc-ink);border-radius:3px;padding:1.1rem 1.1rem 1.1rem;margin:.5rem .4rem;transition:background .35s}
+.jo-main::before{content:"";position:absolute;inset:6px;border:2px solid var(--jc-cream);pointer-events:none;z-index:0}
+.jo-main>*{position:relative;z-index:1}
+.jo-main>.jo-zz,.jo-main>.jo-corner{position:absolute;z-index:0}
+.jo-zz{top:4.2rem;height:180px;width:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='60' viewBox='0 0 26 60'%3E%3Cpolygon points='2,2 24,15 2,28' fill='%23f4ecd0' stroke='%230a0a12' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpolygon points='2,32 24,45 2,58' fill='%230a0a12' stroke='%23f4ecd0' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") repeat-y;opacity:.95}
+.jo-zz.l{left:16px}
+.jo-zz.r{right:16px;transform:scaleX(-1)}
+.jo-corner{top:14px;width:1.9rem;height:1.9rem;border-radius:50%;background:var(--jc-cream);border:3px solid var(--jc-ink);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--jc-ink);line-height:1}
+.jo-corner.l{left:16px}.jo-corner.r{right:16px}
+.jo-stars{white-space:nowrap;font-size:.58rem;letter-spacing:.3em;color:var(--jc-cream);text-shadow:1px 1px 0 var(--jc-ink);margin:0;padding-left:.55em}
+.jo-title{font-size:2.15rem;font-weight:900;color:var(--jc-cream);-webkit-text-stroke:1.5px var(--jc-ink);paint-order:stroke fill;text-shadow:3px 3px 0 var(--jc-ink);letter-spacing:.14em;margin:.15rem 0 .25rem;padding-left:.14em;font-family:'Hiragino Mincho ProN','Yu Mincho',serif}
+.jo-tri{position:relative;width:min(100%,18.5rem);aspect-ratio:200/150;margin:.1rem auto 0;z-index:1}
+.jo-tri>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.jo-tri .t1{fill:var(--jc-dd);stroke:var(--jc-ink);stroke-width:5;stroke-linejoin:round;transition:fill .35s}
+.jo-tri .t2{fill:none;stroke:var(--jc-cream);stroke-width:2.5;stroke-linejoin:round}
+.jo-tri-star{position:absolute;left:0;right:0;top:34%;font-size:1.5rem;color:var(--jc-cream);text-shadow:2px 2px 0 var(--jc-ink);line-height:1}
+#jo-banner-icons{position:absolute;left:0;right:0;bottom:8%;display:flex;justify-content:center;align-items:center;gap:.35rem;font-size:2.5rem;filter:drop-shadow(2px 2px 0 var(--jc-ink))}
+.jo-band{display:flex;align-items:center;justify-content:center;gap:.7rem;height:1.9rem;margin:.95rem -1.1rem 1.15rem;background:var(--jc-ink);color:var(--jc-cream);font-weight:900;font-size:.8rem;letter-spacing:.32em;z-index:1}
+.jo-band span{flex:1}.jo-band span:first-child{text-align:right}.jo-band span:last-child{text-align:left}
+.jo-emblem{flex:none;width:3.3rem;height:3.3rem;border-radius:50%;background:var(--jc-cream);color:var(--jc-ink);border:4px solid var(--jc-ink);box-shadow:0 0 0 2px var(--jc-cream),0 0 0 4px var(--jc-ink);font:900 1.5rem/1 'Hiragino Mincho ProN','Yu Mincho',serif;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+.jo-emblem:active{transform:scale(.94)}
+.jo-lead{font-size:.8rem;font-weight:900;color:var(--jc-cream);text-shadow:2px 2px 0 var(--jc-ink);margin:.1rem 0 .5rem;letter-spacing:.04em}
+.jo-main .gacha-draw-btn{background:var(--jc-cream);color:var(--jc-ink);border:3px solid var(--jc-ink);border-radius:2px;box-shadow:4px 4px 0 var(--jc-ink);font-weight:900;letter-spacing:.04em;white-space:nowrap;font-size:.95rem}
+.jo-main .gacha-multi-btn{border:3px solid var(--jc-cream);border-radius:2px;box-shadow:4px 4px 0 var(--jc-ink);background:var(--jc-ink);color:var(--jc-cream)}
+.jo-main .gacha-multi-btn.big{background:#ffd84a;color:var(--jc-ink);border-color:var(--jc-ink)}
+.jo-main .gacha-cost{color:var(--jc-cream);font-weight:700;text-shadow:1px 1px 0 var(--jc-ink)}
+#gacha.gold-mode{background-color:var(--jc-dd);background-image:radial-gradient(circle,rgba(255,255,255,.07) 1.4px,transparent 2px);background-size:12px 12px;transition:background-color .35s}
+.gold-mode .gacha-title{color:var(--jc-cream);-webkit-text-stroke:1.5px var(--jc-ink);paint-order:stroke fill;text-shadow:2px 2px 0 var(--jc)}
+.gold-mode .gacha-rarity-title{font-size:1rem!important;color:var(--jc-cream)!important;font-weight:900;letter-spacing:.12em;-webkit-text-stroke:.4px var(--jc-ink);border-top-color:var(--jc);text-shadow:1px 1px 0 var(--jc-ink)}
+.gold-mode .gacha-item{border:2px solid var(--jc-ink);border-radius:2px;box-shadow:3px 3px 0 var(--jc);background:var(--jc-d)}
+.gold-mode .gacha-item.gacha-owned{border-color:var(--jc-cream);background:var(--jc)}
+.gold-mode .gacha-item-desc{color:var(--jc-cream);opacity:.8}
+.gold-mode .gacha-dots i.on{background:var(--jc-cream)}
+.gold-mode .gacha-item-title{font-size:.95rem!important;font-weight:900;letter-spacing:.06em;color:var(--jc-cream)!important;text-shadow:2px 0 var(--jc-ink),-2px 0 var(--jc-ink),0 2px var(--jc-ink),0 -2px var(--jc-ink),2px 2px 0 var(--jc-ink),-2px -2px 0 var(--jc-ink),2px -2px 0 var(--jc-ink),-2px 2px 0 var(--jc-ink),3px 3px 0 var(--jc)}
+.gold-mode .gacha-item-icon.ltd .ltd-ttl{font-size:2.1rem}
+.gold-mode .gacha-item-icon.ltd{width:52px;height:52px}
+#gacha-fx.gold-fx{background:radial-gradient(circle at 50% 42%,var(--jc) 0%,var(--jc-d) 55%,var(--jc-dd) 100%)}
+.gfx-gogo{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.gfx-gogo span{position:absolute;font-weight:900;font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:rgba(255,230,80,.5);-webkit-text-stroke:2px rgba(0,0,0,.7);animation:joTrem .2s linear infinite;line-height:1}
+@media (prefers-reduced-motion:reduce){.jo-main>.jo-go,.gfx-gogo span,.jo-title{animation:none}}
+@media (prefers-reduced-motion:reduce){.cf-glyph{display:none}}
+@media (prefers-reduced-motion:reduce){#call-fx.shake{animation:cfLife var(--dur) linear forwards}.cf-rays,.cf-spark,.cf-ring{display:none}}
+
+/* ── クイックマッチの待機演出 ── */
+#match-fx{position:fixed;inset:0;z-index:930;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 42%,#14283a 0%,#0a1220 55%,#04070e 100%);animation:mfIn .35s ease-out both;overflow:hidden}
+#match-fx.out{animation:mfOut .4s ease-in forwards}
+@keyframes mfIn{from{opacity:0}to{opacity:1}}@keyframes mfOut{to{opacity:0}}
+#match-fx .mf-stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#bfe8ff;animation:lfTwinkle 3s ease-in-out infinite}
+.mf-center{position:relative;width:min(66vw,280px);height:min(66vw,280px);margin-bottom:1.4rem}
+.mf-ring{position:absolute;inset:0;border-radius:50%;border:2px solid #4ac8c0;opacity:0;animation:mfRing 3.2s ease-out infinite}
+.mf-ring:nth-child(2){animation-delay:1.07s}.mf-ring:nth-child(3){animation-delay:2.14s}
+@keyframes mfRing{0%{opacity:.8;transform:scale(.3)}100%{opacity:0;transform:scale(1.55)}}
+.mf-radar{position:absolute;inset:6%;border-radius:50%;background:conic-gradient(from 0deg,rgba(74,200,192,0) 0deg,rgba(74,200,192,.0) 250deg,rgba(74,200,192,.45) 360deg);
+  -webkit-mask-image:radial-gradient(circle,transparent 22%,#000 23%);mask-image:radial-gradient(circle,transparent 22%,#000 23%);animation:mfSpin 2.4s linear infinite}
+.mf-grid{position:absolute;inset:6%;border-radius:50%;border:1px solid rgba(74,200,192,.3);background:radial-gradient(circle,transparent 30%,rgba(74,200,192,.08) 31%,transparent 32%,transparent 62%,rgba(74,200,192,.08) 63%,transparent 64%)}
+.mf-flower{position:absolute;left:50%;top:50%;width:34%;height:34%;margin:-17% 0 0 -17%;animation:mfSpin 14s linear infinite,mfPulse 2.2s ease-in-out infinite}
+.mf-flower svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 10px #ffc830)}
+@keyframes mfSpin{to{transform:rotate(360deg)}}
+@keyframes mfPulse{0%,100%{opacity:.8}50%{opacity:1}}
+.mf-orbit{position:absolute;inset:0;animation:mfSpin 7s linear infinite}
+.mf-tile{position:absolute;left:50%;top:50%;width:16px;height:25px;margin:-12px 0 0 -8px;border-radius:3px;border:1px solid #c9a84c;
+  background:linear-gradient(160deg,#2a1e12,#120c06);transform:rotate(calc(var(--i)*60deg)) translateY(min(-30vw,-128px));box-shadow:0 0 8px rgba(201,168,76,.4)}
+.mf-tile::after{content:'❋';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:rgba(201,168,76,.6)}
+.mf-title{font-size:1.15rem;font-weight:700;color:#d8f4f0;letter-spacing:.14em;text-shadow:0 0 12px rgba(74,200,192,.6)}
+.mf-dots i{display:inline-block;animation:mfDot 1.4s infinite;font-style:normal}.mf-dots i:nth-child(2){animation-delay:.2s}.mf-dots i:nth-child(3){animation-delay:.4s}
+@keyframes mfDot{0%,100%{opacity:.2}40%{opacity:1}}
+.mf-meta{margin-top:.5rem;font-size:.82rem;color:#7ab8b4;letter-spacing:.08em}
+.mf-tip{margin-top:1.4rem;max-width:80vw;text-align:center;font-size:.78rem;line-height:1.6;color:#9ab0b8;min-height:2.6em;transition:opacity .5s}
+.mf-cancel{margin-top:1.2rem;padding:.6rem 2.2rem;border-radius:999px;border:1px solid #4a6a74;background:rgba(10,24,34,.7);color:#bfe0e4;font-family:inherit;font-size:.9rem;cursor:pointer}
+/* 見つかったとき */
+#match-fx.found .mf-radar,#match-fx.found .mf-orbit,#match-fx.found .mf-grid{display:none}
+#match-fx.found .mf-ring{border-color:#ffd24a;animation-duration:1s;animation-iteration-count:2}
+#match-fx.found .mf-title{color:#ffe9a0;text-shadow:0 0 14px rgba(255,200,60,.8);animation:mfPop .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes mfPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.mf-vs{display:none;align-items:center;gap:.7rem;margin-top:1rem}
+#match-fx.found .mf-vs{display:flex}
+.mf-card{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.8rem .9rem;min-width:min(34vw,140px);max-width:42vw;border-radius:14px;
+  background:linear-gradient(160deg,rgba(24,40,54,.92),rgba(10,18,28,.92));border:1px solid #4a8a94;box-shadow:0 0 18px rgba(74,200,192,.25)}
+.mf-card.me{border-color:#ffd24a;box-shadow:0 0 18px rgba(255,200,60,.3)}
+.mf-card.l{animation:mfL .55s .1s cubic-bezier(.2,1.2,.4,1) both}.mf-card.r{animation:mfR .55s .1s cubic-bezier(.2,1.2,.4,1) both}
+@keyframes mfL{from{transform:translateX(-80vw)}to{transform:none}}@keyframes mfR{from{transform:translateX(80vw)}to{transform:none}}
+.mf-av{width:72px;height:72px;border-radius:50%;overflow:hidden;background:#2a1e12;border:2px solid #c9a84c;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#e8c97a}
+.mf-av img{width:100%;height:100%;object-fit:cover;display:block}
+.mf-card .win-title{margin:.1rem 0 0;font-size:.7rem;padding:.1rem .55rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:mfPop .4s .6s cubic-bezier(.2,1.6,.4,1) both}
+.mf-name{font-weight:700;color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.95rem}
+.mf-you{font-size:.62rem;color:#ffd24a;letter-spacing:.14em}
+.mf-vs.multi{margin-top:.8rem}.mf-multi{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;max-width:92vw}
+.mf-multi .mf-card{min-width:min(28vw,110px)}.mf-multi .mf-av{width:54px;height:54px;font-size:1.5rem}
+.mf-vsmark{font-weight:900;font-size:1.6rem;color:#ffd24a;text-shadow:0 0 12px #ff9a20;animation:mfPop .4s .5s cubic-bezier(.2,1.8,.4,1) both}
+#match-fx.found .mf-tip,#match-fx.found .mf-cancel,#match-fx.found .mf-meta{display:none}
+#match-fx.found::after{content:'タップでスキップ';position:absolute;bottom:2rem;left:0;right:0;text-align:center;font-size:.72rem;color:rgba(255,255,255,.35);letter-spacing:.14em}
+@media (prefers-reduced-motion:reduce){.mf-ring,.mf-radar,.mf-orbit,.mf-flower{animation:none}}
+
+.gacha-multi{display:flex;gap:.6rem;justify-content:center;margin-top:.7rem;flex-wrap:wrap}
+.gacha-multi-btn{padding:.7rem 1.3rem;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;color:#160e00;
+  background:linear-gradient(135deg,#f5d078,#c9a84c);box-shadow:0 4px 14px rgba(201,168,76,.35)}
+.gacha-multi-btn.big{background:linear-gradient(135deg,#ffb4d8,#e060a8);color:#2a0618;box-shadow:0 4px 14px rgba(224,96,168,.4)}
+.gacha-multi-btn small{display:block;font-size:.7rem;font-weight:600;opacity:.8}
+.gacha-multi-btn:disabled{opacity:.4;cursor:default;box-shadow:none}
+#gacha-summary{position:fixed;inset:0;z-index:945;background:rgba(6,4,10,.94);display:flex;align-items:center;justify-content:center;animation:mfIn .3s ease-out both}
+.gs-box{width:min(420px,94vw);max-height:92vh;display:flex;flex-direction:column;background:linear-gradient(160deg,#241a14,#120c08);border:1.5px solid #c9a84c;border-radius:16px;padding:1rem;box-shadow:0 0 30px rgba(201,168,76,.3)}
+.gs-title{text-align:center;font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.25rem;font-weight:700;color:#f5d78a;letter-spacing:.1em}
+.gs-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:.3rem .8rem;margin:.5rem 0;font-size:.74rem;color:#b8a070}
+.gs-stats b{color:#ffe28a}
+.gs-rar{display:flex;justify-content:center;gap:.5rem;margin-bottom:.5rem;font-size:.72rem;font-weight:700}
+.gs-list{overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:.45rem;padding:.2rem;-webkit-overflow-scrolling:touch}
+.gs-card{position:relative;padding:.45rem .2rem .35rem;border-radius:10px;background:#141008;border:1.5px solid var(--rc,#555);text-align:center;animation:gsPop .35s var(--d,0s) cubic-bezier(.2,1.5,.4,1) both}
+@keyframes gsPop{from{opacity:0;transform:scale(.4) translateY(14px)}to{opacity:1;transform:none}}
+.gs-card .ic{font-size:1.5rem;line-height:1.2}
+.gs-card .nm{font-size:.62rem;color:#d8c898;line-height:1.25;margin-top:.15rem;min-height:2.5em;display:flex;align-items:center;justify-content:center}
+.gs-card .new{position:absolute;top:-6px;right:-4px;background:linear-gradient(135deg,#ff5a5a,#c02020);color:#fff;font-size:.55rem;font-weight:900;padding:.05rem .35rem;border-radius:6px}
+.gs-card .cnt{position:absolute;top:2px;left:4px;font-size:.62rem;font-weight:800;color:#ffe28a}
+.gs-card.sr{box-shadow:0 0 12px rgba(245,208,64,.55)}.gs-card.r{box-shadow:0 0 8px rgba(96,168,240,.4)}
+.gs-btns{display:flex;gap:.5rem;margin-top:.7rem}
+.gs-btns button{flex:1;padding:.65rem;border-radius:10px;border:none;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer}
+.gs-btns .main{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}.gs-btns .sub{background:#2a1e14;color:#e8c97a;border:1px solid #5a4028}.gs-btns button:disabled{opacity:.4;cursor:default}
+/* ── ガチャ演出 ── */
+#gacha-fx{position:fixed;inset:0;z-index:950;display:none;overflow:hidden;
+  background:radial-gradient(circle at 50% 42%,#2a1a34 0%,#0c060f 60%,#040205 100%);
+  --gc:#b8c0c8;--gc2:#fff;--orbc:#e8a8c8;--charge-ms:1500ms;user-select:none;-webkit-user-select:none}
+#gacha-fx.shake{animation:gfxShake .55s linear}
+@keyframes gfxShake{0%,100%{transform:translate(0)}10%{transform:translate(-9px,5px)}25%{transform:translate(8px,-7px)}40%{transform:translate(-7px,-4px)}55%{transform:translate(6px,6px)}70%{transform:translate(-4px,3px)}85%{transform:translate(3px,-2px)}}
+#gfx-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.gfx-rays{position:absolute;left:50%;top:44%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;
+  background:repeating-conic-gradient(var(--gc) 0 4deg,transparent 4deg 14deg);opacity:0;transition:opacity .8s;
+  -webkit-mask-image:radial-gradient(circle closest-side,rgba(0,0,0,.95),transparent 20%);
+  mask-image:radial-gradient(circle closest-side,rgba(0,0,0,.95),transparent 20%);
+  animation:gfxSpin 24s linear infinite;pointer-events:none;will-change:transform}
+@keyframes gfxSpin{to{transform:rotate(360deg)}}
+#gacha-fx.st-reveal .gfx-rays{opacity:.38}
+#gacha-fx[data-rarity=common] .gfx-rays{display:none}
+.gfx-stage{position:absolute;left:50%;top:42%;width:130px;height:130px;margin:-65px 0 0 -65px;
+  animation:gfxJitter .09s linear infinite alternate}
+@keyframes gfxJitter{from{transform:translate(-2px,1px)}to{transform:translate(2px,-1px)}}
+.gfx-orb{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:3rem;color:#fff;
+  background:radial-gradient(circle at 35% 30%,#fff 0%,var(--orbc) 38%,#2a1034 100%);
+  box-shadow:0 0 30px var(--orbc),0 0 80px var(--orbc),inset 0 0 25px rgba(255,255,255,.4);
+  transition:background .25s,box-shadow .25s;
+  animation:gfxOrbCharge var(--charge-ms) cubic-bezier(.5,0,.9,.6) forwards}
+@keyframes gfxOrbCharge{0%{transform:scale(.7) rotate(0)}30%{transform:scale(.85) rotate(-6deg)}55%{transform:scale(1) rotate(9deg)}78%{transform:scale(1.15) rotate(-12deg)}100%{transform:scale(1.45) rotate(0)}}
+.gfx-orb.tell{--orbc:var(--gc);animation:gfxOrbCharge var(--charge-ms) cubic-bezier(.5,0,.9,.6) forwards,gfxPulse .22s ease-in-out infinite alternate}
+@keyframes gfxPulse{from{filter:brightness(1)}to{filter:brightness(1.6)}}
+.gfx-ring{position:absolute;inset:-22px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);animation:gfxSpin 2.2s linear infinite}
+.gfx-ring.r2{inset:-42px;border-color:rgba(255,255,255,.18);animation-duration:3.6s;animation-direction:reverse}
+#gacha-fx.st-burst .gfx-stage,#gacha-fx.st-reveal .gfx-stage{animation:gfxOrbOut .4s ease-in forwards}
+@keyframes gfxOrbOut{to{opacity:0;transform:scale(3)}}
+.gfx-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#gacha-fx.st-burst .gfx-flash{animation:gfxFlash .8s ease-out}
+#gacha-fx.st-burst[data-rarity=superrare] .gfx-flash{animation:gfxFlash2 1.1s ease-out}
+@keyframes gfxFlash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
+@keyframes gfxFlash2{0%{opacity:0}6%{opacity:1}22%{opacity:.15}34%{opacity:1}100%{opacity:0}}
+.gfx-cardwrap{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:1rem;pointer-events:none;overflow-y:auto}
+#gacha-fx.st-reveal .gfx-cardwrap{display:flex}
+.gfx-banner{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-weight:900;letter-spacing:.18em;font-size:1.7rem;
+  margin-bottom:.8rem;background:linear-gradient(90deg,#fff4c0,#f5d040,#ff9ad0,#80c0ff,#f5d040,#fff4c0);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 10px rgba(255,220,100,.8));
+  animation:gfxBanner .7s cubic-bezier(.2,1.6,.4,1) both,gfxShine 2.5s linear infinite}
+#gacha-fx[data-rarity=rare] .gfx-banner{background-image:linear-gradient(90deg,#d0e8ff,#60a8f0,#a0d0ff,#60a8f0,#d0e8ff);
+  filter:drop-shadow(0 0 10px rgba(96,168,240,.8));font-size:1.5rem}
+@keyframes gfxBanner{from{transform:translateY(-60px) scale(2.2);opacity:0}to{transform:none;opacity:1}}
+@keyframes gfxShine{to{background-position:-300% 0}}
+.gfx-card{position:relative;pointer-events:auto;width:min(310px,84vw);padding:1.4rem 1rem 1rem;border-radius:18px;text-align:center;
+  background:linear-gradient(160deg,#2a1e16,#120c08);border:2px solid var(--gc);overflow:hidden;
+  box-shadow:0 0 26px var(--gc),0 0 70px rgba(255,255,255,.08),inset 0 0 24px rgba(255,255,255,.05);
+  animation:gfxCardIn .85s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes gfxCardIn{0%{transform:scale(.2) rotateY(110deg);opacity:0}100%{transform:none;opacity:1}}
+.gfx-card::after{content:'';position:absolute;top:0;bottom:0;width:60%;left:-80%;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.38) 50%,transparent 70%);
+  animation:gfxSheen 2.8s ease-in-out .9s infinite;pointer-events:none}
+#gacha-fx[data-rarity=common] .gfx-card::after{display:none}
+@keyframes gfxSheen{0%{left:-80%}55%,100%{left:130%}}
+#gacha-fx[data-rarity=superrare] .gfx-card{border-color:transparent;
+  background:linear-gradient(#1e140c,#0f0a06) padding-box,linear-gradient(120deg,#f5d040,#ff8ad0,#60a8f0,#60e0a0,#f5d040) border-box;
+  background-size:100% 100%,300% 100%;animation:gfxCardIn .85s cubic-bezier(.2,1.3,.4,1) both,gfxRainbow 3s linear infinite}
+@keyframes gfxRainbow{to{background-position:0 0,-300% 0}}
+.gfx-stars{font-size:1.15rem;letter-spacing:.15em;color:var(--gc);text-shadow:0 0 8px var(--gc);margin-bottom:.15rem}
+.gfx-stars span{display:inline-block;animation:gfxStar .5s cubic-bezier(.2,1.8,.4,1) both}
+@keyframes gfxStar{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:none;opacity:1}}
+.gfx-rlabel{font-size:.72rem;font-weight:700;letter-spacing:.2em;color:var(--gc);margin-bottom:.5rem}
+.gfx-icon{font-size:4.2rem;line-height:1.1;filter:drop-shadow(0 0 14px var(--gc));animation:gfxFloat 2.4s ease-in-out infinite}
+@keyframes gfxFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.06)}}
+.gfx-title{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;font-size:1.25rem;color:#f8e8b0;font-weight:700;margin-top:.4rem}
+.gfx-prev{margin:.6rem auto 0;border:2px solid #5a4028;border-radius:6px}
+.gfx-prev-dots{display:flex;gap:4px;justify-content:center;margin-top:.6rem}
+.gfx-prev-dots i{width:12px;height:12px;border-radius:50%;display:block}
+.gfx-prev-title{margin-top:.6rem;font-size:.82rem;color:#f5d040;font-weight:700}
+.gfx-desc{font-size:.72rem;color:#9a8460;margin-top:.5rem;line-height:1.5}
+.gfx-dup{font-size:.72rem;color:#a89868;margin-top:.4rem}
+.gfx-new{position:absolute;top:12px;right:-30px;transform:rotate(38deg);width:110px;text-align:center;
+  background:linear-gradient(135deg,#ff5a5a,#c02020);color:#fff;font-size:.7rem;font-weight:900;letter-spacing:.12em;padding:.18rem 0;z-index:2}
+.gfx-btns{display:flex;flex-direction:column;gap:.45rem;margin-top:.9rem}
+.gfx-btn{padding:.65rem;border-radius:10px;border:none;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.gfx-btn.main{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00}
+.gfx-btn.sub{background:#2a1e14;color:#e8c97a;border:1px solid #5a4028}
+.gfx-btn.ghost{background:transparent;color:#8a7048;font-weight:400;font-size:.82rem}
+.gfx-btn:disabled{opacity:.4;cursor:default}
+.gfx-hint{position:absolute;bottom:2.2rem;left:0;right:0;text-align:center;font-size:.74rem;color:rgba(255,255,255,.4);
+  letter-spacing:.15em;animation:gfxBlink 1.4s ease-in-out infinite;pointer-events:none}
+#gacha-fx.st-reveal .gfx-hint{display:none}
+@keyframes gfxBlink{0%,100%{opacity:.25}50%{opacity:.8}}
+/* ===== ガチャ「黄金の精神」確定演出：夕焼けの雲海・逆光のシルエット・肩の星が光る ===== */
+#gacha-fx.kaku .gfx-stage,#gacha-fx.kaku .gfx-rays{display:none}
+#gacha-fx.kaku .gfx-hint{z-index:6;color:rgba(255,236,190,.55)}
+.gfx-kk{position:absolute;inset:0;overflow:hidden;background:#1a0c10;z-index:0;pointer-events:none}
+.kk-cam{position:absolute;inset:0;transform-origin:50% 38%;animation:kkCam 5.2s cubic-bezier(.25,.6,.3,1) forwards}
+@keyframes kkCam{0%{transform:scale(1.02) translateY(0)}100%{transform:scale(1.2) translateY(2.5%)}}
+.kk-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.kk-svg *{transform-box:fill-box}
+/* 雲：ゆっくり流れる */
+.kk-drift1{animation:kkDrift1 9s ease-in-out infinite alternate}
+.kk-drift2{animation:kkDrift2 7s ease-in-out infinite alternate}
+@keyframes kkDrift1{from{transform:translateX(-26px)}to{transform:translateX(26px)}}
+@keyframes kkDrift2{from{transform:translateX(34px)}to{transform:translateX(-34px)}}
+.kk-sunrays{transform-origin:130px 515px;transform-box:view-box;animation:kkRays 40s linear infinite;opacity:.22}
+@keyframes kkRays{to{transform:rotate(360deg)}}
+.kk-sun{transform-origin:130px 515px;transform-box:view-box;animation:kkSun 2.2s ease-in-out infinite alternate}
+@keyframes kkSun{from{transform:scale(1);opacity:.9}to{transform:scale(1.12);opacity:1}}
+.kk-streak{animation:kkStreak 2.6s ease-in-out infinite alternate}
+@keyframes kkStreak{from{opacity:.55}to{opacity:1}}
+/* 人影：下からせり上がる */
+.kk-figwrap{animation:kkRise 1.9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes kkRise{0%{transform:translateY(46px);opacity:0}25%{opacity:1}100%{transform:translateY(0);opacity:1}}
+.kk-sash{transform-box:view-box;transform-origin:296px 552px;animation:kkSash 1.5s ease-in-out infinite alternate}
+@keyframes kkSash{from{transform:rotate(-3.5deg) skewY(-2deg)}to{transform:rotate(4deg) skewY(3deg)}}
+.kk-goldrim{opacity:0;animation:kkGoldRim 1.6s ease-in 2.2s forwards}
+@keyframes kkGoldRim{to{opacity:1}}
+/* 肩の星 */
+.kk-starwrap{opacity:0;transform-box:view-box;transform-origin:268px 278px;animation:kkStarIn .9s cubic-bezier(.2,1.7,.4,1) 1.9s forwards}
+@keyframes kkStarIn{0%{opacity:0;transform:scale(0) rotate(-90deg)}60%{opacity:1;transform:scale(1.9) rotate(8deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.kk-star-pulse{transform-box:view-box;transform-origin:268px 278px;animation:kkStarPulse .8s ease-in-out 2.9s infinite alternate}
+@keyframes kkStarPulse{from{transform:scale(1)}to{transform:scale(1.22)}}
+.kk-arc{stroke-dasharray:5 4;stroke-dashoffset:0;opacity:0;animation:kkArc .7s ease-out 2.35s forwards}
+.kk-arc2{animation-delay:2.55s}
+@keyframes kkArc{0%{opacity:0;stroke-dasharray:0 200}100%{opacity:1;stroke-dasharray:5 4}}
+.kk-glow{opacity:0;transform-box:view-box;transform-origin:268px 278px;animation:kkGlow 1.2s ease-out 1.9s forwards}
+@keyframes kkGlow{0%{opacity:0;transform:scale(.2)}40%{opacity:1;transform:scale(1.5)}100%{opacity:.85;transform:scale(1)}}
+.kk-cross{opacity:0;transform-box:view-box;transform-origin:268px 278px;animation:kkCross .5s ease-out 1.95s forwards,kkCrossSpin 5s linear 2.4s infinite}
+@keyframes kkCross{0%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1.6)}100%{opacity:.9;transform:scale(1)}}
+@keyframes kkCrossSpin{to{transform:rotate(360deg)}}
+/* 星から広がる黄金の光（人影の後ろ） */
+.kk-flood{opacity:0;transform-box:view-box;transform-origin:268px 278px;animation:kkFlood 2.5s cubic-bezier(.5,0,.8,.6) 2.3s forwards}
+@keyframes kkFlood{0%{opacity:0;transform:scale(.05)}12%{opacity:1}100%{opacity:1;transform:scale(14)}}
+.kk-vig{pointer-events:none}
+/* 暗転・映画の帯・文字 */
+.kk-black{position:absolute;inset:0;background:#000;animation:kkFadeIn .9s ease-out forwards;z-index:3}
+@keyframes kkFadeIn{to{opacity:0}}
+.kk-bar{position:absolute;left:0;right:0;height:10%;background:#000;z-index:4}
+.kk-bar.t{top:0;animation:kkBarT .8s ease-out both}
+.kk-bar.b{bottom:0;animation:kkBarB .8s ease-out both}
+@keyframes kkBarT{from{transform:translateY(-100%)}to{transform:none}}
+@keyframes kkBarB{from{transform:translateY(100%)}to{transform:none}}
+.kk-gogo{position:absolute;top:0;bottom:0;width:15%;z-index:2;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.1rem;
+  font:900 clamp(2rem,9vmin,4.2rem)/1 'Hiragino Mincho ProN','Yu Mincho',serif;color:rgba(255,236,170,.55);
+  -webkit-text-stroke:2px rgba(40,10,10,.85);opacity:0;animation:kkGogoIn .6s ease-out .5s forwards}
+.kk-gogo.l{left:1%}.kk-gogo.r{right:1%}
+.kk-gogo span{display:block;animation:joTrem .18s linear infinite}
+.kk-gogo span:nth-child(2n){animation-duration:.23s}
+@keyframes kkGogoIn{to{opacity:1}}
+.kk-title{position:absolute;left:0;right:0;top:55%;z-index:5;text-align:center;opacity:0;
+  font:900 clamp(2.4rem,14vmin,6.4rem)/1.1 'Hiragino Mincho ProN','Yu Mincho',serif;letter-spacing:.12em;padding-left:.12em;
+  color:#fff4c0;-webkit-text-stroke:2px #5a2a08;paint-order:stroke fill;
+  text-shadow:0 0 18px #ffd24a,0 0 46px #ff9a20,4px 4px 0 #4a1a06;
+  animation:kkTitle 1s cubic-bezier(.15,1.5,.4,1) 3.45s forwards}
+@keyframes kkTitle{0%{opacity:0;transform:scale(2.4);letter-spacing:.5em}100%{opacity:1;transform:none;letter-spacing:.12em}}
+.kk-sub{position:absolute;left:0;right:0;top:calc(55% + clamp(3rem,16vmin,7.4rem));z-index:5;text-align:center;opacity:0;
+  font:900 clamp(.8rem,3.6vmin,1.3rem)/1 'Hiragino Mincho ProN','Yu Mincho',serif;letter-spacing:.5em;padding-left:.5em;color:#ffe9a8;
+  text-shadow:0 0 10px #ff9a20,2px 2px 0 #4a1a06;animation:kkSub .7s ease-out 4.1s forwards}
+@keyframes kkSub{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.kk-white{position:absolute;inset:0;z-index:6;background:radial-gradient(circle at 50% 45%,#fff 0%,#fff3c0 55%,#ffd24a 100%);opacity:0;animation:kkWhite .7s ease-in 4.5s forwards}
+@keyframes kkWhite{to{opacity:1}}
+/* バーストに入ったら、シーンを光に溶かして消す */
+#gacha-fx.st-burst .gfx-kk{animation:kkOut .7s ease-in .2s forwards}
+@keyframes kkOut{to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.kk-cam,.kk-drift1,.kk-drift2,.kk-sunrays,.kk-sash,.kk-gogo span,.kk-cross{animation:none}}
+
+/* ===== 確定演出（写真版）：用意した一枚絵に、星の点灯・光・雲の流れ・カメラの寄りを重ねる ===== */
+.gfx-kk.photo{background:#120808}
+.kp-fill{position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;opacity:.55}
+.kp-cam{position:absolute;inset:0;animation:kpCam 5.2s cubic-bezier(.35,.1,.3,1) forwards;transform-origin:50% 40%}
+@keyframes kpCam{0%{transform:scale(1.0)}100%{transform:scale(1.34)}}
+.kp-wrap{position:absolute;left:50%;top:50%;width:min(100vw,calc(100dvh * 669 / 641));aspect-ratio:669/641;transform:translate(-50%,-50%);overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent),linear-gradient(180deg,transparent,#000 5%,#000 95%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent),linear-gradient(180deg,transparent,#000 5%,#000 95%,transparent);mask-composite:intersect}
+@media (max-aspect-ratio:4/5){.kp-wrap{width:calc(100dvh * 669 / 641)}}
+.kp-img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.kp-dim{position:absolute;inset:0;background:#1a0608;animation:kpDim 2s ease-out forwards}
+@keyframes kpDim{0%{opacity:.82}100%{opacity:0}}
+.kp-mist{position:absolute;left:0;right:0;bottom:0;height:46%;overflow:hidden;opacity:.4}
+.kp-mist i{position:absolute;top:0;bottom:0;left:0;width:200%;display:block;
+  background:radial-gradient(ellipse 14% 30% at 10% 60%,rgba(255,196,140,.55),transparent 70%),radial-gradient(ellipse 18% 26% at 32% 40%,rgba(255,160,120,.4),transparent 70%),radial-gradient(ellipse 16% 32% at 55% 62%,rgba(255,210,150,.5),transparent 70%),radial-gradient(ellipse 20% 28% at 80% 45%,rgba(255,170,120,.4),transparent 70%)}
+.kp-mist .a{animation:kpMistA 22s linear infinite}
+.kp-mist .b{top:20%;opacity:.7;animation:kpMistB 31s linear infinite}
+@keyframes kpMistA{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes kpMistB{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.kp-sunpt{position:absolute;left:29.4%;top:72.7%;width:0;height:0}
+.kp-rays{position:absolute;left:-150vmax;top:-150vmax;width:300vmax;height:300vmax;mix-blend-mode:screen;opacity:.06;
+  background:repeating-conic-gradient(rgba(255,226,150,.9) 0 2.5deg,transparent 2.5deg 11deg);
+  -webkit-mask-image:radial-gradient(circle closest-side,#000,transparent 34%);mask-image:radial-gradient(circle closest-side,#000,transparent 34%);animation:kpSpin 70s linear infinite}
+@keyframes kpSpin{to{transform:rotate(360deg)}}
+.kp-flare{position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(255,224,150,.7) 18%,rgba(255,150,40,.28) 50%,transparent 72%);animation:kpFlare 2s ease-in-out infinite alternate}
+@keyframes kpFlare{from{transform:scale(1);opacity:.7}to{transform:scale(1.7);opacity:1}}
+.kp-streak{position:absolute;left:-60vmax;top:-3px;width:120vmax;height:6px;
+  background:linear-gradient(90deg,transparent,rgba(255,230,160,.9) 45%,rgba(255,255,255,1) 50%,rgba(255,230,160,.9) 55%,transparent);animation:kpStreak 2.4s ease-in-out infinite alternate;filter:blur(1px)}
+@keyframes kpStreak{from{opacity:.35}to{opacity:.85}}
+.kp-ov{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.kp-ov *{transform-box:view-box}
+.kp-glow{opacity:0;transform-origin:335px 210px;animation:kpGlow 1.4s ease-out 1.9s forwards}
+@keyframes kpGlow{0%{opacity:0;transform:scale(.1)}35%{opacity:1;transform:scale(1.6)}100%{opacity:.8;transform:scale(1)}}
+.kp-starwrap{opacity:0;transform-origin:335px 210px;animation:kpStarIn .9s cubic-bezier(.2,1.7,.4,1) 1.9s forwards}
+@keyframes kpStarIn{0%{opacity:0;transform:scale(0) rotate(-120deg)}55%{opacity:1;transform:scale(1.7) rotate(6deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.kp-ov .kp-starpulse{transform-box:fill-box;transform-origin:50% 50%;animation:kpPulse .9s ease-in-out 2.9s infinite alternate}
+@keyframes kpPulse{from{transform:scale(1)}to{transform:scale(1.12)}}
+.kp-cross{opacity:0;transform-origin:335px 210px;animation:kpCross .6s ease-out 1.95s forwards,kpSpin 8s linear 2.5s infinite}
+@keyframes kpCross{0%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1.5)}100%{opacity:.85;transform:scale(1)}}
+.kp-arc{opacity:0;stroke-dasharray:1;stroke-dashoffset:1;animation:kpArc .8s ease-out 2.4s forwards}
+.kp-thorn{opacity:0;animation:kpFade .4s ease-out 2.9s forwards}
+@keyframes kpArc{0%{opacity:1;stroke-dashoffset:1}100%{opacity:1;stroke-dashoffset:0}}
+@keyframes kpFade{to{opacity:1}}
+.kp-flood{position:absolute;left:50.07%;top:32.76%;width:40%;aspect-ratio:1;margin:-20% 0 0 -20%;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,#fffdf0 0,#ffe27a 30%,rgba(255,176,48,.75) 55%,rgba(255,150,30,0) 72%);animation:kpFlood 2.5s cubic-bezier(.5,0,.8,.6) 2.3s forwards}
+@keyframes kpFlood{0%{opacity:0;transform:scale(.05)}15%{opacity:.9}100%{opacity:.88;transform:scale(9)}}
+.kp-grain{position:absolute;inset:0;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.kp-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(20,6,10,.55) 100%)}
+.gfx-kk.photo .kk-title{top:66%}
+.gfx-kk.photo .kk-sub{top:calc(66% + clamp(3rem,16vmin,7.4rem))}
+@media (prefers-reduced-motion:reduce){.kp-cam,.kp-mist i,.kp-rays,.kp-cross{animation:none}}
+
+/* ── カスタマイズ画面 ── */
+.sb-custom-btn{margin-top:.5rem;padding:.4rem .8rem;border-radius:8px;border:1.5px solid #c9a84c;
+  background:linear-gradient(135deg,#3a2a14,#2a1e0e);color:#e8c97a;font-family:inherit;
+  font-size:.82rem;font-weight:700;cursor:pointer}
+#custom-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;
+  align-items:center;justify-content:center;z-index:600;backdrop-filter:blur(4px)}
+#custom-modal.open{display:flex}
+.custom-box{background:#1a1410;border:1.5px solid #4a3018;border-radius:16px;padding:1.2rem;
+  width:min(380px,94vw);max-height:88vh;display:flex;flex-direction:column;animation:mboxin .25s ease-out}
+.custom-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.custom-head-title{font-size:1rem;color:#c9a84c;font-weight:700;letter-spacing:.1em}
+.custom-close{background:transparent;border:none;color:#8a7048;font-size:1.3rem;cursor:pointer}
+.custom-tabs{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.8rem}
+.custom-tab{flex:1 1 30%;padding:.45rem .2rem;border:none;border-radius:8px;font-family:inherit;font-size:.82rem;
+  font-weight:700;cursor:pointer;background:#1a1410;color:#6a5830;border:1px solid #3e2e1e}
+.custom-tab.active{background:linear-gradient(135deg,#c9a84c,#a07020);color:#160e00;border-color:transparent}
+.custom-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.custom-sub{font-size:.72rem;color:#6a5830;margin:.2rem 0 .5rem}
+.custom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.9rem}
+.custom-card{position:relative;background:#141008;border:1.5px solid #3e2e1e;border-radius:10px;
+  padding:.5rem .3rem;text-align:center;cursor:pointer;color:#c8b898;font-family:inherit}
+.custom-card.sel{border-color:#c9a84c;box-shadow:0 0 10px rgba(201,168,76,.45)}
+.custom-card.locked{opacity:.45;cursor:default}
+.custom-card .sw{width:34px;height:54px;border-radius:5px;margin:0 auto .35rem;border:2px solid #5a4028}
+.custom-card .sw-bg{width:100%;height:46px;border-radius:6px;margin:0 auto .35rem;border:1px solid #5a4028;
+  background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.custom-card .nm{font-size:.7rem;line-height:1.3}
+.custom-card .chk{position:absolute;top:3px;right:5px;font-size:.7rem;color:#f5e060}
+.custom-list{display:flex;flex-direction:column;gap:.45rem;margin-bottom:.9rem}
+.custom-row{display:flex;align-items:center;gap:.6rem;padding:.55rem .6rem;background:#141008;
+  border:1.5px solid #3e2e1e;border-radius:10px;cursor:pointer;color:#c8b898;font-family:inherit;text-align:left;width:100%}
+.custom-row.sel{border-color:#c9a84c;box-shadow:0 0 10px rgba(201,168,76,.45)}
+.custom-row.locked{opacity:.45;cursor:default}
+.custom-row .ic{font-size:1.3rem;width:1.8rem;text-align:center}
+.custom-row .tx{flex:1;font-size:.82rem}
+.custom-row .ds{font-size:.68rem;color:#6a5830;margin-top:.1rem}
+.custom-row .dots{display:flex;gap:2px;margin-top:.25rem}
+.custom-row .dots i{width:10px;height:10px;border-radius:50%;display:block}
+.custom-row .chk{color:#f5e060;font-size:.85rem}
+.custom-img-btn{width:100%;padding:.6rem;border-radius:9px;border:1px dashed #5a4028;background:transparent;
+  color:#c9a84c;font-family:inherit;font-size:.82rem;cursor:pointer}
+/* ── 牌裏テーマ ── */
+body.back-blue .fback{background:linear-gradient(165deg,#0a1830 0%,#040c1e 100%);border-color:#2a4a7a}
+body.back-blue .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(80,160,255,.07) 4px,rgba(80,160,255,.07) 5px)}
+body.back-blue .fback::after{color:rgba(80,160,255,.25)}
+body.back-red .fback{background:linear-gradient(165deg,#2e0a0a 0%,#160404 100%);border-color:#7a2a2a}
+body.back-red .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,80,80,.07) 4px,rgba(255,80,80,.07) 5px)}
+body.back-red .fback::after{color:rgba(255,80,80,.25)}
+body.back-green .fback{background:linear-gradient(165deg,#0a2010 0%,#041006 100%);border-color:#2a6a3a}
+body.back-green .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(80,200,100,.07) 4px,rgba(80,200,100,.07) 5px)}
+body.back-green .fback::after{color:rgba(80,200,100,.25)}
+body.back-purple .fback{background:linear-gradient(165deg,#1a0a2e 0%,#0a0416 100%);border-color:#5a2a8a}
+body.back-purple .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(160,80,255,.07) 4px,rgba(160,80,255,.07) 5px)}
+body.back-purple .fback::after{color:rgba(160,80,255,.25)}
+body.back-gold .fback{background:linear-gradient(165deg,#3a2a08 0%,#1a1204 100%);border-color:#a07a2a}
+body.back-gold .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,210,80,.09) 4px,rgba(255,210,80,.09) 5px)}
+body.back-gold .fback::after{color:rgba(255,210,80,.3)}
+body.back-sakura .fback{background:linear-gradient(165deg,#3a1424 0%,#1e0a12 100%);border-color:#a04a70}
+body.back-sakura .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,140,180,.09) 4px,rgba(255,140,180,.09) 5px)}
+body.back-sakura .fback::after{color:rgba(255,140,180,.3)}
+body.back-indigo .fback{background:linear-gradient(165deg,#0a1030 0%,#040618 100%);border-color:#3a3a8a}
+body.back-indigo .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(100,100,255,.08) 4px,rgba(100,100,255,.08) 5px)}
+body.back-indigo .fback::after{color:rgba(100,100,255,.28)}
+body.back-jade .fback{background:linear-gradient(165deg,#0a2e26 0%,#04140f 100%);border-color:#2aa88a}
+body.back-jade .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(80,230,190,.09) 4px,rgba(80,230,190,.09) 5px)}
+body.back-jade .fback::after{color:rgba(80,230,190,.3)}
+body.back-ice .fback{background:linear-gradient(165deg,#0e2a3e 0%,#061420 100%);border-color:#7ac8e8}
+body.back-ice .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(180,235,255,.1) 4px,rgba(180,235,255,.1) 5px)}
+body.back-ice .fback::after{color:rgba(180,235,255,.32)}
+body.back-ember .fback{background:linear-gradient(165deg,#4a1408 0%,#1a0602 100%);border-color:#e0682a}
+body.back-ember .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,140,50,.1) 4px,rgba(255,140,50,.1) 5px)}
+body.back-ember .fback::after{color:rgba(255,150,60,.34)}
+body.back-obsidian .fback{background:linear-gradient(165deg,#1a1a22 0%,#050508 100%);border-color:#6a6a7a}
+body.back-obsidian .fback::before{background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(200,200,255,.05) 4px,rgba(200,200,255,.05) 5px)}
+body.back-obsidian .fback::after{color:rgba(220,220,255,.22)}
+body.back-galaxy .fback{background:radial-gradient(circle at 30% 20%,rgba(160,80,255,.5),transparent 55%),radial-gradient(circle at 72% 82%,rgba(60,140,255,.45),transparent 55%),linear-gradient(165deg,#0a0824,#02020c);border-color:#6a5ad8}
+body.back-galaxy .fback::before{background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 62% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 70%,#cfe8ff,transparent),radial-gradient(1px 1px at 82% 58%,#fff,transparent),radial-gradient(1px 1px at 14% 86%,#fff,transparent),radial-gradient(1px 1px at 70% 90%,#ffe8ff,transparent);animation:backTwinkle 3s ease-in-out infinite}
+body.back-galaxy .fback::after{color:rgba(200,180,255,.35)}
+body.back-warning .fback,.pv-warning .ltd-fb{background:repeating-linear-gradient(45deg,#1a0a0a 0 8px,#3a1010 8px 16px);border-color:#e04040}
+body.back-warning .fback::before,.pv-warning .ltd-fb::before{background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(255,70,50,.3) 8px 16px);background-size:22.63px 22.63px;animation:backSlide 1.6s linear infinite}
+body.back-warning .fback,.pv-warning .ltd-fb{animation:backWarnPulse 1.2s ease-in-out infinite}
+body.back-warning .fback::after,.pv-warning .ltd-fb::after{color:rgba(255,120,100,.4)}
+body.back-glitch .fback,.pv-glitch .ltd-fb{background:linear-gradient(165deg,#10141c,#04060a);border-color:#40d8c8}
+body.back-glitch .fback::before,.pv-glitch .ltd-fb::before{background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(64,216,200,.12) 3px 4px);animation:backScan 1.2s steps(6) infinite}
+body.back-glitch .fback::after,.pv-glitch .ltd-fb::after{color:rgba(120,255,240,.35);animation:backGlitch 2.4s infinite}
+body.back-neongrid .fback,.pv-neongrid .ltd-fb{background:linear-gradient(165deg,#1a0a30,#06020e);border-color:#d040ff}
+body.back-neongrid .fback::before,.pv-neongrid .ltd-fb::before{background:linear-gradient(rgba(208,64,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(208,64,255,.22) 1px,transparent 1px);background-size:8px 8px;animation:backGrid 1.4s linear infinite}
+body.back-neongrid .fback::after,.pv-neongrid .ltd-fb::after{color:rgba(230,150,255,.4);animation:backTwinkle 2s ease-in-out infinite}
+body.back-crimson .fback,.pv-crimson .ltd-fb{background:radial-gradient(circle at 50% 30%,rgba(255,60,60,.4),transparent 60%),linear-gradient(165deg,#3a0610,#10020a);border-color:#ff5060}
+body.back-crimson .fback::before,.pv-crimson .ltd-fb::before{background:radial-gradient(circle at 50% 45%,rgba(255,90,90,.55),transparent 62%),repeating-linear-gradient(-45deg,transparent 0 4px,rgba(255,80,90,.1) 4px 5px);animation:backBeat 1.5s ease-in-out infinite}
+body.back-crimson .fback::after,.pv-crimson .ltd-fb::after{color:rgba(255,150,160,.4)}
+@keyframes backSlide{to{background-position:22.63px 0}}
+@keyframes backWarnPulse{0%,100%{border-color:#7a2020}50%{border-color:#ff5050}}
+@keyframes backScan{from{background-position:0 0}to{background-position:0 24px}}
+@keyframes backGlitch{0%,88%,100%{transform:translate(-50%,-50%);text-shadow:none}90%{transform:translate(calc(-50% + 2px),-50%);text-shadow:-2px 0 #f0f,2px 0 #0ff}93%{transform:translate(calc(-50% - 2px),-50%)}96%{transform:translate(calc(-50% + 1px),calc(-50% - 1px));text-shadow:2px 0 #f0f,-2px 0 #0ff}}
+@keyframes backGrid{to{background-position:8px 8px}}
+@keyframes backBeat{0%,100%{opacity:.35}18%{opacity:1}36%{opacity:.5}54%{opacity:.9}}
+body.back-pumpkin .fback{background:radial-gradient(circle at 50% 45%,#ff9a30,#b84a08 70%,#4a1a04);border-color:#ffb040}
+body.back-pumpkin .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(70,20,0,.35) 5px 6px)}
+body.back-pumpkin .fback::after{content:'🎃';font-size:.8rem;color:#ffd060;animation:backFlicker 1.6s ease-in-out infinite}
+body.back-momiji .fback{background:linear-gradient(165deg,#a8301c,#4a0e0a);border-color:#f08a2a}
+body.back-momiji .fback::before{background:radial-gradient(circle,rgba(255,170,60,.5) 0 2px,transparent 3px) 0 0/8px 8px,radial-gradient(circle,rgba(255,90,40,.45) 0 2px,transparent 3px) 4px 4px/8px 8px;animation:backGrid 3s linear infinite}
+body.back-momiji .fback::after{content:'✿';font-size:.8rem;color:rgba(255,200,120,.55)}
+body.back-ginkgo .fback{background:linear-gradient(165deg,#f2c030,#9a6a0a);border-color:#ffe070}
+body.back-ginkgo .fback::before{background:repeating-linear-gradient(60deg,transparent 0 5px,rgba(255,240,150,.3) 5px 6px)}
+body.back-ginkgo .fback::after{content:'❦';font-size:.8rem;color:rgba(90,50,0,.5)}
+body.back-shigure .fback{background:linear-gradient(165deg,#3a4a5e,#10161f);border-color:#7a90a8}
+body.back-shigure .fback::before{background:linear-gradient(100deg,transparent 40%,rgba(170,200,230,.35) 50%,transparent 60%) 0 0/8px 8px;animation:backGrid .9s linear infinite}
+body.back-hatsuyuki .fback{background:linear-gradient(165deg,#e8f4ff,#8aa8c8);border-color:#fff}
+body.back-hatsuyuki .fback::before{background:radial-gradient(circle,#fff 0 1.5px,transparent 2.5px) 0 0/8px 8px,radial-gradient(circle,rgba(255,255,255,.8) 0 1px,transparent 2px) 4px 4px/8px 8px;animation:backGrid 2.4s linear infinite}
+body.back-hatsuyuki .fback::after{content:'❅';font-size:.85rem;color:rgba(70,110,160,.6)}
+#assist-style-box .as-btn{padding:.22rem .6rem;border:1px solid #3e2e1e;background:#2a1e14;color:#8a7048;font-family:inherit;font-size:.78rem;cursor:pointer}
+#assist-style-box .as-btn:first-child{border-radius:6px 0 0 6px}#assist-style-box .as-btn:last-child{border-radius:0 6px 6px 0;border-left:none}
+#assist-style-box .as-btn.on{background:linear-gradient(135deg,#c9a84c,#8a6a20);color:#1a1004;border-color:#c9a84c;font-weight:700}
+#fr-box{text-align:left;max-height:72vh;overflow-y:auto;padding-right:.2rem}
+.fr-h{font-size:.82rem;color:#c9a84c;font-weight:700;margin:.8rem 0 .35rem}
+.fr-code{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;border:1px solid #5a4020;border-radius:8px;background:#120c06}
+.fr-code b{font-size:1.25rem;letter-spacing:.18em;color:#f5d040;flex:1;font-family:monospace}
+.fr-row{display:flex;align-items:center;gap:.55rem;padding:.4rem .5rem;margin:.25rem 0;border:1px solid #3a2a18;border-radius:8px;background:#161008}
+.fr-av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#2a1e12;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+img.fr-av{display:block}
+.fr-info{flex:1;min-width:0}.fr-name{font-size:.9rem;color:#e8dcc4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-st{font-size:.7rem;color:#6a5830}.fr-st.on{color:#70d890}.fr-st.play{color:#f0b050}
+.fr-b{padding:.25rem .55rem;border-radius:6px;border:1px solid #5a4020;background:#2a1e14;color:#c9a84c;font-family:inherit;font-size:.74rem;cursor:pointer;flex-shrink:0}
+.fr-b.go{background:linear-gradient(135deg,#c9a84c,#8a6a20);color:#1a1004;border-color:#c9a84c;font-weight:700}.fr-b.del{color:#8a6a60}
+@keyframes bs85{to{background-position:8.485px 0}}
+@keyframes bs6{to{background-position:6px 0}}
+@keyframes bcSway{0%,100%{transform:translate(-50%,-50%) rotate(-9deg)}50%{transform:translate(-50%,-50%) rotate(9deg)}}
+@keyframes bcBeat{0%,100%{transform:translate(-50%,-50%) scale(.9)}20%{transform:translate(-50%,-50%) scale(1.3)}40%{transform:translate(-50%,-50%) scale(1)}55%{transform:translate(-50%,-50%) scale(1.2)}}
+@keyframes bcSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes bcFloat{0%,100%{transform:translate(-50%,-58%)}50%{transform:translate(-50%,-42%)}}
+@keyframes bcTwk{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(.85)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}}
+@keyframes bcBorderX{0%,100%{border-color:#e05050}50%{border-color:#50d070}}
+@keyframes bcGlow{0%,100%{box-shadow:inset 0 0 5px rgba(255,150,70,.25),0 2px 6px rgba(0,0,0,.5)}50%{box-shadow:inset 0 0 14px rgba(255,170,90,.85),0 2px 6px rgba(0,0,0,.5)}}
+body.back-xmas .fback{background:linear-gradient(165deg,#0e3a1e 0%,#3a0a0e 100%);border-color:#d8a8a0;animation:bcBorderX 1.4s steps(1) infinite}
+body.back-xmas .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,255,255,.16) 5px 6px);background-size:8.485px 8.485px;animation:bs85 1.6s linear infinite}
+body.back-xmas .fback::after{content:'🎄';font-size:.8rem;animation:bcTwk 1.6s ease-in-out infinite}
+body.back-newyear .fback{background:linear-gradient(165deg,#5a0a10 0%,#240408 100%);border-color:#e8c060;animation:bcGlow 2.2s ease-in-out infinite}
+body.back-newyear .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(232,192,96,.25) 5px 6px);background-size:6px 6px;animation:bs6 1.1s linear infinite}
+body.back-newyear .fback::after{content:'🎍';font-size:.8rem;animation:bcSway 2.4s ease-in-out infinite}
+body.back-valentine .fback{background:linear-gradient(165deg,#4a0a2a 0%,#1c0410 100%);border-color:#ff7aa8}
+body.back-valentine .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,130,170,.2) 5px 6px);background-size:8.485px 8.485px;animation:bs85 2.2s linear infinite}
+body.back-valentine .fback::after{content:'💝';font-size:.8rem;animation:bcBeat 1.3s ease-in-out infinite}
+body.back-hanafubuki .fback{background:linear-gradient(165deg,#3a1a30 0%,#180a14 100%);border-color:#ffc0d8}
+body.back-hanafubuki .fback::before{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(255,192,216,.2) 5px 6px);background-size:8.485px 8.485px;animation:bs85 2.4s linear infinite}
+body.back-hanafubuki .fback::after{content:'🌸';font-size:.8rem;animation:bcSpin 6s linear infinite}
+body.back-tanabata .fback{background:linear-gradient(165deg,#0a1040 0%,#04061c 100%);border-color:#8ab0ff}
+body.back-tanabata .fback::before{background:radial-gradient(circle at 25% 30%,#fff 0 1px,transparent 1.7px),radial-gradient(circle at 72% 72%,#cfe0ff 0 1px,transparent 1.7px);background-size:14px 14px,11px 11px;animation:backTwinkle 1.8s ease-in-out infinite}
+body.back-tanabata .fback::after{content:'⭐';font-size:.8rem;animation:bcTwk 1.9s ease-in-out infinite}
+body.back-matsuri .fback{background:linear-gradient(165deg,#2a0a0a 0%,#100404 100%);border-color:#ff6a40;animation:bcGlow 1.4s ease-in-out infinite}
+body.back-matsuri .fback::before{background:repeating-linear-gradient(90deg,transparent 0 5px,rgba(255,110,60,.25) 5px 6px);animation:backFlicker 1.1s ease-in-out infinite}
+body.back-matsuri .fback::after{content:'🏮';font-size:.8rem;animation:bcSway 2s ease-in-out infinite}
+body.back-tsukimi .fback{background:linear-gradient(165deg,#1a1a3a 0%,#0a0a1c 100%);border-color:#ffe080;animation:bcGlow 3s ease-in-out infinite}
+body.back-tsukimi .fback::before{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,230,130,.16) 5px 6px);animation:backTwinkle 3s ease-in-out infinite}
+body.back-tsukimi .fback::after{content:'🌕';font-size:.8rem;animation:bcFloat 3s ease-in-out infinite}
+@keyframes backFlicker{0%,100%{opacity:.85}45%{opacity:1}60%{opacity:.55}}
+@keyframes backTwinkle{0%,100%{opacity:.5}50%{opacity:1}}
+body.back-dragon .fback{background:linear-gradient(165deg,#0a3a24 0%,#031810 100%);border-color:#d8b04a}
+body.back-dragon .fback::before{background:radial-gradient(circle at 50% 100%,transparent 52%,rgba(216,176,74,.26) 54%,transparent 58%);background-size:12px 8px}
+body.back-dragon .fback::after{color:rgba(240,206,110,.4)}
+body.back-rainbow .fback{background:linear-gradient(165deg,#2a1840,#10203a);border-color:#d8a8ff}
+body.back-rainbow .fback::before{background:linear-gradient(115deg,rgba(255,80,120,.34),rgba(255,220,80,.34),rgba(80,255,160,.34),rgba(80,160,255,.34),rgba(200,80,255,.34),rgba(255,80,120,.34));background-size:300% 300%;animation:backHolo 6s linear infinite}
+body.back-rainbow .fback::after{color:rgba(255,255,255,.4)}
+@keyframes backHolo{from{background-position:0% 50%}to{background-position:300% 50%}}
+
+/* ── アシスト ── */
+.fback.assist-best,.tile.assist-best{border-color:#30e890!important;
+  box-shadow:0 0 18px rgba(48,232,144,.8),0 0 6px rgba(48,232,144,.4)!important;
+  animation:assistPulse 1.2s infinite}
+.normal-area-best{outline:2px solid #30e890;outline-offset:3px;border-radius:6px;
+  box-shadow:0 0 14px rgba(48,232,144,.5);animation:assistPulse 1.2s infinite}
+.htile.assist-discard,.htile.tenpai-hint{border-color:#e03030!important;
+  box-shadow:0 0 18px rgba(224,48,48,.8),0 0 6px rgba(224,48,48,.4)!important;
+  animation:assistPulse 1.2s infinite}
+@keyframes assistPulse{0%,100%{opacity:1}50%{opacity:.65}}
+/* ── ボットチャット ── */
+#bot-chat-wrap{position:fixed;bottom:calc(var(--hand-h,9.5rem) + 4rem);right:.75rem;width:min(260px,70vw);z-index:300;
+  display:none;flex-direction:column;gap:.4rem}
+#bot-chat-log{background:rgba(13,10,6,.92);border:1px solid #3e2e1e;border-radius:10px;
+  height:160px;overflow-y:auto;padding:.5rem;display:flex;flex-direction:column;gap:.35rem}
+#bot-chat-toggle{position:fixed;bottom:calc(var(--hand-h,9.5rem) + .6rem);right:.75rem;z-index:300;display:none;
+  background:linear-gradient(135deg,#6a4aad,#3a1a7d);border:none;border-radius:50%;
+  width:44px;height:44px;color:#e8d8ff;font-size:1.2rem;cursor:pointer;
+  box-shadow:0 2px 12px rgba(0,0,0,.5)}
+#bot-chat-badge{position:absolute;top:-4px;right:-4px;background:#e05050;color:#fff;
+  border-radius:50%;width:16px;height:16px;font-size:.62rem;display:none;
+  align-items:center;justify-content:center;font-weight:700}
+/* ── チャット ── */
+#chat-wrap{position:fixed;bottom:calc(var(--hand-h,9.5rem) + 4rem);right:.75rem;width:min(300px,88vw);z-index:300;
+  display:none;flex-direction:column;gap:.4rem}
+#chat-log{background:rgba(13,10,6,.92);border:1px solid #3e2e1e;border-radius:10px;
+  height:200px;overflow-y:auto;padding:.6rem;display:flex;flex-direction:column;gap:.4rem}
+.chat-msg{max-width:85%;padding:.35rem .6rem;border-radius:8px;font-size:.8rem;line-height:1.4;word-break:break-all}
+.chat-msg.mine{align-self:flex-end;background:linear-gradient(135deg,#2a5e4e,#1a3e30);color:#e0fff8;border:1px solid #2a9e7e}
+.chat-msg.theirs{align-self:flex-start;background:#1a1208;color:#c8b898;border:1px solid #3e2e1e}
+.chat-name{font-size:.68rem;color:#8a7048;margin-bottom:.15rem}
+#chat-input-row{display:flex;gap:.4rem}
+#chat-input{flex:1;padding:.5rem .7rem;background:#0d0a06;border:1px solid #3e2e1e;
+  border-radius:8px;color:#e8c97a;font-family:inherit;font-size:.85rem}
+#chat-input:focus{outline:none;border-color:#c9a84c}
+#chat-send-btn{padding:.5rem .8rem;background:linear-gradient(135deg,#2a9e8e,#1a6e60);
+  border:none;border-radius:8px;color:#e0fff8;font-family:inherit;font-size:.85rem;
+  font-weight:700;cursor:pointer;white-space:nowrap}
+#chat-toggle{position:fixed;bottom:calc(var(--hand-h,9.5rem) + .6rem);right:.75rem;z-index:300;display:none;
+  background:linear-gradient(135deg,#2a9e8e,#1a6e60);border:none;border-radius:50%;
+  width:48px;height:48px;color:#e0fff8;font-size:1.3rem;cursor:pointer;
+  box-shadow:0 2px 12px rgba(0,0,0,.5)}
+#chat-badge{position:absolute;top:-4px;right:-4px;background:#e05050;color:#fff;
+  border-radius:50%;width:18px;height:18px;font-size:.65rem;display:none;
+  align-items:center;justify-content:center;font-weight:700}
+  /* ── アニメーション ── */
+@keyframes tileSlideIn{from{opacity:0;transform:translateY(-18px) scale(.85)}to{opacity:1;transform:none}}
+@keyframes tileFadeOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.7)}}
+@keyframes scoreCount{from{transform:scale(1.4);color:#f5e060}to{transform:scale(1)}}
+@keyframes turnGlow{0%,100%{box-shadow:inset 0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:inset 0 0 0 4px rgba(201,168,76,.6)}}
+@keyframes winSparkle{0%,100%{box-shadow:0 0 8px 2px rgba(201,168,76,.4),0 0 0 0 rgba(245,224,96,.0)}50%{box-shadow:0 0 18px 6px rgba(201,168,76,.9),0 0 30px 10px rgba(245,224,96,.3)}}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.tile-anim-in{animation:tileSlideIn .25s ease-out both}
+.tile-anim-out{animation:tileFadeOut .18s ease-in both}
+.htile.can-win-sparkle{animation:winSparkle 1s infinite}
+.score-bump{animation:scoreCount .4s ease-out both}
+#game.my-turn-glow{animation:turnGlow 1.5s ease-in-out infinite}
+  /* scrollbar */
+
+::-webkit-scrollbar{width:3px;height:3px}
+
+::-webkit-scrollbar-track{background:transparent}
+
+::-webkit-scrollbar-thumb{background:#3a2a1a;border-radius:2px}
+
+/* タブ */
+
+.tab-bar{display:flex;gap:0;margin-bottom:.75rem;border:1px solid #3e2e1e;border-radius:9px;overflow:hidden}
+
+.tab-btn{flex:1;padding:.6rem;border:none;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .18s}
+
+/* ルールブック 牌例 */
+
+.rbtile{width:34px;height:56px;border-radius:5px;
+
+background:linear-gradient(180deg,#ffffff 0%,#efe4ce 100%);border:1.5px solid #b89860;
+
+box-shadow:0 2px 6px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,1);
+
+display:flex;flex-direction:column;position:relative;overflow:hidden;flex-shrink:0}
+
+.rbtile .th{flex:1;display:flex;align-items:center;justify-content:center;
+
+border-bottom:1.5px solid #c8a870;background:rgba(255,255,255,0.5)}
+
+.rbtile .tb{flex:1;display:flex;align-items:center;justify-content:center;
+
+background:rgba(235,218,192,0.3)}
+
+.rbtile .th svg,.rbtile .tb svg{width:68%;height:68%;display:block;overflow:visible}
+
+.rbtile .rbtile-star{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+
+font-size:.55rem;color:#A07800;pointer-events:none;z-index:3;line-height:1}
+
+.rb-ex{display:flex;gap:4px;margin-top:.55rem;align-items:flex-end;flex-wrap:wrap}
+
+.rb-ex-sep{display:flex;align-items:center;justify-content:center;color:#8a7048;font-size:.85rem;
+
+font-weight:700;padding:0 2px;align-self:center}
+
+.tut-content .rbtile{width:52px;height:86px}
+.tut-content .rbtile .rbtile-star{font-size:.85rem}

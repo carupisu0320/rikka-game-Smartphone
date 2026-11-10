@@ -1,0 +1,46 @@
+body.no-menu #menu-btn{display:none!important}
+#fr-msgs{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);width:min(92vw,420px);z-index:1200;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.fr-msg{pointer-events:auto;background:linear-gradient(180deg,#2a1e12,#1a120a);border:1px solid #c9a84c;border-radius:12px;padding:.55rem .75rem;box-shadow:0 6px 20px rgba(0,0,0,.6);color:#f0e0b8;animation:frMsgIn .35s ease-out;transition:opacity .3s,transform .3s}
+.fr-msg .nm{font-size:.72rem;color:#c9a84c;margin-bottom:.15rem}.fr-msg .tx{font-size:.92rem;line-height:1.4;word-break:break-word}
+.fr-msg .ac{display:flex;justify-content:flex-end;margin-top:.3rem}.fr-msg.out{opacity:0;transform:translateY(-12px)}
+@keyframes frMsgIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+#fr-compose{position:fixed;inset:0;z-index:700;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6)}#fr-compose.open{display:flex}
+.frc-box{width:min(90vw,380px);background:#161008;border:1px solid #5a4020;border-radius:14px;padding:.9rem}
+.frc-t{color:#e8c870;font-size:.95rem;margin-bottom:.5rem}.frc-chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem}
+.frc-chips button{background:#2a1e14;color:#c9a84c;border:1px solid #5a4020;border-radius:999px;padding:.2rem .6rem;font-size:.78rem}
+#frc-text{width:100%;box-sizing:border-box;background:#0d0905;color:#f0e0b8;border:1px solid #5a4020;border-radius:8px;padding:.5rem;font-size:16px;resize:none}
+.frc-b{display:flex;justify-content:flex-end;gap:.4rem;margin-top:.6rem}
+#spec-view{position:fixed;inset:0;z-index:650;background:rgba(10,6,2,.97);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + .8rem) .9rem 1rem;color:#f0e0b8;display:none}#spec-view.open{display:block}
+.sp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}.sp-head b{color:#e8c870}
+.sp-ps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.4rem;margin-bottom:.7rem}
+.sp-p{background:#161008;border:1px solid #3a2a18;border-radius:10px;padding:.45rem .55rem}.sp-p.turn{border-color:#f5d040;box-shadow:0 0 10px rgba(245,208,64,.3)}
+.sp-n{font-size:.88rem;color:#e8c870}.sp-r{margin-left:.3rem;font-size:.62rem;background:#c0392b;color:#fff;border-radius:6px;padding:0 .3rem}
+.sp-s{font-size:.78rem;color:#c9a870;margin:.1rem 0}.sp-h{display:flex;flex-wrap:wrap;gap:3px;margin:.2rem 0;min-height:22px}.sp-h>:not(.fback){zoom:.7}.sp-h .fback{width:14px!important;height:22px!important;flex:none}
+.sp-t{font-size:.68rem;color:#8a7048;min-height:.9rem}.sp-sec{font-size:.78rem;color:#c9a84c;margin:.5rem 0 .25rem}
+.sp-f{display:flex;flex-wrap:wrap;gap:4px}.sp-f .fback{width:26px!important;height:40px!important;flex:none}
+.sp-note{margin-top:.7rem;background:#2a1e12;border:1px solid #c9a84c;border-radius:10px;padding:.5rem .7rem;font-size:.88rem}
+.ms-h{font-size:.76rem;color:#c9a84c;margin:.7rem 0 .3rem;text-align:left}
+.ms-row{display:grid;grid-template-columns:1fr auto;gap:.15rem .5rem;align-items:center;background:#161008;border:1px solid #3a2a18;border-radius:8px;padding:.4rem .55rem;margin:.25rem 0;text-align:left}
+.ms-t{font-size:.84rem}.ms-bar{grid-column:1;height:6px;background:#2a1e14;border-radius:3px;overflow:hidden}.ms-bar i{display:block;height:100%;background:linear-gradient(90deg,#c9a84c,#f5d040)}
+.ms-n{font-size:.7rem;color:#8a7048}.ms-go{grid-row:1/3;grid-column:2}.ms-done{font-size:.7rem;color:#6a8a50}
+
+/* 通常時（イベントなし）のタイトル：静かな冬の夜（月明かり・薄い霧・ゆっくり舞う雪の結晶） */
+.ld-moon{position:absolute;top:9%;right:11%;width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 36% 34%,#fffcf0 0,#efe7cf 52%,#cdc2a4 100%);
+  box-shadow:0 0 28px rgba(225,230,255,.35),0 0 90px rgba(170,185,255,.22),0 0 180px rgba(150,165,240,.12)}
+.ld-moon::after{content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 62% 60%,rgba(150,140,115,.28) 0 7px,transparent 8px),radial-gradient(circle at 30% 64%,rgba(150,140,115,.2) 0 5px,transparent 6px),radial-gradient(circle at 54% 26%,rgba(150,140,115,.18) 0 4px,transparent 5px)}
+.ld-mist{position:absolute;left:-30%;width:160%;height:26%;filter:blur(16px);opacity:.9;
+  background:linear-gradient(90deg,transparent 0%,rgba(185,196,228,.11) 30%,rgba(185,196,228,.16) 55%,transparent 100%);animation:ldMist 60s ease-in-out infinite alternate}
+.ld-vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,transparent 52%,rgba(0,0,0,.5) 100%)}
+@keyframes ldMist{from{transform:translateX(-6%)}to{transform:translateX(8%)}}
+#lobby.lobby-default .logo-sub{color:var(--ld-sub,#8d89ad);transition:color 8s}
+#lobby.lobby-default .logo-kanji{transition:color 8s,text-shadow 8s}
+.ld-scene{position:absolute;inset:0;transition:opacity 8s ease-in-out}
+.ld-sky{position:absolute;inset:0}
+.ld-glow{position:absolute;border-radius:50%}
+.ld-moon.sm{width:40px;height:40px;right:auto;left:14%;top:8%;opacity:.85}
+.ld-cloud{position:absolute;left:-10%;height:70px;border-radius:50%;filter:blur(22px);animation:ldMist 90s ease-in-out infinite alternate}
+.ld-mote{position:absolute;border-radius:50%;animation:ldMote linear infinite}
+@keyframes ldMote{0%{transform:translate3d(0,0,0);opacity:0}15%{opacity:.8}85%{opacity:.8}100%{transform:translate3d(var(--sx,20px),-70px,0);opacity:0}}
+@media(prefers-reduced-motion:reduce){.ld-mist{animation:none}}
