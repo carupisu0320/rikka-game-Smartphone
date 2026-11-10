@@ -1,4 +1,3 @@
-
 // ============================================================
 // リーチ・ロンの演出（画面中央に大きく宣言を出す。操作はじゃましない）
 // ============================================================
@@ -514,7 +513,7 @@ const CF_FLOWER='<div class="cf-flower"><svg viewBox="-100 -100 200 200"><defs><
 function showCallFx(kind,name,sub,fx){
   const old=document.getElementById('call-fx');if(old)old.remove();clearTimeout(_callFxTimer);
   const ron=kind==='ron',win=kind==='win',isRb=win&&fx&&fx.win==='rainbow';let dur=ron?1.8:(win?(isRb?2.6:1.9):1.55);
-  const sty=fxStyleOf(kind,fx),custom=sty.id!=='default',isSc=custom&&!!FXS[sty.id];if(isSc)dur+=.5;
+  const sty=fxStyleOf(kind,fx),custom=sty.id!=='default',isSc=custom&&!!FXS[sty.id];if(isSc)dur+=.5;if(custom&&sty.dur)dur=sty.dur; // 演出ごとの長さ（addFx の dur）
   const el=document.createElement('div');
   el.id='call-fx';el.className=(ron?'cf-ron shake':(win?'cf-win':'cf-riichi'))+(custom?' fxc':'')+(isRb?' cf-rb':'');el.style.setProperty('--dur',dur+'s');
   if(custom){el.style.setProperty('--c1',sty.c1);el.style.setProperty('--c2',sty.c2);el.style.setProperty('--bg',sty.bg);el.style.setProperty('--dm',sty.dm);}
