@@ -1,4 +1,3 @@
-
 // ============================================================
 
 // 定数
@@ -285,6 +284,7 @@ function matchFoundFx(players,you,label){
   _gfxAudio(ctx=>{const now=ctx.currentTime,m=ctx.createGain();m.gain.value=soundVolume*.5;m.connect(ctx.destination);
     [[659.25,0],[880,.12],[1318.5,.26]].forEach(([f,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,now+t);g.gain.linearRampToValueAtTime(.6,now+t+.02);g.gain.exponentialRampToValueAtTime(.001,now+t+.5);o.connect(g);g.connect(m);o.start(now+t);o.stop(now+t+.55);});});
   _matchHideTimer=setTimeout(()=>hideMatchFx(false),3600); // しばらく見せてから対局へ
+  if(typeof devMatchFx==='function')devMatchFx(players,me); // 開発者とマッチしたときの演出（14-dev-match.js）
 }
 // immediate=true なら即座に消す。そうでなければ、ふわっと消す
 function hideMatchFx(immediate){
@@ -293,7 +293,7 @@ function hideMatchFx(immediate){
   if(immediate){el.remove();return;}
   el.onclick=null;el.classList.add('out');setTimeout(()=>el.remove(),420);
 }
-function doQuickMatch(){quickBotStartTimer();if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload()});showMatchFx();}
+function doQuickMatch(){quickBotStartTimer();if(!socket||!socket.connected){initSocket();setTimeout(doQuickMatch,1000);return;}document.getElementById('btn-quick').disabled=true;setOnlineStatus('⟳ 対戦相手を探しています...','#6fc4ae');socket.emit('quickmatch',{name:myName(),fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload(),...(typeof devAuth==='function'?devAuth():{})});showMatchFx();}
 
 function cancelQueue(){quickBotClearTimer();hideMatchFx(true);socket?.emit('cancel_queue');document.getElementById('btn-quick').disabled=false;setOnlineStatus('','');}
 
@@ -304,7 +304,7 @@ const goalEl=document.querySelector('input[name="room-goal"]:checked');
   const goal=goalEl?parseInt(goalEl.value):10;
   const useRiichi2=document.getElementById('room-opt-リーチ')?.checked||false;
   const useRon2=document.getElementById('room-opt-ロン')?.checked||false;
-  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload()});}
+  socket.emit('create_room',{name:myName(),roles:getOptRoles('room-opt-'),goal,useRiichi:useRiichi2,useRon:useRon2,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload(),...(typeof devAuth==='function'?devAuth():{})});}
 function copyRoomCode(){const code=document.getElementById('room-code-display').textContent;navigator.clipboard?.writeText(code).then(()=>toast('コードをコピーしました！'));}
 
 
@@ -370,7 +370,7 @@ function cancelRoom(){document.getElementById('room-host-box').style.display='no
 
 function hostStartGame(){socket?.emit('start_game',{code:currentCode});}
 
-function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload()});}
+function joinRoom(){const code=document.getElementById('join-code-input').value.toUpperCase().trim();if(!code){document.getElementById('join-status').textContent='コードを入力してください';return;}if(!socket||!socket.connected){initSocket();setTimeout(joinRoom,1000);return;}document.getElementById('join-status').textContent='⟳ 参加中...';socket.emit('join_room',{name:myName(),code,fieldBg:myFieldBgValue(),avatar:myAvatarUrl(),title:myTitleId(),fx:myFxPayload(),...(typeof devAuth==='function'?devAuth():{})});}
 
 function setOnlineStatus(msg,color){const el=document.getElementById('online-status');if(el){el.textContent=msg;el.style.color=color||'#6a5030';}const cb=document.getElementById('btn-cancel-quick');if(cb)cb.style.display=msg?'':'none';}
 
