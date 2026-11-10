@@ -341,6 +341,14 @@ const FRIEND_CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/;
 const presence = new Map();     // フレンドコード → { sid, name, avatar, title, friends:Set, status, room }
 const sidToCode = new Map();    // socket.id → フレンドコード
 const friendTokens = new Map(); // フレンドコード → 合言葉のハッシュ（他人がなりすまして登録するのを防ぐ）
+// 開発者のフレンドコード（8文字）。ここに入れた人とマッチした相手に、開発者マッチの演出が流れる。
+// コードは、ここに書くか、環境変数 DEV_FRIEND_CODES（カンマ区切り）に入れる。合言葉(tok)の持ち主でなければ開発者として扱われない
+const DEV_FRIEND_CODES = new Set(['' /* ← 開発者のフレンドコードをここに入れる */].concat((process.env.DEV_FRIEND_CODES || '').split(',')).map(c => c.trim().toUpperCase()).filter(Boolean));
+function isDevAuth(fc, ft) {
+  if (typeof fc !== 'string' || typeof ft !== 'string' || !DEV_FRIEND_CODES.has(fc) || !FRIEND_CODE_RE.test(fc) || ft.length < 16 || ft.length > 64) return false;
+  const h = friendTokens.get(fc);
+  return !!h && h === crypto.createHash('sha256').update(ft).digest('hex');
+}
 function cleanFriends(arr, self) {
   const set = new Set();
   if (Array.isArray(arr)) for (const c of arr) { if (set.size >= 100) break; if (typeof c === 'string' && FRIEND_CODE_RE.test(c) && c !== self) set.add(c); }
@@ -395,10 +403,10 @@ io.on('connection', socket => {
   });
 
   // クイックマッチ
-  socket.on('quickmatch', ({ name, fieldBg, avatar, title, fx }) => {
+  socket.on('quickmatch', ({ name, fieldBg, avatar, title, fx, fc, ft }) => {
     name = sanitizeName(name);
     if (queue.find(q => q.id === socket.id)) return;
-    queue.push({ id: socket.id, name, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx) });
+    queue.push({ id: socket.id, name, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx), dev: isDevAuth(fc, ft) });
     socket.emit('queued', { pos: queue.length });
 
 if (queue.length >= 2) {
@@ -408,8 +416,8 @@ if (queue.length >= 2) {
     code, host: p1.id,
     roles: [], // クイックマッチ: 基本役のみ
     players: [
-      { id: p1.id, name: p1.name, hand: [], score: 0, fieldBg: p1.fieldBg || '', avatar: p1.avatar || '', title: p1.title || '', fx: p1.fx },
-      { id: p2.id, name: p2.name, hand: [], score: 0, fieldBg: p2.fieldBg || '', avatar: p2.avatar || '', title: p2.title || '', fx: p2.fx },
+      { id: p1.id, name: p1.name, hand: [], score: 0, fieldBg: p1.fieldBg || '', avatar: p1.avatar || '', title: p1.title || '', fx: p1.fx, dev: !!p1.dev },
+      { id: p2.id, name: p2.name, hand: [], score: 0, fieldBg: p2.fieldBg || '', avatar: p2.avatar || '', title: p2.title || '', fx: p2.fx, dev: !!p2.dev },
     ],
     field: [], turn: 0, tphase: 'pick', phase: 'playing',
   };
@@ -418,7 +426,7 @@ if (queue.length >= 2) {
   socket.join(code);                           // ← p2（現在のsocket）
   dealRound(room);
   // 対戦前の紹介画面用に、全員の名前・アイコン・称号を送る（you は受け取った本人の位置）
-  const intro = room.players.map(p => ({ name: p.name, avatar: p.avatar || '', title: p.title || '' }));
+  const intro = room.players.map(p => ({ name: p.name, avatar: p.avatar || '', title: p.title || '', dev: !!p.dev }));
   room.players.forEach((p, i) => io.to(p.id).emit('matched', { code, names: room.players.map(q => q.name), players: intro, you: i }));
   sendState(room);
 }
@@ -445,7 +453,7 @@ if (queue.length >= 2) {
   }
 
   // ルーム作成
-socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avatar, title, fx }) => {
+socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avatar, title, fx, fc, ft }) => {
     if (rooms.size >= 2000) { socket.emit('err', 'いま部屋がいっぱいです。あとでもう一度お試しください'); return; }
     name = sanitizeName(name);
     roles = Array.isArray(roles) ? roles.filter(r => typeof r === 'string').slice(0, 40).map(r => r.slice(0, 20)) : [];
@@ -456,7 +464,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
       goal: [5,10,15,20,30].includes(goal) ? goal : 10,
       useRiichi: useRiichi === true,
       useRon: useRon === true,
-      players: [{ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx) }],
+      players: [{ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx), dev: isDevAuth(fc, ft) }],
       field: [], turn: 0, tphase: 'pick', phase: 'waiting',
     });
     socket.join(code);
@@ -465,7 +473,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
   });
 
   // ルーム参加
-  socket.on('join_room', ({ name, code, fieldBg, avatar, title, fx }) => {
+  socket.on('join_room', ({ name, code, fieldBg, avatar, title, fx, fc, ft }) => {
     name = sanitizeName(name);
     const c = String(code || '').toUpperCase().trim().slice(0, 12);
     const room = rooms.get(c);
@@ -474,7 +482,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     if (room.players.length >= MAX_ROOM_PLAYERS) { socket.emit('err', `部屋が満員です（最大${MAX_ROOM_PLAYERS}人）`); return; }
     if (room.players.some(p => p.id === socket.id)) { socket.emit('err', 'すでに参加しています'); return; }
     if (room.players.some(p => p.name === name)) { socket.emit('err', 'この名前はすでに使われています'); return; }
-    room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx) });
+    room.players.push({ id: socket.id, name, hand: [], score: 0, riichi: false, fieldBg: sanitizeFieldBg(fieldBg), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), fx: sanitizeFx(fx), dev: isDevAuth(fc, ft) });
     socket.join(c);
     emitRoomUpdate(room, name, '');
   });
@@ -628,7 +636,7 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
     const room = rooms.get(code);
     if (!room || room.host !== socket.id || room.players.length < 2) return;
     dealRound(room);
-    const intro = room.players.map(p => ({ name: p.name, avatar: p.avatar || '', title: p.title || '' }));
+    const intro = room.players.map(p => ({ name: p.name, avatar: p.avatar || '', title: p.title || '', dev: !!p.dev }));
     room.players.forEach((p, i) => io.to(p.id).emit('game_start', { names: room.players.map(q => q.name), players: intro, you: i }));
     sendState(room);
   });
