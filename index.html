@@ -6344,7 +6344,10 @@ const LIMITED_LIST=[
    top:['bg_gameovera3','bg_gameovera4'], topText:'最高レア：Game Over Ⅲ・Ⅳ（場の背景）'},
   {id:'autumn2026', name:'紅葉から初雪へ', title:'期間限定ガチャ', start:'2026-11-03', end:'2026-11-16', // 紅葉から初雪へ
    existing:['theme_ice','bg_aurora'],
-   top:['bg_utsuroi','gi_nishiki'], topText:'最高レア：移ろう季節（場の背景）・錦の六華（アイコン）'}
+   top:['bg_utsuroi','gi_nishiki'], topText:'最高レア：移ろう季節（場の背景）・錦の六華（アイコン）'},
+  {id:1, name:'ハロウィン リブート', title:'期間限定ガチャ', start:'2026-11-17', end:'2026-11-30', // 10/19〜11/2のハロウィンガチャの復刻（景品の limited:1 が対象）
+   existing:['theme_ice','theme_ember','theme_obsidian','theme_galaxy','bg_aurora','bg_nebula'],
+   top:['bg_gameovera3','bg_gameovera4'], topText:'最高レア：Game Over Ⅲ・Ⅳ（場の背景）'}
 ];
 // 開催中 → なければ次に始まるもの → なければ最後のもの、の順で選ぶ
 const _ldDevPick=()=>{try{if(typeof isDevUser==='function'&&isDevUser()){const o=localStorage.getItem('rikka_dev_gacha');return LIMITED_LIST.find(x=>String(x.id)===o)||null;}}catch(e){}return null;};
@@ -7097,6 +7100,8 @@ function gachaPool(rarity,banner){
   return GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar&&!it.limited&&!it.event&&!it.gold);
 }
 backfillAchievementRewards();
+// 配付：Game Over Ⅲ・Ⅳ と称号「国富平針店のバイト」を全員に渡す（すでに持っている人には何も起きない）
+if(['bg_gameovera3','bg_gameovera4','title_gameovera'].map(id=>grantItem(id)).some(Boolean))setTimeout(()=>{try{toast('🎁 Game Over Ⅲ・Ⅳ と称号「国富平針店のバイト」をプレゼントしました！');}catch(e){}},2500);
 const GACHA_RARITY_INFO={
   common:   {label:'コモン',   weight:60, color:'#9098a0'},
   uncommon: {label:'アンコモン', weight:25, color:'#60c870'},
