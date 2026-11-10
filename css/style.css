@@ -1179,6 +1179,12 @@ border-bottom:1px solid #2a1e10;padding-bottom:.3rem}
   font:900 clamp(.8rem,3.6vmin,1.3rem)/1 'Hiragino Mincho ProN','Yu Mincho',serif;letter-spacing:.5em;padding-left:.5em;color:#ffe9a8;
   text-shadow:0 0 10px #ff9a20,2px 2px 0 #4a1a06;animation:kkSub .7s ease-out 4.1s forwards}
 @keyframes kkSub{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.kk-quote{position:absolute;left:0;right:0;top:24%;z-index:5;text-align:center;white-space:nowrap;opacity:0;
+  font:900 clamp(1.5rem,7.6vmin,3.4rem)/1.2 'Hiragino Mincho ProN','Yu Mincho',serif;letter-spacing:.06em;
+  color:#fff;-webkit-text-stroke:2px #5a0a0a;paint-order:stroke fill;
+  text-shadow:0 0 14px #ff3a2a,0 0 34px #ff9a20,3px 3px 0 #3a0606;
+  animation:kkQuote 2.1s ease-out 1.25s forwards}
+@keyframes kkQuote{0%{opacity:0;transform:scale(1.9) translateY(-8px)}10%{opacity:1;transform:scale(1)}16%{transform:translate(-3px,2px)}22%{transform:translate(3px,-2px)}28%{transform:translate(-2px,0)}34%{transform:none}84%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 .kk-white{position:absolute;inset:0;z-index:6;background:radial-gradient(circle at 50% 45%,#fff 0%,#fff3c0 55%,#ffd24a 100%);opacity:0;animation:kkWhite .7s ease-in 4.5s forwards}
 @keyframes kkWhite{to{opacity:1}}
 /* バーストに入ったら、シーンを光に溶かして消す */
