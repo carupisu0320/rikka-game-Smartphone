@@ -1,4 +1,3 @@
-
 // ============================================================
 // タイトル画面のイベント背景（日付で自動的に切り替わる）
 //  from / to は [月, 日]。年をまたぐ期間（from > to）にも対応。上にあるものほど優先。
@@ -750,6 +749,8 @@ function renderDevSection(){
   h+='<div style="grid-column:1/-1;font-size:.72rem;color:#8a7a50;margin:.5rem 0 .1rem">黄金の精神：確定演出</div>';
   h+=cell4(false,'linear-gradient(135deg,#f7b35c,#3a1a1c)','▶','演出を見る','devPreviewKakutei()');
   h+=cell4(ka,'linear-gradient(135deg,#ffd24a,#5a2a08)','⭐','毎回流す（'+(ka?'ON':'OFF')+'）','setDevKakuAlways('+(!ka)+')');
+  h+='<div style="grid-column:1/-1;font-size:.72rem;color:#8a7a50;margin:.5rem 0 .1rem">開発者とマッチしたときの演出</div>';
+  h+=cell4(false,'linear-gradient(135deg,#7a3cff,#14061f)','▶','流れ方を見る','devPreviewMatch()');
   document.getElementById('sb-dev-grid').innerHTML=h;
 }
 function setDevGacha(v){
