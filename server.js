@@ -343,7 +343,7 @@ const sidToCode = new Map();    // socket.id → フレンドコード
 const friendTokens = new Map(); // フレンドコード → 合言葉のハッシュ（他人がなりすまして登録するのを防ぐ）
 // 開発者のフレンドコード（8文字）。ここに入れた人とマッチした相手に、開発者マッチの演出が流れる。
 // コードは、ここに書くか、環境変数 DEV_FRIEND_CODES（カンマ区切り）に入れる。合言葉(tok)の持ち主でなければ開発者として扱われない
-const DEV_FRIEND_CODES = new Set(['' /* ← 開発者のフレンドコードをここに入れる */].concat((process.env.DEV_FRIEND_CODES || '').split(',')).map(c => c.trim().toUpperCase()).filter(Boolean));
+const DEV_FRIEND_CODES = new Set(['CUTFZG2R' /* ← 開発者のフレンドコード（端末が増えたら、カンマでつないで足す） */].concat((process.env.DEV_FRIEND_CODES || '').split(',')).map(c => c.trim().toUpperCase()).filter(Boolean));
 function isDevAuth(fc, ft) {
   if (typeof fc !== 'string' || typeof ft !== 'string' || !DEV_FRIEND_CODES.has(fc) || !FRIEND_CODE_RE.test(fc) || ft.length < 16 || ft.length > 64) return false;
   const h = friendTokens.get(fc);
