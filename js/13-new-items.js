@@ -40,13 +40,14 @@ function addImageBg(o){
 
 // リーチ・ロン・上がりの演出。kind は 'riichi' / 'ron' / 'win'
 //   id は英小文字と数字だけ。draw は canvas の動き（省略すると色つきの標準の演出になります）
-//   mode: 'burst'（放射）か 'fall'（降ってくる）。g: 'fall' のときに降らせる絵文字の配列。dur: 演出の長さ（秒）
+//   mode: 'burst'（放射）か 'fall'（降ってくる）。g: 'fall' のときに降らせる絵文字の配列。dur: 演出の長さ（秒）、sound: 演出の音（省略すると標準の音）
 function addFx(o){
   const st={id:o.id,name:o.name,icon:o.emoji||'✨',c1:o.c1,c2:o.c2,bg:o.bg,dm:o.dm,mode:o.mode||'burst'};
   if(o.g)st.g=o.g;
   if(o.dur)st.dur=o.dur; // 演出の長さ（秒）。省略すると標準の長さ
   FX_STYLES[o.kind].push(st);
   if(o.draw)FXS[o.id]=o.draw;
+  if(o.sound)FX_SOUND[o.id]=o.sound; // 演出の音（S.t / S.n などで作る。書き方は 15-fx-sounds.js）
   const itemId='fx_'+o.id;
   GOLD_FX[o.id]=itemId; // 持っている人だけが演出を選べる
   return _newItem(Object.assign({id:itemId,rarity:o.rarity||'rare',category:'fx',fxKind:o.kind,fxId:o.id,icon:o.emoji||'✨',title:o.name,desc:o.desc||''},o.flags||{}));

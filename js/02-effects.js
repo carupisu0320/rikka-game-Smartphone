@@ -1,3 +1,4 @@
+
 // ============================================================
 // リーチ・ロンの演出（画面中央に大きく宣言を出す。操作はじゃましない）
 // ============================================================
@@ -510,6 +511,11 @@ function fxStartScene(el,id,D){const mk=FXS[id];if(!mk||(window.matchMedia&&matc
 let _callFxTimer=null,_skipSnd='';
 const CF_FLOWER='<div class="cf-flower"><svg viewBox="-100 -100 200 200"><defs><radialGradient id="cfp" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#fff8d0" stop-opacity=".95"/><stop offset="1" stop-color="#ffc830" stop-opacity=".25"/></radialGradient></defs>'+
   [0,1,2,3,4,5].map(k=>`<ellipse cx="0" cy="-52" rx="19" ry="48" transform="rotate(${k*60})" fill="url(#cfp)" stroke="#fff4c0" stroke-width="1.2"/>`).join('')+'<circle r="10" fill="#fff8d0"/></svg></div>';
+// 演出ごとのサウンド（中身は 15-fx-sounds.js）。専用の音がある演出は、標準のリーチ・ロン・上がりの音のかわりに鳴る
+const FX_SOUND={};
+function fxSoundOr(sty,fallback){
+  if(sty&&sty.id!=='default'&&FX_SOUND[sty.id]&&typeof fxSoundPlay==='function'){if(soundEnabled)fxSoundPlay(sty.id);}else fallback();
+}
 function showCallFx(kind,name,sub,fx){
   const old=document.getElementById('call-fx');if(old)old.remove();clearTimeout(_callFxTimer);
   const ron=kind==='ron',win=kind==='win',isRb=win&&fx&&fx.win==='rainbow';let dur=ron?1.8:(win?(isRb?2.6:1.9):1.55);
@@ -557,8 +563,9 @@ function showCallFx(kind,name,sub,fx){
   }
   document.body.appendChild(el);
   if(isSc)fxStartScene(el,sty.id,dur);
-  if(ron){_skipSnd='ron';playSound('ron');}
-  else if(win){_skipSnd='win';playSound('win');}
+  if(ron){_skipSnd='ron';fxSoundOr(sty,()=>playSound('ron'));}
+  else if(win){_skipSnd='win';fxSoundOr(sty,()=>playSound('win'));}
+  else if(custom&&FX_SOUND[sty.id]&&typeof fxSoundPlay==='function'&&soundEnabled)fxSoundPlay(sty.id); // リーチは、呼び出し側の標準音に重ねて鳴らす
   _callFxTimer=setTimeout(()=>{el.remove();},dur*1000+50);
   return dur*1000;
 }

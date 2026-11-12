@@ -37,6 +37,7 @@ function devMatchFx(players,you){
     layer.innerHTML='<img class="dm-bg" alt=""><img class="dm-fg" alt="">';
     layer.querySelectorAll('img').forEach(im=>{im.onerror=()=>{layer.remove();mf.classList.remove('devm');};im.src=url;}); // 毎回あたらしく読み込むので、先頭から再生される
     mf.insertBefore(layer,mf.firstChild);mf.classList.add('devm');
+    if(typeof devMatchSound==='function')devMatchSound(); // GIFにあわせた音（15-fx-sounds.js）
     setTimeout(()=>{try{if(url.startsWith('blob:'))URL.revokeObjectURL(url);}catch(e){}},6000);
   }catch(e){}
 }
