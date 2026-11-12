@@ -513,8 +513,9 @@ const CF_FLOWER='<div class="cf-flower"><svg viewBox="-100 -100 200 200"><defs><
   [0,1,2,3,4,5].map(k=>`<ellipse cx="0" cy="-52" rx="19" ry="48" transform="rotate(${k*60})" fill="url(#cfp)" stroke="#fff4c0" stroke-width="1.2"/>`).join('')+'<circle r="10" fill="#fff8d0"/></svg></div>';
 // 演出ごとのサウンド（中身は 15-fx-sounds.js）。専用の音がある演出は、標準のリーチ・ロン・上がりの音のかわりに鳴る
 const FX_SOUND={};
-function fxSoundOr(sty,fallback){
-  if(sty&&sty.id!=='default'&&FX_SOUND[sty.id]&&typeof fxSoundPlay==='function'){if(soundEnabled)fxSoundPlay(sty.id);}else fallback();
+function fxSoundOr(sty,kind,fallback){
+  const id=sty&&sty.id?sty.id:'default';
+  if(typeof fxSoundPlay==='function'&&FX_SOUND[kind+':'+id]){if(soundEnabled)fxSoundPlay(id,kind);}else fallback();
 }
 function showCallFx(kind,name,sub,fx){
   const old=document.getElementById('call-fx');if(old)old.remove();clearTimeout(_callFxTimer);
@@ -563,9 +564,9 @@ function showCallFx(kind,name,sub,fx){
   }
   document.body.appendChild(el);
   if(isSc)fxStartScene(el,sty.id,dur);
-  if(ron){_skipSnd='ron';fxSoundOr(sty,()=>playSound('ron'));}
-  else if(win){_skipSnd='win';fxSoundOr(sty,()=>playSound('win'));}
-  else if(custom&&FX_SOUND[sty.id]&&typeof fxSoundPlay==='function'&&soundEnabled)fxSoundPlay(sty.id); // リーチは、呼び出し側の標準音に重ねて鳴らす
+  if(ron){_skipSnd='ron';fxSoundOr(sty,'ron',()=>playSound('ron'));}
+  else if(win){_skipSnd='win';fxSoundOr(sty,'win',()=>playSound('win'));}
+  else if(custom&&FX_SOUND['riichi:'+sty.id]&&typeof fxSoundPlay==='function'&&soundEnabled)fxSoundPlay(sty.id,'riichi'); // リーチは、呼び出し側の標準音に重ねて鳴らす
   _callFxTimer=setTimeout(()=>{el.remove();},dur*1000+50);
   return dur*1000;
 }
