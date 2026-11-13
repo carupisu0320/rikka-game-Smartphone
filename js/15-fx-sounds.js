@@ -13,10 +13,16 @@
 function _fxRun(ctx,dest,recipe,t0,gain){
   const vol=(typeof soundVolume==='number'?soundVolume:.5)*.9*(gain||1),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const master=ctx.createGain();master.gain.value=vol;
-  const comp=ctx.createDynamicsCompressor();comp.threshold.value=-16;comp.knee.value=14;comp.ratio.value=7;comp.attack.value=.002;comp.release.value=.22;
-  const sat=ctx.createWaveShaper(),cv=new Float32Array(1024);for(let i=0;i<1024;i++){const x=i/511.5-1;cv[i]=.8*Math.tanh(x*1.25)/Math.tanh(1.25);}sat.curve=cv;sat.oversample='2x'; // 音割れ防止
+  // 迫力のための音づくり：低音を厚く／3kHzあたりで輪郭を立てる／高域に空気感／並列コンプで太く
+  const ls=ctx.createBiquadFilter();ls.type='lowshelf';ls.frequency.value=100;ls.gain.value=3.5;
+  const pkf=ctx.createBiquadFilter();pkf.type='peaking';pkf.frequency.value=3200;pkf.Q.value=.9;pkf.gain.value=2.5;
+  const hs=ctx.createBiquadFilter();hs.type='highshelf';hs.frequency.value=9000;hs.gain.value=2;
+  const comp=ctx.createDynamicsCompressor();comp.threshold.value=-18;comp.knee.value=10;comp.ratio.value=5;comp.attack.value=.012;comp.release.value=.2; // 頭の鋭さを残す（立ち上がりはゆっくり押さえる）
+  const pc=ctx.createDynamicsCompressor();pc.threshold.value=-36;pc.knee.value=6;pc.ratio.value=14;pc.attack.value=.004;pc.release.value=.18;const pcg=ctx.createGain();pcg.gain.value=.6; // 並列コンプ（音の太さ）
+  const mk=ctx.createGain();mk.gain.value=1.5;
+  const sat=ctx.createWaveShaper(),cv=new Float32Array(1024);for(let i=0;i<1024;i++){const x=i/511.5-1;cv[i]=.8*Math.tanh(x*1.6)/Math.tanh(1.6);}sat.curve=cv;sat.oversample='2x'; // 音を密にして、割れないように丸める
   const cap=ctx.createWaveShaper();cap.curve=new Float32Array([-1,0,1]);cap.oversample='none'; // 念のための最後の頭打ち（1.0をこえない）
-  master.connect(comp);comp.connect(sat);sat.connect(cap);cap.connect(dest);
+  master.connect(ls);ls.connect(pkf);pkf.connect(hs);hs.connect(comp);hs.connect(pc);pc.connect(pcg);pcg.connect(comp);comp.connect(mk);mk.connect(sat);sat.connect(cap);cap.connect(dest);
   if(!ctx.__fxIR){const n=Math.floor(ctx.sampleRate*1.8),b=ctx.createBuffer(2,n,ctx.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++){const x=i/n;d[i]=(Math.random()*2-1)*Math.pow(1-x,3)*Math.min(1,i/(ctx.sampleRate*.01));}}ctx.__fxIR=b;}
   const send=ctx.createGain(),conv=ctx.createConvolver(),wet=ctx.createGain();conv.buffer=ctx.__fxIR;wet.gain.value=.55;send.connect(conv);conv.connect(wet);wet.connect(master);
   if(!ctx.__fxNb){const n=ctx.sampleRate*2,b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;ctx.__fxNb=b;}
@@ -28,6 +34,8 @@ function _fxRun(ctx,dest,recipe,t0,gain){
     if(sw!=null){p.linearRampToValueAtTime(pk,t+Math.max(.005,d*sw));p.exponentialRampToValueAtTime(MIN,t+d);}
     else{p.linearRampToValueAtTime(pk,t+Math.min(a==null?.01:a,d*.9));p.exponentialRampToValueAtTime(MIN,t+d);}};
   const S={R};
+  // 直前に音を引っ込めて、そのあとの一撃を際立たせる（s秒から、d秒かけて depth 倍まで下げ、一気に戻す）
+  S.duck=(s,depth,d)=>{s=Math.max(0,s);master.gain.setValueAtTime(vol,t0+s);master.gain.linearRampToValueAtTime(vol*depth,t0+s+d);master.gain.linearRampToValueAtTime(vol,t0+s+d+.004);};
   // 音程のある音：周波数f、開始s秒、長さd秒。o={type,g,to(最後の周波数),a(立ち上がり),sw(山の位置0〜1),det,p/p1(左右),rv(残響),vib:[Hz,深さ],am:[Hz,深さ],lp:[はじめ,おわりのカットオフ]}
   S.t=(f,s,d,o)=>{s=Math.max(0,s);o=o||{};const osc=ctx.createOscillator(),g=ctx.createGain();osc.type=o.type||'sine';osc.frequency.setValueAtTime(Math.max(1,f),t0+s);
     if(o.to)osc.frequency.exponentialRampToValueAtTime(Math.max(1,o.to),t0+s+d);if(o.det)osc.detune.value=o.det;
@@ -60,10 +68,10 @@ function _fxRun(ctx,dest,recipe,t0,gain){
     g.gain.linearRampToValueAtTime(MIN,t0+s+d+.05);out(g,o,s,d);src.start(t0+s);src.stop(t0+s+d+.1);};
 
   // ---- 基本の音 ----
-  S.impact=(s,g,sz)=>{g=g==null?.5:g;sz=sz||1;S.n(s,.012,{type:'highpass',f:5000,g:g*.8,a:.0005,rv:.05});S.n(s,.09,{f:1100/sz,to:120,g:g*.9,a:.001,rv:.1});
-    S.t(150/sz,s,.22*sz,{to:48,type:'triangle',g:g*.9,a:.002,rv:.1});S.t(72/Math.sqrt(sz),s,.7*sz,{to:28,g,a:.003,rv:.1});S.n(s+.02,.9*sz,{f:700,to:80,g:g*.32,a:.02,rv:.55});};
-  S.explosion=(s,g,d)=>{g=g==null?.5:g;d=d||1;S.n(s,.02,{type:'highpass',f:5000,g:g*.8,a:.0005,rv:.05});S.n(s,d*.8,{f:2800,to:90,g,a:.003,rv:.25});
-    S.t(78,s,d,{to:24,g:g*1.1,a:.004,rv:.1});S.t(190,s,.3,{to:50,type:'sawtooth',g:g*.28,a:.003});
+  S.impact=(s,g,sz)=>{g=g==null?.5:g;sz=sz||1;S.n(s,.012,{type:'highpass',f:5000,g:g*1.0,a:.0005,rv:.05});S.n(s,.09,{f:1100/sz,to:120,g:g*1.0,a:.001,rv:.1});
+    S.t(150/sz,s,.22*sz,{to:48,type:'triangle',g:g*1.0,a:.002,rv:.1});S.t(110,s,.12,{to:60,type:'square',g:g*.14,lp:[500,120],a:.001});S.t(72/Math.sqrt(sz),s,.95*sz,{to:26,g:g*1.3,a:.003,rv:.1});S.t(44,s,.7*sz,{to:30,g:g*.55,a:.004});S.n(s+.02,1.1*sz,{f:800,to:70,g:g*.4,a:.02,rv:.65});};
+  S.explosion=(s,g,d)=>{g=g==null?.5:g;d=d||1;S.n(s,.02,{type:'highpass',f:5000,g:g*1.0,a:.0005,rv:.05});S.n(s,d*.8,{f:2800,to:90,g:g*1.15,a:.003,rv:.25});S.n(s,d*.9,{f:700,to:50,g:g*.6,a:.004,rv:.4});
+    S.t(78,s,d*1.2,{to:22,g:g*1.4,a:.004,rv:.1});S.t(190,s,.3,{to:50,type:'sawtooth',g:g*.28,a:.003});
     for(let i=0;i<10;i++)S.n(s+.08+i*d/12+R(i+s*7)*.05,.05+R(i)*.06,{type:'bandpass',f:700+R(i+3)*2600,q:2,g:g*.17*(1-i/14),p:R(i+9)*2-1,rv:.3});S.n(s+.1,d*1.3,{f:200,to:50,g:g*.4,a:.04,rv:.6});};
   S.tick=(s,g,f)=>{S.t(f||1800,s,.035,{type:'square',g:g==null?.12:g,a:.001,rv:.12});S.n(s,.02,{type:'bandpass',f:4000,g:(g==null?.12:g)*.6,a:.0005,rv:.05});};
   S.bell=(f,s,d,g)=>{d=d||1.2;g=g==null?.15:g;[1,2,2.76,5.4,8.93].forEach((m,i)=>{S.t(f*m,s,d/(1+i*.55),{g:g/(1+i*.9),a:.002,rv:.5});if(i<3)S.t(f*m*1.003,s,d/(1+i*.55),{g:g/(1+i*.9)*.6,a:.002,rv:.5});});};
@@ -81,17 +89,17 @@ function _fxRun(ctx,dest,recipe,t0,gain){
   // ---- 本物らしい「そのものの音」 ----
   S.pops=(s,d,rate,g,o)=>{o=o||{};const f0=(o.f||[2500,7000])[0],f1=(o.f||[2500,7000])[1],n=Math.max(1,Math.floor(d*rate));
     for(let i=0;i<n;i++){const u=R(i*7+s*13);S.n(s+u*d,.006+R(i+3)*.02,{type:o.type||'bandpass',f:f0+R(i+9)*(f1-f0),q:o.q||3,g:g*(.25+.75*R(i+5))*(o.decay?(1-u):1),a:.0005,p:R(i+17)*2-1,rv:o.rv==null?.15:o.rv});}}; // パチパチ・ポツポツ
-  S.thunder=(s,g,d)=>{d=d||2.6;S.n(s,.04,{type:'highpass',f:1500,g,a:.0005,rv:.1});S.n(s,.35,{type:'bandpass',f:900,q:.6,g:g*.7,a:.001,rv:.3});S.n(s+.14,.1,{type:'highpass',f:2000,g:g*.5,a:.001});
+  S.thunder=(s,g,d)=>{d=d||2.6;g=g*1.3;S.n(s,.04,{type:'highpass',f:1500,g,a:.0005,rv:.1});S.n(s,.35,{type:'bandpass',f:900,q:.6,g:g*.7,a:.001,rv:.3});S.n(s+.14,.1,{type:'highpass',f:2000,g:g*.5,a:.001});
     S.nm(s+.05,d,{f:170,to:55,type:'lowpass',depth:.85,step:.07,g:g*.6,shape:'sw',rv:.5});S.t(40,s,d*.7,{to:28,g:g*.5,a:.02,rv:.4});for(let i=0;i<3;i++)S.nm(s+.5+i*.5,.7,{f:200,to:70,type:'lowpass',depth:.8,g:g*.35*(1-i*.2),shape:'sw',rv:.5});}; // 稲光のバリッ＋ゴロゴロ
   S.rain=(s,d,g,heavy)=>{S.nm(s,d,{type:'highpass',f:2800,g:g*.45,depth:.25,step:.03,shape:'flat',rv:.25});S.pops(s,d,heavy?50:30,g*.8,{f:[2500,6500],q:2,rv:.3});if(heavy)S.pops(s,d,18,g,{type:'lowpass',f:[300,900],q:1});}; // 雨
   S.wave=(s,g,sz)=>{sz=sz||1;S.nm(s-.45*sz,.5*sz,{type:'lowpass',f:200,to:1800,g:g*.5,depth:.3,shape:'rise',rv:.3});S.n(s,.12,{f:6000,to:600,g:g*.9,a:.003,rv:.3});
-    S.nm(s,1.1*sz,{type:'highpass',f:2500,to:1200,g:g*.45,depth:.5,step:.04,shape:'dec',rv:.4});S.nm(s+.1,1.5*sz,{type:'lowpass',f:700,to:150,g:g*.5,depth:.4,shape:'dec',rv:.4});S.t(55,s,.6*sz,{to:35,g:g*.5,a:.01});}; // 波：せり上がり→砕け→泡→引き
+    S.nm(s,1.1*sz,{type:'highpass',f:2500,to:1200,g:g*.45,depth:.5,step:.04,shape:'dec',rv:.4});S.nm(s+.1,1.5*sz,{type:'lowpass',f:700,to:150,g:g*.5,depth:.4,shape:'dec',rv:.4});S.t(55,s,.9*sz,{to:30,g:g*.9,a:.01});}; // 波：せり上がり→砕け→泡→引き
   S.wind=(s,d,g,howl)=>{S.nm(s,d,{type:'bandpass',f:700,to:1100,q:1.2,fm:.6,depth:.55,step:.06,g,shape:'sw',rv:.35});if(howl)S.t(520,s,d,{to:760,g:g*.12,sw:.5,vib:[.8,40],rv:.5});}; // 風
   S.iceCrack=(s,g)=>{for(let i=0;i<7;i++)S.n(s+i*(.008+R(i)*.01),.012,{type:'bandpass',f:2500+R(i+2)*4500,q:14,g:g*(.4+.6*R(i+4)),a:.0003,p:R(i+8)*1.6-.8,rv:.3});S.t(3800+R(s)*1500,s+.02,.4,{g:g*.18,rv:.5});S.t(5200,s+.03,.3,{g:g*.1,rv:.5});S.n(s,.05,{f:900,g:g*.4,a:.0005});}; // 氷のピシッ
   S.shing=(s,g,p)=>{S.n(s,.22,{type:'bandpass',f:2500,to:9500,q:2,g:g*.7,a:.003,p,rv:.15});[2150,3180,5470,7600].forEach((f,i)=>S.t(f,s+.06,.9/(1+i*.4),{g:g*.14/(1+i*.7),a:.002,p,rv:.45}));}; // 刀のシャリーン
   S.swish=(s,g,p,w)=>S.n(s,.1+(w||0),{type:'bandpass',f:1500,to:6500,q:1.6,g,a:.004,p,rv:.1});
-  S.punch=(s,g,p)=>{S.t(135,s,.11,{to:55,g:g*.9,a:.001,p});S.n(s,.05,{type:'bandpass',f:750,q:1.1,g:g*.8,a:.001,p});S.n(s-.04,.06,{type:'bandpass',f:3200,to:1500,q:1.5,g:g*.25,a:.01,p});S.n(s,.02,{type:'highpass',f:2500,g:g*.3,a:.0005,p});}; // 殴る
-  S.footstep=(s,g)=>{S.t(60,s,.35,{to:32,g,a:.003});S.n(s,.25,{f:500,to:90,g:g*.7,a:.002,rv:.3});S.nm(s,.8,{f:120,to:50,g:g*.4,depth:.5,shape:'dec',rv:.5});}; // どしん（足音）
+  S.punch=(s,g,p)=>{S.t(60,s,.25,{to:34,g:g*.7,a:.002});S.t(135,s,.11,{to:55,g:g*1.0,a:.001,p});S.n(s,.05,{type:'bandpass',f:750,q:1.1,g:g*.8,a:.001,p});S.n(s-.04,.06,{type:'bandpass',f:3200,to:1500,q:1.5,g:g*.25,a:.01,p});S.n(s,.02,{type:'highpass',f:2500,g:g*.3,a:.0005,p});}; // 殴る
+  S.footstep=(s,g)=>{S.t(60,s,.45,{to:28,g:g*1.4,a:.003});S.n(s,.25,{f:500,to:90,g:g*.7,a:.002,rv:.3});S.nm(s,.8,{f:120,to:50,g:g*.4,depth:.5,shape:'dec',rv:.5});}; // どしん（足音）
   S.gun=(s,g,p)=>{g=g==null?.3:g;S.n(s,.02,{type:'highpass',f:3000,g,a:.0005,p});S.t(140,s,.07,{to:60,g:g*.8,a:.001,p});S.n(s,.09,{type:'bandpass',f:1400,q:1,g:g*.6,a:.001,p,rv:.3});};
   S.whistle=(s,d,g,f0,f1,p0,p1)=>{S.t(f0,s,d,{to:f1,g,a:.03,sw:.7,vib:[6,f0*.012],p:p0,p1,rv:.3});S.n(s,d,{type:'bandpass',f:f0,to:f1,q:14,g:g*.5,sw:.7,p:p0,p1});}; // ヒュ〜（笛・落下）
   S.zip=(s,d,g)=>{const N=Math.floor(d*60);for(let i=0;i<N;i++){const u=i/N;S.t(1500+u*1800,s+u*d,.012,{type:'square',g:g*.5,a:.0005,p:.3*Math.sin(i),rv:.05});}S.nm(s,d,{type:'bandpass',f:2500,to:5500,q:5,g:g*.6,depth:.3,shape:'flat'});}; // ジーッ
@@ -102,12 +110,12 @@ function _fxRun(ctx,dest,recipe,t0,gain){
   S.steam=(s,d,g)=>S.nm(s,d,{type:'highpass',f:4500,g,depth:.4,step:.04,shape:'sw',rv:.25});
   S.squelch=(s,g)=>{const f=90+R(s*3)*160;S.t(f,s,.18,{to:f*2.2,g,a:.01,rv:.2});S.n(s,.12,{type:'bandpass',f:500,to:1200,q:3,g:g*.5});}; // ぬちゃ
   S.plane=(s,d,g)=>{S.t(140,s,d,{to:100,type:'sawtooth',g,am:[42,.5],lp:[900,700],p:-1,p1:1,rv:.2});S.nm(s,d,{type:'lowpass',f:500,g:g*.6,depth:.3,shape:'sw',p:-1,p1:1});}; // プロペラ機の通過
-  S.heart=(s,g)=>{S.t(55,s,.16,{to:40,g,a:.003});S.t(50,s+.17,.18,{to:36,g:g*.7,a:.003});};
+  S.heart=(s,g)=>{g=g*1.25;S.t(55,s,.2,{to:36,g,a:.003});S.t(50,s+.17,.22,{to:32,g:g*.75,a:.003});};
   S.tapeRewind=(s,d,g)=>{S.t(180,s,d,{to:2400,type:'sawtooth',g:g*.5,lp:[800,5000],vib:[22,40],am:[28,.4],sw:.9});S.nm(s,d,{type:'bandpass',f:1500,to:5000,q:1.2,g:g*.4,depth:.6,step:.02,shape:'rise'});for(let i=0;i<22;i++)S.tick(s+i*d/22,g*.2);};
   S.clockTick=(s,g,alt)=>{S.n(s,.035,{type:'bandpass',f:alt?1000:1500,q:9,g,a:.0005,rv:.2});S.t(alt?620:900,s,.05,{type:'triangle',g:g*.4,a:.0005});}; // カチ・コチ
   S.koto=(f,s,g)=>{S.t(f,s,1.1,{type:'triangle',to:f*.985,g,a:.002,rv:.4});S.t(f*2.01,s,.5,{g:g*.35,a:.001});S.n(s,.02,{type:'bandpass',f:3000,q:2,g:g*.5});}; // 琴
   S.stoneChime=(f,s,g)=>{S.n(s,.02,{type:'bandpass',f:1800,q:4,g:g*.7});[1,2.32,4.1].forEach((m,i)=>S.t(f*m,s,1.6/(1+i),{g:g/(1+i*1.2),a:.002,rv:.5}));}; // 石の鐘
-  S.gong=(s,g,f)=>{f=f||110;[1,1.5,2,2.74,3.38,4.7].forEach((m,i)=>S.t(f*m*(1+(i%2?.003:-.002)),s,3.2/(1+i*.5),{g:g/(1+i*.6),a:.003,rv:.6}));S.n(s,.06,{f:1500,to:300,g:g*.8,a:.001});};
+  S.gong=(s,g,f)=>{g=g*1.2;f=f||110;[1,1.5,2,2.74,3.38,4.7].forEach((m,i)=>S.t(f*m*(1+(i%2?.003:-.002)),s,3.2/(1+i*.5),{g:g/(1+i*.6),a:.003,rv:.6}));S.n(s,.06,{f:1500,to:300,g:g*.8,a:.001});};
   S.timp=(s,g,f)=>{S.t(f||90,s,.5,{to:(f||90)*.8,type:'triangle',g,a:.003,rv:.3});S.n(s,.05,{f:400,g:g*.6,a:.001});};
   S.cymbal=(s,g)=>{S.n(s,1.4,{type:'highpass',f:4500,g,a:.002,rv:.4});S.n(s,.9,{type:'bandpass',f:8000,q:1.2,g:g*.6,a:.002,rv:.4});};
   S.brass=(f,s,d,g)=>{[0,-8,9].forEach(det=>S.t(f,s,d,{type:'sawtooth',det,g:(g==null?.1:g)/1.8,a:.05,sw:.35,lp:[f*2,f*7],vib:[5.5,f*.006],rv:.35}));}; // 金管
@@ -257,18 +265,32 @@ const _fxSpec={
  'win:default':(S,sy,on)=>{[392,494,587,784,988,1175].forEach((f,i)=>S.koto(f,.1+i*.07,.1));S.pad(262,.28,1.8,.12);S.bell(1318,.3,1.6,.1);S.nm(.3,1.6,{type:'highpass',f:5500,g:.04,shape:'sw'});S.sparkle(.35,1,.06);S.t(98,.3,1.2,{g:.15,sw:.2});},
 };
 // 音の山を、絵の盛り上がる瞬間に合わせる仕組み
+const SOFT={'riichi:sakura':1,'riichi:bubble':1,'riichi:forest':1,'riichi:thread':1,'riichi:erase':1,'win:stillrain':1,'win:sprout':1,'win:mend':1,'win:rainbow':1,'win:star':1,'ron:jade':1,'win:cure':1,'win:default':1}; // やさしい演出（重みを控えめに）
+// 0.30秒の「重み」。演出ごとに、低音の種類を変えてあります（全部が同じ低音にならないように）
+//   roar＝ごうっと燃え広がる／deep＝地の底から響く／thud＝どすっ／dry＝歯車や錠前のような乾いたガチッ
+const WEIGHT={'riichi:flame':['roar',110],'ron:crimson':['roar',80],'riichi:frostsuit':['roar',150],'riichi:dive':['roar',170],'ron:ocean':['roar',130],
+ 'riichi:aura':['deep',38],'ron:void':['deep',34],'riichi:gravflip':['deep',46],'ron:redray':['deep',58],'win:cosmos':['deep',32],
+ 'riichi:ice':['thud',100],'riichi:scoop':['thud',84],'riichi:kickshot':['thud',72],'ron:virus':['thud',66],'win:fireworks':['thud',92],'win:confetti':['thud',110],'win:royal':['thud',64],'win:book':['thud',74],
+ 'win:timestop':['dry',82],'win:chronolock':['dry',74],'ron:magnet':['dry',90]};
+function _fxWeight(S,w){const [k,f]=w;
+  if(k==='roar'){S.nm(.28,.9,{f:f,to:f*.5,g:.3,depth:.4,shape:'sw',rv:.3});}
+  else if(k==='deep'){S.t(f,.28,1.1,{type:'sawtooth',g:.18,lp:[f*3,f*1.5],sw:.25,rv:.3});S.t(f/1.5,.3,.9,{to:f/2,g:.22,a:.01});}
+  else if(k==='thud'){S.t(f,.3,.3,{to:f*.5,g:.32,a:.003});S.n(.3,.12,{f:f*5,to:f,g:.15,a:.002});}
+  else if(k==='dry'){S.t(f,.3,.14,{to:f*.55,g:.4,a:.001});S.n(.3,.04,{type:'bandpass',f:f*10,q:3,g:.2,a:.0005});}}
 function _fxCompose(kind,id){
   const sp=_fxSpec[kind+':'+id];if(!sp)return null;
   const sy=(typeof FX_SYNC!=='undefined'&&FX_SYNC[kind+':'+id])||{D:2.4,on:[],env:null};
-  return S=>{const D=sy.D||2.4;const on=(f,min)=>sy.on.forEach(([t,s])=>{if(t>(min==null?.45:min)&&t<D-.3)f(Math.max(0,t-.04),.35+.65*s);});sp(S,sy,on);};
+  return S=>{const D=sy.D||2.4;const soft=SOFT[kind+':'+id],wt=WEIGHT[kind+':'+id];S.duck(.255,soft?.75:.5,soft?.035:.045);if(wt)_fxWeight(S,wt); // 0.30秒の叩きつけ：直前に音を引き、その演出らしい低音で重くする
+    const on=(f,min)=>sy.on.forEach(([t,s])=>{if(t>(min==null?.45:min)&&t<D-.3)f(Math.max(0,t-.04),.35+.65*s);});sp(S,sy,on);};
 }
-const FX_GAIN={'riichi:aura':0.94,'riichi:bubble':2.94,'riichi:disc':4.47,'riichi:dive':2.38,'riichi:erase':6,'riichi:flame':2.04,'riichi:forest':2.46,'riichi:frostsuit':1.93,'riichi:gravflip':0.95,'riichi:ice':2.74,'riichi:kickshot':2.5,'riichi:sakura':1.67,'riichi:scoop':3.74,'riichi:thread':2.16,'riichi:thunder':1.21,'riichi:zipper':3.27,'ron:claw':2.12,'ron:crimson':1.63,'ron:default':2.43,'ron:gold':0.72,'ron:heavyrain':0.91,'ron:jade':1.16,'ron:lightblade':1.86,'ron:magnet':1.74,'ron:ocean':1.11,'ron:rapier':4.23,'ron:redray':1.36,'ron:rush':0.94,'ron:strafe':0.93,'ron:tankbomb':0.72,'ron:virus':1.66,'ron:void':0.89,'win:book':1.38,'win:chronolock':1.36,'win:confetti':4.37,'win:cosmos':0.67,'win:cure':1.14,'win:default':1.17,'win:dino':0.66,'win:fireworks':1.49,'win:mend':1.34,'win:molt3':0.81,'win:rainbow':1.06,'win:rewind':1.63,'win:royal':1.06,'win:sprout':2.38,'win:star':1.63,'win:stillrain':1.87,'win:timestop':1.05,'win:weather':1.52}; // 演出どうしの音量をそろえる補正（自動で求めた値。ここに無い演出は 1 倍）
+const FX_GAIN={'riichi:aura':0.14,'riichi:bubble':0.67,'riichi:disc':1.21,'riichi:dive':0.52,'riichi:erase':2.08,'riichi:flame':0.55,'riichi:forest':0.42,'riichi:frostsuit':0.34,'riichi:gravflip':0.13,'riichi:ice':0.49,'riichi:kickshot':1.51,'riichi:sakura':0.3,'riichi:scoop':1.57,'riichi:thread':0.46,'riichi:thunder':0.26,'riichi:zipper':0.59,'ron:claw':0.91,'ron:crimson':0.26,'ron:default':2.47,'ron:gold':0.11,'ron:heavyrain':0.13,'ron:jade':0.22,'ron:lightblade':0.27,'ron:magnet':0.3,'ron:ocean':0.2,'ron:rapier':1.08,'ron:redray':0.18,'ron:rush':0.15,'ron:strafe':0.21,'ron:tankbomb':0.15,'ron:virus':0.33,'ron:void':0.11,'win:book':0.26,'win:chronolock':0.53,'win:confetti':1.33,'win:cosmos':0.08,'win:cure':0.19,'win:default':0.2,'win:dino':0.19,'win:fireworks':0.24,'win:mend':0.24,'win:molt3':0.21,'win:rainbow':0.18,'win:rewind':0.28,'win:royal':0.17,'win:sprout':0.46,'win:star':0.26,'win:stillrain':0.27,'win:timestop':0.2,'win:weather':0.25}; // 演出どうしの音量をそろえる補正（自動で求めた値。ここに無い演出は 1 倍）
 (function(){for(const k of Object.keys(_fxSpec)){const [kind,id]=k.split(':');const r=_fxCompose(kind,id);if(r)FX_SOUND[k]=r;}})();
 
 // ───────── ③ 三段の脱皮（絵の時刻に、ぴったり合わせた音。4.4秒） ─────────
 //  絵の時刻：①0〜1.3秒＝文字が1文字ずつ貼り付く(0.08/0.25/0.42/0.59/0.76) ②1.3〜2.6秒＝ひび割れ(〜1.8)→殻が弾ける1.82→爆発1.95→熱2.26
 //           ③2.6〜3.9秒＝光が落ちる(〜2.99)→岩を殴る2.99→めり込む・割れる・砂ぼこり
 FX_SOUND['win:molt3']=S=>{
+  S.duck(.255,.5,.045);S.duck(1.775,.4,.045);S.duck(1.905,.45,.04);S.duck(2.94,.35,.05); // 一撃の直前に、音を引く（殻が弾ける・爆発・岩を殴る）
   S.n(.3,.03,{type:'highpass',f:3000,g:.3,a:.0003});S.t(80,.3,.25,{to:45,g:.35,a:.003}); // 文字「上がり！」が叩きつけられる
   // ①文字が卵に貼り付く：ペタッ（スタンプ）＋コンコンと卵が内側から叩かれる＋音が頭に響くこだま
   [.08,.25,.42,.59,.76].forEach((t,i)=>{S.n(t,.05,{type:'bandpass',f:1300,q:2,g:.22,a:.001,p:i%2?.4:-.4});S.t(95+i*6,t,.2,{to:48,g:.34,a:.002});
@@ -299,7 +321,7 @@ FX_SOUND['win:molt3']=S=>{
 //  GIFを測ったデータ（16-fx-sync.js）から：0.25秒＝最初のカット／1.3秒＝暗転／1.95秒＝まぶしく光る／3.05〜3.1秒＝カット／3.6秒＝暗転して終わる
 function devMatchSound(){
   _gfxAudio(ctx=>_fxRun(ctx,ctx.destination,S=>{
-    const bright=typeof DEV_GIF_SYNC!=='undefined'?DEV_GIF_SYNC.bright:null;
+    const bright=typeof DEV_GIF_SYNC!=='undefined'?DEV_GIF_SYNC.bright:null;S.duck(.2,.5,.045);S.duck(1.2,.4,.09);S.duck(1.89,.35,.06);S.duck(3.0,.5,.05);
     S.t(46,0,3.7,{g:.18,sw:.5,rv:.3});S.t(69,0,3.7,{type:'sawtooth',g:.04,to:58,sw:.5,lp:[150,150]});
     if(bright)S.bed('noise',0,3.6,bright,{type:'bandpass',f:260,q:1.2,g:.2,rv:.4}); // 絵の明るさに合わせて、気配が膨らむ
     S.whisper(.4,.9,.06);S.whisper(1.6,.3,.05);
@@ -311,5 +333,5 @@ function devMatchSound(){
     S.impact(3.05,.45,1.3);S.impact(3.1,.3,1.8);S.n(3.2,.3,{type:'highpass',f:2500,g:.14,sw:.2});            // 続くカット
     S.n(3.55,.12,{type:'highpass',f:4000,g:.22,a:.001});S.t(120,3.6,.3,{to:45,g:.3,a:.002});                // 暗転して終わる
     [.6,1,1.5,2.4,2.8].forEach(t=>S.heart(t,.14)); // 遠くの鼓動
-  },ctx.currentTime+.03,.65));
+  },ctx.currentTime+.03,.22));
 }
