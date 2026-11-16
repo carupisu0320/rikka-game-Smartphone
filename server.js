@@ -349,6 +349,143 @@ function isDevAuth(fc, ft) {
   const h = friendTokens.get(fc);
   return !!h && h === crypto.createHash('sha256').update(ft).digest('hex');
 }
+
+// ══ セーブデータの自動保存（サーバー側） ══════════════════════════════════
+// プレイヤーの持ち物・花びら・実績・設定を、サーバーに自動で保存する。
+//  ・ガチャを引いた／対戦した／カスタマイズを変えたときに、端末から自動で送られてくる（プレイヤーは何もしなくてよい）
+//  ・端末のデータが消えても、同じ端末（フレンドコード＋合言葉が同じ）に戻れば、自動で復元される
+//  ・Googleログインしていれば、別の端末でも、同じデータを引き継げる
+//  ・景品の持ち物は「増えるだけ」。端末が古くても、サーバーの持ち物を減らすことはない
+// 保存先（環境変数で選ぶ。どれも無ければ、ファイル）
+//   UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN … Upstash Redis（無料枠あり。再起動しても消えない）
+//   FIREBASE_DB_URL (+ FIREBASE_AUTH)               … Firebase Realtime Database（REST）
+//   SAVE_DIR                                        … ファイル保存の場所（初期値は ./data。Renderの無料プランは、再起動や再デプロイで消えるので注意）
+const fs = require('fs'), pathMod = require('path'), httpsMod = require('https'), httpMod = require('http');
+const SAVE_EXACT = ['rikka_gacha','rikka_petals','rikka_achievements','rikka_login','rikka_missions','rikka_history','rikka_giftbox_claimed','rikka_giftbox_seen','rikka_friends','rikka_avatar','rikka_back_theme','rikka_field_bg','rikka_fx','rikka_bg_anim','rikka_tile_anim','rikka_tile_scale','rikka_sound_enabled','rikka_sound_volume','rikka_icon_ack'];
+const SAVE_PREFIX = ['rikka_name_', 'rikka_event_'];
+const SAVE_UNION = new Set(['rikka_achievements','rikka_giftbox_claimed','rikka_giftbox_seen','rikka_icon_ack']); // 足し合わせて、減らさないもの
+const SAVE_MAX_VALUE = 300 * 1024, SAVE_MAX_ACCT = 700 * 1024;
+const saveKeyOk = k => typeof k === 'string' && (SAVE_EXACT.includes(k) || SAVE_PREFIX.some(p => k.startsWith(p) && k.length <= 80 && /^[A-Za-z0-9_\-]+$/.test(k)));
+const svJ = s => { try { return JSON.parse(s); } catch (e) { return undefined; } };
+const svId = x => typeof x === 'string' && /^[A-Za-z0-9_:\-]{1,60}$/.test(x) && x !== '__proto__' && x !== 'constructor' && x !== 'prototype';
+function svMerge(a, b) { // 配列は足す／数は大きいほう／真偽は or
+  if (a === undefined) return b; if (b === undefined) return a;
+  if (Array.isArray(a) && Array.isArray(b)) { const s = new Set(a.map(x => JSON.stringify(x))), r = a.slice(); b.forEach(x => { const k = JSON.stringify(x); if (!s.has(k)) { s.add(k); r.push(x); } }); return r.slice(0, 3000); }
+  if (a && b && typeof a === 'object' && typeof b === 'object' && !Array.isArray(a) && !Array.isArray(b)) { const r = Object.assign({}, a); Object.keys(b).forEach(k => { if (k === '__proto__' || k === 'constructor' || k === 'prototype') return; r[k] = svMerge(a[k], b[k]); }); return r; }
+  if (typeof a === 'number' && typeof b === 'number') return Math.max(a, b);
+  if (typeof a === 'boolean' && typeof b === 'boolean') return a || b;
+  return a;
+}
+function svEquipped(e) { const o = {}; if (e && typeof e === 'object') for (const [k, v] of Object.entries(e)) if (/^[a-z_]{1,24}$/.test(k) && (v == null || (typeof v === 'string' && v.length <= 80))) o[k] = v; return o; }
+// 1人ぶんのデータに、端末から届いた内容をまとめる
+function saveMerge(rec, items, ever) {
+  const now = Date.now();
+  if (items && typeof items === 'object') for (const [k, it] of Object.entries(items)) {
+    if (!saveKeyOk(k) || !it || typeof it.v !== 'string' || it.v.length > SAVE_MAX_VALUE) continue;
+    let t = Number(it.t); if (!isFinite(t) || t < 0) t = 0; t = Math.min(t, now + 5 * 60000);
+    const cur = rec.items[k], ct = cur ? (cur.t || 0) : 0;
+    if (k === 'rikka_gacha') { // 持ち物：足し合わせ。装備は、新しいほう
+      const inc = svJ(it.v) || {}, c = cur ? (svJ(cur.v) || {}) : {};
+      const owned = [...new Set([].concat(Array.isArray(c.owned) ? c.owned : [], Array.isArray(inc.owned) ? inc.owned : []).filter(svId))].slice(0, 3000);
+      rec.items[k] = { v: JSON.stringify({ owned, equipped: svEquipped(!cur || t >= ct ? inc.equipped : c.equipped) }), t: Math.max(t, ct) };
+    } else if (k === 'rikka_petals') { // 花びら：新しいほう（使うと減るので、多いほうにはしない）
+      if (!cur || t >= ct) rec.items[k] = { v: String(Math.min(1e7, Math.max(0, parseInt(it.v, 10) || 0))), t };
+    } else if (k === 'rikka_history') { // 対戦の履歴：足し合わせ
+      const a = cur ? svJ(cur.v) : [], b = svJ(it.v);
+      if (Array.isArray(b)) rec.items[k] = { v: JSON.stringify(svMerge(Array.isArray(a) ? a : [], b).slice(0, 100)), t: Math.max(t, ct) };
+    } else if (k === 'rikka_friends') { // フレンドは、一覧だけ（合言葉はサーバーに置かない）
+      const L = o => (Array.isArray(o && o.list) ? o.list : []).filter(f => f && FRIEND_CODE_RE.test(f.code || '')).map(f => ({ code: f.code, name: String(f.name || '').slice(0, 40) }));
+      const seen = new Set(), list = L(cur ? svJ(cur.v) : null).concat(L(svJ(it.v))).filter(f => !seen.has(f.code) && seen.add(f.code)).slice(0, 200);
+      rec.items[k] = { v: JSON.stringify({ list }), t: Math.max(t, ct) };
+    } else if (SAVE_UNION.has(k) || k.startsWith('rikka_event_')) { // 実績・受け取り済み・イベント：足し合わせ
+      const b = svJ(it.v), a = cur ? svJ(cur.v) : undefined;
+      if (b !== undefined) rec.items[k] = { v: JSON.stringify(a === undefined ? b : svMerge(a, b)), t: Math.max(t, ct) };
+    } else if (!cur || t >= ct) rec.items[k] = { v: it.v, t }; // 設定など：新しいほう
+  }
+  if (Array.isArray(ever)) rec.ever = [...new Set([].concat(rec.ever || [], ever.filter(svId)))].slice(0, 3000);
+  let size = 0; for (const v of Object.values(rec.items)) size += (v.v || '').length;
+  if (size > SAVE_MAX_ACCT) throw new Error('too big');
+  rec.updated = now;
+}
+const Saves = (() => {
+  const UP_URL = process.env.UPSTASH_REDIS_REST_URL || '', UP_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || '';
+  const FB = (process.env.FIREBASE_DB_URL || '').replace(/\/+$/, ''), FB_AUTH = process.env.FIREBASE_AUTH ? '?auth=' + encodeURIComponent(process.env.FIREBASE_AUTH) : '';
+  const mode = UP_URL && UP_TOKEN ? 'upstash' : FB ? 'firebase' : 'file';
+  const DIR = process.env.SAVE_DIR || pathMod.join(__dirname, 'data'), FILE = pathMod.join(DIR, 'saves.json');
+  const mem = new Map(), MEMCAP = 4000, locks = new Map();
+  let fileDb = null, fileTimer = null;
+  const loadFile = () => { if (!fileDb) { try { fileDb = JSON.parse(fs.readFileSync(FILE, 'utf8')) || {}; } catch (e) { fileDb = {}; } } };
+  const flushFile = () => { fileTimer = null; try { fs.mkdirSync(DIR, { recursive: true }); const tmp = FILE + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(fileDb)); fs.renameSync(tmp, FILE); } catch (e) { console.log('保存ファイルを書けませんでした', e.message); } };
+  const req = (u, method, headers, body) => new Promise((res, rej) => {
+    const url = new URL(u), lib = url.protocol === 'http:' ? httpMod : httpsMod;
+    const r = lib.request(url, { method, headers: Object.assign({ 'Content-Type': 'application/json' }, headers || {}), timeout: 8000 }, resp => { let b = ''; resp.on('data', c => b += c); resp.on('end', () => { let data = null; try { data = JSON.parse(b); } catch (e) {} res({ status: resp.statusCode, data }); }); });
+    r.on('error', rej); r.on('timeout', () => r.destroy(new Error('timeout'))); if (body) r.write(body); r.end();
+  });
+  async function rawGet(key) {
+    if (mode === 'file') { loadFile(); return fileDb[key] || null; }
+    if (mode === 'upstash') { const r = await req(UP_URL, 'POST', { Authorization: 'Bearer ' + UP_TOKEN }, JSON.stringify(['GET', 'rikka:' + key])); if (r.status !== 200) throw new Error('upstash ' + r.status); const v = r.data && r.data.result; return v ? (svJ(v) || null) : null; }
+    const r = await req(`${FB}/rikka/${encodeURIComponent(key)}.json${FB_AUTH}`, 'GET'); if (r.status !== 200) throw new Error('firebase ' + r.status); return r.data && r.data.j ? (svJ(r.data.j) || null) : null;
+  }
+  async function rawSet(key, obj) {
+    if (mode === 'file') { loadFile(); fileDb[key] = obj; if (!fileTimer) fileTimer = setTimeout(flushFile, 1500); return; }
+    if (mode === 'upstash') { const r = await req(UP_URL, 'POST', { Authorization: 'Bearer ' + UP_TOKEN }, JSON.stringify(['SET', 'rikka:' + key, JSON.stringify(obj)])); if (r.status !== 200) throw new Error('upstash ' + r.status); return; }
+    const r = await req(`${FB}/rikka/${encodeURIComponent(key)}.json${FB_AUTH}`, 'PUT', {}, JSON.stringify({ j: JSON.stringify(obj) })); if (r.status !== 200) throw new Error('firebase ' + r.status);
+  }
+  async function get(key) { if (mem.has(key)) return JSON.parse(JSON.stringify(mem.get(key))); const v = await rawGet(key); if (v) { mem.set(key, v); if (mem.size > MEMCAP) mem.delete(mem.keys().next().value); } return v ? JSON.parse(JSON.stringify(v)) : null; }
+  async function set(key, obj) { try { await rawSet(key, obj); } catch (e) { await new Promise(r => setTimeout(r, 400)); await rawSet(key, obj); } mem.set(key, JSON.parse(JSON.stringify(obj))); }
+  async function withLock(name, fn) { const prev = locks.get(name) || Promise.resolve(); let rel; const mine = new Promise(r => rel = r); const chain = prev.then(() => mine); locks.set(name, chain); await prev; try { return await fn(); } finally { rel(); if (locks.get(name) === chain) locks.delete(name); } }
+  const sha = t => crypto.createHash('sha256').update(t).digest('hex');
+  const authOk = (code, tok) => typeof code === 'string' && FRIEND_CODE_RE.test(code) && typeof tok === 'string' && tok.length >= 16 && tok.length <= 64;
+  // 本人確認（フレンドコード＋合言葉）。create=true なら、初めてのコードのとき、新しく作る
+  async function ensure(code, tok, create) {
+    if (!authOk(code, tok)) return null;
+    return withLock('code:' + code, async () => {
+      const h = sha(tok), c = await get('code:' + code), known = (c && c.h) || friendTokens.get(code) || null;
+      if (known && known !== h) return null;
+      if (c && c.a) { const a = await get('acct:' + c.a); if (a) return a; }
+      if (!create) return null;
+      const id = crypto.randomBytes(12).toString('hex'), rec = { id, created: Date.now(), updated: Date.now(), devs: { [code]: h }, google: null, items: {}, ever: [] };
+      await set('acct:' + id, rec); await set('code:' + code, { a: id, h }); friendTokens.set(code, h); return rec;
+    });
+  }
+  const put = rec => withLock('acct:' + rec.id, () => set('acct:' + rec.id, rec));
+  const view = rec => ({ items: rec.items, ever: rec.ever || [], google: !!rec.google });
+  // 受け取った内容を、まとめて保存
+  async function merge(code, tok, items, ever) { const rec = await ensure(code, tok, true); if (!rec) return null; return withLock('acct:' + rec.id, async () => { const cur = (await get('acct:' + rec.id)) || rec; saveMerge(cur, items, ever); await set('acct:' + cur.id, cur); return cur; }); }
+  // Googleの本人確認
+  const GCLIENT = process.env.GOOGLE_CLIENT_ID || '484492727545-9ithk5m2mglmu3erf76b3uuprmqnv30e.apps.googleusercontent.com', TOKENINFO = process.env.GOOGLE_TOKENINFO_URL || 'https://oauth2.googleapis.com/tokeninfo';
+  async function verifyGoogle(cred) {
+    if (typeof cred !== 'string' || cred.length > 4000 || cred.split('.').length !== 3) return null;
+    const r = await req(`${TOKENINFO}?id_token=${encodeURIComponent(cred)}`, 'GET'); const d = r.data;
+    if (r.status !== 200 || !d || d.aud !== GCLIENT || !/^(https:\/\/)?accounts\.google\.com$/.test(d.iss || '') || !(Number(d.exp) * 1000 > Date.now()) || typeof d.sub !== 'string' || !/^[0-9]{5,40}$/.test(d.sub)) return null;
+    return { sub: d.sub };
+  }
+  // この端末のデータを、Googleアカウントに結びつける（すでにあれば、そちらにまとめる）
+  async function link(code, tok, cred) {
+    const g = await verifyGoogle(cred); if (!g) return { ok: false, err: 'google' };
+    const mine = await ensure(code, tok, true); if (!mine) return { ok: false, err: 'auth' };
+    const gi = await get('g:' + g.sub);
+    if (gi && gi.a && gi.a !== mine.id) {
+      const primary = await get('acct:' + gi.a);
+      if (primary) {
+        const m = await withLock('acct:' + primary.id, async () => {
+          const cur = (await get('acct:' + primary.id)) || primary, other = (await get('acct:' + mine.id)) || mine;
+          saveMerge(cur, other.items, other.ever); cur.devs = Object.assign({}, cur.devs, other.devs); cur.google = g.sub;
+          other.merged = cur.id; await set('acct:' + cur.id, cur); await set('acct:' + other.id, other);
+          for (const [c2, h2] of Object.entries(other.devs || {})) await set('code:' + c2, { a: cur.id, h: h2 });
+          return cur;
+        });
+        return Object.assign({ ok: true, linked: true }, view(m));
+      }
+    }
+    const m = await withLock('acct:' + mine.id, async () => { const cur = (await get('acct:' + mine.id)) || mine; cur.google = g.sub; await set('acct:' + cur.id, cur); await set('g:' + g.sub, { a: cur.id }); return cur; });
+    return Object.assign({ ok: true, linked: false }, view(m));
+  }
+  return { mode, ensure, merge, put, view, link, authOk, codeHash: async c => { const r = await get('code:' + c); return r && r.h || null; }, flush: () => { if (mode === 'file' && fileTimer) { clearTimeout(fileTimer); flushFile(); } } };
+})();
+console.log(`💾 セーブデータの保存先：${Saves.mode === 'file' ? 'ファイル（' + (process.env.SAVE_DIR || './data') + '）' + (process.env.RENDER ? ' ※Renderの無料プランでは、再起動や再デプロイで消えます。UPSTASH か FIREBASE の設定をおすすめします' : '') : Saves.mode}`);
+process.on('SIGTERM', () => { Saves.flush(); process.exit(0); });
+process.on('SIGINT', () => { Saves.flush(); process.exit(0); });
 function cleanFriends(arr, self) {
   const set = new Set();
   if (Array.isArray(arr)) for (const c of arr) { if (set.size >= 100) break; if (typeof c === 'string' && FRIEND_CODE_RE.test(c) && c !== self) set.add(c); }
@@ -375,7 +512,7 @@ function pushFriendViewsAround(code) { // 本人と、本人をフレンドに�
   presence.forEach((x, xc) => { if (xc !== code && x.friends.has(code)) pushFriendView(xc); });
 }
 const ipSockets = new Map(); // IP → 接続数
-const MIN_GAP = { friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, spectate: 1500, bot_spec: 250, bot_spec_note: 400, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
+const MIN_GAP = { save_put: 300, save_get: 1500, save_link: 2500, friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, spectate: 1500, bot_spec: 250, bot_spec_note: 400, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
 io.on('connection', socket => {
   const ip = String(socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || '').split(',')[0].trim();
   const n = (ipSockets.get(ip) || 0) + 1;
@@ -400,6 +537,20 @@ io.on('connection', socket => {
       const d = args[0];
       fn((d && typeof d === 'object' && !Array.isArray(d)) ? d : {}, ...args.slice(1));
     } catch (e) { console.log('handler error', ev, e && e.message); }
+  });
+
+  // セーブデータの自動保存：端末が送ってくる内容を保存し、必要なときに返す
+  socket.on('save_put', async d => {
+    try { const cur = await Saves.merge(d.code, d.tok, d.items, d.ever); socket.emit('save_ack', cur ? { ok: true, seq: d.seq | 0, t: Date.now() } : { ok: false, err: 'auth', seq: d.seq | 0 }); }
+    catch (e) { console.log('save_put error', e && e.message); socket.emit('save_ack', { ok: false, err: 'error', seq: d.seq | 0 }); }
+  });
+  socket.on('save_get', async d => {
+    try { const rec = await Saves.ensure(d.code, d.tok, false); socket.emit('save_data', rec ? Object.assign({ ok: true, exists: true }, Saves.view(rec)) : { ok: Saves.authOk(d.code, d.tok), exists: false, items: {}, ever: [] }); }
+    catch (e) { console.log('save_get error', e && e.message); socket.emit('save_data', { ok: false, err: 'error' }); }
+  });
+  socket.on('save_link', async d => {
+    try { socket.emit('save_linked', await Saves.link(d.code, d.tok, d.credential)); }
+    catch (e) { console.log('save_link error', e && e.message); socket.emit('save_linked', { ok: false, err: 'error' }); }
   });
 
   // クイックマッチ
@@ -516,10 +667,11 @@ socket.on('create_room', ({ name, roles, goal, useRiichi, useRon, fieldBg, avata
   });
 
   // フレンド機能
-  socket.on('friend_register', ({ code, tok, name, avatar, title, friends }) => {
+  socket.on('friend_register', async ({ code, tok, name, avatar, title, friends }) => {
     if (typeof code !== 'string' || !FRIEND_CODE_RE.test(code)) return;
     if (typeof tok !== 'string' || tok.length < 16 || tok.length > 64) return;
     const hash = crypto.createHash('sha256').update(tok).digest('hex');
+    if (!friendTokens.has(code)) { try { const h = await Saves.codeHash(code); if (h) friendTokens.set(code, h); } catch (e) {} } // 保存してあるコードの合言葉（再起動のあとも、なりすましを防ぐ）
     if (friendTokens.has(code) && friendTokens.get(code) !== hash) { socket.emit('friend_error', 'このフレンドコードは使えません'); return; }
     if (!friendTokens.has(code)) { friendTokens.set(code, hash); if (friendTokens.size > 20000) friendTokens.delete(friendTokens.keys().next().value); }
     presence.set(code, { sid: socket.id, name: sanitizeName(name), avatar: sanitizeAvatar(avatar), title: sanitizeTitle(title), friends: cleanFriends(friends, code), status: 'lobby', room: '' });
