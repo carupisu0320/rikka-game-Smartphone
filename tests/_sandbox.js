@@ -5,7 +5,8 @@ const ROOT = path.join(__dirname, '..');
 
 function scriptList() {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-  return [...html.matchAll(/<script[^>]*\ssrc="(js\/[^"?]+)[^"]*"/g)].map(m => m[1]);
+  // index.html の rkLoad([...]) に並んだ順（?v= は、読み込むときに自動で付く）
+  return [...html.matchAll(/rkLoad\(\[([^\]]*)\]\)/g)].flatMap(m => [...m[1].matchAll(/'([^']+)'/g)].map(x => x[1])).filter(f => f.startsWith('js/'));
 }
 
 // 何を呼ばれても落ちない「からっぽの何か」
