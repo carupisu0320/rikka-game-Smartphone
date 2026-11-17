@@ -10,7 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>六華（リッカ）</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<link rel="stylesheet" href="css/style.css?v=20261117a">
+<link rel="stylesheet" href="css/style.css?v=20261117b">
 
 </head>
 
@@ -412,6 +412,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <button onclick="closeGacha()" class="gacha-back">← 戻る</button>
     <div class="gacha-title">🌸 ガチャ</div>
     <div class="gacha-currency">🌸 <span id="gacha-petals">0</span></div>
+    <button class="gacha-info-btn" onclick="openGachaInfo()">📊 情報</button>
   </div>
   <div class="gacha-scroll">
   <div class="gacha-carousel">
@@ -422,6 +423,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <button class="gacha-draw-btn" id="gacha-draw-btn" onclick="drawGacha()">ガチャを引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" id="gacha-draw10" onclick="drawGachaMulti(10)">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" id="gacha-draw100" onclick="drawGachaMulti(100)">100連<small>🌸 1000</small></button></div>
     <div class="gacha-cost">花びら<span id="gacha-cost-label">10</span>枚で1回。対局を遊ぶと貯まります<br>10連・100連は、10回ごとにレア以上が1つ確定です</div>
+    <div class="gacha-pity" data-banner="std"></div>
   </div>
   </div>
   <div class="gacha-banner" id="gacha-banner-limited" style="display:none">
@@ -433,6 +435,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <button class="gacha-draw-btn" onclick="drawGacha('limited')">限定ガチャを引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'limited')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'limited')">100連<small>🌸 1000</small></button></div>
     <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：牌の裏・場の背景・称号・アイコン・紙吹雪<br>🎁 ここで手に入れた景品は、開催が終わってもずっと使えます</div>
+    <div class="gacha-pity" data-banner="limited"></div>
   </div>
   </div>
   <div class="gacha-banner" id="gacha-banner-gold">
@@ -451,6 +454,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <button class="gacha-draw-btn" onclick="drawGacha('gold')">黄金の精神を引く</button>
     <div class="gacha-multi"><button class="gacha-multi-btn" onclick="drawGachaMulti(10,'gold')">10連<small>🌸 100</small></button><button class="gacha-multi-btn big" onclick="drawGachaMulti(100,'gold')">100連<small>🌸 1000</small></button></div>
     <div class="gacha-cost">花びら10枚で1回。10連・100連は、10回ごとにレア以上が1つ確定です<br>景品：動くプレイヤーアイコン6種、演出32種（威圧・ラッシュ・時間停止・糸・シャボン玉・爪弾・重い雨・修復・芽吹き・赤光線・光刃・止まった世界・戦車爆弾・巻き戻し・過程消去・ディスク・重力反転・宇宙一巡・削り取る・ジッパー・絶対零度・殺人ウイルス・磁力の刃・天候・命令の本・癒しの料理・目にも留まらぬ剣技・蹴り弾・機銃掃射と爆撃・潜り込み・恐竜化・静止する雨）と、場の背景13種</div>
+    <div class="gacha-pity" data-banner="gold"></div>
   </div>
   </div>
   </div>
@@ -861,30 +865,31 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 </div>
 
 
-<link rel="stylesheet" href="css/extra-1.css?v=20261117a">
-<script src="js/boot-1.js?v=20261117a"></script>
-<link rel="stylesheet" href="css/extra-2.css?v=20261117a">
-<script src="js/boot-2.js?v=20261117a"></script>
+<link rel="stylesheet" href="css/extra-1.css?v=20261117b">
+<script src="js/boot-1.js?v=20261117b"></script>
+<link rel="stylesheet" href="css/extra-2.css?v=20261117b">
+<script src="js/boot-2.js?v=20261117b"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-<script src="js/01-lobby-online.js?v=20261117a"></script>
-<script src="js/02-effects.js?v=20261117a"></script>
-<script src="js/03-game-assist.js?v=20261117a"></script>
-<script src="js/04-achievements.js?v=20261117a"></script>
-<script src="js/05-scenes.js?v=20261117a"></script>
-<script src="js/06-gacha-items.js?v=20261117a"></script>
-<script src="js/07-gacha-ui.js?v=20261117a"></script>
-<script src="js/08-giftbox-tilebacks.js?v=20261117a"></script>
-<script src="js/09-customize-learning.js?v=20261117a"></script>
-<script src="js/10-sound-anim-tutorial.js?v=20261117a"></script>
-<script src="js/11-title-events-login.js?v=20261117a"></script>
-<script src="js/12-social-missions.js?v=20261117a"></script>
-<script src="js/13-new-items.js?v=20261117a"></script>
-<script src="js/14-dev-match.js?v=20261117a"></script>
-<script src="js/16-fx-sync.js?v=20261117a"></script>
-<script src="js/15-fx-sounds.js?v=20261117a"></script>
-<script src="js/17-save-guard.js?v=20261117a"></script>
-<script src="js/18-comfort.js?v=20261117a"></script>
+<script src="js/01-lobby-online.js?v=20261117b"></script>
+<script src="js/02-effects.js?v=20261117b"></script>
+<script src="js/03-game-assist.js?v=20261117b"></script>
+<script src="js/04-achievements.js?v=20261117b"></script>
+<script src="js/05-scenes.js?v=20261117b"></script>
+<script src="js/06-gacha-items.js?v=20261117b"></script>
+<script src="js/07-gacha-ui.js?v=20261117b"></script>
+<script src="js/08-giftbox-tilebacks.js?v=20261117b"></script>
+<script src="js/09-customize-learning.js?v=20261117b"></script>
+<script src="js/10-sound-anim-tutorial.js?v=20261117b"></script>
+<script src="js/11-title-events-login.js?v=20261117b"></script>
+<script src="js/12-social-missions.js?v=20261117b"></script>
+<script src="js/13-new-items.js?v=20261117b"></script>
+<script src="js/14-dev-match.js?v=20261117b"></script>
+<script src="js/16-fx-sync.js?v=20261117b"></script>
+<script src="js/15-fx-sounds.js?v=20261117b"></script>
+<script src="js/17-save-guard.js?v=20261117b"></script>
+<script src="js/18-comfort.js?v=20261117b"></script>
+<script src="js/19-gacha-plus.js?v=20261117b"></script>
 
 </body>
 
