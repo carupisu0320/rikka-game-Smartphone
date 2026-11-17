@@ -71,4 +71,4 @@ function loadAll() {
   }
   return { ctx, errors };
 }
-module.exports = { ROOT, scriptList, loadAll };
+module.exports = { ROOT, scriptList, loadAll, makeContext };
