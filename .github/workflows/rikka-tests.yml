@@ -1,0 +1,17 @@
+name: rikka-tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # テストは Node 標準の node:test だけで動くので、npm install は不要です
+      - name: テストを実行（構文チェック・読み込み順・景品/実績/演出データ・セーブ復元）
+        run: node --test "tests/*.test.js"
