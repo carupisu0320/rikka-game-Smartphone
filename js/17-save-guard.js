@@ -11,7 +11,7 @@
 // =====================================================================
 
 // ───────── 保存する対象 ─────────
-const SV_EXACT=['rikka_gacha','rikka_petals','rikka_achievements','rikka_login','rikka_missions','rikka_history','rikka_giftbox_claimed','rikka_giftbox_seen','rikka_friends','rikka_avatar','rikka_back_theme','rikka_field_bg','rikka_fx','rikka_bg_anim','rikka_tile_anim','rikka_tile_scale','rikka_calm','rikka_lite','rikka_sound_enabled','rikka_sound_volume','rikka_icon_ack'];
+const SV_EXACT=['rikka_gacha','rikka_petals','rikka_achievements','rikka_login','rikka_missions','rikka_history','rikka_giftbox_claimed','rikka_giftbox_seen','rikka_friends','rikka_avatar','rikka_back_theme','rikka_field_bg','rikka_fx','rikka_bg_anim','rikka_tile_anim','rikka_tile_scale','rikka_calm','rikka_lite','rikka_gacha_pity','rikka_gacha_shards','rikka_gacha_log','rikka_sound_enabled','rikka_sound_volume','rikka_icon_ack'];
 const SV_PREFIX=['rikka_name_','rikka_event_']; // 名前（Googleのアカウントごと）／イベントの進み具合
 const SV_MERGE=new Set(['rikka_achievements','rikka_giftbox_claimed','rikka_giftbox_seen','rikka_icon_ack']); // 「足し合わせ」て復元するもの（減らない）
 const SV_LIMIT=300*1024;
