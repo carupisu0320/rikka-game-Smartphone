@@ -11,26 +11,27 @@ function drawGachaMulti(n,banner='std'){
   addPetals(-cost);try{missionAdd('gacha',n);}catch(e){}
   const owned=new Set(loadGachaState().owned);
   const results=[];let refund=0;
+  const pt=gachaPityLoad(); // 天井の数え（19-gacha-plus.js）。最後に1回だけ保存する
   for(let g=0;g<n/10;g++){
     let haveRare=false;
     for(let k=0;k<10;k++){
-      let rarity=pickGachaRarity();
-      if(k===9&&!haveRare){ // 10回目：レア以上がまだ出ていなければ、レア（超レアは少しだけ）に差し替える
-        rarity=Math.random()*(GACHA_RARITY_INFO.rare.weight+GACHA_RARITY_INFO.superrare.weight)<GACHA_RARITY_INFO.superrare.weight?'superrare':'rare';
-      }
-      if(RARITY_ORDER[rarity]>=2)haveRare=true;
-      const pool=gachaPool(rarity,banner);
-      const item=pool[Math.floor(Math.random()*pool.length)];
+      // 10回目：レア以上がまだ出ていなければ、レア（超レアは少しだけ）に差し替える。天井は、それより優先
+      const r=gachaRollOne(banner,{forceRare:k===9&&!haveRare},pt);
+      const item=r.item;
+      if(RARITY_ORDER[item.rarity]>=2)haveRare=true;
       const isDup=owned.has(item.id);
       if(!isDup){owned.add(item.id);grantItem(item.id);}else refund+=Math.ceil(GACHA_COST/2);
-      results.push({item,isDup});
+      results.push({item,isDup,pity:r.pity});
     }
   }
+  gachaPitySave(pt);
+  const shards=gachaRecord(results.map(r=>({item:r.item,isDup:r.isDup,banner,pity:r.pity})));
   if(refund)addPetals(refund);
   const best=results.reduce((a,b)=>{
     const ra=RARITY_ORDER[a.item.rarity],rb=RARITY_ORDER[b.item.rarity];
     return rb>ra||(rb===ra&&a.isDup&&!b.isDup)?b:a;},results[0]);
-  _gachaBatch={n,cost,refund,results,banner};
+  _lastShards=0;
+  _gachaBatch={n,cost,refund,shards,results,banner};
   _gfxPendingAch=checkAchievements(false,{misc:true,gacha:n});
   startGachaFx(best.item,best.isDup);
 }
@@ -48,7 +49,7 @@ function showGachaSummary(b){
   const canAgain=loadPetals()>=GACHA_COST*b.n;
   const el=document.createElement('div');el.id='gacha-summary';
   el.innerHTML=`<div class="gs-box"><div class="gs-title">${b.n}連ガチャ 結果</div>
-    <div class="gs-stats"><span>使った花びら <b>🌸${b.cost}</b></span><span>戻った花びら <b>🌸${b.refund}</b></span><span>新しい景品 <b>${newN}個</b></span></div>
+    <div class="gs-stats"><span>使った花びら <b>🌸${b.cost}</b></span><span>戻った花びら <b>🌸${b.refund}</b></span>${b.shards?`<span>かけら <b>+${b.shards}</b></span>`:''}<span>新しい景品 <b>${newN}個</b></span></div>
     <div class="gs-rar">${['superrare','rare','uncommon','common'].map(k=>`<span style="color:${GACHA_RARITY_INFO[k].color}">${GACHA_RARITY_INFO[k].label} ${cnt[k]}</span>`).join('')}</div>
     <div class="gs-list">${cards}</div>
     <div class="gs-btns"><button class="sub" ${canAgain?'':'disabled'} onclick="document.getElementById('gacha-summary').remove();drawGachaMulti(${b.n},'${b.banner||'std'}')">もう一度（${b.n}連）</button><button class="main" onclick="document.getElementById('gacha-summary').remove()">閉じる</button></div></div>`;
@@ -62,9 +63,7 @@ function drawGacha(banner='std'){
   const petals=loadPetals();
   if(petals<GACHA_COST){ toast('花びらが足りません'); return; }
   addPetals(-GACHA_COST);try{missionAdd('gacha');}catch(e){}
-  const rarity=pickGachaRarity();
-  const pool=gachaPool(rarity,banner);
-  const item=pool[Math.floor(Math.random()*pool.length)];
+  const r=gachaRollOne(banner),item=r.item; // 天井つきの抽選（19-gacha-plus.js）
   const st=loadGachaState();
   const isDup=st.owned.includes(item.id);
   if(!isDup){
@@ -73,9 +72,11 @@ function drawGacha(banner='std'){
   } else {
     addPetals(Math.ceil(GACHA_COST/2)); // 重複は花びらを一部還元
   }
+  _lastShards=gachaRecord([{item,isDup,banner,pity:r.pity}]);
   _gfxPendingAch=checkAchievements(false,{misc:true,gacha:true});
   startGachaFx(item,isDup);
 }
+var _lastShards=0;
 let _gfxPendingAch=[];
 
 // ============================================================
@@ -305,7 +306,7 @@ function goldKakuHtml(){
 <div class="kk-gogo l"><span>ゴ</span><span>ゴ</span><span>ゴ</span><span>ゴ</span></div>
 <div class="kk-gogo r"><span>ゴ</span><span>ゴ</span><span>ゴ</span><span>ゴ</span></div>
 <div class="kk-bar t"></div><div class="kk-bar b"></div>
-<div class="kk-quote"><span class="q1">きさまッ！</span><span class="q2">見ているなッ！</span></div><div class="kk-title">黄金の精神</div><div class="kk-sub">超 レ ア 確 定</div>
+<div class="kk-quote"><span class="q1">きさま！</span><span class="q2">見ているなッ！</span></div><div class="kk-title">黄金の精神</div><div class="kk-sub">超 レ ア 確 定</div>
 <div class="kk-white"></div><div class="kk-black"></div>`;
 }
 // 確定演出の音：低いうなり→鼓動→星が光る鐘の音→和音のふくらみ
@@ -386,7 +387,7 @@ function goldKakuPhotoHtml(){
 <div class="kk-gogo l"><span>ゴ</span><span>ゴ</span><span>ゴ</span><span>ゴ</span></div>
 <div class="kk-gogo r"><span>ゴ</span><span>ゴ</span><span>ゴ</span><span>ゴ</span></div>
 <div class="kk-bar t"></div><div class="kk-bar b"></div>
-<div class="kk-quote"><span class="q1">きさまッ！</span><span class="q2">見ているなッ！</span></div><div class="kk-title">黄金の精神</div><div class="kk-sub">超 レ ア 確 定</div>
+<div class="kk-quote"><span class="q1">きさま！</span><span class="q2">見ているなッ！</span></div><div class="kk-title">黄金の精神</div><div class="kk-sub">超 レ ア 確 定</div>
 <div class="kk-white"></div><div class="kk-black"></div>`;
 }
 
@@ -510,7 +511,7 @@ function showGachaResult(item,isDup){
     <div class="gacha-result-rarity" style="color:${info.color}">★ ${esc(info.label)}</div>
     <div class="gacha-result-icon">${itemIconHtml(item)}</div>
     <div class="gacha-result-title">${esc(item.title)}</div>
-    ${isDup?'<div class="gacha-result-dup">すでに持っています（花びら一部還元）</div>':''}
+    ${isDup?`<div class="gacha-result-dup">すでに持っています（花びら一部還元${_lastShards?'・かけら+'+_lastShards:''}）</div>`:''}
   </div>`;
 }
 function renderGachaCollection(){
