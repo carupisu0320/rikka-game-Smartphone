@@ -361,7 +361,7 @@ function isDevAuth(fc, ft) {
 //   FIREBASE_DB_URL (+ FIREBASE_AUTH)               … Firebase Realtime Database（REST）
 //   SAVE_DIR                                        … ファイル保存の場所（初期値は ./data。Renderの無料プランは、再起動や再デプロイで消えるので注意）
 const fs = require('fs'), pathMod = require('path'), httpsMod = require('https'), httpMod = require('http');
-const SAVE_EXACT = ['rikka_gacha','rikka_petals','rikka_achievements','rikka_login','rikka_missions','rikka_history','rikka_giftbox_claimed','rikka_giftbox_seen','rikka_friends','rikka_avatar','rikka_back_theme','rikka_field_bg','rikka_fx','rikka_bg_anim','rikka_tile_anim','rikka_tile_scale','rikka_sound_enabled','rikka_sound_volume','rikka_icon_ack'];
+const SAVE_EXACT = ['rikka_gacha','rikka_petals','rikka_achievements','rikka_login','rikka_missions','rikka_history','rikka_giftbox_claimed','rikka_giftbox_seen','rikka_friends','rikka_avatar','rikka_back_theme','rikka_field_bg','rikka_fx','rikka_bg_anim','rikka_tile_anim','rikka_tile_scale','rikka_calm','rikka_lite','rikka_sound_enabled','rikka_sound_volume','rikka_icon_ack'];
 const SAVE_PREFIX = ['rikka_name_', 'rikka_event_'];
 const SAVE_UNION = new Set(['rikka_achievements','rikka_giftbox_claimed','rikka_giftbox_seen','rikka_icon_ack']); // 足し合わせて、減らさないもの
 const SAVE_MAX_VALUE = 300 * 1024, SAVE_MAX_ACCT = 700 * 1024;
