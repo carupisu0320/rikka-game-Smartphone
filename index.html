@@ -10,7 +10,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>六華（リッカ）</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<link rel="stylesheet" href="css/style.css?v=20261117b">
+<script>
+/* ★ 更新するときは、ここの数字だけ変えます（css・jsの読み込みすべてに反映されます。ふつうは日付＋a,b,c…） */
+var RIKKA_V='20261117c';
+/* 並んだ順に、同期で読み込みます（document.write）。?v= は、ここで自動で付きます */
+function rkLoad(files){files.forEach(function(f){var u=f+'?v='+RIKKA_V;document.write(/\.css$/.test(f)?'<link rel="stylesheet" href="'+u+'">':'<script src="'+u+'"><\/script>');});}
+rkLoad(['css/style.css']);
+</script>
 
 </head>
 
@@ -865,31 +871,30 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 </div>
 
 
-<link rel="stylesheet" href="css/extra-1.css?v=20261117b">
-<script src="js/boot-1.js?v=20261117b"></script>
-<link rel="stylesheet" href="css/extra-2.css?v=20261117b">
-<script src="js/boot-2.js?v=20261117b"></script>
+<script>rkLoad(['css/extra-1.css','js/boot-1.js','css/extra-2.css','js/boot-2.js']);</script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-<script src="js/01-lobby-online.js?v=20261117b"></script>
-<script src="js/02-effects.js?v=20261117b"></script>
-<script src="js/03-game-assist.js?v=20261117b"></script>
-<script src="js/04-achievements.js?v=20261117b"></script>
-<script src="js/05-scenes.js?v=20261117b"></script>
-<script src="js/06-gacha-items.js?v=20261117b"></script>
-<script src="js/07-gacha-ui.js?v=20261117b"></script>
-<script src="js/08-giftbox-tilebacks.js?v=20261117b"></script>
-<script src="js/09-customize-learning.js?v=20261117b"></script>
-<script src="js/10-sound-anim-tutorial.js?v=20261117b"></script>
-<script src="js/11-title-events-login.js?v=20261117b"></script>
-<script src="js/12-social-missions.js?v=20261117b"></script>
-<script src="js/13-new-items.js?v=20261117b"></script>
-<script src="js/14-dev-match.js?v=20261117b"></script>
-<script src="js/16-fx-sync.js?v=20261117b"></script>
-<script src="js/15-fx-sounds.js?v=20261117b"></script>
-<script src="js/17-save-guard.js?v=20261117b"></script>
-<script src="js/18-comfort.js?v=20261117b"></script>
-<script src="js/19-gacha-plus.js?v=20261117b"></script>
+<script>rkLoad([
+  'js/01-lobby-online.js',
+  'js/02-effects.js',
+  'js/03-game-assist.js',
+  'js/04-achievements.js',
+  'js/05-scenes.js',
+  'js/06-gacha-items.js',
+  'js/07-gacha-ui.js',
+  'js/08-giftbox-tilebacks.js',
+  'js/09-customize-learning.js',
+  'js/10-sound-anim-tutorial.js',
+  'js/11-title-events-login.js',
+  'js/12-social-missions.js',
+  'js/13-new-items.js',
+  'js/14-dev-match.js',
+  'js/16-fx-sync.js',
+  'js/15-fx-sounds.js',
+  'js/17-save-guard.js',
+  'js/18-comfort.js',
+  'js/19-gacha-plus.js',
+]);</script>
 
 </body>
 
