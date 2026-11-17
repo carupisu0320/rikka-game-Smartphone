@@ -10,7 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>六華（リッカ）</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<link rel="stylesheet" href="css/style.css?v=20261110l">
+<link rel="stylesheet" href="css/style.css?v=20261117a">
 
 </head>
 
@@ -811,6 +811,19 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     </div>
     <div style="font-size:.7rem;color:#5a4820;line-height:1.55">場の背景・牌の裏柄（龍など）の動きを切り替えます。電池が気になるときは、OFFにしてください</div>
   </div>
+  <div class="sb-section">
+    <div class="sb-section-title">― やさしい表示 ―</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem">
+      <span style="font-size:.82rem;color:#c8b898">光を抑える（点滅を減らす）</span>
+      <button id="calm-btn" onclick="toggleCalm()" style="padding:.28rem .75rem;border-radius:6px;border:1px solid #3e2e1e;background:#2a1e14;color:#8a7048;font-family:inherit;font-size:.82rem;cursor:pointer">OFF</button>
+    </div>
+    <div style="font-size:.7rem;color:#5a4820;line-height:1.55;margin-bottom:.6rem">強い光・点滅・画面のゆれを減らします。確定演出の絵と開発者マッチのGIFは流れず、音と文字だけになります。光に敏感な方は、ONにしてください</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem">
+      <span style="font-size:.82rem;color:#c8b898">軽量モード</span>
+      <button id="lite-btn" onclick="toggleLite()" style="padding:.28rem .75rem;border-radius:6px;border:1px solid #3e2e1e;background:#2a1e14;color:#8a7048;font-family:inherit;font-size:.82rem;cursor:pointer">OFF</button>
+    </div>
+    <div style="font-size:.7rem;color:#5a4820;line-height:1.55">動く飾りやぼかしを減らして、動作を軽くします。動きがもたつくときに、ONにしてください</div>
+  </div>
     <div class="sb-section-title">― 戦績 ―</div>
     <div style="display:flex;gap:.4rem;margin-bottom:.6rem">
       <button id="stats-tab-bot" onclick="switchStatsTab('bot')"
@@ -848,29 +861,30 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
 </div>
 
 
-<link rel="stylesheet" href="css/extra-1.css?v=20261110l">
-<script src="js/boot-1.js?v=20261110l"></script>
-<link rel="stylesheet" href="css/extra-2.css?v=20261110l">
-<script src="js/boot-2.js?v=20261110l"></script>
+<link rel="stylesheet" href="css/extra-1.css?v=20261117a">
+<script src="js/boot-1.js?v=20261117a"></script>
+<link rel="stylesheet" href="css/extra-2.css?v=20261117a">
+<script src="js/boot-2.js?v=20261117a"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-<script src="js/01-lobby-online.js?v=20261110l"></script>
-<script src="js/02-effects.js?v=20261110l"></script>
-<script src="js/03-game-assist.js?v=20261110l"></script>
-<script src="js/04-achievements.js?v=20261110l"></script>
-<script src="js/05-scenes.js?v=20261110l"></script>
-<script src="js/06-gacha-items.js?v=20261110l"></script>
-<script src="js/07-gacha-ui.js?v=20261110l"></script>
-<script src="js/08-giftbox-tilebacks.js?v=20261110l"></script>
-<script src="js/09-customize-learning.js?v=20261110l"></script>
-<script src="js/10-sound-anim-tutorial.js?v=20261110l"></script>
-<script src="js/11-title-events-login.js?v=20261110l"></script>
-<script src="js/12-social-missions.js?v=20261110l"></script>
-<script src="js/13-new-items.js?v=20261110l"></script>
-<script src="js/14-dev-match.js?v=20261110l"></script>
-<script src="js/16-fx-sync.js?v=20261110l"></script>
-<script src="js/15-fx-sounds.js?v=20261110l"></script>
-<script src="js/17-save-guard.js?v=20261110l"></script>
+<script src="js/01-lobby-online.js?v=20261117a"></script>
+<script src="js/02-effects.js?v=20261117a"></script>
+<script src="js/03-game-assist.js?v=20261117a"></script>
+<script src="js/04-achievements.js?v=20261117a"></script>
+<script src="js/05-scenes.js?v=20261117a"></script>
+<script src="js/06-gacha-items.js?v=20261117a"></script>
+<script src="js/07-gacha-ui.js?v=20261117a"></script>
+<script src="js/08-giftbox-tilebacks.js?v=20261117a"></script>
+<script src="js/09-customize-learning.js?v=20261117a"></script>
+<script src="js/10-sound-anim-tutorial.js?v=20261117a"></script>
+<script src="js/11-title-events-login.js?v=20261117a"></script>
+<script src="js/12-social-missions.js?v=20261117a"></script>
+<script src="js/13-new-items.js?v=20261117a"></script>
+<script src="js/14-dev-match.js?v=20261117a"></script>
+<script src="js/16-fx-sync.js?v=20261117a"></script>
+<script src="js/15-fx-sounds.js?v=20261117a"></script>
+<script src="js/17-save-guard.js?v=20261117a"></script>
+<script src="js/18-comfort.js?v=20261117a"></script>
 
 </body>
 
