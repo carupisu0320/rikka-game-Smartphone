@@ -1158,8 +1158,10 @@ function gachaPool(rarity,banner){
   return GACHA_ITEMS.filter(it=>it.rarity===rarity&&!it.achievement&&!it.loginStar&&!it.limited&&!it.event&&!it.gold);
 }
 backfillAchievementRewards();
-// 配付：Game Over Ⅲ・Ⅳ と称号「国富平針店のバイト」を全員に渡す（すでに持っている人には何も起きない）
-if(['bg_gameovera3','bg_gameovera4','title_gameovera'].map(id=>grantItem(id)).some(Boolean))setTimeout(()=>{try{toast('🎁 Game Over Ⅲ・Ⅳ と称号「国富平針店のバイト」をプレゼントしました！');}catch(e){}},2500);
+// 配付：称号「国富平針店のバイト」を全員に渡す（すでに持っている人には何も起きない）
+// ※ 場の背景 Game Over Ⅲ・Ⅳ の全員配付は終了しました。いまは期間限定ガチャ（リブート）の最高レアです。
+//   すでに受け取った人の持ち物（保存データ）は、そのまま残ります
+if(grantItem('title_gameovera'))setTimeout(()=>{try{toast('🎁 称号「国富平針店のバイト」をプレゼントしました！');}catch(e){}},2500);
 const GACHA_RARITY_INFO={
   common:   {label:'コモン',   weight:60, color:'#9098a0'},
   uncommon: {label:'アンコモン', weight:25, color:'#60c870'},
