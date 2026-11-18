@@ -237,6 +237,120 @@ addFx({kind:'win', id:'molt3', name:'三段の脱皮', emoji:'🥚', c1:'#ffd060
     return(c,t,dt)=>{const p=Math.min(.999,t/Math.max(.1,D-.5)),s=Math.min(2,Math.floor(p*3)),u=p*3-s;
       c.save();c.globalAlpha=(1-_fSm(D-.5,D,t))*_fSm(0,.15,t);_mt.paint(c,{cx,gy,k,y0:0,t:t*1000,disc:true},s,u);c.restore();};}});
 
+// ───────── 期間限定ガチャ「イギリス」（2026-12-01〜12-14）─────────
+//  内訳：最高レア Game Over V・VI（画像） ＋ 新しい景品8つ（イギリスがテーマ）＋ 既存の景品8つ
+//  ・景品の limited は 'uk2026'（addLimitedGacha の id と同じ文字にします）
+//  ・Game Over V・VI の画像は、Ⅲ・Ⅳと同じ置き場所の gameovera5.png / gameovera6.png です（先にアップロードしてください）
+(function(){
+  const UK='uk2026',L={limited:UK};
+  // 期間限定の一覧で、Game Overシリーズの画像を、ゆっくり動かす（Ⅲ・Ⅳと同じ見え方）
+  try{const s=document.createElement('style');s.textContent='.ltd-bg-bg_gameovera5,.ltd-bg-bg_gameovera6{animation:ltdPan 7s ease-in-out infinite,ltdFlick 3.2s steps(1) infinite}';document.head.appendChild(s);}catch(e){}
+
+  // ── 最高レア：Game Over V・VI ──
+  addImageBg({id:'bg_gameovera5', rarity:'superrare', emoji:'💀', title:'Game Over V',  desc:'場の背景：Game Overシリーズ（期間限定）', url:_GO_BASE+'gameovera5.png', flags:L});
+  addImageBg({id:'bg_gameovera6', rarity:'superrare', emoji:'💀', title:'Game Over VI', desc:'場の背景：Game Overシリーズ（期間限定）', url:_GO_BASE+'gameovera6.png', flags:L});
+
+  // ── 新しい景品（イギリス）──
+  addConfetti({id:'confetti_union', rarity:'common', emoji:'🇬🇧', title:'ユニオンの紙吹雪', desc:'上がったときの紙吹雪が、赤・白・青になります（期間限定）', colors:['#c8102e','#f5f5f5','#1c3f94','#ffffff','#d94052'], flags:L});
+
+  addTheme({value:'tartan', rarity:'common', emoji:'🧣', title:'タータンの裏地', desc:'牌の裏柄：タータンチェック（期間限定）', swatch:['#5a0e16','#c8323c'], flags:L,
+    css:'body.back-tartan .fback{background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 1px,transparent 1px 7px),repeating-linear-gradient(0deg,rgba(255,255,255,.22) 0 1px,transparent 1px 7px),repeating-linear-gradient(90deg,rgba(14,34,110,.62) 0 6px,transparent 6px 16px),repeating-linear-gradient(0deg,rgba(14,34,110,.62) 0 6px,transparent 6px 16px),#9a1822;border-color:#e2c26a}'});
+
+  addTheme({value:'unionjack', rarity:'uncommon', emoji:'🇬🇧', title:'ユニオンの裏地', desc:'牌の裏柄：赤・白・青の国旗柄（期間限定）', swatch:['#012169','#c8102e'], flags:L,
+    css:'body.back-unionjack .fback{background:'+
+      'linear-gradient(90deg,transparent 43%,#c8102e 43%,#c8102e 57%,transparent 57%),linear-gradient(0deg,transparent 43%,#c8102e 43%,#c8102e 57%,transparent 57%),'+
+      'linear-gradient(90deg,transparent 35%,#fff 35%,#fff 65%,transparent 65%),linear-gradient(0deg,transparent 40%,#fff 40%,#fff 60%,transparent 60%),'+
+      'linear-gradient(to top right,transparent 46.5%,#c8102e 46.5%,#c8102e 53.5%,transparent 53.5%),linear-gradient(to bottom right,transparent 46.5%,#c8102e 46.5%,#c8102e 53.5%,transparent 53.5%),'+
+      'linear-gradient(to top right,transparent 42%,#fff 42%,#fff 58%,transparent 58%),linear-gradient(to bottom right,transparent 42%,#fff 42%,#fff 58%,transparent 58%),#012169;border-color:#e8e8f0}'});
+
+  addTitle({id:'title_gentleman', rarity:'uncommon', emoji:'🎩', title:'霧の街の紳士', desc:'名前の横に称号が付きます（期間限定）', flags:L});
+
+  addIcon({id:'gi_teacup', rarity:'uncommon', emoji:'🫖', title:'湯気のティーカップ', desc:'アイコン：紅茶の湯気がのぼる（動く・期間限定）', flags:L,
+    svg:()=>_giSvg(_giRG('#4a3a5e','#150d22'),
+      '<ellipse cx="50" cy="78" rx="33" ry="7" fill="#e9dfcc"/><ellipse cx="50" cy="76" rx="33" ry="6" fill="#f7f0e2"/>'+
+      '<path d="M71 52q15-1 12 10q-2 8-15 8" fill="none" stroke="#f1e8d6" stroke-width="5" stroke-linecap="round"/>'+
+      '<path d="M27 48h46q0 28-23 28t-23-28z" fill="#f8f2e6" stroke="#cdbf9e" stroke-width="1.5"/>'+
+      '<ellipse cx="50" cy="48" rx="23" ry="4.5" fill="#7a3d1c"/><ellipse cx="50" cy="47.5" rx="20" ry="3" fill="#a05a2c"/>'+
+      '<g fill="#3d62b0"><circle cx="38" cy="60" r="2.2"/><circle cx="50" cy="66" r="2.2"/><circle cx="62" cy="60" r="2.2"/><circle cx="44" cy="55" r="1.4"/><circle cx="56" cy="55" r="1.4"/></g>'+
+      '<g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">'+
+        '<path class="o" d="M40 40q-6-8 0-15q5-7-1-14" style="animation:rise 3s linear infinite;opacity:.0"/>'+
+        '<path class="o" d="M50 40q-6-8 0-15q5-7-1-14" style="animation:rise 3s linear 1s infinite;opacity:.0"/>'+
+        '<path class="o" d="M60 40q-6-8 0-15q5-7-1-14" style="animation:rise 3s linear 2s infinite;opacity:.0"/></g>')});
+
+  addIcon({id:'gi_doubledecker', rarity:'rare', emoji:'🚌', title:'二階建てバス', desc:'アイコン：霧の街を走る赤いバス（動く・期間限定）', flags:L,
+    svg:()=>_giSvg(_giLG('#3b4a70','#10162a'),
+      '<rect x="0" y="76" width="100" height="24" fill="#1c2236"/><rect x="0" y="76" width="100" height="2" fill="#5d6a8c"/>'+
+      '<g fill="#6b7898" opacity=".5"><rect x="6" y="30" width="10" height="46"/><rect x="20" y="40" width="8" height="36"/><rect x="78" y="34" width="12" height="42"/></g>'+
+      '<g class="b" style="animation:bob 1.1s ease-in-out infinite">'+
+        '<rect x="14" y="32" width="72" height="42" rx="4" fill="#d6232b"/><rect x="14" y="51" width="72" height="3" fill="#a3141b"/>'+
+        '<g fill="#ffe9a8"><rect x="19" y="38" width="9" height="8" rx="1"/><rect x="31" y="38" width="9" height="8" rx="1"/><rect x="43" y="38" width="9" height="8" rx="1"/><rect x="55" y="38" width="9" height="8" rx="1"/><rect x="67" y="38" width="12" height="8" rx="1"/>'+
+        '<rect x="19" y="58" width="9" height="8" rx="1"/><rect x="31" y="58" width="9" height="8" rx="1"/><rect x="43" y="58" width="9" height="8" rx="1"/><rect x="55" y="58" width="9" height="8" rx="1"/></g>'+
+        '<rect x="68" y="58" width="12" height="14" rx="1" fill="#2a2f45"/><rect x="72" y="33" width="10" height="3" fill="#fff6c8"/>'+
+        '<circle cx="85" cy="68" r="2.5" fill="#fff3a0"/></g>'+
+      '<g class="o" style="animation:spin 1s linear infinite"><circle cx="30" cy="75" r="7" fill="#1a1a22"/><circle cx="30" cy="75" r="3" fill="#9aa3b8"/><rect x="29" y="69" width="2" height="12" fill="#9aa3b8"/></g>'+
+      '<g class="o" style="animation:spin 1s linear infinite"><circle cx="70" cy="75" r="7" fill="#1a1a22"/><circle cx="70" cy="75" r="3" fill="#9aa3b8"/><rect x="69" y="69" width="2" height="12" fill="#9aa3b8"/></g>')});
+
+  addScene({name:'londonfog', rarity:'rare', emoji:'🌉', title:'霧のロンドン', desc:'場の背景：霧にかすむ、夕暮れの跳ね橋（期間限定）', focus:60, flags:L,
+    draw:function(){
+      const r=_rng(31);
+      const tower=cx=>`<g fill="#0d1425"><rect x="${cx-20}" y="452" width="40" height="110"/><polygon points="${cx-25},453 ${cx},406 ${cx+25},453"/><rect x="${cx-25}" y="450" width="50" height="6"/>`+
+        [-23,23].map(d=>`<rect x="${cx+d-3}" y="438" width="6" height="22"/><polygon points="${cx+d-4.5},438 ${cx+d},422 ${cx+d+4.5},438"/>`).join('')+
+        `<polygon points="${cx-2},408 ${cx},390 ${cx+2},408"/></g>`+
+        [[-9,470],[-9,488],[-9,506],[-9,524],[4,470],[4,488],[4,506],[4,524]].map(([dx,y])=>`<rect x="${cx+dx}" y="${y}" width="5" height="9" rx="1" fill="#f2c46a" opacity=".85"/>`).join('');
+      const cy=x=>{const t=x/120;return (1-t)*(1-t)*530+2*(1-t)*t*478+t*t*454;};
+      let hang='',lamps='',sky='',ripples='';
+      for(let x=14;x<=108;x+=14){const y=cy(x);hang+=`<line x1="${x}" y1="${y}" x2="${x}" y2="551" stroke="#0d1425" stroke-width="1.3"/><line x1="${400-x}" y1="${y}" x2="${400-x}" y2="551" stroke="#0d1425" stroke-width="1.3"/>`;}
+      for(let x=8;x<400;x+=22)lamps+=`<circle cx="${x}" cy="547" r="3.2" fill="#ffd98a"/><circle cx="${x}" cy="547" r="9" fill="url(#lg)"/>`;
+      let x=0;while(x<400){const w=10+r()*22,h=14+r()*44;sky+=`<rect x="${x}" y="${561-h}" width="${w}" height="${h}" fill="#19223a"/>`;if(r()<.5)sky+=`<rect x="${x+w*.3}" y="${561-h+6}" width="2.5" height="3.5" fill="#f2c46a" opacity=".7"/>`;x+=w+r()*3;}
+      for(let i=0;i<34;i++)ripples+=`<rect x="${(r()*420-10).toFixed(1)}" y="${(572+i*6.5).toFixed(1)}" width="${(18+r()*70).toFixed(1)}" height="1.3" fill="#b8c4dc" opacity="${(.05+r()*.1).toFixed(2)}"/>`;
+      return `<defs>${_vgrad('sk',[[0,'#0a1020'],[.36,'#222f4c'],[.6,'#766f80'],[.7,'#d0a888']])}${_vgrad('rv',[[0,'#222b41'],[1,'#070a14']])}${_vgrad('fg',[[0,'#dfe3ee',0],[.5,'#dfe3ee',.36],[1,'#dfe3ee',0]])}`+
+        `<radialGradient id="mg"><stop offset="0" stop-color="#fff4d0" stop-opacity=".5"/><stop offset="1" stop-color="#fff4d0" stop-opacity="0"/></radialGradient><radialGradient id="lg"><stop offset="0" stop-color="#ffd98a" stop-opacity=".5"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient></defs>`+
+        `<rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,320,64)}`+
+        `<circle cx="312" cy="152" r="78" fill="url(#mg)"/><circle cx="312" cy="152" r="25" fill="#f4eed6"/><circle cx="304" cy="146" r="4" fill="#dcd2b4"/><circle cx="320" cy="160" r="5.5" fill="#dcd2b4"/>`+
+        sky+`<rect y="561" width="400" height="239" fill="url(#rv)"/>${ripples}`+
+        `<path d="M0 530Q60 478 120 454M400 530Q340 478 280 454" fill="none" stroke="#0d1425" stroke-width="3"/>${hang}`+
+        `<rect x="138" y="440" width="124" height="10" fill="#0d1425"/>`+Array.from({length:9},(_,i)=>`<rect x="${144+i*13}" y="442" width="6" height="5" fill="#f2c46a" opacity=".8"/>`).join('')+
+        `<rect x="0" y="550" width="400" height="9" fill="#0d1425"/>${lamps}${tower(120)}${tower(280)}`+
+        [120,280].map(cx=>`<rect x="${cx-20}" y="564" width="40" height="78" fill="#0d1425" opacity=".38"/><rect x="${cx-9}" y="570" width="5" height="60" fill="#f2c46a" opacity=".18"/><rect x="${cx+4}" y="570" width="5" height="60" fill="#f2c46a" opacity=".18"/>`).join('')+
+        `<rect y="395" width="400" height="95" fill="url(#fg)" opacity=".7"/><rect y="500" width="400" height="120" fill="url(#fg)"/><rect y="610" width="400" height="140" fill="url(#fg)" opacity=".85"/>`+
+        `<rect y="740" width="400" height="60" fill="#05070f" opacity=".55"/>`;
+    }});
+
+  addScene({name:'bigben', rarity:'rare', emoji:'🕰️', title:'ビッグ・ベンの夜', desc:'場の背景：月夜の時計塔と、テムズ川（期間限定）', focus:42, flags:L,
+    draw:function(){
+      const r=_rng(77),cx=262;
+      const win=(x,y)=>`<rect x="${x}" y="${y}" width="3.4" height="6" rx="1.4" fill="#ffd98a" opacity="${(.55+r()*.4).toFixed(2)}"/>`;
+      let palace='',ripples='';
+      for(let x=0;x<cx-38;x+=16){const h=44+((x/16|0)%3)*8;palace+=`<rect x="${x}" y="${600-h}" width="15" height="${h}" fill="#0d1424"/><polygon points="${x},${600-h} ${x+7.5},${600-h-12} ${x+15},${600-h}" fill="#0d1424"/>`+win(x+4,600-h+10)+win(x+9,600-h+22);}
+      for(let x=cx+34;x<400;x+=18){const h=30+((x/18|0)%4)*7;palace+=`<rect x="${x}" y="${600-h}" width="17" height="${h}" fill="#0d1424"/>`+win(x+6,600-h+9);}
+      for(let i=0;i<30;i++)ripples+=`<rect x="${(r()*420-10).toFixed(1)}" y="${(612+i*6).toFixed(1)}" width="${(16+r()*70).toFixed(1)}" height="1.3" fill="#b8c4dc" opacity="${(.05+r()*.1).toFixed(2)}"/>`;
+      const ticks=Array.from({length:12},(_,i)=>{const a=i*Math.PI/6;return `<line x1="${(cx+Math.sin(a)*15.5).toFixed(1)}" y1="${(382-Math.cos(a)*15.5).toFixed(1)}" x2="${(cx+Math.sin(a)*19).toFixed(1)}" y2="${(382-Math.cos(a)*19).toFixed(1)}" stroke="#4a3412" stroke-width="1.6"/>`;}).join('');
+      const pin=(x,y)=>`<polygon points="${x-3},${y} ${x},${y-17} ${x+3},${y}" fill="#0d1424"/>`;
+      return `<defs>${_vgrad('sk',[[0,'#070b1c'],[.5,'#1c2547'],[.78,'#3a3a66']])}${_vgrad('rv',[[0,'#1c2440'],[1,'#060912']])}${_vgrad('fg',[[0,'#cfd6ea',0],[.5,'#cfd6ea',.3],[1,'#cfd6ea',0]])}`+
+        `<radialGradient id="mg"><stop offset="0" stop-color="#fff4d0" stop-opacity=".5"/><stop offset="1" stop-color="#fff4d0" stop-opacity="0"/></radialGradient><radialGradient id="cg"><stop offset="0" stop-color="#ffd98a" stop-opacity=".7"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient></defs>`+
+        `<rect width="400" height="800" fill="url(#sk)"/>${_stars(r,0,420,110)}`+
+        `<circle cx="88" cy="176" r="86" fill="url(#mg)"/><circle cx="88" cy="176" r="30" fill="#f6f0d8"/><circle cx="79" cy="168" r="5" fill="#ddd3b2"/><circle cx="98" cy="186" r="7" fill="#ddd3b2"/><circle cx="96" cy="162" r="3" fill="#ddd3b2"/>`+
+        palace+
+        // 時計塔（エリザベス・タワー風）
+        `<g fill="#0d1424"><rect x="${cx-24}" y="440" width="48" height="162"/><rect x="${cx-32}" y="326" width="64" height="116"/><rect x="${cx-27}" y="262" width="54" height="66"/>`+
+        `<polygon points="${cx-27},264 ${cx},118 ${cx+27},264"/><rect x="${cx-1.5}" y="78" width="3" height="44"/>`+
+        `<rect x="${cx-36}" y="318" width="72" height="9"/><rect x="${cx-30}" y="254" width="60" height="9"/>`+
+        pin(cx-30,254)+pin(cx+30,254)+pin(cx-35,318)+pin(cx+35,318)+`</g>`+
+        `<circle cx="${cx}" cy="382" r="46" fill="url(#cg)"/><circle cx="${cx}" cy="382" r="23" fill="#ffe8a8" stroke="#2c200c" stroke-width="2.4"/>${ticks}`+
+        `<line x1="${cx}" y1="382" x2="${cx+9}" y2="372" stroke="#2c200c" stroke-width="2.6" stroke-linecap="round"/><line x1="${cx}" y1="382" x2="${cx}" y2="365" stroke="#2c200c" stroke-width="1.8" stroke-linecap="round"/>`+
+        [-14,0,14].map(d=>`<path d="M${cx+d-4} 326v-26q4-9 8 0v26z" fill="#ffd98a" opacity=".55"/>`).join('')+
+        [[-12,470],[8,470],[-12,500],[8,500],[-12,530],[8,530]].map(([dx,y])=>`<rect x="${cx+dx}" y="${y}" width="4" height="12" rx="2" fill="#ffd98a" opacity=".6"/>`).join('')+
+        `<rect y="600" width="400" height="200" fill="url(#rv)"/>${ripples}`+
+        `<rect x="${cx-24}" y="604" width="48" height="110" fill="#0d1424" opacity=".35"/><rect x="${cx-12}" y="604" width="24" height="120" fill="#ffd98a" opacity=".05"/>`+
+        `<rect y="560" width="400" height="90" fill="url(#fg)"/><rect y="660" width="400" height="120" fill="url(#fg)" opacity=".8"/><rect y="745" width="400" height="55" fill="#04060d" opacity=".55"/>`;
+    }});
+
+  // ── 開催の設定（日付で、自動で切り替わります。リブートが 11/30 までなので、12/1 から）──
+  addLimitedGacha({id:UK, name:'イギリス', title:'期間限定ガチャ', start:'2026-12-01', end:'2026-12-14',
+    existing:['confetti_snow','theme_indigo','bg_snowfield','bg_forest','gi_cat','bg_mountain','title_fate','confetti_gold'],
+    top:['bg_gameovera5','bg_gameovera6'], topText:'最高レア：Game Over V・VI（場の背景）'});
+})();
+
 // ───────── 見本（ふだんは呼ばれません。コピーして上の「ここに追加」に貼り付けて使います） ─────────
 function _samples(){
   addIcon({id:'gi_sample', rarity:'common', emoji:'⭐', title:'見本のアイコン', desc:'アイコン：回る星（動く）',
