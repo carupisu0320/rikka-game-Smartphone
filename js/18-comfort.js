@@ -29,7 +29,7 @@ body.calm-fx #gacha-fx.shake{animation:none!important}
 body.calm-fx #gacha-fx.st-burst .gfx-flash,body.calm-fx #gacha-fx.st-burst[data-rarity=superrare] .gfx-flash{animation:comfortSoft 1s ease-out!important}
 body.calm-fx .gfx-orb.tell{animation:gfxOrbCharge var(--charge-ms) cubic-bezier(.5,0,.9,.6) forwards!important}
 body.calm-fx #giftbox-lobby-btn.giftbox-blink{animation:none!important;box-shadow:0 0 12px 3px rgba(255,208,112,.7)}
-body.calm-fx .ltd-bg-bg_gameovera3,body.calm-fx .ltd-bg-bg_gameovera4{animation:ltdPan 7s ease-in-out infinite!important}
+body.calm-fx [class*="ltd-bg-bg_gameovera"]{animation:ltdPan 7s ease-in-out infinite!important}
 body.calm-fx .jo-main,body.calm-fx .jo-go,body.calm-fx .jo-title,body.calm-fx .gfx-gogo span{animation:none!important}
 body.calm-fx .kk-star-pulse,body.calm-fx [class*="kp-streak"]{animation:none!important}
 /* 軽量モード */
