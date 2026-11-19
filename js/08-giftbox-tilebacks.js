@@ -2,7 +2,7 @@
 // お届けBOX
 // ============================================================
 const GIFTBOX_ITEMS=[
-  {id:'info_limited_gacha_uk2026', info:true, title:'🇬🇧 期間限定ガチャ「イギリス」開催！', desc:'テーマは、イギリスです。霧のロンドンから、紅茶の時間まで。\n開催期間：12/1 〜 12/14\nガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n\n【景品】\n最高レア：Game Over V・VI（場の背景）\n場の背景：霧のロンドン・ビッグ・ベンの夜\n牌の裏：タータンの裏地・ユニオンの裏地\nアイコン：湯気のティーカップ・二階建てバス\n称号：霧の街の紳士\n紙吹雪：ユニオンの紙吹雪\nほかに、恒常の景品（雪の結晶の紙吹雪・藍の裏地・雪原の夜・朝霧の森・まばたき猫・山稜の朝焼け・運命の引き手・黄金の紙吹雪）も出ます。\n\n超レアが出ないまま50回引くと、50回目で超レアが確定します。すでにお持ちの景品が出たときは、花びらが戻って、かけらがもらえます。\n🎁 ここで手に入れた景品は、開催が終わってもずっと使えます。'},
+  {id:'info_limited_gacha_uk2026', info:true, from:'2026-12-01', title:'🇬🇧 期間限定ガチャ「イギリス」開催！', desc:'テーマは、イギリスです。霧のロンドンから、紅茶の時間まで。\n開催期間：12/1 〜 12/14\nガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n\n【景品】\n最高レア：Game Over V・VI（場の背景）\n場の背景：霧のロンドン・ビッグ・ベンの夜\n牌の裏：タータンの裏地・ユニオンの裏地\nアイコン：湯気のティーカップ・二階建てバス\n称号：霧の街の紳士\n紙吹雪：ユニオンの紙吹雪\nほかに、恒常の景品（雪の結晶の紙吹雪・藍の裏地・雪原の夜・朝霧の森・まばたき猫・山稜の朝焼け・運命の引き手・黄金の紙吹雪）も出ます。\n\n超レアが出ないまま50回引くと、50回目で超レアが確定します。すでにお持ちの景品が出たときは、花びらが戻って、かけらがもらえます。\n🎁 ここで手に入れた景品は、開催が終わってもずっと使えます。'},
   {id:'info_gameover_gift_end', info:true, title:'🎁 Game Over Ⅲ・Ⅳと称号のプレゼントについて', desc:'これまで、場の背景「Game Over Ⅲ・Ⅳ」と称号「国富平針店のバイト」を全員にお配りしていましたが、配付を終了しました。\n\n・すでに受け取った方は、そのままお持ちです（消えることはありません）\n・まだお持ちでない方は、期間限定ガチャ「ハロウィン リブート」（〜11/30）で入手できます。Game Over Ⅲ・Ⅳは最高レア、称号はレアです。このガチャは、超レアが出ないまま50回引くと、50回目で超レアが確定します\n・すでにお持ちの景品が出たときは、花びらが戻って、かけらがもらえます'},
   {id:'info_limited_gacha_halloween_reboot', info:true, title:'🎃 ハロウィンガチャ リブート開催！', desc:'10/19〜11/2に開催した「期間限定ガチャ」が、復刻して帰ってきました！\n開催期間：11/17 〜 11/30\nガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n\n【景品】\n牌の裏：警告・ノイズ・ネオングリッド・深紅\n場の背景：灯籠の夜・赤い月の森\nアイコン：ゲームコイン・ゆれる灯籠・赤い月・ゲームオーバー\n称号：国富平針店のバイト\n最高レア：Game Over Ⅲ・Ⅳ（場の背景）\nほかに、恒常の氷・炎・黒曜・銀河の裏地と、オーロラ・星雲の背景も出ます。\n\n【配付の終了について】\nGame Over Ⅲ・Ⅳと称号「国富平針店のバイト」は、これまで全員にお配りしていましたが、配付は終了しました（詳しくは、別のお知らせをご覧ください）。すでに受け取った方は、引いたときは重複になり、花びらが戻って、かけらがもらえます。\n\n🎁 ここで手に入れた景品は、開催が終わってもずっと使えます。'},
   {id:'info_gacha_plus', info:true, title:'📊 ガチャが充実しました', desc:'ガチャ画面の「📊 情報」から、次の4つを見られます。\n\n【提供割合】超レア3%・レア12%・アンコモン25%・コモン60%。ガチャごとの景品数と、1個あたりの割合も出ます\n【天井】超レアが出ないまま50回引くと、50回目で超レアが確定します（出ると0に戻ります。ガチャごとに数えます）\n【履歴】引いた景品を、新しい300回ぶん見られます\n【交換所】すでに持っている景品が出ると「かけら」がもらえます（コモン1・アンコモン3・レア10・超レア30）。かけらで、恒常ガチャのまだ持っていない景品と交換できます（コモン10・アンコモン30・レア100・超レア300）\n\n※天井の数え・かけら・履歴は、Googleでログインしていれば、別の端末にも引き継がれます'},
@@ -22,6 +22,11 @@ const GIFTBOX_ITEMS=[
   {id:'info_limited_gacha1', info:true, title:'✨ 期間限定ガチャ開催！', desc:'ガチャ画面を横にスワイプすると「期間限定ガチャ」が出ます。\n開催期間：10/19 〜 11/2\n最高レアは場の背景「Game Over Ⅲ・Ⅳ」。ほかに新しい牌の裏・場の背景・動くアイコン、称号「国富平針店のバイト」が出ます。'},
   {id:'info_update_login_draw', info:true, title:'🛠 アップデート内容', desc:'・毎日ログインボーナスを追加（花びら50枚／7日ごとに称号「日々の花」、次の7日ごとに★が増えます）\n・全員リーチで誰も上がれなくなった場合、引き分けになって次のラウンドへ進むようにしました（CPU戦・オンライン対戦とも）'},
 ];
+// 表示してよいお届けだけを返す。from:'YYYY-MM-DD' を書くと、その日から表示されます（省略するとすぐ）。日付は、期間限定ガチャと同じ端末の日付です
+function giftboxItems(){
+  const t=(typeof _loginToday==='function')?_loginToday():'';
+  return GIFTBOX_ITEMS.filter(g=>!g.from||!t||t>=g.from);
+}
 function loadGiftboxClaimed(){
   try{ return JSON.parse(localStorage.getItem('rikka_giftbox_claimed')||'[]'); }catch(e){ return []; }
 }
@@ -32,11 +37,11 @@ function isGiftEligible(gift){
 }
 function hasUnclaimedGift(){
   const claimed=new Set(loadGiftboxClaimed());
-  return GIFTBOX_ITEMS.some(g=>!g.info&&isGiftEligible(g)&&!claimed.has(g.id));
+  return giftboxItems().some(g=>!g.info&&isGiftEligible(g)&&!claimed.has(g.id));
 }
 // 最後に開いたあとに追加・更新されたお届けがあるか
 function loadGiftboxSeen(){try{return JSON.parse(localStorage.getItem('rikka_giftbox_seen')||'[]');}catch(e){return [];}}
-function hasUnseenGift(){const seen=new Set(loadGiftboxSeen());return GIFTBOX_ITEMS.some(g=>!seen.has(g.id));}
+function hasUnseenGift(){const seen=new Set(loadGiftboxSeen());return giftboxItems().some(g=>!seen.has(g.id));}
 function updateGiftboxDot(){
   const el=document.getElementById('giftbox-dot-wrap');
   if(!el)return;
@@ -48,7 +53,7 @@ window.addEventListener('load',()=>updateGiftboxDot());
 // 一括受け取り：受け取れるものをまとめて受け取る
 function claimAllGifts(){
   const claimed=loadGiftboxClaimed();let total=0;
-  GIFTBOX_ITEMS.forEach(g=>{
+  giftboxItems().forEach(g=>{
     if(g.info||claimed.includes(g.id)||!isGiftEligible(g))return;
     claimed.push(g.id);total+=g.petals||0;
   });
@@ -64,7 +69,7 @@ function claimAllGifts(){
 function claimGift(id){
   const claimed=loadGiftboxClaimed();
   if(claimed.includes(id))return;
-  const gift=GIFTBOX_ITEMS.find(g=>g.id===id);
+  const gift=giftboxItems().find(g=>g.id===id);
   if(!gift||gift.info||!isGiftEligible(gift))return;
   claimed.push(id);
   saveGiftboxClaimed(claimed);
@@ -79,13 +84,13 @@ function renderGiftbox(){
   const el=document.getElementById('giftbox-list');
   if(!el)return;
   const claimed=new Set(loadGiftboxClaimed());
-  if(!GIFTBOX_ITEMS.length){
+  if(!giftboxItems().length){
     el.innerHTML='<div class="giftbox-empty">現在お届け中のアイテムはありません</div>';
     return;
   }
-  const pending=GIFTBOX_ITEMS.filter(g=>!g.info&&isGiftEligible(g)&&!claimed.has(g.id));
+  const pending=giftboxItems().filter(g=>!g.info&&isGiftEligible(g)&&!claimed.has(g.id));
   const allBtn=pending.length>1?`<button class="giftbox-claim-btn" style="margin-bottom:.8rem" onclick="claimAllGifts()">🌸 一括受け取り（花びら${pending.reduce((s,g)=>s+(g.petals||0),0)}枚）</button>`:'';
-  el.innerHTML=allBtn+GIFTBOX_ITEMS.map(g=>{
+  el.innerHTML=allBtn+giftboxItems().map(g=>{
     const isClaimed=claimed.has(g.id);
     const eligible=isGiftEligible(g);
     let btnHtml;
@@ -101,7 +106,7 @@ function renderGiftbox(){
   }).join('');
 }
 function openGiftbox(){
-  try{localStorage.setItem('rikka_giftbox_seen',JSON.stringify(GIFTBOX_ITEMS.map(g=>g.id)));}catch(e){}
+  try{localStorage.setItem('rikka_giftbox_seen',JSON.stringify(giftboxItems().map(g=>g.id)));}catch(e){}
   updateGiftboxDot();
   renderGiftbox();
   showScreen('giftbox');
