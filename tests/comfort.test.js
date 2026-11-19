@@ -79,7 +79,7 @@ test('index.html：スクリプトとボタンがある', () => {
 
 test('光を抑えるCSSが、強い光・ゆれ・点滅の部品をすべて対象にしている', () => {
   const css = read('js/18-comfort.js');
-  for (const sel of ['.cf-flash', '.cf-rays', '#call-fx.shake', '#gacha-fx.shake', '.gfx-flash', '.gfx-orb.tell', 'giftbox-blink', 'ltd-bg-bg_gameovera3'])
+  for (const sel of ['.cf-flash', '.cf-rays', '#call-fx.shake', '#gacha-fx.shake', '.gfx-flash', '.gfx-orb.tell', 'giftbox-blink', 'ltd-bg-bg_gameovera'])
     assert.ok(css.includes(sel), sel + ' が対象に入っていません');
   const style = read('css/style.css');
   for (const sel of ['cf-flash', 'cfShake', 'gfxFlash', 'gfxPulse', 'giftBlink', 'ltdFlick'])
