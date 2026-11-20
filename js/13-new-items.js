@@ -253,10 +253,10 @@ addFx({kind:'win', id:'molt3', name:'三段の脱皮', emoji:'🥚', c1:'#ffd060
   // ── 新しい景品（イギリス）──
   addConfetti({id:'confetti_union', rarity:'common', emoji:'🇬🇧', title:'ユニオンの紙吹雪', desc:'上がったときの紙吹雪が、赤・白・青になります（期間限定）', colors:['#c8102e','#f5f5f5','#1c3f94','#ffffff','#d94052'], flags:L});
 
-  addTheme({value:'tartan', rarity:'common', emoji:'🧣', title:'タータンの裏地', desc:'牌の裏柄：タータンチェック（期間限定）', swatch:['#5a0e16','#c8323c'], flags:L,
+  addTheme({value:'tartan', rarity:'common', emoji:'🧣', title:'タータンの裏地', desc:'牌の裏柄：つやが流れるタータンチェック（動く・期間限定）', swatch:['#5a0e16','#c8323c'], flags:L,
     css:'body.back-tartan .fback{background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 1px,transparent 1px 7px),repeating-linear-gradient(0deg,rgba(255,255,255,.22) 0 1px,transparent 1px 7px),repeating-linear-gradient(90deg,rgba(14,34,110,.62) 0 6px,transparent 6px 16px),repeating-linear-gradient(0deg,rgba(14,34,110,.62) 0 6px,transparent 6px 16px),#9a1822;border-color:#e2c26a}'});
 
-  addTheme({value:'unionjack', rarity:'uncommon', emoji:'🇬🇧', title:'ユニオンの裏地', desc:'牌の裏柄：赤・白・青の国旗柄（期間限定）', swatch:['#012169','#c8102e'], flags:L,
+  addTheme({value:'unionjack', rarity:'uncommon', emoji:'🇬🇧', title:'ユニオンの裏地', desc:'牌の裏柄：旗のように波打つ赤・白・青（動く・期間限定）', swatch:['#012169','#c8102e'], flags:L,
     css:'body.back-unionjack .fback{background:'+
       'linear-gradient(90deg,transparent 43%,#c8102e 43%,#c8102e 57%,transparent 57%),linear-gradient(0deg,transparent 43%,#c8102e 43%,#c8102e 57%,transparent 57%),'+
       'linear-gradient(90deg,transparent 35%,#fff 35%,#fff 65%,transparent 65%),linear-gradient(0deg,transparent 40%,#fff 40%,#fff 60%,transparent 60%),'+
@@ -290,7 +290,7 @@ addFx({kind:'win', id:'molt3', name:'三段の脱皮', emoji:'🥚', c1:'#ffd060
       '<g class="o" style="animation:spin 1s linear infinite"><circle cx="30" cy="75" r="7" fill="#1a1a22"/><circle cx="30" cy="75" r="3" fill="#9aa3b8"/><rect x="29" y="69" width="2" height="12" fill="#9aa3b8"/></g>'+
       '<g class="o" style="animation:spin 1s linear infinite"><circle cx="70" cy="75" r="7" fill="#1a1a22"/><circle cx="70" cy="75" r="3" fill="#9aa3b8"/><rect x="69" y="69" width="2" height="12" fill="#9aa3b8"/></g>')});
 
-  addScene({name:'londonfog', rarity:'rare', emoji:'🌉', title:'霧のロンドン', desc:'場の背景：霧にかすむ、夕暮れの跳ね橋（期間限定）', focus:60, flags:L,
+  addScene({name:'londonfog', rarity:'rare', emoji:'🌉', title:'霧のロンドン', desc:'場の背景：霧にかすむ夕暮れの跳ね橋（動く・期間限定）', focus:60, flags:L,
     draw:function(){
       const r=_rng(31);
       const tower=cx=>`<g fill="#0d1425"><rect x="${cx-20}" y="452" width="40" height="110"/><polygon points="${cx-25},453 ${cx},406 ${cx+25},453"/><rect x="${cx-25}" y="450" width="50" height="6"/>`+
@@ -316,7 +316,7 @@ addFx({kind:'win', id:'molt3', name:'三段の脱皮', emoji:'🥚', c1:'#ffd060
         `<rect y="740" width="400" height="60" fill="#05070f" opacity=".55"/>`;
     }});
 
-  addScene({name:'bigben', rarity:'rare', emoji:'🕰️', title:'ビッグ・ベンの夜', desc:'場の背景：月夜の時計塔と、テムズ川（期間限定）', focus:42, flags:L,
+  addScene({name:'bigben', rarity:'rare', emoji:'🕰️', title:'ビッグ・ベンの夜', desc:'場の背景：月夜の時計塔と、ときどき上がる花火（動く・期間限定）', focus:42, flags:L,
     draw:function(){
       const r=_rng(77),cx=262;
       const win=(x,y)=>`<rect x="${x}" y="${y}" width="3.4" height="6" rx="1.4" fill="#ffd98a" opacity="${(.55+r()*.4).toFixed(2)}"/>`;
@@ -344,6 +344,90 @@ addFx({kind:'win', id:'molt3', name:'三段の脱皮', emoji:'🥚', c1:'#ffd060
         `<rect x="${cx-24}" y="604" width="48" height="110" fill="#0d1424" opacity=".35"/><rect x="${cx-12}" y="604" width="24" height="120" fill="#ffd98a" opacity=".05"/>`+
         `<rect y="560" width="400" height="90" fill="url(#fg)"/><rect y="660" width="400" height="120" fill="url(#fg)" opacity=".8"/><rect y="745" width="400" height="55" fill="#04060d" opacity=".55"/>`;
     }});
+
+  // ───────── 動き（背景・牌）─────────
+  //  背景は FIELD_ANIMS（400x800 の座標に重ねて描く）、牌の裏柄は TILE_BACK_ANIMS（牌1枚ずつ）と TILE_BACK_GLOBAL（全部の牌をまたいで）を使います
+  //  「動き」の設定をOFF・軽量モードのときは、動きません（静止画のまま）
+  const _calm=()=>{try{return typeof comfortCalm==='function'&&comfortCalm();}catch(e){return false;}}; // 光を抑える設定のときは、花火を出さない
+  const _ukFog=()=>{const cv=document.createElement('canvas');cv.width=256;cv.height=128;const c=cv.getContext('2d');
+    c.translate(128,64);c.scale(1,.5);const g=c.createRadialGradient(0,0,0,0,0,128);g.addColorStop(0,'rgba(222,228,242,.9)');g.addColorStop(.55,'rgba(222,228,242,.35)');g.addColorStop(1,'rgba(222,228,242,0)');c.fillStyle=g;c.fillRect(-128,-128,256,256);return cv;};
+  const _ukFogBands=(ys)=>ys.map((y,i)=>({x:_R(-120,420),y:y+_R(-10,10),w:_R(260,420),v:_R(.05,.15)*(i%2?1:-1),a:_R(.16,.3)}));
+  const _ukFogDraw=(c,fog,F,dt,now)=>{c.globalCompositeOperation='source-over';
+    for(const f of F){f.x+=f.v*dt;if(f.v>0&&f.x>430)f.x=-f.w;if(f.v<0&&f.x<-f.w)f.x=430;c.globalAlpha=f.a*(.8+.2*Math.sin(now*.0004+f.y));c.drawImage(fog,f.x,f.y-f.w*.12,f.w,f.w*.25);}c.globalAlpha=1;};
+  // 川をゆく小さな船（灯りと、航跡）
+  const _ukBoat=(y,dir)=>{let x=dir>0?-60:460,next=0;return (c,dt,now,spr)=>{
+    if(now<next)return;x+=dir*.2*dt;if((dir>0&&x>470)||(dir<0&&x<-70)){x=dir>0?-60:460;next=now+_R(18000,30000);return;}
+    c.globalCompositeOperation='source-over';c.globalAlpha=.9;c.fillStyle='#05070f';c.beginPath();c.moveTo(x-14,y);c.lineTo(x+14,y);c.lineTo(x+10,y+5);c.lineTo(x-10,y+5);c.closePath();c.fill();c.fillRect(x-5,y-6,10,6);
+    c.globalAlpha=.16;c.fillStyle='#b8c4dc';c.fillRect(x-dir*16-(dir>0?30:0),y+4,30,1.2);c.fillRect(x-dir*22-(dir>0?36:0),y+7,36,1);
+    c.globalCompositeOperation='lighter';c.globalAlpha=.75;c.drawImage(spr,x+dir*12-7,y-6-7,14,14);c.globalAlpha=.4;c.drawImage(spr,x-7,y-10-7,14,14);c.globalAlpha=1;};};
+
+  // 霧のロンドン：霧がゆっくり流れ、橋の灯りがまたたき、バスが橋を渡り、川を船がゆく
+  FIELD_ANIMS.londonfog=function(){
+    const fog=_ukFog(),spr=glowSprite('255,214,140'),F=_ukFogBands([455,500,545,600,650,700]),boat=_ukBoat(612,-1);
+    const L=Array.from({length:19},(_,i)=>({x:8+i*22,ph:_R(0,6.28),sp:_R(.002,.005)}));
+    const Wn=[];for(const cx of [120,280])for(const [dx,y] of [[-9,470],[-9,488],[-9,506],[-9,524],[4,470],[4,488],[4,506],[4,524]])Wn.push({x:cx+dx,y,off:0,next:_R(2000,9000)});
+    const bus={x:430,on:false,next:3500};
+    return (c,dt,now,S)=>{
+      c.globalCompositeOperation='lighter';
+      for(const l of L){const k=.5+.5*Math.sin(l.ph+now*l.sp);
+        c.globalAlpha=.22+.22*k;c.drawImage(spr,l.x-12,535,24,24);
+        c.globalAlpha=.1+.1*k;c.fillStyle='#ffd98a';for(let j=0;j<4;j++)c.fillRect(l.x-7+Math.sin(now*.002+l.ph+j)*2.5,574+j*14,14-j*2.5,1.4);}
+      c.globalAlpha=1;
+      // 塔の窓：ときどき、消えて、また灯る
+      c.globalCompositeOperation='source-over';c.fillStyle='#0d1425';
+      for(const w of Wn){if(now>w.next){w.off=w.off?0:1;w.next=now+(w.off?_R(900,2400):_R(4000,12000));}if(w.off)c.fillRect(w.x-.5,w.y-.5,6,10);}
+      // 橋を渡る、赤いバス（塔の中では隠れる）
+      if(!bus.on&&now>bus.next){bus.on=true;bus.x=430;}
+      if(bus.on){bus.x-=.55*dt;if(bus.x<-40){bus.on=false;bus.next=now+_R(14000,24000);}
+        else if(!((bus.x>96&&bus.x<146)||(bus.x>256&&bus.x<306)||((bus.x+22>96)&&(bus.x+22<146))||((bus.x+22>256)&&(bus.x+22<306)))){
+          const x=bus.x;c.fillStyle='#c9222a';c.fillRect(x,541,22,8);c.fillStyle='#8f171d';c.fillRect(x,545,22,1);c.fillStyle='#ffe9a8';for(let k=0;k<4;k++){c.fillRect(x+2+k*5,542,3,2);c.fillRect(x+2+k*5,546,3,2);}
+          c.fillStyle='#1a1a22';c.beginPath();c.arc(x+5,549.5,1.8,0,6.283);c.arc(x+17,549.5,1.8,0,6.283);c.fill();}}
+      boat(c,dt,now,spr);
+      _ukFogDraw(c,fog,F,dt,now);
+    };
+  };
+
+  // ビッグ・ベンの夜：時計が、いまの時刻を指し、星がまたたき、ときどき花火が上がる。霧が流れ、川を船がゆく
+  FIELD_ANIMS.bigben=function(){
+    const fog=_ukFog(),spr=glowSprite('255,214,140'),F=_ukFogBands([520,565,610,660,710]),boat=_ukBoat(640,1),tw=_twinkles(80,420),sh=_shooter();
+    const cx=262,cy=382,FW=[],PAL=[[255,214,120],[255,120,140],[140,190,255],[255,255,255]];let nextFw=3500;
+    return (c,dt,now,S)=>{
+      c.globalCompositeOperation='lighter';tw(c,S,now);sh(c,S,dt,now);
+      // 花火（光を抑える設定のときは、出さない）
+      if(!_calm()){
+        if(now>nextFw){nextFw=now+_R(6000,11000);const col=PAL[(Math.random()*PAL.length)|0],x=_R(50,350),y=_R(110,290);
+          FW.push({x,y,col,age:0,P:Array.from({length:28},(_,i)=>{const a=i/28*6.283+_R(-.1,.1),v=_R(.8,1.9);return{vx:Math.cos(a)*v,vy:Math.sin(a)*v,px:0,py:0};})});}
+        for(let i=FW.length-1;i>=0;i--){const f=FW[i];f.age+=dt;const life=1-f.age/90;if(life<=0){FW.splice(i,1);continue;}
+          c.globalAlpha=.22*Math.max(0,1-f.age/8);if(f.age<8)c.drawImage(spr,f.x-26,f.y-26,52,52);
+          c.fillStyle=`rgb(${f.col[0]},${f.col[1]},${f.col[2]})`;
+          for(const p of f.P){p.px+=p.vx*dt;p.py+=p.vy*dt;p.vy+=.018*dt;p.vx*=.985;c.globalAlpha=Math.max(0,life)*.9;c.fillRect(f.x+p.px-1,f.y+p.py-1,2,2);c.globalAlpha=Math.max(0,life)*.3;c.fillRect(f.x+p.px-p.vx*3-.7,f.y+p.py-p.vy*3-.7,1.4,1.4);}}
+      }
+      c.globalAlpha=1;c.globalCompositeOperation='source-over';
+      // 時計：文字盤を描き直して、いまの時刻を指す（静止画の針は、この下に隠れる）
+      const d=new Date(),m=d.getMinutes()+d.getSeconds()/60,h=(d.getHours()%12)+m/60,pt=(a,r)=>[cx+Math.sin(a)*r,cy-Math.cos(a)*r];
+      c.fillStyle='#ffe8a8';c.beginPath();c.arc(cx,cy,21.9,0,6.283);c.fill();
+      c.strokeStyle='#4a3412';c.lineWidth=1.6;for(let i=0;i<12;i++){const a=i*Math.PI/6,p=pt(a,15.5),q=pt(a,19);c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1]);c.stroke();}
+      c.strokeStyle='#2c200c';c.lineCap='round';
+      let p=pt(h/12*6.283,11);c.lineWidth=2.8;c.beginPath();c.moveTo(cx,cy);c.lineTo(p[0],p[1]);c.stroke();
+      p=pt(m/60*6.283,17);c.lineWidth=1.8;c.beginPath();c.moveTo(cx,cy);c.lineTo(p[0],p[1]);c.stroke();
+      c.globalCompositeOperation='lighter';c.globalAlpha=.1+.06*Math.sin(now*.0016);c.drawImage(spr,cx-50,cy-50,100,100);
+      boat(c,dt,now,spr);
+      _ukFogDraw(c,fog,F,dt,now);
+    };
+  };
+
+  // 牌の裏柄：タータン（布のつやが、ななめに流れ、金糸がきらり）／ユニオン（旗のように、波がわたる）
+  TILE_BACK_ANIMS.tartan=function(c,w,h,t,ph){
+    c.fillStyle='#ffe9a8';[[.22,.26],[.78,.7],[.5,.48]].forEach(([x,y],i)=>{c.globalAlpha=Math.max(0,Math.sin(t*2.3+ph*8+i*2.1))*.9;c.fillRect(w*x-1,h*y-1,2.2,2.2);});c.globalAlpha=1;
+  };
+  TILE_BACK_GLOBAL.tartan=function(c,box,ts,t){const s=_fr(t/4);if(s<.7)_gSweep(c,box,s/.7,'255,226,190',.42,ts*1.2);};
+  TILE_BACK_GLOBAL.unionjack=function(c,box,ts,t){
+    const step=Math.max(2,ts*.09);
+    for(let x=0;x<box.w;x+=step){
+      const a=Math.sin(x/ts*1.35-t*2.2)*.5+Math.sin(x/ts*.6-t*1.3+1.3)*.5;
+      c.fillStyle=a>0?`rgba(255,255,255,${(a*.2).toFixed(3)})`:`rgba(0,0,30,${(-a*.24).toFixed(3)})`;c.fillRect(x,0,step+.6,box.h);
+    }
+  };
 
   // ── 開催の設定（日付で、自動で切り替わります。リブートが 11/30 までなので、12/1 から）──
   addLimitedGacha({id:UK, name:'イギリス', title:'期間限定ガチャ', start:'2026-12-01', end:'2026-12-14',
