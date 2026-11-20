@@ -404,6 +404,7 @@ function tileAnimEnabled(){
 function stopTileBackAnim(){
   if(!_tileAnim)return;_tileAnim.alive=false;cancelAnimationFrame(_tileAnim.raf);_tileAnim.ro&&_tileAnim.ro.disconnect();
   const cv=document.getElementById('tile-fx');if(cv)cv.remove();_tileAnim=null;
+  document.body.classList.remove('tile-anim');
 }
 function refreshTileBackAnim(){
   stopTileBackAnim();
@@ -411,6 +412,7 @@ function refreshTileBackAnim(){
   const draw=TILE_BACK_ANIMS[theme],glob=TILE_BACK_GLOBAL[theme],wrap=document.getElementById('field-wrap');
   if((!draw&&!glob)||!wrap||!tileAnimEnabled())return;
   const cv=document.createElement('canvas');cv.id='tile-fx';wrap.appendChild(cv);
+  document.body.classList.add('tile-anim'); // 動く裏柄：場の背景があっても、牌の模様を消さない（下の CSS を参照）
   const ctx=cv.getContext('2d'),S={dpr:1,W:0,H:0},A={alive:true,raf:0,ro:null},state={};_tileAnim=A;
   const fit=()=>{const r=wrap.getBoundingClientRect();if(r.width<2)return;S.dpr=Math.min(window.devicePixelRatio||1,1.5);S.W=r.width;S.H=r.height;cv.width=Math.round(r.width*S.dpr);cv.height=Math.round(r.height*S.dpr);};
   fit();if(window.ResizeObserver){A.ro=new ResizeObserver(fit);A.ro.observe(wrap);}
@@ -534,8 +536,10 @@ function applySceneBg(uri,id,swapOnly){
   const fo=FIELD_SCENE_FOCUS[key]||50,fy=Array.isArray(fo)?fo[0]:fo,fyL=Array.isArray(fo)?fo[1]:fo;
   styleEl.textContent=`#field-wrap::before{background-image:linear-gradient(rgba(8,5,3,.28),rgba(8,5,3,.28)),url('${uri}')!important;background-size:cover!important;background-position:50% ${fy}%!important}
 @media (orientation:landscape){#field-wrap::before{background-position:50% ${fyL}%!important}}
-#field-wrap .fback{background:rgba(20,14,8,.72)!important}
-#field-wrap .fback::before{opacity:.7}`;
+/* 動く裏柄（body.tile-anim）は、模様を残して、牌ごと少し透かす。動かない裏柄は、半透明の無地に塗り替える */
+body:not(.tile-anim) #field-wrap .fback{background:rgba(20,14,8,.72)!important}
+body:not(.tile-anim) #field-wrap .fback::before{opacity:.7}
+body.tile-anim #field-wrap .fback{opacity:.8}`;
   _sceneApplied=id;
   if(swapOnly)return; // 画像の差し替えだけ（動きは、そのまま続ける）
   if(animOn)startFieldAnim(key,fy,fyL);else stopFieldAnim();
@@ -550,8 +554,10 @@ function applyFieldBg(url){
   // 画像を設定している間は牌の背景を半透明にして、画像がちゃんと透けて見えるようにする。
   styleEl.textContent=safe
     ?`#field-wrap::before{background-image:linear-gradient(rgba(8,5,3,.4),rgba(8,5,3,.4)),url("${safe}")!important;background-size:cover!important;background-position:center!important}
-#field-wrap .fback{background:rgba(20,14,8,.78)!important}
-#field-wrap .fback::before{opacity:.7}`
+/* 動く裏柄（body.tile-anim）は、模様を残して、牌ごと少し透かす。動かない裏柄は、半透明の無地に塗り替える */
+body:not(.tile-anim) #field-wrap .fback{background:rgba(20,14,8,.78)!important}
+body:not(.tile-anim) #field-wrap .fback::before{opacity:.7}
+body.tile-anim #field-wrap .fback{opacity:.8}`
     :'';
 }
 // 現在の手番の人が設定している背景に切り替える（自分ならcustomFieldBgUrl、他人なら同期されたfieldBg）。
