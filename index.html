@@ -12,7 +12,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 /* ★ 更新するときは、ここの数字だけ変えます（css・jsの読み込みすべてに反映されます。ふつうは日付＋a,b,c…） */
-var RIKKA_V='20261117c';
+var RIKKA_V='20261117d';
 /* 並んだ順に、同期で読み込みます（document.write）。?v= は、ここで自動で付きます */
 function rkLoad(files){files.forEach(function(f){var u=f+'?v='+RIKKA_V;document.write(/\.css$/.test(f)?'<link rel="stylesheet" href="'+u+'">':'<script src="'+u+'"><\/script>');});}
 rkLoad(['css/style.css']);
@@ -894,6 +894,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   'js/17-save-guard.js',
   'js/18-comfort.js',
   'js/19-gacha-plus.js',
+  'js/20-limited-fx.js',
 ]);</script>
 
 </body>
