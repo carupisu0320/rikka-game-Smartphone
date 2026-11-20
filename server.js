@@ -407,6 +407,33 @@ function saveMerge(rec, items, ever) {
   if (size > SAVE_MAX_ACCT) throw new Error('too big');
   rec.updated = now;
 }
+// <save-stats>
+// ── セーブデータの人数の集計（数だけを返す。名前・メール・Googleのidなど、個人を特定できるものは、取り出さない）
+// 保存のキーは3種類：g:<Googleのid> … Googleでログインして連携した人（1人に1件）／acct:<id> … セーブデータ（端末の統合で、重複することがある）／code:<フレンドコード> … 端末
+const SaveStats = {
+  tally(keys) {
+    let g = 0, a = 0, d = 0;
+    for (const k of keys) { if (typeof k !== 'string') continue; if (k.startsWith('g:')) g++; else if (k.startsWith('acct:')) a++; else if (k.startsWith('code:')) d++; }
+    return { googleAccounts: g, accounts: a, devices: d };
+  },
+  // Upstash：SCAN で、キーの一覧を、少しずつ取る（保存のとき付けた 'rikka:' の前置きは、外す）
+  async upstashKeys(req, url, token) {
+    const keys = []; let cursor = '0', loops = 0;
+    do {
+      const r = await req(url, 'POST', { Authorization: 'Bearer ' + token }, JSON.stringify(['SCAN', cursor, 'MATCH', 'rikka:*', 'COUNT', '1000']));
+      if (r.status !== 200 || !r.data || !Array.isArray(r.data.result)) throw new Error('upstash ' + r.status);
+      cursor = String(r.data.result[0]); for (const k of (r.data.result[1] || [])) keys.push(String(k).replace(/^rikka:/, ''));
+    } while (cursor !== '0' && ++loops < 5000);
+    return keys;
+  },
+  // Firebase：shallow=true で、キーの名前だけを取る（中身は取らない）
+  async firebaseKeys(req, base, auth) {
+    const r = await req(`${base}/rikka.json?shallow=true${auth ? '&' + String(auth).replace(/^\?/, '') : ''}`, 'GET');
+    if (r.status !== 200) throw new Error('firebase ' + r.status);
+    return r.data && typeof r.data === 'object' ? Object.keys(r.data) : [];
+  }
+};
+// </save-stats>
 const Saves = (() => {
   const UP_URL = process.env.UPSTASH_REDIS_REST_URL || '', UP_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || '';
   const FB = (process.env.FIREBASE_DB_URL || '').replace(/\/+$/, ''), FB_AUTH = process.env.FIREBASE_AUTH ? '?auth=' + encodeURIComponent(process.env.FIREBASE_AUTH) : '';
@@ -481,7 +508,15 @@ const Saves = (() => {
     const m = await withLock('acct:' + mine.id, async () => { const cur = (await get('acct:' + mine.id)) || mine; cur.google = g.sub; await set('acct:' + cur.id, cur); await set('g:' + g.sub, { a: cur.id }); return cur; });
     return Object.assign({ ok: true, linked: false }, view(m));
   }
-  return { mode, ensure, merge, put, view, link, authOk, codeHash: async c => { const r = await get('code:' + c); return r && r.h || null; }, flush: () => { if (mode === 'file' && fileTimer) { clearTimeout(fileTimer); flushFile(); } } };
+  // 人数の集計（数だけ）
+  async function stats() {
+    let keys;
+    if (mode === 'file') { loadFile(); keys = Object.keys(fileDb); }
+    else if (mode === 'upstash') keys = await SaveStats.upstashKeys(req, UP_URL, UP_TOKEN);
+    else keys = await SaveStats.firebaseKeys(req, FB, FB_AUTH);
+    return Object.assign({ mode, persistent: mode !== 'file', takenAt: new Date().toISOString() }, SaveStats.tally(keys));
+  }
+  return { mode, stats, ensure, merge, put, view, link, authOk, codeHash: async c => { const r = await get('code:' + c); return r && r.h || null; }, flush: () => { if (mode === 'file' && fileTimer) { clearTimeout(fileTimer); flushFile(); } } };
 })();
 console.log(`💾 セーブデータの保存先：${Saves.mode === 'file' ? 'ファイル（' + (process.env.SAVE_DIR || './data') + '）' + (process.env.RENDER ? ' ※Renderの無料プランでは、再起動や再デプロイで消えます。UPSTASH か FIREBASE の設定をおすすめします' : '') : Saves.mode}`);
 process.on('SIGTERM', () => { Saves.flush(); process.exit(0); });
@@ -512,7 +547,7 @@ function pushFriendViewsAround(code) { // 本人と、本人をフレンドに�
   presence.forEach((x, xc) => { if (xc !== code && x.friends.has(code)) pushFriendView(xc); });
 }
 const ipSockets = new Map(); // IP → 接続数
-const MIN_GAP = { save_put: 300, save_get: 1500, save_link: 2500, friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, spectate: 1500, bot_spec: 250, bot_spec_note: 400, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
+const MIN_GAP = { save_put: 300, save_get: 1500, save_link: 2500, dev_stats: 3000, friend_register: 1000, friend_sync: 500, friend_status: 500, friend_invite: 2000, friend_message: 1500, spectate: 1500, bot_spec: 250, bot_spec_note: 400, quickmatch: 1500, create_room: 1500, join_room: 800, chat: 700, set_avatar: 500, set_title: 300, set_fx: 300, set_field_bg: 500 };
 io.on('connection', socket => {
   const ip = String(socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || '').split(',')[0].trim();
   const n = (ipSockets.get(ip) || 0) + 1;
@@ -548,7 +583,14 @@ io.on('connection', socket => {
     try { const rec = await Saves.ensure(d.code, d.tok, false); socket.emit('save_data', rec ? Object.assign({ ok: true, exists: true }, Saves.view(rec)) : { ok: Saves.authOk(d.code, d.tok), exists: false, items: {}, ever: [] }); }
     catch (e) { console.log('save_get error', e && e.message); socket.emit('save_data', { ok: false, err: 'error' }); }
   });
-  socket.on('save_link', async d => {
+  // 開発者用：人数の集計（メニューの「開発者モード」から）。フレンドコードと合言葉で、開発者かどうかを確かめる。返すのは数だけ
+socket.on('dev_stats', async d => {
+  try {
+    if (!d || !isDevAuth(d.fc, d.ft)) return socket.emit('dev_stats_result', { ok: false, err: 'forbidden' });
+    socket.emit('dev_stats_result', Object.assign({ ok: true }, await getSaveStats()));
+  } catch (e) { console.log('dev_stats error', e && e.message); socket.emit('dev_stats_result', { ok: false, err: 'error' }); }
+});
+socket.on('save_link', async d => {
     try { socket.emit('save_linked', await Saves.link(d.code, d.tok, d.credential)); }
     catch (e) { console.log('save_link error', e && e.message); socket.emit('save_linked', { ok: false, err: 'error' }); }
   });
@@ -1077,6 +1119,24 @@ app.post('/report', async (req, res) => {
     catch (e) { console.log('webhook failed', e.message); }
   }
   res.json({ ok: true });
+});
+// 人数の集計：GET /stats?key=ADMIN_KEY（数だけ。個人情報は返さない。ADMIN_KEY が未設定のときは、使えない）
+//   googleAccounts … Googleでログインして、セーブデータを連携した人数（同じ人は1人）。これが「これまでの人数」
+//   accounts / devices … セーブデータの数・端末の数（Googleでログインしていない人も含む）
+let statsCache = null;
+async function getSaveStats() {
+  if (!statsCache || Date.now() - statsCache.at > 60000) statsCache = { at: Date.now(), v: await Saves.stats() }; // 1分は、前の結果を使う（保存先の読み取り回数を、増やさないため）
+  const v = Object.assign({}, statsCache.v);
+  if (!v.persistent) v.note = 'ファイル保存です。サーバーの再起動・再デプロイで消えるため、実際の人数より少なく出ることがあります';
+  return v;
+}
+app.get('/stats', async (req, res) => {
+  const k = String(req.query.key || '');
+  const ok = ADMIN_KEY && k.length === ADMIN_KEY.length && require('crypto').timingSafeEqual(Buffer.from(k), Buffer.from(ADMIN_KEY));
+  if (!ok) return res.status(403).send('forbidden');
+  res.set('Cache-Control', 'no-store');
+  try { res.json(await getSaveStats()); }
+  catch (e) { console.log('stats error', e && e.message); res.status(500).json({ ok: false, error: 'count failed' }); }
 });
 app.get('/reports', (req, res) => {
   const k = String(req.query.key || '');
