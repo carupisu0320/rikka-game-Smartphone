@@ -12,7 +12,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 /* ★ 更新するときは、ここの数字だけ変えます（css・jsの読み込みすべてに反映されます。ふつうは日付＋a,b,c…） */
-var RIKKA_V='20261117d';
+var RIKKA_V='20261117e';
 /* 並んだ順に、同期で読み込みます（document.write）。?v= は、ここで自動で付きます */
 function rkLoad(files){files.forEach(function(f){var u=f+'?v='+RIKKA_V;document.write(/\.css$/.test(f)?'<link rel="stylesheet" href="'+u+'">':'<script src="'+u+'"><\/script>');});}
 rkLoad(['css/style.css']);
@@ -755,6 +755,11 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <div class="sb-section-title">― 開発者モード ―</div>
     <div style="font-size:.7rem;color:#6a5830;margin-bottom:.5rem">タイトル画面の背景を切り替えて確認できます（この端末のみ・選んだ状態は保存されます）</div>
     <div id="sb-dev-grid" class="custom-grid" style="margin-bottom:0"></div>
+    <div style="margin-top:.8rem;padding-top:.6rem;border-top:1px solid #2a1e14">
+      <div style="font-size:.82rem;color:#c8b898;margin-bottom:.35rem">👥 ログインした人数（サーバー）</div>
+      <button class="as-btn" id="dev-stats-btn" onclick="devStatsOpen()">人数を見る</button>
+      <div id="dev-stats-out" style="font-size:.78rem;color:#c9a870;line-height:1.7;margin-top:.45rem;white-space:pre-line"></div>
+    </div>
   </div>
   <div class="sb-section">
     <div class="sb-section" id="assist-section">
@@ -895,6 +900,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   'js/18-comfort.js',
   'js/19-gacha-plus.js',
   'js/20-limited-fx.js',
+  'js/21-dev-stats.js',
 ]);</script>
 
 </body>
