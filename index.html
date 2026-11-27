@@ -12,7 +12,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 /* ★ 更新するときは、ここの数字だけ変えます（css・jsの読み込みすべてに反映されます。ふつうは日付＋a,b,c…） */
-var RIKKA_V='20261117e';
+var RIKKA_V='20261117f';
 /* 並んだ順に、同期で読み込みます（document.write）。?v= は、ここで自動で付きます */
 function rkLoad(files){files.forEach(function(f){var u=f+'?v='+RIKKA_V;document.write(/\.css$/.test(f)?'<link rel="stylesheet" href="'+u+'">':'<script src="'+u+'"><\/script>');});}
 rkLoad(['css/style.css']);
@@ -95,7 +95,8 @@ data-text="signin_with" data-shape="rectangular" data-logo_alignment="left" data
 
 </div>
 
-<button onclick="openTutorial()" class="lbtn" style="background:#1a1410;border:1.5px solid #5a4028;color:#c9a84c;margin-bottom:.6rem">📖 チュートリアル（役の解説）</button>
+<button class="tut-battle-btn" onclick="startTutorialBattle()">⚔ はじめての対局（実戦チュートリアル）</button>
+<button onclick="openTutorial()" class="lbtn" style="background:#1a1410;border:1.5px solid #5a4028;color:#c9a84c;margin-bottom:.6rem">📖 役の解説（チュートリアル）</button>
 
 <button id="event-lobby-btn" onclick="openEventPanel()"></button>
 
@@ -402,6 +403,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
     <button onclick="closeTutorial()" class="tut-back">← 戻る</button>
     <div class="tut-title">📖 チュートリアル</div>
   </div>
+  <button class="tut-battle-btn" onclick="startTutorialBattle()">⚔ はじめての対局（実戦チュートリアル）</button>
   <div id="tut-chips" class="tut-chips"></div>
   <div id="tut-content" class="tut-content"></div>
   <div class="tut-nav">
@@ -901,6 +903,7 @@ onclick="createRoom()">🏠 プライベートルームを作る</button>
   'js/19-gacha-plus.js',
   'js/20-limited-fx.js',
   'js/21-dev-stats.js',
+  'js/22-tutorial-battle.js',
 ]);</script>
 
 </body>
